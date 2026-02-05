@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["RenderError"],"fn":["create_box_mesh"],"struct":["ArchetypeVisual","Camera","HeadlessContext","Mesh","RenderContext","RenderPipeline","SceneRenderer","Vertex"]};
