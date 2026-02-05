@@ -37,10 +37,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-7ea73f8d.js";
+            window.path_to_searchindex_js = "searchindex-ca2e5392.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-a2d2185c.js"></script>
+        <script src="toc-069aa04f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -202,11 +202,14 @@ flint query "entities where archetype == 'door'" --scene levels/tavern.scene.tom
 # Validate against constraints
 flint validate levels/tavern.scene.toml --fix --dry-run
 
-# See it in 3D
+# See it in 3D with PBR rendering
 flint serve levels/tavern.scene.toml --watch
+
+# Walk around in first person
+flint play levels/tavern.scene.toml
 </code></pre>
 <h2 id="current-status"><a class="header" href="#current-status">Current Status</a></h2>
-<p>Flint is in active development. Phase 1 (Foundation) and Phase 3 (Rendering) are implemented, with Phase 2 (Constraints and Assets) complete. The engine currently supports:</p>
+<p>Flint is in active development through Phase 4. Phases 1–3 are complete, and Phase 4 Stage 1 (Game Loop + Physics) is implemented. The engine currently supports:</p>
 <ul>
 <li><strong>Entity CRUD</strong> via CLI with archetype-based creation</li>
 <li><strong>Scene serialization</strong> in human-readable TOML</li>
@@ -214,9 +217,13 @@ flint serve levels/tavern.scene.toml --watch
 <li><strong>Schema system</strong> for component and archetype definitions</li>
 <li><strong>Constraint validation</strong> with auto-fix capabilities</li>
 <li><strong>Asset management</strong> with content-addressed storage and glTF import</li>
-<li><strong>wgpu renderer</strong> with archetype-based coloring and orbit camera</li>
+<li><strong>PBR renderer</strong> with Cook-Torrance shading, cascaded shadow mapping, and glTF mesh rendering</li>
+<li><strong>egui inspector</strong> with entity tree, component editing, and constraint overlay</li>
 <li><strong>Hot-reload viewer</strong> that watches for file changes</li>
 <li><strong>Headless rendering</strong> for CI and automated screenshots</li>
+<li><strong>Physics simulation</strong> via Rapier 3D with kinematic character controller</li>
+<li><strong>First-person gameplay</strong> with WASD movement, mouse look, jumping, and sprinting</li>
+<li><strong>Game loop</strong> with fixed-timestep accumulator for deterministic physics</li>
 </ul>
 <p>See the <a href="#roadmap">Roadmap</a> for what’s planned next.</p>
 <h2 id="who-is-this-for"><a class="header" href="#who-is-this-for">Who Is This For?</a></h2>
@@ -701,35 +708,54 @@ flint query "entities where door.locked == true" --scene levels/tavern.scene.tom
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="the-scene-viewer"><a class="header" href="#the-scene-viewer">The Scene Viewer</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>The Flint viewer is a real-time 3D window for validating scenes. This page will cover:</p>
-<ul>
-<li>Launching the viewer with <code>flint serve --watch</code></li>
-<li>Camera controls (orbit, pan, zoom)</li>
-<li>How hot-reload works (file watching and re-parsing)</li>
-<li>Archetype-based coloring (rooms=blue, doors=orange, furniture=green, characters=yellow)</li>
-<li>Headless rendering with <code>flint render</code></li>
-</ul>
-<p>Quick start:</p>
+<p>The Flint viewer is a real-time 3D window for validating scenes. It renders your scene with full PBR shading and shadows, and provides an egui inspector panel for browsing entities and editing component properties.</p>
+<h2 id="launching-the-viewer"><a class="header" href="#launching-the-viewer">Launching the Viewer</a></h2>
 <pre><code class="language-bash">flint serve levels/tavern.scene.toml --watch --schemas schemas
 </code></pre>
+<p>The <code>--watch</code> flag enables hot-reload: edit the scene TOML file, and the viewer re-parses and re-renders automatically. The entire file is re-parsed on each change (not incremental), which keeps the implementation simple and avoids synchronization issues.</p>
+<h2 id="camera-controls"><a class="header" href="#camera-controls">Camera Controls</a></h2>
+<p>The viewer uses an orbit camera that rotates around a focus point:</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Input</th><th>Action</th></tr>
 </thead>
 <tbody>
-<tr><td>Left-drag</td><td>Orbit</td></tr>
-<tr><td>Right-drag</td><td>Pan</td></tr>
-<tr><td>Scroll</td><td>Zoom</td></tr>
+<tr><td>Left-drag</td><td>Orbit around focus</td></tr>
+<tr><td>Right-drag</td><td>Pan the view</td></tr>
+<tr><td>Scroll</td><td>Zoom in/out</td></tr>
 <tr><td>Space</td><td>Reset camera</td></tr>
 <tr><td>R</td><td>Force reload</td></tr>
 <tr><td>Escape</td><td>Quit</td></tr>
 </tbody>
 </table>
 </div>
+<h2 id="the-inspector-panel"><a class="header" href="#the-inspector-panel">The Inspector Panel</a></h2>
+<p>The egui-based inspector panel (on the left side of the viewer) provides:</p>
+<ul>
+<li><strong>Entity tree</strong> — hierarchical list of all entities in the scene, reflecting parent-child relationships</li>
+<li><strong>Component editor</strong> — select an entity to view and edit its component values</li>
+<li><strong>Constraint overlay</strong> — validation results from <code>flint-constraint</code>, highlighting any rule violations</li>
+</ul>
+<h2 id="rendering-features"><a class="header" href="#rendering-features">Rendering Features</a></h2>
+<p>The viewer renders scenes with the same PBR pipeline used by the player:</p>
+<ul>
+<li>Cook-Torrance physically-based shading</li>
+<li>Cascaded shadow mapping from directional lights</li>
+<li>glTF mesh rendering with material support</li>
+<li>Debug rendering modes (cycle with <strong>F1</strong>)</li>
+<li>Shadow toggle (<strong>F4</strong>)</li>
+<li>Fullscreen toggle (<strong>F11</strong>)</li>
+</ul>
+<h2 id="playing-a-scene"><a class="header" href="#playing-a-scene">Playing a Scene</a></h2>
+<p>To experience a scene in first-person with physics, use <code>play</code> instead of <code>serve</code>:</p>
+<pre><code class="language-bash">flint play levels/tavern.scene.toml
+</code></pre>
+<p>See the <a href="#cli-reference">CLI Reference</a> for full <code>play</code> command details and controls.</p>
+<h2 id="headless-rendering"><a class="header" href="#headless-rendering">Headless Rendering</a></h2>
+<p>For CI pipelines and automated screenshots, render to PNG without opening a window:</p>
+<pre><code class="language-bash">flint render levels/tavern.scene.toml --output preview.png --width 1920 --height 1080
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="entities-and-ecs"><a class="header" href="#entities-and-ecs">Entities and ECS</a></h1>
 <p>Flint uses an Entity-Component-System (ECS) architecture, built on top of the <a href="https://crates.io/crates/hecs">hecs</a> crate. This page explains how entities, components, and IDs work in Flint.</p>
@@ -876,7 +902,7 @@ required_key = { type = "entity_ref", optional = true }
 <li><code>values</code> — valid options for enum types</li>
 </ul>
 <h2 id="built-in-components"><a class="header" href="#built-in-components">Built-in Components</a></h2>
-<p>Flint ships with three built-in component schemas:</p>
+<p>Flint ships with seven built-in component schemas:</p>
 <h3 id="transform"><a class="header" href="#transform">Transform</a></h3>
 <pre><code class="language-toml"># schemas/components/transform.toml
 [component.transform]
@@ -906,6 +932,50 @@ style = { type = "enum", values = ["hinged", "sliding", "rotating"], default = "
 locked = { type = "bool", default = false }
 open_angle = { type = "f32", default = 90.0, min = 0.0, max = 180.0 }
 </code></pre>
+<h3 id="material"><a class="header" href="#material">Material</a></h3>
+<pre><code class="language-toml"># schemas/components/material.toml
+[component.material]
+description = "PBR material properties"
+
+[component.material.fields]
+texture = { type = "string", default = "", optional = true }
+roughness = { type = "f32", default = 0.5, min = 0.0, max = 1.0 }
+metallic = { type = "f32", default = 0.0, min = 0.0, max = 1.0 }
+color = { type = "vec3", default = [1.0, 1.0, 1.0] }
+emissive = { type = "vec3", default = [0.0, 0.0, 0.0] }
+</code></pre>
+<h3 id="rigidbody"><a class="header" href="#rigidbody">Rigidbody</a></h3>
+<pre><code class="language-toml"># schemas/components/rigidbody.toml
+[component.rigidbody]
+description = "Physics rigid body"
+
+[component.rigidbody.fields]
+body_type = { type = "enum", values = ["static", "dynamic", "kinematic"], default = "static" }
+mass = { type = "f32", default = 1.0, min = 0.0 }
+gravity_scale = { type = "f32", default = 1.0 }
+</code></pre>
+<h3 id="collider"><a class="header" href="#collider">Collider</a></h3>
+<pre><code class="language-toml"># schemas/components/collider.toml
+[component.collider]
+description = "Physics collision shape"
+
+[component.collider.fields]
+shape = { type = "enum", values = ["box", "sphere", "capsule"], default = "box" }
+size = { type = "vec3", default = [1.0, 1.0, 1.0] }
+friction = { type = "f32", default = 0.5, min = 0.0, max = 1.0 }
+</code></pre>
+<h3 id="character-controller"><a class="header" href="#character-controller">Character Controller</a></h3>
+<pre><code class="language-toml"># schemas/components/character_controller.toml
+[component.character_controller]
+description = "First-person character controller"
+
+[component.character_controller.fields]
+move_speed = { type = "f32", default = 5.0, min = 0.0 }
+jump_force = { type = "f32", default = 7.0, min = 0.0 }
+height = { type = "f32", default = 1.8, min = 0.1 }
+radius = { type = "f32", default = 0.4, min = 0.1 }
+camera_mode = { type = "enum", values = ["first_person", "orbit"], default = "first_person" }
+</code></pre>
 <h2 id="archetype-schemas"><a class="header" href="#archetype-schemas">Archetype Schemas</a></h2>
 <p>Archetypes bundle components together with defaults. They live in <code>schemas/archetypes/</code>:</p>
 <pre><code class="language-toml"># schemas/archetypes/room.toml
@@ -929,6 +999,11 @@ max = [10, 4, 10]
 <tr><td><code>door</code></td><td>transform, door</td><td>A door entity</td></tr>
 <tr><td><code>furniture</code></td><td>transform, bounds</td><td>A piece of furniture</td></tr>
 <tr><td><code>character</code></td><td>transform</td><td>A character or NPC</td></tr>
+<tr><td><code>wall</code></td><td>transform, bounds, material</td><td>A wall surface</td></tr>
+<tr><td><code>floor</code></td><td>transform, bounds, material</td><td>A floor surface</td></tr>
+<tr><td><code>ceiling</code></td><td>transform, bounds, material</td><td>A ceiling surface</td></tr>
+<tr><td><code>pillar</code></td><td>transform, bounds, material</td><td>A structural pillar</td></tr>
+<tr><td><code>player</code></td><td>transform, character_controller, rigidbody, collider</td><td>Player-controlled entity</td></tr>
 </tbody>
 </table>
 </div>
@@ -1181,48 +1256,210 @@ flint validate levels/tavern.scene.toml --fix --dry-run
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="assets"><a class="header" href="#assets">Assets</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Flint uses a content-addressed asset system with SHA-256 hashing. This page will cover:</p>
+<p>Flint uses a content-addressed asset system with SHA-256 hashing. Every imported file is identified by its content hash, which means identical files are automatically deduplicated and any change to a file produces a new, distinct hash.</p>
+<h2 id="content-addressing"><a class="header" href="#content-addressing">Content Addressing</a></h2>
+<p>When you import a file, Flint computes its SHA-256 hash and stores it under a content-addressed path:</p>
+<pre><code>.flint/assets/&lt;first-2-hex&gt;/&lt;full-hash&gt;.&lt;ext&gt;
+</code></pre>
+<p>This means:</p>
 <ul>
-<li>Content addressing: how files are identified by hash</li>
-<li>Storage layout: <code>.flint/assets/&lt;prefix&gt;/&lt;hash&gt;.&lt;ext&gt;</code></li>
-<li>Asset sidecar files (<code>.asset.toml</code>) for metadata</li>
-<li>Importing assets: <code>flint asset import</code></li>
-<li>Browsing the catalog: <code>flint asset list</code>, <code>flint asset info</code></li>
-<li>Resolution strategies: <code>strict</code>, <code>placeholder</code></li>
-<li>glTF/GLB import with mesh, material, and texture extraction</li>
-<li>Deduplication and change detection</li>
+<li><strong>Deduplication</strong> — importing the same file twice stores it only once</li>
+<li><strong>Change detection</strong> — if a source file changes, its hash changes, and the new version is stored separately</li>
+<li><strong>Integrity</strong> — the hash verifies the file hasn’t been corrupted</li>
 </ul>
-<p>See the <a href="#importing-assets">Importing Assets</a> guide for practical examples.</p>
-<p>Quick start:</p>
-<pre><code class="language-bash">flint asset import models/chair.glb --name tavern_chair --tags furniture,medieval
+<h2 id="asset-catalog"><a class="header" href="#asset-catalog">Asset Catalog</a></h2>
+<p>The asset catalog is a searchable index of all imported assets. Each entry tracks:</p>
+<ul>
+<li><strong>Name</strong> — a human-friendly identifier (e.g., <code>tavern_chair</code>)</li>
+<li><strong>Hash</strong> — the SHA-256 content hash</li>
+<li><strong>Type</strong> — asset type (<code>mesh</code>, <code>texture</code>, <code>material</code>, etc.)</li>
+<li><strong>Tags</strong> — arbitrary labels for organization and filtering</li>
+<li><strong>Source path</strong> — where the file was originally imported from</li>
+</ul>
+<h2 id="importing-assets"><a class="header" href="#importing-assets">Importing Assets</a></h2>
+<p>Use the CLI to import files into the asset store:</p>
+<pre><code class="language-bash"># Import a glTF model with name and tags
+flint asset import models/chair.glb --name tavern_chair --tags furniture,medieval
+
+# Browse the catalog
 flint asset list --type mesh
+
+# Check asset references in a scene
 flint asset resolve levels/tavern.scene.toml --strategy strict
 </code></pre>
+<h2 id="gltfglb-import"><a class="header" href="#gltfglb-import">glTF/GLB Import</a></h2>
+<p>The <code>flint-import</code> crate provides full glTF/GLB support, extracting:</p>
+<ul>
+<li><strong>Meshes</strong> — vertex positions, normals, texture coordinates, and indices</li>
+<li><strong>Materials</strong> — PBR properties (base color, roughness, metallic, emissive)</li>
+<li><strong>Textures</strong> — embedded or referenced image files</li>
+</ul>
+<p>Imported meshes are rendered by <code>flint-render</code> with full PBR shading.</p>
+<h2 id="resolution-strategies"><a class="header" href="#resolution-strategies">Resolution Strategies</a></h2>
+<p>When a scene references assets, Flint can resolve them using different strategies:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Strategy</th><th>Behavior</th></tr>
+</thead>
+<tbody>
+<tr><td><code>strict</code></td><td>All referenced assets must exist in the catalog. Missing assets are errors.</td></tr>
+<tr><td><code>placeholder</code></td><td>Missing assets are replaced with placeholder geometry. Useful during development.</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="asset-sidecar-files"><a class="header" href="#asset-sidecar-files">Asset Sidecar Files</a></h2>
+<p>Each asset in the catalog has a <code>.asset.toml</code> sidecar file storing metadata:</p>
+<pre><code class="language-toml">[asset]
+name = "tavern_chair"
+type = "mesh"
+hash = "sha256:a1b2c3..."
+source_path = "models/chair.glb"
+tags = ["furniture", "medieval"]
+</code></pre>
+<h2 id="further-reading-3"><a class="header" href="#further-reading-3">Further Reading</a></h2>
+<ul>
+<li><a href="#importing-assets-1">Importing Assets</a> — step-by-step import guide</li>
+<li><a href="#schemas">Schemas</a> — the <code>material</code> component schema for PBR properties</li>
+<li><a href="#file-formats">File Formats</a> — asset sidecar TOML format reference</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="rendering"><a class="header" href="#rendering">Rendering</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Flint uses wgpu for cross-platform GPU rendering. This page will cover:</p>
+<p>Flint uses wgpu 23 for cross-platform GPU rendering, providing physically-based rendering (PBR) with a Cook-Torrance BRDF, cascaded shadow mapping, and full glTF mesh support.</p>
+<h2 id="pbr-shading"><a class="header" href="#pbr-shading">PBR Shading</a></h2>
+<p>The renderer implements a metallic-roughness PBR workflow based on the Cook-Torrance specular BRDF:</p>
 <ul>
-<li>wgpu backend selection (Vulkan, Metal, DX12)</li>
-<li>Current renderer: archetype-based colored boxes with wireframes</li>
-<li>Viewer mode vs headless mode</li>
-<li>The <code>ApplicationHandler</code> pattern (winit 0.30)</li>
-<li>Camera system: orbit, pan, zoom</li>
-<li>Ground grid rendering</li>
-<li>Planned: PBR materials, shadow mapping, post-processing, glTF mesh rendering</li>
+<li><strong>Base color</strong> — the surface albedo, optionally sampled from a texture</li>
+<li><strong>Roughness</strong> — controls specular highlight spread (0.0 = mirror, 1.0 = diffuse)</li>
+<li><strong>Metallic</strong> — interpolates between dielectric and metallic response</li>
+<li><strong>Emissive</strong> — self-illumination for light sources and glowing objects</li>
 </ul>
-<p>Headless rendering for CI:</p>
+<p>Materials are defined in scene TOML via the <code>material</code> component, matching the fields in <code>schemas/components/material.toml</code>.</p>
+<h2 id="shadow-mapping"><a class="header" href="#shadow-mapping">Shadow Mapping</a></h2>
+<p>Directional lights cast shadows via cascaded shadow maps. Multiple shadow cascades cover different distance ranges from the camera, giving high-resolution shadows close up and broader coverage at distance.</p>
+<p>Toggle shadows at runtime with <strong>F4</strong>.</p>
+<h2 id="camera-modes"><a class="header" href="#camera-modes">Camera Modes</a></h2>
+<p>The renderer supports two camera modes that share the same view/projection math:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Usage</th><th>Controls</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Orbit</strong></td><td>Scene viewer (<code>serve</code>)</td><td>Left-drag to orbit, right-drag to pan, scroll to zoom</td></tr>
+<tr><td><strong>First-person</strong></td><td>Player (<code>play</code>)</td><td>WASD to move, mouse to look, Space to jump, Shift to sprint</td></tr>
+</tbody>
+</table>
+</div>
+<p>The camera mode is determined by the entry point: <code>serve</code> uses orbit, <code>play</code> uses first-person. Both produce the same view and projection matrices.</p>
+<h2 id="gltf-mesh-rendering"><a class="header" href="#gltf-mesh-rendering">glTF Mesh Rendering</a></h2>
+<p>Imported glTF models are rendered with their full mesh geometry and materials. The <code>flint-import</code> crate extracts meshes, materials, and textures from <code>.glb</code>/<code>.gltf</code> files, which the renderer draws with PBR shading.</p>
+<h2 id="viewer-vs-headless"><a class="header" href="#viewer-vs-headless">Viewer vs Headless</a></h2>
+<p>The renderer operates in two modes:</p>
+<p><strong>Viewer mode</strong> (<code>flint serve --watch</code>) opens an interactive window with:</p>
+<ul>
+<li>Real-time PBR rendering</li>
+<li>egui inspector panel (entity tree, component editor, constraint overlay)</li>
+<li>Hot-reload: edit the scene TOML and the viewer updates automatically</li>
+<li>Debug rendering modes (cycle with <strong>F1</strong>)</li>
+</ul>
+<p><strong>Headless mode</strong> (<code>flint render</code>) renders to a PNG file without opening a window — useful for CI pipelines and automated screenshots:</p>
 <pre><code class="language-bash">flint render levels/tavern.scene.toml --output preview.png --width 1920 --height 1080
 </code></pre>
+<h2 id="technology"><a class="header" href="#technology">Technology</a></h2>
+<p>The rendering stack uses winit 0.30’s <code>ApplicationHandler</code> trait pattern (not the older event-loop closure style). wgpu 23 provides the GPU abstraction, selecting the best available backend (Vulkan, Metal, or DX12) at runtime.</p>
+<h2 id="further-reading-4"><a class="header" href="#further-reading-4">Further Reading</a></h2>
+<ul>
+<li><a href="#the-scene-viewer">The Scene Viewer</a> — getting started with the viewer</li>
+<li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop and first-person gameplay</li>
+<li><a href="#headless-rendering-1">Headless Rendering</a> — CI integration guide</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="physics-and-runtime"><a class="header" href="#physics-and-runtime">Physics and Runtime</a></h1>
+<p>Flint’s runtime layer transforms static scenes into interactive, playable experiences. The <code>flint-runtime</code> crate provides the game loop infrastructure, and <code>flint-physics</code> integrates the Rapier 3D physics engine for collision detection and character movement.</p>
+<h2 id="the-game-loop"><a class="header" href="#the-game-loop">The Game Loop</a></h2>
+<p>The game loop uses a <strong>fixed-timestep accumulator</strong> pattern. Physics simulation steps at a constant rate (1/60s by default) regardless of how fast or slow the rendering runs. This ensures deterministic behavior across different hardware.</p>
+<p>The loop structure:</p>
+<ol>
+<li><strong>Tick the clock</strong> — advance time, accumulate delta into the physics budget</li>
+<li><strong>Process input</strong> — read keyboard and mouse state into <code>InputState</code></li>
+<li><strong>Fixed-step physics</strong> — while enough time has accumulated, step the physics simulation</li>
+<li><strong>Character controller</strong> — apply player movement based on input and physics state</li>
+<li><strong>Render</strong> — draw the frame with the current entity positions</li>
+</ol>
+<p>The <code>RuntimeSystem</code> trait provides a standard interface for systems that plug into this loop.</p>
+<h2 id="physics-with-rapier-3d"><a class="header" href="#physics-with-rapier-3d">Physics with Rapier 3D</a></h2>
+<p>The <code>flint-physics</code> crate wraps Rapier 3D and bridges it to Flint’s TOML-based component system:</p>
+<ul>
+<li><strong>PhysicsWorld</strong> — manages Rapier’s rigid body set, collider set, and simulation pipeline</li>
+<li><strong>PhysicsSync</strong> — reads <code>rigidbody</code> and <code>collider</code> components from entities and creates corresponding Rapier bodies. Static bodies for world geometry (walls, floors, furniture), kinematic bodies for the player.</li>
+<li><strong>CharacterController</strong> — kinematic first-person movement with gravity, jumping, ground detection, and sprint</li>
+</ul>
+<h2 id="physics-schemas"><a class="header" href="#physics-schemas">Physics Schemas</a></h2>
+<p>Three component schemas define physics properties:</p>
+<p><strong>Rigidbody</strong> (<code>rigidbody.toml</code>) — determines how an entity participates in physics:</p>
+<ul>
+<li><code>body_type</code>: <code>"static"</code> (immovable world geometry), <code>"dynamic"</code> (simulated), or <code>"kinematic"</code> (script-controlled)</li>
+<li><code>mass</code>, <code>gravity_scale</code></li>
+</ul>
+<p><strong>Collider</strong> (<code>collider.toml</code>) — defines the collision shape:</p>
+<ul>
+<li><code>shape</code>: <code>"box"</code>, <code>"sphere"</code>, or <code>"capsule"</code></li>
+<li><code>size</code>: dimensions of the collision volume</li>
+<li><code>friction</code>: surface friction coefficient</li>
+</ul>
+<p><strong>Character Controller</strong> (<code>character_controller.toml</code>) — first-person movement parameters:</p>
+<ul>
+<li><code>move_speed</code>, <code>jump_force</code>, <code>height</code>, <code>radius</code>, <code>camera_mode</code></li>
+</ul>
+<p>The <strong>player</strong> archetype (<code>player.toml</code>) bundles these together with a <code>transform</code> for a ready-to-use player entity.</p>
+<h2 id="adding-physics-to-a-scene"><a class="header" href="#adding-physics-to-a-scene">Adding Physics to a Scene</a></h2>
+<p>To make a scene playable, add physics components to entities:</p>
+<pre><code class="language-toml"># The player entity
+[entities.player]
+archetype = "player"
+
+[entities.player.transform]
+position = [0, 1, 0]
+
+[entities.player.character_controller]
+move_speed = 6.0
+jump_force = 7.0
+
+# A wall with a static collider
+[entities.north_wall]
+archetype = "wall"
+
+[entities.north_wall.transform]
+position = [0, 2, -10]
+
+[entities.north_wall.collider]
+shape = "box"
+size = [20, 4, 0.5]
+
+[entities.north_wall.rigidbody]
+body_type = "static"
+</code></pre>
+<p>Then play the scene:</p>
+<pre><code class="language-bash">flint play my_scene.scene.toml
+</code></pre>
+<h2 id="input-system"><a class="header" href="#input-system">Input System</a></h2>
+<p>The <code>InputState</code> struct tracks keyboard and mouse state each frame:</p>
+<ul>
+<li>Keyboard keys are tracked as pressed/released</li>
+<li>Mouse provides raw delta movement (via <code>DeviceEvent::MouseMotion</code>) for smooth camera look</li>
+<li>Action bindings map keys to game actions (move forward, jump, sprint, etc.)</li>
+</ul>
+<h2 id="further-reading-5"><a class="header" href="#further-reading-5">Further Reading</a></h2>
+<ul>
+<li><a href="#rendering">Rendering</a> — the PBR rendering pipeline</li>
+<li><a href="#schemas">Schemas</a> — component and archetype definitions including physics schemas</li>
+<li><a href="#cli-reference">CLI Reference</a> — the <code>play</code> command and player binary</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="building-a-tavern"><a class="header" href="#building-a-tavern">Building a Tavern</a></h1>
 <blockquote>
-<p>This page is a stub. Content coming soon.</p>
+<p>This page is a stub. Full tutorial coming soon.</p>
 </blockquote>
 <p>A step-by-step tutorial that builds a complete tavern scene from scratch using only CLI commands. This guide will cover:</p>
 <ul>
@@ -1231,11 +1468,22 @@ flint asset resolve levels/tavern.scene.toml --strategy strict
 <li>Placing doors with component properties</li>
 <li>Furnishing spaces with tables, chairs, and decorations</li>
 <li>Adding characters (bartender, patrons, a mysterious stranger)</li>
+<li>Adding physics colliders for walkable geometry</li>
+<li>Creating a player entity with first-person controls</li>
 <li>Running queries to inspect the scene</li>
 <li>Validating against constraints</li>
 <li>Viewing the result with <code>flint serve --watch</code></li>
+<li>Walking through the tavern with <code>flint play</code></li>
 </ul>
 <p>This tutorial follows the same steps as the <code>demo/build-tavern.ps1</code> showcase script, explained in detail.</p>
+<p>In the meantime, you can explore the finished result:</p>
+<pre><code class="language-bash"># View the tavern in the scene viewer
+cargo run --bin flint -- serve demo/phase4_runtime.scene.toml --watch
+
+# Walk through the tavern in first person
+cargo run --bin flint -- play demo/phase4_runtime.scene.toml
+</code></pre>
+<p>The <code>demo/phase4_runtime.scene.toml</code> scene contains a three-room tavern with a main hall, kitchen, and storage room, furnished with a bar counter, tables, fireplace, and barrels. Four NPCs populate the space: a bartender, two patrons, and a mysterious stranger. All surfaces have physics colliders for first-person exploration.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="writing-constraints"><a class="header" href="#writing-constraints">Writing Constraints</a></h1>
 <blockquote>
@@ -1253,7 +1501,7 @@ flint asset resolve levels/tavern.scene.toml --strategy strict
 <li>Best practices for organizing constraint files</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="importing-assets"><a class="header" href="#importing-assets">Importing Assets</a></h1>
+<h1 id="importing-assets-1"><a class="header" href="#importing-assets-1">Importing Assets</a></h1>
 <blockquote>
 <p>This page is a stub. Content coming soon.</p>
 </blockquote>
@@ -1268,7 +1516,7 @@ flint asset resolve levels/tavern.scene.toml --strategy strict
 <li>Preparing assets for future rendering (mesh, material, texture extraction)</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="headless-rendering"><a class="header" href="#headless-rendering">Headless Rendering</a></h1>
+<h1 id="headless-rendering-1"><a class="header" href="#headless-rendering-1">Headless Rendering</a></h1>
 <blockquote>
 <p>This page is a stub. Content coming soon.</p>
 </blockquote>
@@ -1319,10 +1567,7 @@ flint render levels/dungeon.scene.toml --output preview.png
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="cli-reference"><a class="header" href="#cli-reference">CLI Reference</a></h1>
-<blockquote>
-<p>This page is a stub. Full reference coming soon.</p>
-</blockquote>
-<p>Flint’s CLI is the primary interface for all engine operations. Below is a summary of available commands.</p>
+<p>Flint’s CLI is the primary interface for all engine operations. Below is a reference of available commands.</p>
 <h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
 <div class="table-wrapper">
 <table>
@@ -1343,11 +1588,51 @@ flint render levels/dungeon.scene.toml --output preview.png
 <tr><td><code>flint asset list</code></td><td>List assets in the catalog</td></tr>
 <tr><td><code>flint asset info</code></td><td>Show details for a specific asset</td></tr>
 <tr><td><code>flint asset resolve</code></td><td>Check asset references in a scene</td></tr>
-<tr><td><code>flint serve &lt;scene&gt;</code></td><td>Launch the hot-reload viewer</td></tr>
+<tr><td><code>flint serve &lt;scene&gt;</code></td><td>Launch the hot-reload PBR viewer with egui inspector</td></tr>
+<tr><td><code>flint play &lt;scene&gt;</code></td><td>Play a scene with first-person controls and physics</td></tr>
 <tr><td><code>flint render &lt;scene&gt;</code></td><td>Render a scene to PNG (headless)</td></tr>
 </tbody>
 </table>
 </div>
+<h2 id="the-play-command"><a class="header" href="#the-play-command">The <code>play</code> Command</a></h2>
+<p>Launch a scene as an interactive first-person experience with physics:</p>
+<pre><code class="language-bash">flint play demo/phase4_runtime.scene.toml
+flint play levels/tavern.scene.toml --schemas schemas --fullscreen
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (default: <code>schemas</code>)</td></tr>
+<tr><td><code>--fullscreen</code></td><td>Launch in fullscreen mode</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="player-controls"><a class="header" href="#player-controls">Player Controls</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Input</th><th>Action</th></tr>
+</thead>
+<tbody>
+<tr><td>WASD</td><td>Move</td></tr>
+<tr><td>Mouse</td><td>Look around</td></tr>
+<tr><td>Space</td><td>Jump</td></tr>
+<tr><td>Shift</td><td>Sprint</td></tr>
+<tr><td>Escape</td><td>Release cursor / Exit</td></tr>
+<tr><td>F1</td><td>Cycle debug rendering mode</td></tr>
+<tr><td>F4</td><td>Toggle shadows</td></tr>
+<tr><td>F11</td><td>Toggle fullscreen</td></tr>
+</tbody>
+</table>
+</div>
+<p>The <code>play</code> command requires the scene to have a <code>player</code> archetype entity with a <code>character_controller</code> component. Physics colliders on other entities define the walkable geometry.</p>
+<h3 id="standalone-player-binary"><a class="header" href="#standalone-player-binary">Standalone Player Binary</a></h3>
+<p>The player is also available as a standalone binary for distribution:</p>
+<pre><code class="language-bash">cargo run --bin flint-player -- demo/phase4_runtime.scene.toml --schemas schemas
+</code></pre>
 <h2 id="common-flags"><a class="header" href="#common-flags">Common Flags</a></h2>
 <div class="table-wrapper">
 <table>
@@ -1372,6 +1657,7 @@ flint &lt;command&gt; --help
 # Examples
 flint init my-game
 flint serve levels/tavern.scene.toml --watch --schemas schemas
+flint play levels/tavern.scene.toml
 flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -1427,23 +1713,27 @@ tags = ["tag1", "tag2"]
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="architecture-overview"><a class="header" href="#architecture-overview">Architecture Overview</a></h1>
-<p>Flint is structured as a seven-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the CLI down to core types.</p>
+<p>Flint is structured as a fourteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
 <h2 id="workspace-structure"><a class="header" href="#workspace-structure">Workspace Structure</a></h2>
 <pre><code>flint/
 ├── crates/
 │   ├── flint-cli/          # CLI binary (clap). Entry point for all commands.
+│   ├── flint-player/       # Standalone player binary with game loop and physics
+│   ├── flint-viewer/       # egui-based GUI inspector with hot-reload
+│   ├── flint-runtime/      # Game loop infrastructure (GameClock, InputState, EventBus)
+│   ├── flint-physics/      # Rapier 3D integration (PhysicsWorld, CharacterController)
+│   ├── flint-render/       # wgpu PBR renderer with Cook-Torrance shading
+│   ├── flint-import/       # File importers (glTF/GLB)
+│   ├── flint-asset/        # Content-addressed asset storage and catalog
+│   ├── flint-constraint/   # Constraint definitions and validation engine
 │   ├── flint-query/        # PEG query language (pest parser)
 │   ├── flint-scene/        # TOML scene serialization/deserialization
-│   ├── flint-render/       # wgpu-based 3D renderer
-│   ├── flint-constraint/   # Constraint definitions and validation engine
-│   ├── flint-asset/        # Content-addressed asset storage and catalog
-│   ├── flint-import/       # File importers (glTF/GLB)
 │   ├── flint-ecs/          # hecs wrapper with stable IDs, names, hierarchy
 │   ├── flint-schema/       # Component/archetype schema loading and validation
 │   └── flint-core/         # Fundamental types: EntityId, Transform, Vec3, etc.
 ├── schemas/                # Default component, archetype, and constraint definitions
-├── demo/                   # Showcase scene and build scripts
-└── docs/                   # This documentation
+├── demo/                   # Showcase scenes and build scripts
+└── docs/                   # This documentation (mdBook)
 </code></pre>
 <h2 id="design-decisions"><a class="header" href="#design-decisions">Design Decisions</a></h2>
 <h3 id="dynamic-components"><a class="header" href="#dynamic-components">Dynamic Components</a></h3>
@@ -1458,6 +1748,8 @@ tags = ["tag1", "tag2"]
 <p>Entity IDs are monotonically increasing 64-bit integers that never recycle. A <code>BiMap</code> maintains the mapping between <code>EntityId</code> and hecs <code>Entity</code> handles. On scene load, the ID counter adjusts to be above the maximum existing ID.</p>
 <h3 id="scene-as-source-of-truth-1"><a class="header" href="#scene-as-source-of-truth-1">Scene as Source of Truth</a></h3>
 <p>The TOML file on disk is canonical. In-memory state is derived from it. The <code>serve --watch</code> viewer re-parses the entire file on change rather than attempting incremental updates. This is simpler and avoids synchronization bugs.</p>
+<h3 id="fixed-timestep-physics"><a class="header" href="#fixed-timestep-physics">Fixed-Timestep Physics</a></h3>
+<p>The game loop uses a fixed-timestep accumulator pattern (1/60s default). Physics simulation steps at a constant rate regardless of frame rate, ensuring deterministic behavior. Rendering interpolates between physics states for smooth visuals.</p>
 <h3 id="error-handling"><a class="header" href="#error-handling">Error Handling</a></h3>
 <p>All crates use <code>thiserror</code> for error types. Each crate defines its own error enum and a <code>Result&lt;T&gt;</code> type alias. Errors propagate upward through the crate hierarchy.</p>
 <h2 id="technology-choices"><a class="header" href="#technology-choices">Technology Choices</a></h2>
@@ -1471,6 +1763,8 @@ tags = ["tag1", "tag2"]
 <tr><td>ECS</td><td>hecs</td><td>Lightweight, standalone, well-tested</td></tr>
 <tr><td>Rendering</td><td>wgpu 23</td><td>Cross-platform, modern GPU API</td></tr>
 <tr><td>Windowing</td><td>winit 0.30</td><td><code>ApplicationHandler</code> trait pattern</td></tr>
+<tr><td>Physics</td><td>Rapier 3D 0.22</td><td>Mature Rust physics, character controller</td></tr>
+<tr><td>GUI</td><td>egui 0.30</td><td>Immediate-mode, easy integration with wgpu</td></tr>
 <tr><td>Scene format</td><td>TOML</td><td>Human-readable, diffable, good Rust support</td></tr>
 <tr><td>Query parser</td><td>pest</td><td>PEG grammar, good error messages</td></tr>
 <tr><td>CLI framework</td><td>clap (derive)</td><td>Ergonomic, well-documented</td></tr>
@@ -1479,31 +1773,30 @@ tags = ["tag1", "tag2"]
 </table>
 </div>
 <h2 id="data-flow"><a class="header" href="#data-flow">Data Flow</a></h2>
-<p>Commands enter through the CLI and flow downward through the crate hierarchy:</p>
+<p>Flint has two entry points: the CLI for scene authoring and validation, and the player for interactive gameplay. Both flow through the same crate hierarchy:</p>
 <pre><code>User / AI Agent
       │
-      ▼
-  flint-cli          Parse command, dispatch to subsystem
-      │
-      ├──► flint-query        Parse and execute queries
-      ├──► flint-scene        Load/save scene TOML
-      ├──► flint-render       Render scene (viewer or headless)
-      ├──► flint-constraint   Validate scene against rules
-      ├──► flint-asset        Manage content-addressed assets
-      └──► flint-import       Import external files (glTF)
-              │
-              ▼
-          flint-ecs           Entity storage, ID mapping, hierarchy
-              │
-              ▼
-          flint-schema        Component/archetype definitions
-              │
-              ▼
-          flint-core          EntityId, Transform, Vec3, Color, errors
+      ├──────────────────────────────────┐
+      ▼                                  ▼
+  flint-cli                        flint-player
+  (scene authoring)                (interactive gameplay)
+      │                                  │
+      ├──► flint-viewer (GUI)            ├──► flint-runtime  (game loop, input)
+      ├──► flint-query  (queries)        ├──► flint-physics  (Rapier 3D)
+      ├──► flint-scene  (load/save)      └──► flint-render   (PBR renderer)
+      ├──► flint-render (renderer)               │
+      ├──► flint-constraint (validation)         ▼
+      ├──► flint-asset  (asset catalog)      flint-import   (glTF meshes)
+      └──► flint-import (glTF import)            │
+              │                                  ▼
+              ▼                              flint-ecs
+          flint-ecs                          flint-schema
+          flint-schema                       flint-core
+          flint-core
 </code></pre>
 <h2 id="crate-details"><a class="header" href="#crate-details">Crate Details</a></h2>
 <h3 id="flint-core"><a class="header" href="#flint-core">flint-core</a></h3>
-<p>Fundamental types shared by all crates. No external dependencies beyond <code>thiserror</code> and <code>serde</code>.</p>
+<p>Fundamental types shared by all crates. Minimal external dependencies (<code>thiserror</code>, <code>serde</code>, <code>sha2</code>).</p>
 <ul>
 <li><code>EntityId</code> — stable 64-bit entity identifier</li>
 <li><code>ContentHash</code> — SHA-256 based content addressing</li>
@@ -1511,7 +1804,7 @@ tags = ["tag1", "tag2"]
 <li><code>FlintError</code> — base error type</li>
 </ul>
 <h3 id="flint-schema"><a class="header" href="#flint-schema">flint-schema</a></h3>
-<p>Loads component and archetype definitions from TOML files. Provides a registry for introspection.</p>
+<p>Loads component and archetype definitions from TOML files. Provides a registry for introspection. Supports field types (<code>bool</code>, <code>i32</code>, <code>f32</code>, <code>string</code>, <code>vec3</code>, <code>enum</code>, <code>entity_ref</code>) with validation constraints.</p>
 <h3 id="flint-ecs"><a class="header" href="#flint-ecs">flint-ecs</a></h3>
 <p>Wraps hecs with:</p>
 <ul>
@@ -1530,57 +1823,97 @@ tags = ["tag1", "tag2"]
 <h3 id="flint-asset"><a class="header" href="#flint-asset">flint-asset</a></h3>
 <p>Content-addressed asset storage with SHA-256 hashing. Manages an asset catalog with name/hash/type/tag indexing. Supports resolution strategies (strict, placeholder).</p>
 <h3 id="flint-import"><a class="header" href="#flint-import">flint-import</a></h3>
-<p>File importers for bringing external assets into the content-addressed store. Currently supports glTF/GLB with mesh, material, and texture extraction.</p>
+<p>File importers for bringing external assets into the content-addressed store. Supports glTF/GLB with mesh, material, and texture extraction.</p>
 <h3 id="flint-render"><a class="header" href="#flint-render">flint-render</a></h3>
-<p>wgpu-based renderer. Two modes:</p>
+<p>wgpu 23 PBR renderer with:</p>
 <ul>
-<li><strong>Viewer mode</strong> — interactive window with orbit camera, hot-reload via <code>serve --watch</code></li>
+<li><strong>Cook-Torrance shading</strong> — physically-based BRDF with roughness/metallic workflow</li>
+<li><strong>Cascaded shadow mapping</strong> — directional light shadows across multiple distance ranges</li>
+<li><strong>glTF mesh rendering</strong> — imported models rendered with full material support</li>
+<li><strong>Camera modes</strong> — orbit (scene viewer) and first-person (player), sharing view/projection math</li>
 <li><strong>Headless mode</strong> — render to PNG for CI and automated screenshots</li>
 </ul>
-<p>Currently renders entities as archetype-colored boxes (rooms as blue wireframes, doors as orange, furniture as green, characters as yellow).</p>
+<h3 id="flint-viewer"><a class="header" href="#flint-viewer">flint-viewer</a></h3>
+<p>egui-based GUI inspector built on top of <code>flint-render</code>:</p>
+<ul>
+<li>Entity tree with selection</li>
+<li>Component property editor</li>
+<li>Constraint violation overlay</li>
+<li>Hot-reload via file watching (<code>serve --watch</code>)</li>
+</ul>
+<h3 id="flint-runtime"><a class="header" href="#flint-runtime">flint-runtime</a></h3>
+<p>Game loop infrastructure for interactive scenes:</p>
+<ul>
+<li><code>GameClock</code> — fixed-timestep accumulator (1/60s default)</li>
+<li><code>InputState</code> — keyboard and mouse tracking with action bindings</li>
+<li><code>EventBus</code> — decoupled event dispatch between systems</li>
+<li><code>RuntimeSystem</code> trait — standard interface for update/render systems</li>
+</ul>
+<h3 id="flint-physics"><a class="header" href="#flint-physics">flint-physics</a></h3>
+<p>Rapier 3D integration:</p>
+<ul>
+<li><code>PhysicsWorld</code> — manages Rapier rigid body and collider sets</li>
+<li><code>PhysicsSync</code> — bridges TOML component data to Rapier bodies</li>
+<li><code>CharacterController</code> — kinematic first-person movement with gravity, jumping, and ground detection</li>
+<li>Uses kinematic bodies for player control, static bodies for world geometry</li>
+</ul>
+<h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
+<p>Standalone player binary that wires together runtime, physics, and rendering:</p>
+<ul>
+<li>Full game loop: clock tick, fixed-step physics, character controller, first-person rendering</li>
+<li>Scene loading with physics body creation from TOML collider/rigidbody components</li>
+<li>First-person controls (WASD, mouse look, jump, sprint)</li>
+</ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>
-<p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>serve</code>, <code>validate</code>, <code>asset</code>, <code>render</code>.</p>
-<h2 id="further-reading-3"><a class="header" href="#further-reading-3">Further Reading</a></h2>
+<p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>serve</code>, <code>play</code>, <code>validate</code>, <code>asset</code>, <code>render</code>.</p>
+<h2 id="further-reading-6"><a class="header" href="#further-reading-6">Further Reading</a></h2>
 <ul>
 <li><a href="#crate-dependency-graph">Crate Dependency Graph</a> — visual dependency diagram</li>
 <li><a href="#design-principles">Design Principles</a> — the principles behind these decisions</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="crate-dependency-graph"><a class="header" href="#crate-dependency-graph">Crate Dependency Graph</a></h1>
-<p>This page shows how Flint’s crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
+<p>This page shows how Flint’s fourteen crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
 <h2 id="dependency-diagram"><a class="header" href="#dependency-diagram">Dependency Diagram</a></h2>
-<pre><code>                        ┌─────────────┐
-                        │  flint-cli  │
-                        │  (binary)   │
-                        └──────┬──────┘
-                               │
-          ┌────────┬───────┬───┴───┬────────┬────────┬────────┐
-          │        │       │       │        │        │        │
-          ▼        ▼       ▼       ▼        ▼        ▼        ▼
-     ┌─────────┐ ┌─────┐ ┌─────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐
-     │  query  │ │scene│ │serve│ │render│ │const-│ │asset │ │import│
-     │         │ │     │ │     │ │      │ │raint │ │      │ │      │
-     └────┬────┘ └──┬──┘ └──┬──┘ └──┬───┘ └──┬───┘ └──┬───┘ └──┬───┘
-          │         │       │       │        │        │        │
-          │         │       │       │     ┌──┘        │        │
-          │         │       │       │     │           │        │
-          ▼         ▼       ▼       ▼     ▼           ▼        ▼
-     ┌──────────────────────────────────────────┐  ┌──────────────┐
-     │               flint-ecs                  │  │              │
-     │  (hecs wrapper, stable IDs, hierarchy)   │  │  flint-asset │
-     └─────────────────┬────────────────────────┘  └──────┬───────┘
-                       │                                  │
-                       ▼                                  │
-               ┌──────────────┐                           │
-               │ flint-schema │                           │
-               │              │                           │
-               └──────┬───────┘                           │
-                      │                                   │
-                      ▼                                   ▼
-               ┌─────────────────────────────────────────────┐
-               │              flint-core                     │
-               │  (EntityId, Vec3, Transform, ContentHash)   │
-               └─────────────────────────────────────────────┘
+<pre><code>          ┌─────────────┐                ┌──────────────┐
+          │  flint-cli  │                │ flint-player │
+          │  (binary)   │                │   (binary)   │
+          └──────┬──────┘                └──────┬───────┘
+                 │                              │
+    ┌────┬───┬──┴──┬────┬────┬────┐    ┌───┬───┴───┬───┐
+    │    │   │     │    │    │    │    │   │       │   │
+    ▼    │   ▼     ▼    ▼    ▼    ▼    ▼   ▼       ▼   │
+ ┌──────┐│┌─────┐┌────┐│ ┌─────┐│ ┌────────┐┌────────┐│
+ │viewer│││scene││qry ││ │const││ │runtime ││physics ││
+ └──┬───┘│└──┬──┘└─┬──┘│ └──┬──┘│ └───┬────┘└───┬────┘│
+    │    │   │     │   │    │   │     │          │     │
+    │    ▼   │     │   │    │   │     │          │     │
+    │ ┌──────────┐ │   │    │   │     │          │     │
+    ├►│  render  │◄┘   │    │   │     │          │     │
+    │ └────┬─────┘     │    │   │     │          │     │
+    │      │           │    │   │     │          │     │
+    │      ▼           │    │   │     │          │     │
+    │ ┌──────────┐     │   ┌┘   │     │          │     │
+    │ │  import  │     │   │    │     │          │     │
+    │ └────┬─────┘     │   │    │     │          │     │
+    │      │           ▼   ▼    ▼     ▼          ▼     ▼
+    │      │    ┌──────────────────────────────────────────┐
+    │      │    │              flint-ecs                    │
+    │      │    │  (hecs wrapper, stable IDs, hierarchy)   │
+    │      │    └────────────────┬─────────────────────────┘
+    │      │                    │
+    │      │                    ▼
+    │      │             ┌──────────────┐
+    │      │             │ flint-schema │
+    │      │             └──────┬───────┘
+    │      │                    │
+    │      ▼                    ▼
+    │ ┌──────────┐  ┌─────────────────────────────────────┐
+    │ │  asset   │  │            flint-core                │
+    │ └────┬─────┘  │ (EntityId, Vec3, Transform, Hash)   │
+    │      │        └─────────────────────────────────────┘
+    │      │                    ▲
+    └──────┴────────────────────┘
 </code></pre>
 <h2 id="dependency-details"><a class="header" href="#dependency-details">Dependency Details</a></h2>
 <div class="table-wrapper">
@@ -1591,13 +1924,17 @@ tags = ["tag1", "tag2"]
 <tbody>
 <tr><td><code>flint-core</code></td><td><em>(none)</em></td><td>all other crates</td></tr>
 <tr><td><code>flint-schema</code></td><td>core</td><td>ecs, constraint</td></tr>
-<tr><td><code>flint-ecs</code></td><td>core, schema</td><td>scene, query, render, constraint, cli</td></tr>
-<tr><td><code>flint-query</code></td><td>core, ecs</td><td>constraint, cli</td></tr>
-<tr><td><code>flint-scene</code></td><td>core, ecs, schema</td><td>cli</td></tr>
-<tr><td><code>flint-constraint</code></td><td>core, ecs, schema, query</td><td>cli</td></tr>
+<tr><td><code>flint-ecs</code></td><td>core, schema</td><td>scene, query, render, constraint, runtime, physics, viewer, player, cli</td></tr>
 <tr><td><code>flint-asset</code></td><td>core</td><td>import, cli</td></tr>
-<tr><td><code>flint-import</code></td><td>core, asset</td><td>cli</td></tr>
-<tr><td><code>flint-render</code></td><td>core, ecs, schema</td><td>cli</td></tr>
+<tr><td><code>flint-import</code></td><td>core, asset</td><td>render, viewer, cli, player</td></tr>
+<tr><td><code>flint-query</code></td><td>core, ecs</td><td>constraint, cli</td></tr>
+<tr><td><code>flint-scene</code></td><td>core, ecs, schema</td><td>viewer, player, cli</td></tr>
+<tr><td><code>flint-constraint</code></td><td>core, ecs, schema, query</td><td>viewer, cli</td></tr>
+<tr><td><code>flint-render</code></td><td>core, ecs, import</td><td>viewer, player, cli</td></tr>
+<tr><td><code>flint-runtime</code></td><td>core, ecs</td><td>physics, player</td></tr>
+<tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>player</td></tr>
+<tr><td><code>flint-viewer</code></td><td>core, ecs, scene, schema, render, import, constraint</td><td>cli</td></tr>
+<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, import</td><td><em>(binary entry point)</em></td></tr>
 <tr><td><code>flint-cli</code></td><td>all crates</td><td><em>(binary entry point)</em></td></tr>
 </tbody>
 </table>
@@ -1609,10 +1946,13 @@ tags = ["tag1", "tag2"]
 <li><strong>Core</strong> — fundamental types (<code>flint-core</code>)</li>
 <li><strong>Schema</strong> — data definitions (<code>flint-schema</code>)</li>
 <li><strong>Storage</strong> — entity and asset management (<code>flint-ecs</code>, <code>flint-asset</code>)</li>
-<li><strong>Logic</strong> — query, scene, constraint, import, render</li>
-<li><strong>Interface</strong> — CLI binary (<code>flint-cli</code>)</li>
+<li><strong>Logic</strong> — query, scene, constraint, import</li>
+<li><strong>Systems</strong> — render, runtime, physics</li>
+<li><strong>Applications</strong> — viewer, player</li>
+<li><strong>Interface</strong> — CLI binary (<code>flint-cli</code>), player binary (<code>flint-player</code>)</li>
 </ol>
-<p><strong>Independent subsystems.</strong> The constraint system, asset system, and render system don’t depend on each other. They all flow through the CLI. This means you can build and test each subsystem in isolation.</p>
+<p><strong>Two entry points.</strong> The CLI binary (<code>flint-cli</code>) serves scene authoring and validation workflows. The player binary (<code>flint-player</code>) serves interactive gameplay. Both share the same underlying crate hierarchy.</p>
+<p><strong>Independent subsystems.</strong> The constraint system, asset system, physics system, and render system don’t depend on each other. This means you can build and test each subsystem in isolation.</p>
 <h2 id="external-dependencies"><a class="header" href="#external-dependencies">External Dependencies</a></h2>
 <p>Key third-party crates used across the workspace:</p>
 <div class="table-wrapper">
@@ -1622,15 +1962,18 @@ tags = ["tag1", "tag2"]
 </thead>
 <tbody>
 <tr><td><code>hecs</code></td><td>flint-ecs</td><td>Underlying ECS implementation</td></tr>
-<tr><td><code>toml</code></td><td>flint-schema, flint-scene, flint-constraint, flint-asset</td><td>TOML parsing and serialization</td></tr>
+<tr><td><code>toml</code></td><td>most crates</td><td>TOML parsing and serialization</td></tr>
 <tr><td><code>serde</code></td><td>all crates</td><td>Serialization framework</td></tr>
 <tr><td><code>pest</code></td><td>flint-query</td><td>PEG parser generator</td></tr>
-<tr><td><code>wgpu</code></td><td>flint-render</td><td>GPU abstraction layer</td></tr>
-<tr><td><code>winit</code></td><td>flint-render</td><td>Window management</td></tr>
-<tr><td><code>clap</code></td><td>flint-cli</td><td>Command-line argument parsing</td></tr>
-<tr><td><code>thiserror</code></td><td>all crates</td><td>Error derive macros</td></tr>
+<tr><td><code>wgpu</code></td><td>flint-render, flint-viewer, flint-player</td><td>GPU abstraction layer</td></tr>
+<tr><td><code>winit</code></td><td>flint-render, flint-viewer, flint-runtime, flint-player</td><td>Window and input management</td></tr>
+<tr><td><code>rapier3d</code></td><td>flint-physics</td><td>3D physics simulation</td></tr>
+<tr><td><code>egui</code></td><td>flint-viewer</td><td>Immediate-mode GUI framework</td></tr>
+<tr><td><code>clap</code></td><td>flint-cli, flint-player</td><td>Command-line argument parsing</td></tr>
+<tr><td><code>thiserror</code></td><td>all library crates</td><td>Error derive macros</td></tr>
 <tr><td><code>sha2</code></td><td>flint-core, flint-asset</td><td>SHA-256 hashing</td></tr>
 <tr><td><code>gltf</code></td><td>flint-import</td><td>glTF file parsing</td></tr>
+<tr><td><code>crossbeam</code></td><td>flint-physics</td><td>Channel-based event collection (Rapier)</td></tr>
 </tbody>
 </table>
 </div>
@@ -1660,27 +2003,49 @@ tags = ["tag1", "tag2"]
 <li><code>flint-import</code> — glTF/GLB importer with mesh, material, and texture extraction</li>
 </ul>
 <p><strong>Milestone:</strong> <code>flint validate --fix</code> automatically fixes constraint violations. <code>flint asset import model.glb</code> stores and catalogs assets.</p>
-<h2 id="phase-3-rendering--validation"><a class="header" href="#phase-3-rendering--validation">Phase 3: Rendering + Validation</a></h2>
-<p><strong>Status: Complete (basic)</strong></p>
-<p>The visual validation phase. Humans can now see what the agent built.</p>
+<h2 id="phase-3-rendering--visual-validation"><a class="header" href="#phase-3-rendering--visual-validation">Phase 3: Rendering + Visual Validation</a></h2>
+<p><strong>Status: Complete</strong></p>
+<p>The visual validation phase. Physically-based rendering with a full-featured scene viewer.</p>
 <p><strong>Delivered:</strong></p>
 <ul>
-<li><code>flint-render</code> — wgpu-based renderer with archetype-colored boxes</li>
+<li><code>flint-render</code> — wgpu 23 PBR renderer with Cook-Torrance shading, cascaded shadow mapping, and glTF mesh rendering</li>
+<li><code>flint-viewer</code> — egui-based GUI inspector with entity tree, component editing, and constraint overlay</li>
 <li>Scene viewer with orbit camera, hot-reload via <code>serve --watch</code></li>
 <li>Headless rendering for CI (<code>flint render --headless</code>)</li>
+<li>Material system with roughness, metallic, emissive, and texture support</li>
 </ul>
-<p><strong>Milestone:</strong> <code>flint serve --watch</code> shows a live scene that updates when files change.</p>
-<h2 id="phase-4-runtime"><a class="header" href="#phase-4-runtime">Phase 4: Runtime</a></h2>
-<p><strong>Status: Planned</strong></p>
-<p>The game runtime phase. A playable game loop with physics, audio, and scripting.</p>
-<p><strong>Planned:</strong></p>
+<p><strong>Milestone:</strong> <code>flint serve --watch</code> shows a live PBR scene with shadows that updates when files change.</p>
+<h2 id="phase-4-interactive-runtime"><a class="header" href="#phase-4-interactive-runtime">Phase 4: Interactive Runtime</a></h2>
+<p><strong>Status: In Progress (Stage 1 of 4 complete)</strong></p>
+<p>The game runtime phase. A playable game loop with physics, and eventually audio and scripting.</p>
+<p><strong>Stage 1 — Game Loop + Physics: Complete</strong></p>
 <ul>
-<li><code>flint-physics</code> — Rapier integration for collision detection and rigid body simulation</li>
-<li><code>flint-audio</code> — Kira integration for spatial audio and sound effects</li>
-<li><code>flint-script</code> — Rhai scripting for game logic (sandboxed, statically typed)</li>
-<li><code>flint-player</code> — Standalone game executable</li>
+<li><code>flint-runtime</code> — GameClock (fixed-timestep accumulator), InputState (keyboard/mouse with action bindings), EventBus, RuntimeSystem trait</li>
+<li><code>flint-physics</code> — Rapier 3D integration: PhysicsWorld, PhysicsSync (TOML-to-Rapier bridge), CharacterController (kinematic first-person movement with gravity and jumping)</li>
+<li><code>flint-player</code> — Standalone player binary with full game loop</li>
+<li>First-person camera mode (backward-compatible with orbit)</li>
+<li>CLI <code>play</code> command — <code>flint play &lt;scene&gt; [--schemas] [--fullscreen]</code></li>
+<li>Physics schemas — <code>rigidbody.toml</code>, <code>collider.toml</code>, <code>character_controller.toml</code> components + <code>player.toml</code> archetype</li>
+<li>Demo scene — walkable tavern with physics colliders on walls, floor, and furniture</li>
 </ul>
-<p><strong>Milestone:</strong> A simple game runs — walk around, open doors, hear sounds.</p>
+<p><strong>Stage 2 — Audio: Planned</strong></p>
+<ul>
+<li><code>flint-audio</code> — Kira integration for spatial audio and sound effects</li>
+<li>3D positioned sounds with distance attenuation</li>
+<li>Ambient loops and sound trigger events</li>
+</ul>
+<p><strong>Stage 3 — Scripting: Planned</strong></p>
+<ul>
+<li><code>flint-script</code> — Rhai scripting for game logic (sandboxed)</li>
+<li>Entity API, event callbacks (<code>on_collision</code>, <code>on_trigger</code>, <code>on_action</code>)</li>
+<li>Hot-reload for script files</li>
+</ul>
+<p><strong>Stage 4 — Integration: Planned</strong></p>
+<ul>
+<li>Interactable component with scripted behaviors</li>
+<li>Full demo: walk around, open doors, hear sounds</li>
+</ul>
+<p><strong>Milestone:</strong> <code>flint play tavern.scene.toml</code> launches a first-person walkable scene with physics.</p>
 <h2 id="phase-5-ai-asset-pipeline"><a class="header" href="#phase-5-ai-asset-pipeline">Phase 5: AI Asset Pipeline</a></h2>
 <p><strong>Status: Planned</strong></p>
 <p>Integrated AI generation workflows for textures, meshes, and audio.</p>
@@ -1696,24 +2061,22 @@ tags = ["tag1", "tag2"]
 <p>These are ideas under consideration, not committed plans:</p>
 <ul>
 <li><strong>Networking</strong> — multiplayer support</li>
-<li><strong>Advanced rendering</strong> — PBR materials, shadow mapping, post-processing, LOD</li>
-<li><strong>Viewer GUI</strong> — entity inspector, constraint violation overlay, visual diff mode</li>
+<li><strong>Post-processing</strong> — bloom, ambient occlusion, tone mapping, LOD</li>
 <li><strong>Plugin system</strong> — third-party extensions</li>
 <li><strong>Package manager</strong> — share schemas, constraints, and assets between projects</li>
 <li><strong>WebAssembly</strong> — browser-based viewer and potentially runtime</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
-<blockquote>
-<p>This page is a stub. Contribution guidelines coming soon.</p>
-</blockquote>
-<p>Flint is in early development. Contributions are welcome in these areas:</p>
+<p>Flint is in active development (Phase 4 of 5). Contributions are welcome in these areas:</p>
 <ul>
 <li><strong>Bug reports</strong> — file issues on GitHub</li>
 <li><strong>Schema definitions</strong> — new component and archetype schemas</li>
 <li><strong>Documentation</strong> — improvements to this guide</li>
-<li><strong>Test coverage</strong> — additional unit and integration tests</li>
+<li><strong>Test coverage</strong> — additional unit and integration tests (107 tests across 14 crates)</li>
 <li><strong>Constraint kinds</strong> — new validation rule types</li>
+<li><strong>Physics</strong> — additional collider shapes, improved character controller behavior</li>
+<li><strong>Rendering</strong> — post-processing effects, LOD, additional debug views</li>
 </ul>
 <h2 id="development-setup"><a class="header" href="#development-setup">Development Setup</a></h2>
 <pre><code class="language-bash">git clone https://github.com/chaps/flint.git
@@ -1723,6 +2086,13 @@ cargo test
 cargo clippy
 cargo fmt --check
 </code></pre>
+<h2 id="running-the-demo"><a class="header" href="#running-the-demo">Running the Demo</a></h2>
+<pre><code class="language-bash"># Scene viewer with hot-reload
+cargo run --bin flint -- serve demo/phase4_runtime.scene.toml --watch
+
+# First-person walkable scene
+cargo run --bin flint -- play demo/phase4_runtime.scene.toml
+</code></pre>
 <h2 id="code-style"><a class="header" href="#code-style">Code Style</a></h2>
 <ul>
 <li>Run <code>cargo fmt</code> before committing</li>
@@ -1730,6 +2100,13 @@ cargo fmt --check
 <li>Each crate has its own error type using <code>thiserror</code></li>
 <li>Tests live alongside the code they test (<code>#[cfg(test)]</code> modules)</li>
 <li>Prefer explicit over clever; readability over brevity</li>
+</ul>
+<h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
+<p>The project is a 14-crate Cargo workspace. See the <a href="#architecture-overview">Architecture Overview</a> and <a href="#crate-dependency-graph">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
+<ul>
+<li>Dependencies flow in one direction (binary crates at the top, <code>flint-core</code> at the bottom)</li>
+<li>Components are dynamic <code>toml::Value</code>, not Rust types — schemas are runtime data</li>
+<li>Two entry points: <code>flint-cli</code> (scene authoring) and <code>flint-player</code> (interactive gameplay)</li>
 </ul>
 
                     </main>

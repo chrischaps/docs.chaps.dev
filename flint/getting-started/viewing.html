@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-7ea73f8d.js";
+            window.path_to_searchindex_js = "../searchindex-ca2e5392.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-a2d2185c.js"></script>
+        <script src="../toc-069aa04f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,35 +179,54 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="the-scene-viewer"><a class="header" href="#the-scene-viewer">The Scene Viewer</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>The Flint viewer is a real-time 3D window for validating scenes. This page will cover:</p>
-<ul>
-<li>Launching the viewer with <code>flint serve --watch</code></li>
-<li>Camera controls (orbit, pan, zoom)</li>
-<li>How hot-reload works (file watching and re-parsing)</li>
-<li>Archetype-based coloring (rooms=blue, doors=orange, furniture=green, characters=yellow)</li>
-<li>Headless rendering with <code>flint render</code></li>
-</ul>
-<p>Quick start:</p>
+<p>The Flint viewer is a real-time 3D window for validating scenes. It renders your scene with full PBR shading and shadows, and provides an egui inspector panel for browsing entities and editing component properties.</p>
+<h2 id="launching-the-viewer"><a class="header" href="#launching-the-viewer">Launching the Viewer</a></h2>
 <pre><code class="language-bash">flint serve levels/tavern.scene.toml --watch --schemas schemas
 </code></pre>
+<p>The <code>--watch</code> flag enables hot-reload: edit the scene TOML file, and the viewer re-parses and re-renders automatically. The entire file is re-parsed on each change (not incremental), which keeps the implementation simple and avoids synchronization issues.</p>
+<h2 id="camera-controls"><a class="header" href="#camera-controls">Camera Controls</a></h2>
+<p>The viewer uses an orbit camera that rotates around a focus point:</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Input</th><th>Action</th></tr>
 </thead>
 <tbody>
-<tr><td>Left-drag</td><td>Orbit</td></tr>
-<tr><td>Right-drag</td><td>Pan</td></tr>
-<tr><td>Scroll</td><td>Zoom</td></tr>
+<tr><td>Left-drag</td><td>Orbit around focus</td></tr>
+<tr><td>Right-drag</td><td>Pan the view</td></tr>
+<tr><td>Scroll</td><td>Zoom in/out</td></tr>
 <tr><td>Space</td><td>Reset camera</td></tr>
 <tr><td>R</td><td>Force reload</td></tr>
 <tr><td>Escape</td><td>Quit</td></tr>
 </tbody>
 </table>
 </div>
+<h2 id="the-inspector-panel"><a class="header" href="#the-inspector-panel">The Inspector Panel</a></h2>
+<p>The egui-based inspector panel (on the left side of the viewer) provides:</p>
+<ul>
+<li><strong>Entity tree</strong> — hierarchical list of all entities in the scene, reflecting parent-child relationships</li>
+<li><strong>Component editor</strong> — select an entity to view and edit its component values</li>
+<li><strong>Constraint overlay</strong> — validation results from <code>flint-constraint</code>, highlighting any rule violations</li>
+</ul>
+<h2 id="rendering-features"><a class="header" href="#rendering-features">Rendering Features</a></h2>
+<p>The viewer renders scenes with the same PBR pipeline used by the player:</p>
+<ul>
+<li>Cook-Torrance physically-based shading</li>
+<li>Cascaded shadow mapping from directional lights</li>
+<li>glTF mesh rendering with material support</li>
+<li>Debug rendering modes (cycle with <strong>F1</strong>)</li>
+<li>Shadow toggle (<strong>F4</strong>)</li>
+<li>Fullscreen toggle (<strong>F11</strong>)</li>
+</ul>
+<h2 id="playing-a-scene"><a class="header" href="#playing-a-scene">Playing a Scene</a></h2>
+<p>To experience a scene in first-person with physics, use <code>play</code> instead of <code>serve</code>:</p>
+<pre><code class="language-bash">flint play levels/tavern.scene.toml
+</code></pre>
+<p>See the <a href="../cli-reference/overview.html">CLI Reference</a> for full <code>play</code> command details and controls.</p>
+<h2 id="headless-rendering"><a class="header" href="#headless-rendering">Headless Rendering</a></h2>
+<p>For CI pipelines and automated screenshots, render to PNG without opening a window:</p>
+<pre><code class="language-bash">flint render levels/tavern.scene.toml --output preview.png --width 1920 --height 1080
+</code></pre>
 
                     </main>
 

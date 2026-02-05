@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-7ea73f8d.js";
+            window.path_to_searchindex_js = "../searchindex-ca2e5392.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-a2d2185c.js"></script>
+        <script src="../toc-069aa04f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,22 +179,55 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="rendering"><a class="header" href="#rendering">Rendering</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Flint uses wgpu for cross-platform GPU rendering. This page will cover:</p>
+<p>Flint uses wgpu 23 for cross-platform GPU rendering, providing physically-based rendering (PBR) with a Cook-Torrance BRDF, cascaded shadow mapping, and full glTF mesh support.</p>
+<h2 id="pbr-shading"><a class="header" href="#pbr-shading">PBR Shading</a></h2>
+<p>The renderer implements a metallic-roughness PBR workflow based on the Cook-Torrance specular BRDF:</p>
 <ul>
-<li>wgpu backend selection (Vulkan, Metal, DX12)</li>
-<li>Current renderer: archetype-based colored boxes with wireframes</li>
-<li>Viewer mode vs headless mode</li>
-<li>The <code>ApplicationHandler</code> pattern (winit 0.30)</li>
-<li>Camera system: orbit, pan, zoom</li>
-<li>Ground grid rendering</li>
-<li>Planned: PBR materials, shadow mapping, post-processing, glTF mesh rendering</li>
+<li><strong>Base color</strong> — the surface albedo, optionally sampled from a texture</li>
+<li><strong>Roughness</strong> — controls specular highlight spread (0.0 = mirror, 1.0 = diffuse)</li>
+<li><strong>Metallic</strong> — interpolates between dielectric and metallic response</li>
+<li><strong>Emissive</strong> — self-illumination for light sources and glowing objects</li>
 </ul>
-<p>Headless rendering for CI:</p>
+<p>Materials are defined in scene TOML via the <code>material</code> component, matching the fields in <code>schemas/components/material.toml</code>.</p>
+<h2 id="shadow-mapping"><a class="header" href="#shadow-mapping">Shadow Mapping</a></h2>
+<p>Directional lights cast shadows via cascaded shadow maps. Multiple shadow cascades cover different distance ranges from the camera, giving high-resolution shadows close up and broader coverage at distance.</p>
+<p>Toggle shadows at runtime with <strong>F4</strong>.</p>
+<h2 id="camera-modes"><a class="header" href="#camera-modes">Camera Modes</a></h2>
+<p>The renderer supports two camera modes that share the same view/projection math:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Usage</th><th>Controls</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Orbit</strong></td><td>Scene viewer (<code>serve</code>)</td><td>Left-drag to orbit, right-drag to pan, scroll to zoom</td></tr>
+<tr><td><strong>First-person</strong></td><td>Player (<code>play</code>)</td><td>WASD to move, mouse to look, Space to jump, Shift to sprint</td></tr>
+</tbody>
+</table>
+</div>
+<p>The camera mode is determined by the entry point: <code>serve</code> uses orbit, <code>play</code> uses first-person. Both produce the same view and projection matrices.</p>
+<h2 id="gltf-mesh-rendering"><a class="header" href="#gltf-mesh-rendering">glTF Mesh Rendering</a></h2>
+<p>Imported glTF models are rendered with their full mesh geometry and materials. The <code>flint-import</code> crate extracts meshes, materials, and textures from <code>.glb</code>/<code>.gltf</code> files, which the renderer draws with PBR shading.</p>
+<h2 id="viewer-vs-headless"><a class="header" href="#viewer-vs-headless">Viewer vs Headless</a></h2>
+<p>The renderer operates in two modes:</p>
+<p><strong>Viewer mode</strong> (<code>flint serve --watch</code>) opens an interactive window with:</p>
+<ul>
+<li>Real-time PBR rendering</li>
+<li>egui inspector panel (entity tree, component editor, constraint overlay)</li>
+<li>Hot-reload: edit the scene TOML and the viewer updates automatically</li>
+<li>Debug rendering modes (cycle with <strong>F1</strong>)</li>
+</ul>
+<p><strong>Headless mode</strong> (<code>flint render</code>) renders to a PNG file without opening a window — useful for CI pipelines and automated screenshots:</p>
 <pre><code class="language-bash">flint render levels/tavern.scene.toml --output preview.png --width 1920 --height 1080
 </code></pre>
+<h2 id="technology"><a class="header" href="#technology">Technology</a></h2>
+<p>The rendering stack uses winit 0.30’s <code>ApplicationHandler</code> trait pattern (not the older event-loop closure style). wgpu 23 provides the GPU abstraction, selecting the best available backend (Vulkan, Metal, or DX12) at runtime.</p>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="../getting-started/viewing.html">The Scene Viewer</a> — getting started with the viewer</li>
+<li><a href="physics-and-runtime.html">Physics and Runtime</a> — the game loop and first-person gameplay</li>
+<li><a href="../guides/headless-rendering.html">Headless Rendering</a> — CI integration guide</li>
+</ul>
 
                     </main>
 
@@ -204,7 +237,7 @@
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../guides/building-a-tavern.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../concepts/physics-and-runtime.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -218,7 +251,7 @@
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../guides/building-a-tavern.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../concepts/physics-and-runtime.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-7ea73f8d.js";
+            window.path_to_searchindex_js = "../searchindex-ca2e5392.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-a2d2185c.js"></script>
+        <script src="../toc-069aa04f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -220,7 +220,7 @@ required_key = { type = "entity_ref", optional = true }
 <li><code>values</code> — valid options for enum types</li>
 </ul>
 <h2 id="built-in-components"><a class="header" href="#built-in-components">Built-in Components</a></h2>
-<p>Flint ships with three built-in component schemas:</p>
+<p>Flint ships with seven built-in component schemas:</p>
 <h3 id="transform"><a class="header" href="#transform">Transform</a></h3>
 <pre><code class="language-toml"># schemas/components/transform.toml
 [component.transform]
@@ -250,6 +250,50 @@ style = { type = "enum", values = ["hinged", "sliding", "rotating"], default = "
 locked = { type = "bool", default = false }
 open_angle = { type = "f32", default = 90.0, min = 0.0, max = 180.0 }
 </code></pre>
+<h3 id="material"><a class="header" href="#material">Material</a></h3>
+<pre><code class="language-toml"># schemas/components/material.toml
+[component.material]
+description = "PBR material properties"
+
+[component.material.fields]
+texture = { type = "string", default = "", optional = true }
+roughness = { type = "f32", default = 0.5, min = 0.0, max = 1.0 }
+metallic = { type = "f32", default = 0.0, min = 0.0, max = 1.0 }
+color = { type = "vec3", default = [1.0, 1.0, 1.0] }
+emissive = { type = "vec3", default = [0.0, 0.0, 0.0] }
+</code></pre>
+<h3 id="rigidbody"><a class="header" href="#rigidbody">Rigidbody</a></h3>
+<pre><code class="language-toml"># schemas/components/rigidbody.toml
+[component.rigidbody]
+description = "Physics rigid body"
+
+[component.rigidbody.fields]
+body_type = { type = "enum", values = ["static", "dynamic", "kinematic"], default = "static" }
+mass = { type = "f32", default = 1.0, min = 0.0 }
+gravity_scale = { type = "f32", default = 1.0 }
+</code></pre>
+<h3 id="collider"><a class="header" href="#collider">Collider</a></h3>
+<pre><code class="language-toml"># schemas/components/collider.toml
+[component.collider]
+description = "Physics collision shape"
+
+[component.collider.fields]
+shape = { type = "enum", values = ["box", "sphere", "capsule"], default = "box" }
+size = { type = "vec3", default = [1.0, 1.0, 1.0] }
+friction = { type = "f32", default = 0.5, min = 0.0, max = 1.0 }
+</code></pre>
+<h3 id="character-controller"><a class="header" href="#character-controller">Character Controller</a></h3>
+<pre><code class="language-toml"># schemas/components/character_controller.toml
+[component.character_controller]
+description = "First-person character controller"
+
+[component.character_controller.fields]
+move_speed = { type = "f32", default = 5.0, min = 0.0 }
+jump_force = { type = "f32", default = 7.0, min = 0.0 }
+height = { type = "f32", default = 1.8, min = 0.1 }
+radius = { type = "f32", default = 0.4, min = 0.1 }
+camera_mode = { type = "enum", values = ["first_person", "orbit"], default = "first_person" }
+</code></pre>
 <h2 id="archetype-schemas"><a class="header" href="#archetype-schemas">Archetype Schemas</a></h2>
 <p>Archetypes bundle components together with defaults. They live in <code>schemas/archetypes/</code>:</p>
 <pre><code class="language-toml"># schemas/archetypes/room.toml
@@ -273,6 +317,11 @@ max = [10, 4, 10]
 <tr><td><code>door</code></td><td>transform, door</td><td>A door entity</td></tr>
 <tr><td><code>furniture</code></td><td>transform, bounds</td><td>A piece of furniture</td></tr>
 <tr><td><code>character</code></td><td>transform</td><td>A character or NPC</td></tr>
+<tr><td><code>wall</code></td><td>transform, bounds, material</td><td>A wall surface</td></tr>
+<tr><td><code>floor</code></td><td>transform, bounds, material</td><td>A floor surface</td></tr>
+<tr><td><code>ceiling</code></td><td>transform, bounds, material</td><td>A ceiling surface</td></tr>
+<tr><td><code>pillar</code></td><td>transform, bounds, material</td><td>A structural pillar</td></tr>
+<tr><td><code>player</code></td><td>transform, character_controller, rigidbody, collider</td><td>Player-controlled entity</td></tr>
 </tbody>
 </table>
 </div>

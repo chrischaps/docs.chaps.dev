@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-7ea73f8d.js";
+            window.path_to_searchindex_js = "searchindex-ca2e5392.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-a2d2185c.js"></script>
+        <script src="toc-069aa04f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,16 +179,15 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
-<blockquote>
-<p>This page is a stub. Contribution guidelines coming soon.</p>
-</blockquote>
-<p>Flint is in early development. Contributions are welcome in these areas:</p>
+<p>Flint is in active development (Phase 4 of 5). Contributions are welcome in these areas:</p>
 <ul>
 <li><strong>Bug reports</strong> — file issues on GitHub</li>
 <li><strong>Schema definitions</strong> — new component and archetype schemas</li>
 <li><strong>Documentation</strong> — improvements to this guide</li>
-<li><strong>Test coverage</strong> — additional unit and integration tests</li>
+<li><strong>Test coverage</strong> — additional unit and integration tests (107 tests across 14 crates)</li>
 <li><strong>Constraint kinds</strong> — new validation rule types</li>
+<li><strong>Physics</strong> — additional collider shapes, improved character controller behavior</li>
+<li><strong>Rendering</strong> — post-processing effects, LOD, additional debug views</li>
 </ul>
 <h2 id="development-setup"><a class="header" href="#development-setup">Development Setup</a></h2>
 <pre><code class="language-bash">git clone https://github.com/chaps/flint.git
@@ -198,6 +197,13 @@ cargo test
 cargo clippy
 cargo fmt --check
 </code></pre>
+<h2 id="running-the-demo"><a class="header" href="#running-the-demo">Running the Demo</a></h2>
+<pre><code class="language-bash"># Scene viewer with hot-reload
+cargo run --bin flint -- serve demo/phase4_runtime.scene.toml --watch
+
+# First-person walkable scene
+cargo run --bin flint -- play demo/phase4_runtime.scene.toml
+</code></pre>
 <h2 id="code-style"><a class="header" href="#code-style">Code Style</a></h2>
 <ul>
 <li>Run <code>cargo fmt</code> before committing</li>
@@ -205,6 +211,13 @@ cargo fmt --check
 <li>Each crate has its own error type using <code>thiserror</code></li>
 <li>Tests live alongside the code they test (<code>#[cfg(test)]</code> modules)</li>
 <li>Prefer explicit over clever; readability over brevity</li>
+</ul>
+<h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
+<p>The project is a 14-crate Cargo workspace. See the <a href="architecture/overview.html">Architecture Overview</a> and <a href="architecture/crate-graph.html">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
+<ul>
+<li>Dependencies flow in one direction (binary crates at the top, <code>flint-core</code> at the bottom)</li>
+<li>Components are dynamic <code>toml::Value</code>, not Rust types — schemas are runtime data</li>
+<li>Two entry points: <code>flint-cli</code> (scene authoring) and <code>flint-player</code> (interactive gameplay)</li>
 </ul>
 
                     </main>

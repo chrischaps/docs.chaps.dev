@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-7ea73f8d.js";
+            window.path_to_searchindex_js = "../searchindex-ca2e5392.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-a2d2185c.js"></script>
+        <script src="../toc-069aa04f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -180,7 +180,7 @@
                     <main>
                         <h1 id="building-a-tavern"><a class="header" href="#building-a-tavern">Building a Tavern</a></h1>
 <blockquote>
-<p>This page is a stub. Content coming soon.</p>
+<p>This page is a stub. Full tutorial coming soon.</p>
 </blockquote>
 <p>A step-by-step tutorial that builds a complete tavern scene from scratch using only CLI commands. This guide will cover:</p>
 <ul>
@@ -189,17 +189,28 @@
 <li>Placing doors with component properties</li>
 <li>Furnishing spaces with tables, chairs, and decorations</li>
 <li>Adding characters (bartender, patrons, a mysterious stranger)</li>
+<li>Adding physics colliders for walkable geometry</li>
+<li>Creating a player entity with first-person controls</li>
 <li>Running queries to inspect the scene</li>
 <li>Validating against constraints</li>
 <li>Viewing the result with <code>flint serve --watch</code></li>
+<li>Walking through the tavern with <code>flint play</code></li>
 </ul>
 <p>This tutorial follows the same steps as the <code>demo/build-tavern.ps1</code> showcase script, explained in detail.</p>
+<p>In the meantime, you can explore the finished result:</p>
+<pre><code class="language-bash"># View the tavern in the scene viewer
+cargo run --bin flint -- serve demo/phase4_runtime.scene.toml --watch
+
+# Walk through the tavern in first person
+cargo run --bin flint -- play demo/phase4_runtime.scene.toml
+</code></pre>
+<p>The <code>demo/phase4_runtime.scene.toml</code> scene contains a three-room tavern with a main hall, kitchen, and storage room, furnished with a bar counter, tables, fireplace, and barrels. Four NPCs populate the space: a bartender, two patrons, and a mysterious stranger. All surfaces have physics colliders for first-person exploration.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../concepts/rendering.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../concepts/physics-and-runtime.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -213,7 +224,7 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../concepts/rendering.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../concepts/physics-and-runtime.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

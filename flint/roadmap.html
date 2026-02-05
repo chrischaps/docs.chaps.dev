@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-7ea73f8d.js";
+            window.path_to_searchindex_js = "searchindex-ca2e5392.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-a2d2185c.js"></script>
+        <script src="toc-069aa04f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -203,27 +203,49 @@
 <li><code>flint-import</code> — glTF/GLB importer with mesh, material, and texture extraction</li>
 </ul>
 <p><strong>Milestone:</strong> <code>flint validate --fix</code> automatically fixes constraint violations. <code>flint asset import model.glb</code> stores and catalogs assets.</p>
-<h2 id="phase-3-rendering--validation"><a class="header" href="#phase-3-rendering--validation">Phase 3: Rendering + Validation</a></h2>
-<p><strong>Status: Complete (basic)</strong></p>
-<p>The visual validation phase. Humans can now see what the agent built.</p>
+<h2 id="phase-3-rendering--visual-validation"><a class="header" href="#phase-3-rendering--visual-validation">Phase 3: Rendering + Visual Validation</a></h2>
+<p><strong>Status: Complete</strong></p>
+<p>The visual validation phase. Physically-based rendering with a full-featured scene viewer.</p>
 <p><strong>Delivered:</strong></p>
 <ul>
-<li><code>flint-render</code> — wgpu-based renderer with archetype-colored boxes</li>
+<li><code>flint-render</code> — wgpu 23 PBR renderer with Cook-Torrance shading, cascaded shadow mapping, and glTF mesh rendering</li>
+<li><code>flint-viewer</code> — egui-based GUI inspector with entity tree, component editing, and constraint overlay</li>
 <li>Scene viewer with orbit camera, hot-reload via <code>serve --watch</code></li>
 <li>Headless rendering for CI (<code>flint render --headless</code>)</li>
+<li>Material system with roughness, metallic, emissive, and texture support</li>
 </ul>
-<p><strong>Milestone:</strong> <code>flint serve --watch</code> shows a live scene that updates when files change.</p>
-<h2 id="phase-4-runtime"><a class="header" href="#phase-4-runtime">Phase 4: Runtime</a></h2>
-<p><strong>Status: Planned</strong></p>
-<p>The game runtime phase. A playable game loop with physics, audio, and scripting.</p>
-<p><strong>Planned:</strong></p>
+<p><strong>Milestone:</strong> <code>flint serve --watch</code> shows a live PBR scene with shadows that updates when files change.</p>
+<h2 id="phase-4-interactive-runtime"><a class="header" href="#phase-4-interactive-runtime">Phase 4: Interactive Runtime</a></h2>
+<p><strong>Status: In Progress (Stage 1 of 4 complete)</strong></p>
+<p>The game runtime phase. A playable game loop with physics, and eventually audio and scripting.</p>
+<p><strong>Stage 1 — Game Loop + Physics: Complete</strong></p>
 <ul>
-<li><code>flint-physics</code> — Rapier integration for collision detection and rigid body simulation</li>
-<li><code>flint-audio</code> — Kira integration for spatial audio and sound effects</li>
-<li><code>flint-script</code> — Rhai scripting for game logic (sandboxed, statically typed)</li>
-<li><code>flint-player</code> — Standalone game executable</li>
+<li><code>flint-runtime</code> — GameClock (fixed-timestep accumulator), InputState (keyboard/mouse with action bindings), EventBus, RuntimeSystem trait</li>
+<li><code>flint-physics</code> — Rapier 3D integration: PhysicsWorld, PhysicsSync (TOML-to-Rapier bridge), CharacterController (kinematic first-person movement with gravity and jumping)</li>
+<li><code>flint-player</code> — Standalone player binary with full game loop</li>
+<li>First-person camera mode (backward-compatible with orbit)</li>
+<li>CLI <code>play</code> command — <code>flint play &lt;scene&gt; [--schemas] [--fullscreen]</code></li>
+<li>Physics schemas — <code>rigidbody.toml</code>, <code>collider.toml</code>, <code>character_controller.toml</code> components + <code>player.toml</code> archetype</li>
+<li>Demo scene — walkable tavern with physics colliders on walls, floor, and furniture</li>
 </ul>
-<p><strong>Milestone:</strong> A simple game runs — walk around, open doors, hear sounds.</p>
+<p><strong>Stage 2 — Audio: Planned</strong></p>
+<ul>
+<li><code>flint-audio</code> — Kira integration for spatial audio and sound effects</li>
+<li>3D positioned sounds with distance attenuation</li>
+<li>Ambient loops and sound trigger events</li>
+</ul>
+<p><strong>Stage 3 — Scripting: Planned</strong></p>
+<ul>
+<li><code>flint-script</code> — Rhai scripting for game logic (sandboxed)</li>
+<li>Entity API, event callbacks (<code>on_collision</code>, <code>on_trigger</code>, <code>on_action</code>)</li>
+<li>Hot-reload for script files</li>
+</ul>
+<p><strong>Stage 4 — Integration: Planned</strong></p>
+<ul>
+<li>Interactable component with scripted behaviors</li>
+<li>Full demo: walk around, open doors, hear sounds</li>
+</ul>
+<p><strong>Milestone:</strong> <code>flint play tavern.scene.toml</code> launches a first-person walkable scene with physics.</p>
 <h2 id="phase-5-ai-asset-pipeline"><a class="header" href="#phase-5-ai-asset-pipeline">Phase 5: AI Asset Pipeline</a></h2>
 <p><strong>Status: Planned</strong></p>
 <p>Integrated AI generation workflows for textures, meshes, and audio.</p>
@@ -239,8 +261,7 @@
 <p>These are ideas under consideration, not committed plans:</p>
 <ul>
 <li><strong>Networking</strong> — multiplayer support</li>
-<li><strong>Advanced rendering</strong> — PBR materials, shadow mapping, post-processing, LOD</li>
-<li><strong>Viewer GUI</strong> — entity inspector, constraint violation overlay, visual diff mode</li>
+<li><strong>Post-processing</strong> — bloom, ambient occlusion, tone mapping, LOD</li>
 <li><strong>Plugin system</strong> — third-party extensions</li>
 <li><strong>Package manager</strong> — share schemas, constraints, and assets between projects</li>
 <li><strong>WebAssembly</strong> — browser-based viewer and potentially runtime</li>

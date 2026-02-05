@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-7ea73f8d.js";
+            window.path_to_searchindex_js = "../searchindex-ca2e5392.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-a2d2185c.js"></script>
+        <script src="../toc-069aa04f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,26 +179,73 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="assets"><a class="header" href="#assets">Assets</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Flint uses a content-addressed asset system with SHA-256 hashing. This page will cover:</p>
+<p>Flint uses a content-addressed asset system with SHA-256 hashing. Every imported file is identified by its content hash, which means identical files are automatically deduplicated and any change to a file produces a new, distinct hash.</p>
+<h2 id="content-addressing"><a class="header" href="#content-addressing">Content Addressing</a></h2>
+<p>When you import a file, Flint computes its SHA-256 hash and stores it under a content-addressed path:</p>
+<pre><code>.flint/assets/&lt;first-2-hex&gt;/&lt;full-hash&gt;.&lt;ext&gt;
+</code></pre>
+<p>This means:</p>
 <ul>
-<li>Content addressing: how files are identified by hash</li>
-<li>Storage layout: <code>.flint/assets/&lt;prefix&gt;/&lt;hash&gt;.&lt;ext&gt;</code></li>
-<li>Asset sidecar files (<code>.asset.toml</code>) for metadata</li>
-<li>Importing assets: <code>flint asset import</code></li>
-<li>Browsing the catalog: <code>flint asset list</code>, <code>flint asset info</code></li>
-<li>Resolution strategies: <code>strict</code>, <code>placeholder</code></li>
-<li>glTF/GLB import with mesh, material, and texture extraction</li>
-<li>Deduplication and change detection</li>
+<li><strong>Deduplication</strong> — importing the same file twice stores it only once</li>
+<li><strong>Change detection</strong> — if a source file changes, its hash changes, and the new version is stored separately</li>
+<li><strong>Integrity</strong> — the hash verifies the file hasn’t been corrupted</li>
 </ul>
-<p>See the <a href="../guides/importing-assets.html">Importing Assets</a> guide for practical examples.</p>
-<p>Quick start:</p>
-<pre><code class="language-bash">flint asset import models/chair.glb --name tavern_chair --tags furniture,medieval
+<h2 id="asset-catalog"><a class="header" href="#asset-catalog">Asset Catalog</a></h2>
+<p>The asset catalog is a searchable index of all imported assets. Each entry tracks:</p>
+<ul>
+<li><strong>Name</strong> — a human-friendly identifier (e.g., <code>tavern_chair</code>)</li>
+<li><strong>Hash</strong> — the SHA-256 content hash</li>
+<li><strong>Type</strong> — asset type (<code>mesh</code>, <code>texture</code>, <code>material</code>, etc.)</li>
+<li><strong>Tags</strong> — arbitrary labels for organization and filtering</li>
+<li><strong>Source path</strong> — where the file was originally imported from</li>
+</ul>
+<h2 id="importing-assets"><a class="header" href="#importing-assets">Importing Assets</a></h2>
+<p>Use the CLI to import files into the asset store:</p>
+<pre><code class="language-bash"># Import a glTF model with name and tags
+flint asset import models/chair.glb --name tavern_chair --tags furniture,medieval
+
+# Browse the catalog
 flint asset list --type mesh
+
+# Check asset references in a scene
 flint asset resolve levels/tavern.scene.toml --strategy strict
 </code></pre>
+<h2 id="gltfglb-import"><a class="header" href="#gltfglb-import">glTF/GLB Import</a></h2>
+<p>The <code>flint-import</code> crate provides full glTF/GLB support, extracting:</p>
+<ul>
+<li><strong>Meshes</strong> — vertex positions, normals, texture coordinates, and indices</li>
+<li><strong>Materials</strong> — PBR properties (base color, roughness, metallic, emissive)</li>
+<li><strong>Textures</strong> — embedded or referenced image files</li>
+</ul>
+<p>Imported meshes are rendered by <code>flint-render</code> with full PBR shading.</p>
+<h2 id="resolution-strategies"><a class="header" href="#resolution-strategies">Resolution Strategies</a></h2>
+<p>When a scene references assets, Flint can resolve them using different strategies:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Strategy</th><th>Behavior</th></tr>
+</thead>
+<tbody>
+<tr><td><code>strict</code></td><td>All referenced assets must exist in the catalog. Missing assets are errors.</td></tr>
+<tr><td><code>placeholder</code></td><td>Missing assets are replaced with placeholder geometry. Useful during development.</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="asset-sidecar-files"><a class="header" href="#asset-sidecar-files">Asset Sidecar Files</a></h2>
+<p>Each asset in the catalog has a <code>.asset.toml</code> sidecar file storing metadata:</p>
+<pre><code class="language-toml">[asset]
+name = "tavern_chair"
+type = "mesh"
+hash = "sha256:a1b2c3..."
+source_path = "models/chair.glb"
+tags = ["furniture", "medieval"]
+</code></pre>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="../guides/importing-assets.html">Importing Assets</a> — step-by-step import guide</li>
+<li><a href="schemas.html">Schemas</a> — the <code>material</code> component schema for PBR properties</li>
+<li><a href="../formats/overview.html">File Formats</a> — asset sidecar TOML format reference</li>
+</ul>
 
                     </main>
 

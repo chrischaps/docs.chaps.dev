@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["asset","entity","init","query","render","scene","schema","serve","validate"]};
+window.SIDEBAR_ITEMS = {"mod":["asset","entity","init","play","query","render","scene","schema","serve","validate"]};
