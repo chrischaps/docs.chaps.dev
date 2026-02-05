@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["additive_blend","blend_poses"]};

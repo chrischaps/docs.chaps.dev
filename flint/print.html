@@ -37,10 +37,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-ca2e5392.js";
+            window.path_to_searchindex_js = "searchindex-54da5ca8.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-069aa04f.js"></script>
+        <script src="toc-0981ad03.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -209,7 +209,7 @@ flint serve levels/tavern.scene.toml --watch
 flint play levels/tavern.scene.toml
 </code></pre>
 <h2 id="current-status"><a class="header" href="#current-status">Current Status</a></h2>
-<p>Flint is in active development through Phase 4. Phases 1–3 are complete, and Phase 4 Stage 1 (Game Loop + Physics) is implemented. The engine currently supports:</p>
+<p>Flint is in active development through Phase 4. Phases 1–3 are complete, and Phase 4 Stages 1–3 (Game Loop, Audio, Animation) are implemented. The engine currently supports:</p>
 <ul>
 <li><strong>Entity CRUD</strong> via CLI with archetype-based creation</li>
 <li><strong>Scene serialization</strong> in human-readable TOML</li>
@@ -218,12 +218,16 @@ flint play levels/tavern.scene.toml
 <li><strong>Constraint validation</strong> with auto-fix capabilities</li>
 <li><strong>Asset management</strong> with content-addressed storage and glTF import</li>
 <li><strong>PBR renderer</strong> with Cook-Torrance shading, cascaded shadow mapping, and glTF mesh rendering</li>
+<li><strong>GPU skeletal animation</strong> with glTF skin/joint import, vertex skinning, and crossfade blending</li>
 <li><strong>egui inspector</strong> with entity tree, component editing, and constraint overlay</li>
 <li><strong>Hot-reload viewer</strong> that watches for file changes</li>
 <li><strong>Headless rendering</strong> for CI and automated screenshots</li>
 <li><strong>Physics simulation</strong> via Rapier 3D with kinematic character controller</li>
 <li><strong>First-person gameplay</strong> with WASD movement, mouse look, jumping, and sprinting</li>
 <li><strong>Game loop</strong> with fixed-timestep accumulator for deterministic physics</li>
+<li><strong>Spatial audio</strong> via Kira with 3D positioned sounds, ambient loops, and event-driven triggers</li>
+<li><strong>Property animation</strong> with TOML-defined keyframe clips (Step, Linear, CubicSpline interpolation)</li>
+<li><strong>Skeletal animation</strong> with glTF skin import, GPU bone matrix skinning, and crossfade blending</li>
 </ul>
 <p>See the <a href="#roadmap">Roadmap</a> for what’s planned next.</p>
 <h2 id="who-is-this-for"><a class="header" href="#who-is-this-for">Who Is This For?</a></h2>
@@ -1354,6 +1358,21 @@ tags = ["furniture", "medieval"]
 <p>The camera mode is determined by the entry point: <code>serve</code> uses orbit, <code>play</code> uses first-person. Both produce the same view and projection matrices.</p>
 <h2 id="gltf-mesh-rendering"><a class="header" href="#gltf-mesh-rendering">glTF Mesh Rendering</a></h2>
 <p>Imported glTF models are rendered with their full mesh geometry and materials. The <code>flint-import</code> crate extracts meshes, materials, and textures from <code>.glb</code>/<code>.gltf</code> files, which the renderer draws with PBR shading.</p>
+<h2 id="skinned-mesh-pipeline"><a class="header" href="#skinned-mesh-pipeline">Skinned Mesh Pipeline</a></h2>
+<p>For skeletal animation, the renderer provides a separate GPU pipeline that applies bone matrix skinning in the vertex shader. This avoids the 32-byte overhead of bone data on static geometry.</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li><code>flint-import</code> extracts joint indices and weights from glTF skins alongside the mesh data</li>
+<li><code>flint-animation</code> evaluates keyframes and computes bone matrices each frame (local pose -&gt; global hierarchy -&gt; inverse bind matrix)</li>
+<li>The renderer uploads bone matrices to a storage buffer and applies them in the vertex shader</li>
+</ol>
+<p><strong>Key types:</strong></p>
+<ul>
+<li><code>SkinnedVertex</code> — extends the standard vertex with <code>joint_indices: [u32; 4]</code> and <code>joint_weights: [f32; 4]</code> (6 attributes total vs. 4 for static geometry)</li>
+<li><code>GpuSkinnedMesh</code> — holds the vertex/index buffers, material, and a bone matrix storage buffer with its bind group</li>
+<li>Skinned pipeline uses bind groups 0–3: transform, material, lights, and bones (storage buffer, read-only, vertex-visible)</li>
+</ul>
+<p>Skinned meshes also cast shadows through a dedicated <code>vs_skinned_shadow</code> shader entry point that applies bone transforms before depth rendering.</p>
 <h2 id="viewer-vs-headless"><a class="header" href="#viewer-vs-headless">Viewer vs Headless</a></h2>
 <p>The renderer operates in two modes:</p>
 <p><strong>Viewer mode</strong> (<code>flint serve --watch</code>) opens an interactive window with:</p>
@@ -1371,8 +1390,276 @@ tags = ["furniture", "medieval"]
 <h2 id="further-reading-4"><a class="header" href="#further-reading-4">Further Reading</a></h2>
 <ul>
 <li><a href="#the-scene-viewer">The Scene Viewer</a> — getting started with the viewer</li>
+<li><a href="#animation">Animation</a> — the animation system that drives skinned meshes</li>
 <li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop and first-person gameplay</li>
 <li><a href="#headless-rendering-1">Headless Rendering</a> — CI integration guide</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="audio"><a class="header" href="#audio">Audio</a></h1>
+<p>Flint’s audio system provides spatial 3D sound via the <code>flint-audio</code> crate, built on <a href="https://github.com/tesselode/kira">Kira</a> 0.11. Sounds can be positioned in 3D space with distance attenuation, played as ambient loops, or triggered by game events like collisions.</p>
+<h2 id="spatial-audio"><a class="header" href="#spatial-audio">Spatial Audio</a></h2>
+<p>Spatial sounds are attached to entities via the <code>audio_source</code> component. The sound’s volume attenuates with distance from the listener (the player camera):</p>
+<ul>
+<li><strong>min_distance</strong> — full volume within this radius</li>
+<li><strong>max_distance</strong> — silence beyond this radius</li>
+<li>Volume falls off smoothly between the two</li>
+</ul>
+<p>The listener position and orientation are updated each frame to match the first-person camera, so sounds pan and attenuate as you move through the scene.</p>
+<h2 id="ambient-loops"><a class="header" href="#ambient-loops">Ambient Loops</a></h2>
+<p>Non-spatial sounds play on the main audio track at constant volume regardless of listener position. Set <code>spatial = false</code> on an <code>audio_source</code> to use this mode — useful for background music, ambient atmosphere, and UI sounds.</p>
+<h2 id="audio-schemas"><a class="header" href="#audio-schemas">Audio Schemas</a></h2>
+<p>Three component schemas define audio behavior:</p>
+<p><strong>audio_source</strong> (<code>audio_source.toml</code>) — a sound attached to an entity:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>file</code></td><td>string</td><td></td><td>Path to audio file (relative to scene directory)</td></tr>
+<tr><td><code>volume</code></td><td>f32</td><td>1.0</td><td>Playback volume (0.0–2.0)</td></tr>
+<tr><td><code>pitch</code></td><td>f32</td><td>1.0</td><td>Playback speed/pitch (0.1–4.0)</td></tr>
+<tr><td><code>loop</code></td><td>bool</td><td>false</td><td>Loop the sound continuously</td></tr>
+<tr><td><code>spatial</code></td><td>bool</td><td>true</td><td>3D positioned (uses entity transform)</td></tr>
+<tr><td><code>min_distance</code></td><td>f32</td><td>1.0</td><td>Distance at full volume</td></tr>
+<tr><td><code>max_distance</code></td><td>f32</td><td>25.0</td><td>Distance at silence</td></tr>
+<tr><td><code>autoplay</code></td><td>bool</td><td>true</td><td>Start playing on scene load</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>audio_listener</strong> (<code>audio_listener.toml</code>) — marks which entity receives audio:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>active</code></td><td>bool</td><td>true</td><td>Whether this listener is active</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>audio_trigger</strong> (<code>audio_trigger.toml</code>) — event-driven sounds:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>on_collision</code></td><td>string</td><td></td><td>Sound to play on collision start</td></tr>
+<tr><td><code>on_interact</code></td><td>string</td><td></td><td>Sound to play on player interaction</td></tr>
+<tr><td><code>on_enter</code></td><td>string</td><td></td><td>Sound when entering a trigger volume</td></tr>
+<tr><td><code>on_exit</code></td><td>string</td><td></td><td>Sound when exiting a trigger volume</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
+<p>The audio system has three main components:</p>
+<ul>
+<li><strong>AudioEngine</strong> — wraps Kira’s <code>AudioManager</code>, handles sound file loading, listener positioning, and spatial track creation. Sounds route through spatial tracks for 3D positioning or the main track for ambient playback.</li>
+<li><strong>AudioSync</strong> — bridges TOML <code>audio_source</code> components to Kira spatial tracks. Discovers new audio entities each frame and updates spatial positions from entity transforms.</li>
+<li><strong>AudioTrigger</strong> — maps game events (collisions, interactions) to <code>AudioCommand</code>s that play sounds at specific positions.</li>
+</ul>
+<p>The system implements the <code>RuntimeSystem</code> trait, ticking in the <code>update()</code> phase of the game loop (not <code>fixed_update()</code>, since audio doesn’t need fixed-timestep processing).</p>
+<h2 id="graceful-degradation"><a class="header" href="#graceful-degradation">Graceful Degradation</a></h2>
+<p><code>AudioManager::new()</code> can fail on headless machines or CI environments without an audio device. The engine wraps the manager in <code>Option</code> and silently skips audio operations when unavailable. This means scenes with audio components work correctly in all environments — you just won’t hear anything.</p>
+<h2 id="adding-audio-to-a-scene"><a class="header" href="#adding-audio-to-a-scene">Adding Audio to a Scene</a></h2>
+<pre><code class="language-toml"># A crackling fire with spatial falloff
+[entities.fireplace]
+archetype = "furniture"
+
+[entities.fireplace.transform]
+position = [5.0, 0.5, 3.0]
+
+[entities.fireplace.audio_source]
+file = "audio/fire_crackle.ogg"
+volume = 0.8
+loop = true
+spatial = true
+min_distance = 1.0
+max_distance = 15.0
+
+# Background tavern ambience (non-spatial)
+[entities.ambience]
+
+[entities.ambience.audio_source]
+file = "audio/tavern_ambient.ogg"
+volume = 0.3
+loop = true
+spatial = false
+</code></pre>
+<p>Supported audio formats: OGG, WAV, MP3, FLAC (via Kira’s symphonia backend).</p>
+<h2 id="further-reading-5"><a class="header" href="#further-reading-5">Further Reading</a></h2>
+<ul>
+<li><a href="#animation">Animation</a> — animation system that can trigger audio events</li>
+<li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop and event bus that drives audio triggers</li>
+<li><a href="#schemas">Schemas</a> — component and archetype definitions</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="animation"><a class="header" href="#animation">Animation</a></h1>
+<p>Flint’s animation system provides two tiers of animation through the <code>flint-animation</code> crate: <strong>property tweens</strong> for simple transform animations defined in TOML, and <strong>skeletal animation</strong> for character rigs imported from glTF files with GPU vertex skinning.</p>
+<h2 id="tier-1-property-animation"><a class="header" href="#tier-1-property-animation">Tier 1: Property Animation</a></h2>
+<p>Property animations are the simplest form — animate any transform property (position, rotation, scale) or custom float field over time using keyframes. No 3D modeling tool required; clips are defined entirely in TOML.</p>
+<h3 id="animation-clips"><a class="header" href="#animation-clips">Animation Clips</a></h3>
+<p>Clips are <code>.anim.toml</code> files stored in the <code>demo/animations/</code> directory:</p>
+<pre><code class="language-toml"># animations/door_swing.anim.toml
+name = "door_swing"
+duration = 0.8
+
+[[tracks]]
+interpolation = "Linear"
+
+[tracks.target]
+type = "Rotation"
+
+[[tracks.keyframes]]
+time = 0.0
+value = [0.0, 0.0, 0.0]
+
+[[tracks.keyframes]]
+time = 0.8
+value = [0.0, 90.0, 0.0]
+
+[[events]]
+time = 0.0
+event_name = "door_creak"
+</code></pre>
+<h3 id="interpolation-modes"><a class="header" href="#interpolation-modes">Interpolation Modes</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Behavior</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Step</strong></td><td>Jumps instantly to the next keyframe value</td></tr>
+<tr><td><strong>Linear</strong></td><td>Linearly interpolates between keyframes</td></tr>
+<tr><td><strong>CubicSpline</strong></td><td>Smooth interpolation with in/out tangents (matches glTF spec)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="track-targets"><a class="header" href="#track-targets">Track Targets</a></h3>
+<p>Each track animates a specific property:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Target</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>Position</code></td><td>Entity position <code>[x, y, z]</code></td></tr>
+<tr><td><code>Rotation</code></td><td>Entity rotation in euler degrees <code>[x, y, z]</code></td></tr>
+<tr><td><code>Scale</code></td><td>Entity scale <code>[x, y, z]</code></td></tr>
+<tr><td><code>CustomFloat</code></td><td>Any numeric component field (specify <code>component</code> and <code>field</code>)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="animation-events"><a class="header" href="#animation-events">Animation Events</a></h3>
+<p>Clips can fire game events at specific times — useful for triggering sounds (footstep at a specific frame), spawning particles, or notifying scripts. Events fire once per loop cycle.</p>
+<h3 id="attaching-an-animation"><a class="header" href="#attaching-an-animation">Attaching an Animation</a></h3>
+<p>Add an <code>animator</code> component to any entity in your scene:</p>
+<pre><code class="language-toml">[entities.platform]
+archetype = "furniture"
+
+[entities.platform.transform]
+position = [2.0, 0.5, 3.0]
+
+[entities.platform.animator]
+clip = "platform_bob"
+autoplay = true
+loop = true
+speed = 1.0
+</code></pre>
+<p>The animation system scans for <code>.anim.toml</code> files at startup and matches clip names to <code>animator</code> components.</p>
+<h2 id="tier-2-skeletal-animation"><a class="header" href="#tier-2-skeletal-animation">Tier 2: Skeletal Animation</a></h2>
+<p>For characters and complex articulated meshes, skeletal animation imports bone hierarchies from glTF files and drives them with GPU vertex skinning.</p>
+<h3 id="pipeline"><a class="header" href="#pipeline">Pipeline</a></h3>
+<pre><code>glTF file (.glb)
+  ├── Skin: joint hierarchy + inverse bind matrices
+  ├── Mesh: positions, normals, UVs, joint_indices, joint_weights
+  └── Animations: per-joint translation/rotation/scale channels
+         │
+         ▼
+  ┌──────────────────────┐
+  │   flint-import        │  Extract skeleton, clips, skinned vertices
+  └──────────┬───────────┘
+             │
+  ┌──────────▼───────────┐
+  │   flint-animation     │  Evaluate keyframes → bone matrices each frame
+  └──────────┬───────────┘
+             │
+  ┌──────────▼───────────┐
+  │   flint-render        │  Upload bone matrices → vertex shader skinning
+  └──────────────────────┘
+</code></pre>
+<h3 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h3>
+<ol>
+<li><strong>Import</strong> — <code>flint-import</code> extracts the skeleton (joint hierarchy, inverse bind matrices) and animation clips (per-joint keyframe channels) from glTF files</li>
+<li><strong>Evaluate</strong> — each frame, <code>flint-animation</code> samples the current clip time to produce local joint poses, walks the bone hierarchy to compute global transforms, and multiplies by inverse bind matrices to get final bone matrices</li>
+<li><strong>Render</strong> — bone matrices are uploaded to a GPU storage buffer. The skinned vertex shader transforms each vertex by its weighted bone influences</li>
+</ol>
+<h3 id="skinned-vertices"><a class="header" href="#skinned-vertices">Skinned Vertices</a></h3>
+<p>Skeletal meshes use a separate <code>SkinnedVertex</code> type with 6 attributes (vs. 4 for static geometry), avoiding 32 bytes of wasted bone data on every static vertex in the scene:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Attribute</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>position</code></td><td>vec3</td><td>Vertex position</td></tr>
+<tr><td><code>normal</code></td><td>vec3</td><td>Vertex normal</td></tr>
+<tr><td><code>color</code></td><td>vec4</td><td>Vertex color</td></tr>
+<tr><td><code>uv</code></td><td>vec2</td><td>Texture coordinates</td></tr>
+<tr><td><code>joint_indices</code></td><td>uvec4</td><td>Indices of 4 influencing bones</td></tr>
+<tr><td><code>joint_weights</code></td><td>vec4</td><td>Weights for each bone (sum to 1.0)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="crossfade-blending"><a class="header" href="#crossfade-blending">Crossfade Blending</a></h3>
+<p>Smooth transitions between skeletal clips (e.g., idle to walk) use crossfade blending controlled by the <code>animator</code> component:</p>
+<pre><code class="language-toml">[entities.character.animator]
+clip = "idle"
+playing = true
+loop = true
+blend_target = "walk"      # Crossfade into this clip
+blend_duration = 0.3       # Over 0.3 seconds
+</code></pre>
+<p>Blending uses slerp for rotation quaternions and lerp for translation/scale, producing smooth pose interpolation.</p>
+<h3 id="skeleton-schema"><a class="header" href="#skeleton-schema">Skeleton Schema</a></h3>
+<p>The <code>skeleton</code> component references a glTF skin:</p>
+<pre><code class="language-toml">[entities.character.skeleton]
+skin = "Armature"           # Name of the glTF skin
+</code></pre>
+<p>Entities with both <code>animator</code> and <code>skeleton</code> components use the skeletal animation path. Entities with only <code>animator</code> use property tweens.</p>
+<h2 id="animator-schema"><a class="header" href="#animator-schema">Animator Schema</a></h2>
+<p>The <code>animator</code> component controls playback for both tiers:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>clip</code></td><td>string</td><td>“”</td><td>Current animation clip name</td></tr>
+<tr><td><code>playing</code></td><td>bool</td><td>false</td><td>Whether the animation is playing</td></tr>
+<tr><td><code>autoplay</code></td><td>bool</td><td>false</td><td>Start playing on scene load</td></tr>
+<tr><td><code>loop</code></td><td>bool</td><td>true</td><td>Loop when the clip ends</td></tr>
+<tr><td><code>speed</code></td><td>f32</td><td>1.0</td><td>Playback speed (-10.0 to 10.0)</td></tr>
+<tr><td><code>blend_target</code></td><td>string</td><td>“”</td><td>Clip to crossfade into</td></tr>
+<tr><td><code>blend_duration</code></td><td>f32</td><td>0.3</td><td>Crossfade duration in seconds</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="architecture-1"><a class="header" href="#architecture-1">Architecture</a></h2>
+<ul>
+<li><strong>AnimationPlayer</strong> — clip registry and per-entity playback state for property tweens</li>
+<li><strong>AnimationSync</strong> — bridges ECS <code>animator</code> components to property animation playback, auto-discovers new entities each frame</li>
+<li><strong>SkeletalSync</strong> — bridges ECS to skeletal animation, manages per-entity skeleton state and bone matrix computation</li>
+<li><strong>AnimationSystem</strong> — top-level <code>RuntimeSystem</code> implementation that ticks both tiers</li>
+</ul>
+<p>Animation runs in <code>update()</code> (variable-rate), not <code>fixed_update()</code>, because smooth interpolation benefits from matching the rendering frame rate rather than the physics tick rate.</p>
+<h2 id="further-reading-6"><a class="header" href="#further-reading-6">Further Reading</a></h2>
+<ul>
+<li><a href="#audio">Audio</a> — audio system that responds to animation events</li>
+<li><a href="#rendering">Rendering</a> — the skinned mesh GPU pipeline</li>
+<li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop that drives animation</li>
+<li><a href="#file-formats">File Formats</a> — <code>.anim.toml</code> format reference</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="physics-and-runtime"><a class="header" href="#physics-and-runtime">Physics and Runtime</a></h1>
@@ -1385,9 +1672,11 @@ tags = ["furniture", "medieval"]
 <li><strong>Process input</strong> — read keyboard and mouse state into <code>InputState</code></li>
 <li><strong>Fixed-step physics</strong> — while enough time has accumulated, step the physics simulation</li>
 <li><strong>Character controller</strong> — apply player movement based on input and physics state</li>
+<li><strong>Update audio</strong> — sync listener position to camera, process trigger events, update spatial tracks</li>
+<li><strong>Advance animation</strong> — tick property tweens and skeletal playback, write updated transforms to ECS, upload bone matrices to GPU</li>
 <li><strong>Render</strong> — draw the frame with the current entity positions</li>
 </ol>
-<p>The <code>RuntimeSystem</code> trait provides a standard interface for systems that plug into this loop.</p>
+<p>The <code>RuntimeSystem</code> trait provides a standard interface for systems that plug into this loop. Physics, audio, and animation each implement <code>RuntimeSystem</code> with <code>initialize()</code>, <code>fixed_update()</code>, <code>update()</code>, and <code>shutdown()</code> methods.</p>
 <h2 id="physics-with-rapier-3d"><a class="header" href="#physics-with-rapier-3d">Physics with Rapier 3D</a></h2>
 <p>The <code>flint-physics</code> crate wraps Rapier 3D and bridges it to Flint’s TOML-based component system:</p>
 <ul>
@@ -1450,8 +1739,10 @@ body_type = "static"
 <li>Mouse provides raw delta movement (via <code>DeviceEvent::MouseMotion</code>) for smooth camera look</li>
 <li>Action bindings map keys to game actions (move forward, jump, sprint, etc.)</li>
 </ul>
-<h2 id="further-reading-5"><a class="header" href="#further-reading-5">Further Reading</a></h2>
+<h2 id="further-reading-7"><a class="header" href="#further-reading-7">Further Reading</a></h2>
 <ul>
+<li><a href="#audio">Audio</a> — spatial audio with Kira</li>
+<li><a href="#animation">Animation</a> — property tweens and skeletal animation</li>
 <li><a href="#rendering">Rendering</a> — the PBR rendering pipeline</li>
 <li><a href="#schemas">Schemas</a> — component and archetype definitions including physics schemas</li>
 <li><a href="#cli-reference">CLI Reference</a> — the <code>play</code> command and player binary</li>
@@ -1703,6 +1994,30 @@ message = "..."
 [constraint.kind]
 type = "&lt;kind&gt;"
 </code></pre>
+<h2 id="animation-clips-demoanimationsanimtoml"><a class="header" href="#animation-clips-demoanimationsanimtoml">Animation Clips (<code>demo/animations/*.anim.toml</code>)</a></h2>
+<pre><code class="language-toml">name = "clip_name"
+duration = 0.8
+
+[[tracks]]
+interpolation = "Linear"       # "Step", "Linear", or "CubicSpline"
+
+[tracks.target]
+type = "Rotation"              # "Position", "Rotation", "Scale", or "CustomFloat"
+
+[[tracks.keyframes]]
+time = 0.0
+value = [0.0, 0.0, 0.0]       # [x, y, z] (euler degrees for rotation)
+
+[[tracks.keyframes]]
+time = 0.8
+value = [0.0, 90.0, 0.0]
+# in_tangent = [...]           # Optional, for CubicSpline
+# out_tangent = [...]
+
+[[events]]                     # Optional timed events
+time = 0.0
+event_name = "door_start"
+</code></pre>
 <h2 id="asset-sidecars-assetsassettoml"><a class="header" href="#asset-sidecars-assetsassettoml">Asset Sidecars (<code>assets/**/*.asset.toml</code>)</a></h2>
 <pre><code class="language-toml">[asset]
 name = "asset_name"
@@ -1713,17 +2028,19 @@ tags = ["tag1", "tag2"]
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="architecture-overview"><a class="header" href="#architecture-overview">Architecture Overview</a></h1>
-<p>Flint is structured as a fourteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
+<p>Flint is structured as a sixteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
 <h2 id="workspace-structure"><a class="header" href="#workspace-structure">Workspace Structure</a></h2>
 <pre><code>flint/
 ├── crates/
 │   ├── flint-cli/          # CLI binary (clap). Entry point for all commands.
-│   ├── flint-player/       # Standalone player binary with game loop and physics
+│   ├── flint-player/       # Standalone player binary with game loop, physics, audio, animation
 │   ├── flint-viewer/       # egui-based GUI inspector with hot-reload
+│   ├── flint-animation/    # Two-tier animation: property tweens + skeletal/glTF
+│   ├── flint-audio/        # Kira spatial audio: 3D sounds, ambient loops, triggers
 │   ├── flint-runtime/      # Game loop infrastructure (GameClock, InputState, EventBus)
 │   ├── flint-physics/      # Rapier 3D integration (PhysicsWorld, CharacterController)
-│   ├── flint-render/       # wgpu PBR renderer with Cook-Torrance shading
-│   ├── flint-import/       # File importers (glTF/GLB)
+│   ├── flint-render/       # wgpu PBR renderer with Cook-Torrance shading + skinned mesh pipeline
+│   ├── flint-import/       # File importers (glTF/GLB with skeleton/skin extraction)
 │   ├── flint-asset/        # Content-addressed asset storage and catalog
 │   ├── flint-constraint/   # Constraint definitions and validation engine
 │   ├── flint-query/        # PEG query language (pest parser)
@@ -1764,6 +2081,7 @@ tags = ["tag1", "tag2"]
 <tr><td>Rendering</td><td>wgpu 23</td><td>Cross-platform, modern GPU API</td></tr>
 <tr><td>Windowing</td><td>winit 0.30</td><td><code>ApplicationHandler</code> trait pattern</td></tr>
 <tr><td>Physics</td><td>Rapier 3D 0.22</td><td>Mature Rust physics, character controller</td></tr>
+<tr><td>Audio</td><td>Kira 0.11</td><td>Rust-native, game-focused, spatial audio</td></tr>
 <tr><td>GUI</td><td>egui 0.30</td><td>Immediate-mode, easy integration with wgpu</td></tr>
 <tr><td>Scene format</td><td>TOML</td><td>Human-readable, diffable, good Rust support</td></tr>
 <tr><td>Query parser</td><td>pest</td><td>PEG grammar, good error messages</td></tr>
@@ -1781,18 +2099,19 @@ tags = ["tag1", "tag2"]
   flint-cli                        flint-player
   (scene authoring)                (interactive gameplay)
       │                                  │
-      ├──► flint-viewer (GUI)            ├──► flint-runtime  (game loop, input)
-      ├──► flint-query  (queries)        ├──► flint-physics  (Rapier 3D)
-      ├──► flint-scene  (load/save)      └──► flint-render   (PBR renderer)
-      ├──► flint-render (renderer)               │
-      ├──► flint-constraint (validation)         ▼
-      ├──► flint-asset  (asset catalog)      flint-import   (glTF meshes)
-      └──► flint-import (glTF import)            │
-              │                                  ▼
-              ▼                              flint-ecs
-          flint-ecs                          flint-schema
-          flint-schema                       flint-core
-          flint-core
+      ├──► flint-viewer (GUI)            ├──► flint-runtime   (game loop, input)
+      ├──► flint-query  (queries)        ├──► flint-physics   (Rapier 3D)
+      ├──► flint-scene  (load/save)      ├──► flint-audio     (Kira spatial audio)
+      ├──► flint-render (renderer)       ├──► flint-animation (tweens + skeletal)
+      ├──► flint-constraint (validation) └──► flint-render    (PBR + skinned mesh)
+      ├──► flint-asset  (asset catalog)          │
+      └──► flint-import (glTF import)            ▼
+              │                              flint-import  (glTF meshes + skins)
+              ▼                                  │
+          flint-ecs                              ▼
+          flint-schema                       flint-ecs
+          flint-core                         flint-schema
+                                             flint-core
 </code></pre>
 <h2 id="crate-details"><a class="header" href="#crate-details">Crate Details</a></h2>
 <h3 id="flint-core"><a class="header" href="#flint-core">flint-core</a></h3>
@@ -1857,50 +2176,72 @@ tags = ["tag1", "tag2"]
 <li><code>CharacterController</code> — kinematic first-person movement with gravity, jumping, and ground detection</li>
 <li>Uses kinematic bodies for player control, static bodies for world geometry</li>
 </ul>
-<h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
-<p>Standalone player binary that wires together runtime, physics, and rendering:</p>
+<h3 id="flint-audio"><a class="header" href="#flint-audio">flint-audio</a></h3>
+<p>Kira 0.11 integration for game audio:</p>
 <ul>
-<li>Full game loop: clock tick, fixed-step physics, character controller, first-person rendering</li>
+<li><code>AudioEngine</code> — wraps Kira AudioManager, handles sound loading and listener positioning</li>
+<li><code>AudioSync</code> — bridges TOML <code>audio_source</code> components to Kira spatial tracks</li>
+<li><code>AudioTrigger</code> — maps game events (collision, interaction) to sound playback</li>
+<li>Spatial 3D audio with distance attenuation, non-spatial ambient loops</li>
+<li>Graceful degradation when no audio device is available (headless/CI)</li>
+</ul>
+<h3 id="flint-animation"><a class="header" href="#flint-animation">flint-animation</a></h3>
+<p>Two-tier animation system:</p>
+<ul>
+<li><strong>Tier 1: Property tweens</strong> — <code>AnimationClip</code> with keyframe tracks targeting transform properties (position, rotation, scale) or custom fields. Step, Linear, and CubicSpline interpolation. Clips defined in <code>.anim.toml</code> files.</li>
+<li><strong>Tier 2: Skeletal animation</strong> — <code>Skeleton</code> and <code>SkeletalClip</code> types for glTF skin/joint hierarchies. GPU vertex skinning via bone matrix storage buffer. Crossfade blending between clips.</li>
+<li><code>AnimationSync</code> bridges ECS <code>animator</code> components to property playback</li>
+<li><code>SkeletalSync</code> bridges ECS to skeletal playback with bone matrix computation</li>
+</ul>
+<h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
+<p>Standalone player binary that wires together runtime, physics, audio, animation, and rendering:</p>
+<ul>
+<li>Full game loop: clock tick, fixed-step physics, audio sync, animation advance, first-person rendering</li>
 <li>Scene loading with physics body creation from TOML collider/rigidbody components</li>
+<li>Audio source loading and spatial listener tracking</li>
+<li>Skeletal animation with bone matrix upload to GPU each frame</li>
 <li>First-person controls (WASD, mouse look, jump, sprint)</li>
 </ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>
 <p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>serve</code>, <code>play</code>, <code>validate</code>, <code>asset</code>, <code>render</code>.</p>
-<h2 id="further-reading-6"><a class="header" href="#further-reading-6">Further Reading</a></h2>
+<h2 id="further-reading-8"><a class="header" href="#further-reading-8">Further Reading</a></h2>
 <ul>
 <li><a href="#crate-dependency-graph">Crate Dependency Graph</a> — visual dependency diagram</li>
 <li><a href="#design-principles">Design Principles</a> — the principles behind these decisions</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="crate-dependency-graph"><a class="header" href="#crate-dependency-graph">Crate Dependency Graph</a></h1>
-<p>This page shows how Flint’s fourteen crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
+<p>This page shows how Flint’s sixteen crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
 <h2 id="dependency-diagram"><a class="header" href="#dependency-diagram">Dependency Diagram</a></h2>
 <pre><code>          ┌─────────────┐                ┌──────────────┐
           │  flint-cli  │                │ flint-player │
           │  (binary)   │                │   (binary)   │
           └──────┬──────┘                └──────┬───────┘
                  │                              │
-    ┌────┬───┬──┴──┬────┬────┬────┐    ┌───┬───┴───┬───┐
-    │    │   │     │    │    │    │    │   │       │   │
-    ▼    │   ▼     ▼    ▼    ▼    ▼    ▼   ▼       ▼   │
- ┌──────┐│┌─────┐┌────┐│ ┌─────┐│ ┌────────┐┌────────┐│
- │viewer│││scene││qry ││ │const││ │runtime ││physics ││
- └──┬───┘│└──┬──┘└─┬──┘│ └──┬──┘│ └───┬────┘└───┬────┘│
-    │    │   │     │   │    │   │     │          │     │
-    │    ▼   │     │   │    │   │     │          │     │
-    │ ┌──────────┐ │   │    │   │     │          │     │
-    ├►│  render  │◄┘   │    │   │     │          │     │
-    │ └────┬─────┘     │    │   │     │          │     │
-    │      │           │    │   │     │          │     │
-    │      ▼           │    │   │     │          │     │
-    │ ┌──────────┐     │   ┌┘   │     │          │     │
-    │ │  import  │     │   │    │     │          │     │
-    │ └────┬─────┘     │   │    │     │          │     │
-    │      │           ▼   ▼    ▼     ▼          ▼     ▼
-    │      │    ┌──────────────────────────────────────────┐
-    │      │    │              flint-ecs                    │
-    │      │    │  (hecs wrapper, stable IDs, hierarchy)   │
-    │      │    └────────────────┬─────────────────────────┘
+    ┌────┬───┬──┴──┬────┬────┬────┐    ┌───┬───┴───┬───┬───┬───┐
+    │    │   │     │    │    │    │    │   │       │   │   │   │
+    ▼    │   ▼     ▼    ▼    ▼    ▼    ▼   ▼       ▼   │   │   │
+ ┌──────┐│┌─────┐┌────┐│ ┌─────┐│ ┌────────┐┌────────┐│   │   │
+ │viewer│││scene││qry ││ │const││ │runtime ││physics ││   │   │
+ └──┬───┘│└──┬──┘└─┬──┘│ └──┬──┘│ └───┬────┘└───┬────┘│   │   │
+    │    │   │     │   │    │   │     │          │     │   │   │
+    │    ▼   │     │   │    │   │     │          │     ▼   ▼   │
+    │ ┌──────────┐ │   │    │   │     │          │  ┌─────────┐│
+    ├►│  render  │◄┘   │    │   │     │          │  │  audio  ││
+    │ └────┬─────┘     │    │   │     │          │  └────┬────┘│
+    │      │           │    │   │     │          │       │     │
+    │      │           │    │   │     │          │       │     ▼
+    │      │           │    │   │     │          │       │  ┌──────────┐
+    │      │           │    │   │     │          │       │  │animation │
+    │      ▼           │    │   │     │          │       │  └────┬─────┘
+    │ ┌──────────┐     │   ┌┘   │     │          │       │       │
+    │ │  import  │     │   │    │     │          │       │       │
+    │ └────┬─────┘     │   │    │     │          │       │       │
+    │      │           ▼   ▼    ▼     ▼          ▼       ▼       ▼
+    │      │    ┌──────────────────────────────────────────────────┐
+    │      │    │              flint-ecs                            │
+    │      │    │  (hecs wrapper, stable IDs, hierarchy)           │
+    │      │    └────────────────┬─────────────────────────────────┘
     │      │                    │
     │      │                    ▼
     │      │             ┌──────────────┐
@@ -1924,17 +2265,19 @@ tags = ["tag1", "tag2"]
 <tbody>
 <tr><td><code>flint-core</code></td><td><em>(none)</em></td><td>all other crates</td></tr>
 <tr><td><code>flint-schema</code></td><td>core</td><td>ecs, constraint</td></tr>
-<tr><td><code>flint-ecs</code></td><td>core, schema</td><td>scene, query, render, constraint, runtime, physics, viewer, player, cli</td></tr>
+<tr><td><code>flint-ecs</code></td><td>core, schema</td><td>scene, query, render, constraint, runtime, physics, audio, animation, viewer, player, cli</td></tr>
 <tr><td><code>flint-asset</code></td><td>core</td><td>import, cli</td></tr>
-<tr><td><code>flint-import</code></td><td>core, asset</td><td>render, viewer, cli, player</td></tr>
+<tr><td><code>flint-import</code></td><td>core, asset</td><td>render, animation, viewer, cli, player</td></tr>
 <tr><td><code>flint-query</code></td><td>core, ecs</td><td>constraint, cli</td></tr>
 <tr><td><code>flint-scene</code></td><td>core, ecs, schema</td><td>viewer, player, cli</td></tr>
 <tr><td><code>flint-constraint</code></td><td>core, ecs, schema, query</td><td>viewer, cli</td></tr>
 <tr><td><code>flint-render</code></td><td>core, ecs, import</td><td>viewer, player, cli</td></tr>
-<tr><td><code>flint-runtime</code></td><td>core, ecs</td><td>physics, player</td></tr>
+<tr><td><code>flint-runtime</code></td><td>core, ecs</td><td>physics, audio, animation, player</td></tr>
 <tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>player</td></tr>
+<tr><td><code>flint-audio</code></td><td>core, ecs, runtime</td><td>player</td></tr>
+<tr><td><code>flint-animation</code></td><td>core, ecs, import, runtime</td><td>player</td></tr>
 <tr><td><code>flint-viewer</code></td><td>core, ecs, scene, schema, render, import, constraint</td><td>cli</td></tr>
-<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, import</td><td><em>(binary entry point)</em></td></tr>
+<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, import</td><td><em>(binary entry point)</em></td></tr>
 <tr><td><code>flint-cli</code></td><td>all crates</td><td><em>(binary entry point)</em></td></tr>
 </tbody>
 </table>
@@ -1947,12 +2290,12 @@ tags = ["tag1", "tag2"]
 <li><strong>Schema</strong> — data definitions (<code>flint-schema</code>)</li>
 <li><strong>Storage</strong> — entity and asset management (<code>flint-ecs</code>, <code>flint-asset</code>)</li>
 <li><strong>Logic</strong> — query, scene, constraint, import</li>
-<li><strong>Systems</strong> — render, runtime, physics</li>
+<li><strong>Systems</strong> — render, runtime, physics, audio, animation</li>
 <li><strong>Applications</strong> — viewer, player</li>
 <li><strong>Interface</strong> — CLI binary (<code>flint-cli</code>), player binary (<code>flint-player</code>)</li>
 </ol>
 <p><strong>Two entry points.</strong> The CLI binary (<code>flint-cli</code>) serves scene authoring and validation workflows. The player binary (<code>flint-player</code>) serves interactive gameplay. Both share the same underlying crate hierarchy.</p>
-<p><strong>Independent subsystems.</strong> The constraint system, asset system, physics system, and render system don’t depend on each other. This means you can build and test each subsystem in isolation.</p>
+<p><strong>Independent subsystems.</strong> The constraint system, asset system, physics system, audio system, animation system, and render system don’t depend on each other. This means you can build and test each subsystem in isolation.</p>
 <h2 id="external-dependencies"><a class="header" href="#external-dependencies">External Dependencies</a></h2>
 <p>Key third-party crates used across the workspace:</p>
 <div class="table-wrapper">
@@ -1968,11 +2311,13 @@ tags = ["tag1", "tag2"]
 <tr><td><code>wgpu</code></td><td>flint-render, flint-viewer, flint-player</td><td>GPU abstraction layer</td></tr>
 <tr><td><code>winit</code></td><td>flint-render, flint-viewer, flint-runtime, flint-player</td><td>Window and input management</td></tr>
 <tr><td><code>rapier3d</code></td><td>flint-physics</td><td>3D physics simulation</td></tr>
+<tr><td><code>kira</code></td><td>flint-audio</td><td>Spatial audio engine</td></tr>
+<tr><td><code>glam</code></td><td>flint-audio</td><td>Vec3/Quat types for Kira spatial positioning (via mint interop)</td></tr>
 <tr><td><code>egui</code></td><td>flint-viewer</td><td>Immediate-mode GUI framework</td></tr>
 <tr><td><code>clap</code></td><td>flint-cli, flint-player</td><td>Command-line argument parsing</td></tr>
 <tr><td><code>thiserror</code></td><td>all library crates</td><td>Error derive macros</td></tr>
 <tr><td><code>sha2</code></td><td>flint-core, flint-asset</td><td>SHA-256 hashing</td></tr>
-<tr><td><code>gltf</code></td><td>flint-import</td><td>glTF file parsing</td></tr>
+<tr><td><code>gltf</code></td><td>flint-import</td><td>glTF file parsing (meshes, materials, skins, animations)</td></tr>
 <tr><td><code>crossbeam</code></td><td>flint-physics</td><td>Channel-based event collection (Rapier)</td></tr>
 </tbody>
 </table>
@@ -2016,8 +2361,8 @@ tags = ["tag1", "tag2"]
 </ul>
 <p><strong>Milestone:</strong> <code>flint serve --watch</code> shows a live PBR scene with shadows that updates when files change.</p>
 <h2 id="phase-4-interactive-runtime"><a class="header" href="#phase-4-interactive-runtime">Phase 4: Interactive Runtime</a></h2>
-<p><strong>Status: In Progress (Stage 1 of 4 complete)</strong></p>
-<p>The game runtime phase. A playable game loop with physics, and eventually audio and scripting.</p>
+<p><strong>Status: In Progress (Stages 1–3 of 5 complete)</strong></p>
+<p>The game runtime phase. A playable game loop with physics, audio, animation, and eventually scripting.</p>
 <p><strong>Stage 1 — Game Loop + Physics: Complete</strong></p>
 <ul>
 <li><code>flint-runtime</code> — GameClock (fixed-timestep accumulator), InputState (keyboard/mouse with action bindings), EventBus, RuntimeSystem trait</li>
@@ -2028,24 +2373,41 @@ tags = ["tag1", "tag2"]
 <li>Physics schemas — <code>rigidbody.toml</code>, <code>collider.toml</code>, <code>character_controller.toml</code> components + <code>player.toml</code> archetype</li>
 <li>Demo scene — walkable tavern with physics colliders on walls, floor, and furniture</li>
 </ul>
-<p><strong>Stage 2 — Audio: Planned</strong></p>
+<p><strong>Stage 2 — Audio: Complete</strong></p>
 <ul>
-<li><code>flint-audio</code> — Kira integration for spatial audio and sound effects</li>
-<li>3D positioned sounds with distance attenuation</li>
-<li>Ambient loops and sound trigger events</li>
+<li><code>flint-audio</code> — Kira 0.11 integration: AudioEngine, AudioSync, AudioTrigger, AudioSystem</li>
+<li>Spatial 3D audio with distance attenuation via SpatialTrackHandle</li>
+<li>Non-spatial ambient loops on main track</li>
+<li>Event-driven sound triggers (collision, interaction)</li>
+<li>Audio component schemas — <code>audio_source.toml</code>, <code>audio_listener.toml</code>, <code>audio_trigger.toml</code></li>
+<li>Graceful degradation when no audio device available (headless/CI)</li>
+<li>Demo audio — CC0 OGG assets: fire crackle, ambient tavern, door open, glass clinks</li>
 </ul>
-<p><strong>Stage 3 — Scripting: Planned</strong></p>
+<p><strong>Stage 3 — Animation: Complete</strong></p>
+<ul>
+<li><code>flint-animation</code> — Two-tier animation system:
+<ul>
+<li><strong>Tier 1: Property tweens</strong> — TOML-defined <code>.anim.toml</code> keyframe clips with Step/Linear/CubicSpline interpolation, <code>animator</code> component schema, event firing at keyframe times</li>
+<li><strong>Tier 2: Skeletal animation</strong> — glTF skin/joint import via <code>flint-import</code>, GPU vertex skinning with storage buffer bone matrices, separate <code>SkinnedVertex</code> pipeline, crossfade blending between clips</li>
+</ul>
+</li>
+<li><code>skeleton</code> component schema for glTF skin references</li>
+<li>Skinned shadow mapping with dedicated shader entry point</li>
+<li>Demo animations — bobbing platform (4s loop), door swing (0.8s), skeletal test scene</li>
+</ul>
+<p><strong>Stage 4 — Scripting: Planned</strong></p>
 <ul>
 <li><code>flint-script</code> — Rhai scripting for game logic (sandboxed)</li>
 <li>Entity API, event callbacks (<code>on_collision</code>, <code>on_trigger</code>, <code>on_action</code>)</li>
+<li>Animation and audio APIs for scripts</li>
 <li>Hot-reload for script files</li>
 </ul>
-<p><strong>Stage 4 — Integration: Planned</strong></p>
+<p><strong>Stage 5 — Integration: Planned</strong></p>
 <ul>
 <li>Interactable component with scripted behaviors</li>
-<li>Full demo: walk around, open doors, hear sounds</li>
+<li>Full demo: walk around, open animated doors, see NPC idle animations, hear sounds</li>
 </ul>
-<p><strong>Milestone:</strong> <code>flint play tavern.scene.toml</code> launches a first-person walkable scene with physics.</p>
+<p><strong>Milestone:</strong> <code>flint play tavern.scene.toml</code> launches a first-person walkable scene with physics, spatial audio, and animation.</p>
 <h2 id="phase-5-ai-asset-pipeline"><a class="header" href="#phase-5-ai-asset-pipeline">Phase 5: AI Asset Pipeline</a></h2>
 <p><strong>Status: Planned</strong></p>
 <p>Integrated AI generation workflows for textures, meshes, and audio.</p>
@@ -2073,10 +2435,12 @@ tags = ["tag1", "tag2"]
 <li><strong>Bug reports</strong> — file issues on GitHub</li>
 <li><strong>Schema definitions</strong> — new component and archetype schemas</li>
 <li><strong>Documentation</strong> — improvements to this guide</li>
-<li><strong>Test coverage</strong> — additional unit and integration tests (107 tests across 14 crates)</li>
+<li><strong>Test coverage</strong> — additional unit and integration tests (146 tests across 16 crates)</li>
 <li><strong>Constraint kinds</strong> — new validation rule types</li>
 <li><strong>Physics</strong> — additional collider shapes, improved character controller behavior</li>
 <li><strong>Rendering</strong> — post-processing effects, LOD, additional debug views</li>
+<li><strong>Audio</strong> — additional audio formats, reverb zones, music system</li>
+<li><strong>Animation</strong> — blend trees, additive blending, animation state machines</li>
 </ul>
 <h2 id="development-setup"><a class="header" href="#development-setup">Development Setup</a></h2>
 <pre><code class="language-bash">git clone https://github.com/chaps/flint.git
@@ -2101,8 +2465,8 @@ cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 <li>Tests live alongside the code they test (<code>#[cfg(test)]</code> modules)</li>
 <li>Prefer explicit over clever; readability over brevity</li>
 </ul>
-<h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
-<p>The project is a 14-crate Cargo workspace. See the <a href="#architecture-overview">Architecture Overview</a> and <a href="#crate-dependency-graph">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
+<h2 id="architecture-2"><a class="header" href="#architecture-2">Architecture</a></h2>
+<p>The project is a 16-crate Cargo workspace. See the <a href="#architecture-overview">Architecture Overview</a> and <a href="#crate-dependency-graph">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
 <ul>
 <li>Dependencies flow in one direction (binary crates at the top, <code>flint-core</code> at the bottom)</li>
 <li>Components are dynamic <code>toml::Value</code>, not Rust types — schemas are runtime data</li>

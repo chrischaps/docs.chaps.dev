@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-ca2e5392.js";
+            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-069aa04f.js"></script>
+        <script src="../toc-0981ad03.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,17 +179,19 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="architecture-overview"><a class="header" href="#architecture-overview">Architecture Overview</a></h1>
-<p>Flint is structured as a fourteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
+<p>Flint is structured as a sixteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
 <h2 id="workspace-structure"><a class="header" href="#workspace-structure">Workspace Structure</a></h2>
 <pre><code>flint/
 ├── crates/
 │   ├── flint-cli/          # CLI binary (clap). Entry point for all commands.
-│   ├── flint-player/       # Standalone player binary with game loop and physics
+│   ├── flint-player/       # Standalone player binary with game loop, physics, audio, animation
 │   ├── flint-viewer/       # egui-based GUI inspector with hot-reload
+│   ├── flint-animation/    # Two-tier animation: property tweens + skeletal/glTF
+│   ├── flint-audio/        # Kira spatial audio: 3D sounds, ambient loops, triggers
 │   ├── flint-runtime/      # Game loop infrastructure (GameClock, InputState, EventBus)
 │   ├── flint-physics/      # Rapier 3D integration (PhysicsWorld, CharacterController)
-│   ├── flint-render/       # wgpu PBR renderer with Cook-Torrance shading
-│   ├── flint-import/       # File importers (glTF/GLB)
+│   ├── flint-render/       # wgpu PBR renderer with Cook-Torrance shading + skinned mesh pipeline
+│   ├── flint-import/       # File importers (glTF/GLB with skeleton/skin extraction)
 │   ├── flint-asset/        # Content-addressed asset storage and catalog
 │   ├── flint-constraint/   # Constraint definitions and validation engine
 │   ├── flint-query/        # PEG query language (pest parser)
@@ -230,6 +232,7 @@
 <tr><td>Rendering</td><td>wgpu 23</td><td>Cross-platform, modern GPU API</td></tr>
 <tr><td>Windowing</td><td>winit 0.30</td><td><code>ApplicationHandler</code> trait pattern</td></tr>
 <tr><td>Physics</td><td>Rapier 3D 0.22</td><td>Mature Rust physics, character controller</td></tr>
+<tr><td>Audio</td><td>Kira 0.11</td><td>Rust-native, game-focused, spatial audio</td></tr>
 <tr><td>GUI</td><td>egui 0.30</td><td>Immediate-mode, easy integration with wgpu</td></tr>
 <tr><td>Scene format</td><td>TOML</td><td>Human-readable, diffable, good Rust support</td></tr>
 <tr><td>Query parser</td><td>pest</td><td>PEG grammar, good error messages</td></tr>
@@ -247,18 +250,19 @@
   flint-cli                        flint-player
   (scene authoring)                (interactive gameplay)
       │                                  │
-      ├──► flint-viewer (GUI)            ├──► flint-runtime  (game loop, input)
-      ├──► flint-query  (queries)        ├──► flint-physics  (Rapier 3D)
-      ├──► flint-scene  (load/save)      └──► flint-render   (PBR renderer)
-      ├──► flint-render (renderer)               │
-      ├──► flint-constraint (validation)         ▼
-      ├──► flint-asset  (asset catalog)      flint-import   (glTF meshes)
-      └──► flint-import (glTF import)            │
-              │                                  ▼
-              ▼                              flint-ecs
-          flint-ecs                          flint-schema
-          flint-schema                       flint-core
-          flint-core
+      ├──► flint-viewer (GUI)            ├──► flint-runtime   (game loop, input)
+      ├──► flint-query  (queries)        ├──► flint-physics   (Rapier 3D)
+      ├──► flint-scene  (load/save)      ├──► flint-audio     (Kira spatial audio)
+      ├──► flint-render (renderer)       ├──► flint-animation (tweens + skeletal)
+      ├──► flint-constraint (validation) └──► flint-render    (PBR + skinned mesh)
+      ├──► flint-asset  (asset catalog)          │
+      └──► flint-import (glTF import)            ▼
+              │                              flint-import  (glTF meshes + skins)
+              ▼                                  │
+          flint-ecs                              ▼
+          flint-schema                       flint-ecs
+          flint-core                         flint-schema
+                                             flint-core
 </code></pre>
 <h2 id="crate-details"><a class="header" href="#crate-details">Crate Details</a></h2>
 <h3 id="flint-core"><a class="header" href="#flint-core">flint-core</a></h3>
@@ -323,11 +327,30 @@
 <li><code>CharacterController</code> — kinematic first-person movement with gravity, jumping, and ground detection</li>
 <li>Uses kinematic bodies for player control, static bodies for world geometry</li>
 </ul>
-<h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
-<p>Standalone player binary that wires together runtime, physics, and rendering:</p>
+<h3 id="flint-audio"><a class="header" href="#flint-audio">flint-audio</a></h3>
+<p>Kira 0.11 integration for game audio:</p>
 <ul>
-<li>Full game loop: clock tick, fixed-step physics, character controller, first-person rendering</li>
+<li><code>AudioEngine</code> — wraps Kira AudioManager, handles sound loading and listener positioning</li>
+<li><code>AudioSync</code> — bridges TOML <code>audio_source</code> components to Kira spatial tracks</li>
+<li><code>AudioTrigger</code> — maps game events (collision, interaction) to sound playback</li>
+<li>Spatial 3D audio with distance attenuation, non-spatial ambient loops</li>
+<li>Graceful degradation when no audio device is available (headless/CI)</li>
+</ul>
+<h3 id="flint-animation"><a class="header" href="#flint-animation">flint-animation</a></h3>
+<p>Two-tier animation system:</p>
+<ul>
+<li><strong>Tier 1: Property tweens</strong> — <code>AnimationClip</code> with keyframe tracks targeting transform properties (position, rotation, scale) or custom fields. Step, Linear, and CubicSpline interpolation. Clips defined in <code>.anim.toml</code> files.</li>
+<li><strong>Tier 2: Skeletal animation</strong> — <code>Skeleton</code> and <code>SkeletalClip</code> types for glTF skin/joint hierarchies. GPU vertex skinning via bone matrix storage buffer. Crossfade blending between clips.</li>
+<li><code>AnimationSync</code> bridges ECS <code>animator</code> components to property playback</li>
+<li><code>SkeletalSync</code> bridges ECS to skeletal playback with bone matrix computation</li>
+</ul>
+<h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
+<p>Standalone player binary that wires together runtime, physics, audio, animation, and rendering:</p>
+<ul>
+<li>Full game loop: clock tick, fixed-step physics, audio sync, animation advance, first-person rendering</li>
 <li>Scene loading with physics body creation from TOML collider/rigidbody components</li>
+<li>Audio source loading and spatial listener tracking</li>
+<li>Skeletal animation with bone matrix upload to GPU each frame</li>
 <li>First-person controls (WASD, mouse look, jump, sprint)</li>
 </ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>

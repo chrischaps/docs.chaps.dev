@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-ca2e5392.js";
+            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-069aa04f.js"></script>
+        <script src="../toc-0981ad03.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -208,6 +208,21 @@
 <p>The camera mode is determined by the entry point: <code>serve</code> uses orbit, <code>play</code> uses first-person. Both produce the same view and projection matrices.</p>
 <h2 id="gltf-mesh-rendering"><a class="header" href="#gltf-mesh-rendering">glTF Mesh Rendering</a></h2>
 <p>Imported glTF models are rendered with their full mesh geometry and materials. The <code>flint-import</code> crate extracts meshes, materials, and textures from <code>.glb</code>/<code>.gltf</code> files, which the renderer draws with PBR shading.</p>
+<h2 id="skinned-mesh-pipeline"><a class="header" href="#skinned-mesh-pipeline">Skinned Mesh Pipeline</a></h2>
+<p>For skeletal animation, the renderer provides a separate GPU pipeline that applies bone matrix skinning in the vertex shader. This avoids the 32-byte overhead of bone data on static geometry.</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li><code>flint-import</code> extracts joint indices and weights from glTF skins alongside the mesh data</li>
+<li><code>flint-animation</code> evaluates keyframes and computes bone matrices each frame (local pose -&gt; global hierarchy -&gt; inverse bind matrix)</li>
+<li>The renderer uploads bone matrices to a storage buffer and applies them in the vertex shader</li>
+</ol>
+<p><strong>Key types:</strong></p>
+<ul>
+<li><code>SkinnedVertex</code> — extends the standard vertex with <code>joint_indices: [u32; 4]</code> and <code>joint_weights: [f32; 4]</code> (6 attributes total vs. 4 for static geometry)</li>
+<li><code>GpuSkinnedMesh</code> — holds the vertex/index buffers, material, and a bone matrix storage buffer with its bind group</li>
+<li>Skinned pipeline uses bind groups 0–3: transform, material, lights, and bones (storage buffer, read-only, vertex-visible)</li>
+</ul>
+<p>Skinned meshes also cast shadows through a dedicated <code>vs_skinned_shadow</code> shader entry point that applies bone transforms before depth rendering.</p>
 <h2 id="viewer-vs-headless"><a class="header" href="#viewer-vs-headless">Viewer vs Headless</a></h2>
 <p>The renderer operates in two modes:</p>
 <p><strong>Viewer mode</strong> (<code>flint serve --watch</code>) opens an interactive window with:</p>
@@ -225,6 +240,7 @@
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
 <li><a href="../getting-started/viewing.html">The Scene Viewer</a> — getting started with the viewer</li>
+<li><a href="animation.html">Animation</a> — the animation system that drives skinned meshes</li>
 <li><a href="physics-and-runtime.html">Physics and Runtime</a> — the game loop and first-person gameplay</li>
 <li><a href="../guides/headless-rendering.html">Headless Rendering</a> — CI integration guide</li>
 </ul>
@@ -237,7 +253,7 @@
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../concepts/physics-and-runtime.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../concepts/audio.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -251,7 +267,7 @@
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../concepts/physics-and-runtime.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../concepts/audio.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

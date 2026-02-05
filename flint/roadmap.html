@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-ca2e5392.js";
+            window.path_to_searchindex_js = "searchindex-54da5ca8.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-069aa04f.js"></script>
+        <script src="toc-0981ad03.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -216,8 +216,8 @@
 </ul>
 <p><strong>Milestone:</strong> <code>flint serve --watch</code> shows a live PBR scene with shadows that updates when files change.</p>
 <h2 id="phase-4-interactive-runtime"><a class="header" href="#phase-4-interactive-runtime">Phase 4: Interactive Runtime</a></h2>
-<p><strong>Status: In Progress (Stage 1 of 4 complete)</strong></p>
-<p>The game runtime phase. A playable game loop with physics, and eventually audio and scripting.</p>
+<p><strong>Status: In Progress (Stages 1–3 of 5 complete)</strong></p>
+<p>The game runtime phase. A playable game loop with physics, audio, animation, and eventually scripting.</p>
 <p><strong>Stage 1 — Game Loop + Physics: Complete</strong></p>
 <ul>
 <li><code>flint-runtime</code> — GameClock (fixed-timestep accumulator), InputState (keyboard/mouse with action bindings), EventBus, RuntimeSystem trait</li>
@@ -228,24 +228,41 @@
 <li>Physics schemas — <code>rigidbody.toml</code>, <code>collider.toml</code>, <code>character_controller.toml</code> components + <code>player.toml</code> archetype</li>
 <li>Demo scene — walkable tavern with physics colliders on walls, floor, and furniture</li>
 </ul>
-<p><strong>Stage 2 — Audio: Planned</strong></p>
+<p><strong>Stage 2 — Audio: Complete</strong></p>
 <ul>
-<li><code>flint-audio</code> — Kira integration for spatial audio and sound effects</li>
-<li>3D positioned sounds with distance attenuation</li>
-<li>Ambient loops and sound trigger events</li>
+<li><code>flint-audio</code> — Kira 0.11 integration: AudioEngine, AudioSync, AudioTrigger, AudioSystem</li>
+<li>Spatial 3D audio with distance attenuation via SpatialTrackHandle</li>
+<li>Non-spatial ambient loops on main track</li>
+<li>Event-driven sound triggers (collision, interaction)</li>
+<li>Audio component schemas — <code>audio_source.toml</code>, <code>audio_listener.toml</code>, <code>audio_trigger.toml</code></li>
+<li>Graceful degradation when no audio device available (headless/CI)</li>
+<li>Demo audio — CC0 OGG assets: fire crackle, ambient tavern, door open, glass clinks</li>
 </ul>
-<p><strong>Stage 3 — Scripting: Planned</strong></p>
+<p><strong>Stage 3 — Animation: Complete</strong></p>
+<ul>
+<li><code>flint-animation</code> — Two-tier animation system:
+<ul>
+<li><strong>Tier 1: Property tweens</strong> — TOML-defined <code>.anim.toml</code> keyframe clips with Step/Linear/CubicSpline interpolation, <code>animator</code> component schema, event firing at keyframe times</li>
+<li><strong>Tier 2: Skeletal animation</strong> — glTF skin/joint import via <code>flint-import</code>, GPU vertex skinning with storage buffer bone matrices, separate <code>SkinnedVertex</code> pipeline, crossfade blending between clips</li>
+</ul>
+</li>
+<li><code>skeleton</code> component schema for glTF skin references</li>
+<li>Skinned shadow mapping with dedicated shader entry point</li>
+<li>Demo animations — bobbing platform (4s loop), door swing (0.8s), skeletal test scene</li>
+</ul>
+<p><strong>Stage 4 — Scripting: Planned</strong></p>
 <ul>
 <li><code>flint-script</code> — Rhai scripting for game logic (sandboxed)</li>
 <li>Entity API, event callbacks (<code>on_collision</code>, <code>on_trigger</code>, <code>on_action</code>)</li>
+<li>Animation and audio APIs for scripts</li>
 <li>Hot-reload for script files</li>
 </ul>
-<p><strong>Stage 4 — Integration: Planned</strong></p>
+<p><strong>Stage 5 — Integration: Planned</strong></p>
 <ul>
 <li>Interactable component with scripted behaviors</li>
-<li>Full demo: walk around, open doors, hear sounds</li>
+<li>Full demo: walk around, open animated doors, see NPC idle animations, hear sounds</li>
 </ul>
-<p><strong>Milestone:</strong> <code>flint play tavern.scene.toml</code> launches a first-person walkable scene with physics.</p>
+<p><strong>Milestone:</strong> <code>flint play tavern.scene.toml</code> launches a first-person walkable scene with physics, spatial audio, and animation.</p>
 <h2 id="phase-5-ai-asset-pipeline"><a class="header" href="#phase-5-ai-asset-pipeline">Phase 5: AI Asset Pipeline</a></h2>
 <p><strong>Status: Planned</strong></p>
 <p>Integrated AI generation workflows for textures, meshes, and audio.</p>
