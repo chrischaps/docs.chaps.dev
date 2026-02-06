@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,23 +179,147 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="constraints"><a class="header" href="#constraints">Constraints</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Constraints are declarative validation rules that define what a correct scene looks like. This page will cover:</p>
-<ul>
-<li>Constraint file format (TOML in <code>schemas/constraints/</code>)</li>
-<li>Constraint kinds: <code>required_component</code>, <code>required_child</code>, <code>value_range</code>, <code>reference_valid</code>, <code>query_rule</code></li>
-<li>Auto-fix strategies: <code>add_child</code>, <code>set_default</code>, <code>remove_invalid</code>, <code>assign_from_parent</code></li>
-<li>The validation loop: evaluate, fix, re-evaluate, detect cycles</li>
-<li>CLI usage: <code>flint validate</code>, <code>--fix</code>, <code>--dry-run</code>, <code>--output-diff</code></li>
-<li>JSON and text output formats</li>
-</ul>
-<p>See the <a href="../guides/writing-constraints.html">Writing Constraints</a> guide for practical examples.</p>
-<p>Quick start:</p>
-<pre><code class="language-bash">flint validate levels/tavern.scene.toml --schemas schemas
-flint validate levels/tavern.scene.toml --fix --dry-run
+<p>Constraints are declarative validation rules that define what a correct scene looks like. They live in TOML files under <code>schemas/constraints/</code> and are checked by <code>flint validate</code>.</p>
+<h2 id="constraint-file-format"><a class="header" href="#constraint-file-format">Constraint File Format</a></h2>
+<p>Each constraint file can contain multiple <code>[[constraint]]</code> entries:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "doors_have_transform"
+description = "Every door must have a transform component"
+query = "entities where archetype == 'door'"
+severity = "error"
+message = "Door '{name}' is missing a transform component"
+
+[constraint.kind]
+type = "required_component"
+archetype = "door"
+component = "transform"
 </code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>name</code></td><td>Unique identifier for the constraint</td></tr>
+<tr><td><code>description</code></td><td>Human-readable explanation of what the rule checks</td></tr>
+<tr><td><code>query</code></td><td>Flint query that selects which entities this constraint applies to</td></tr>
+<tr><td><code>severity</code></td><td><code>"error"</code> (blocks) or <code>"warning"</code> (advisory)</td></tr>
+<tr><td><code>message</code></td><td>Violation message. <code>{name}</code> is replaced with the entity name</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="constraint-kinds"><a class="header" href="#constraint-kinds">Constraint Kinds</a></h2>
+<h3 id="required_component"><a class="header" href="#required_component"><code>required_component</code></a></h3>
+<p>Ensures that entities matching the query have a specific component:</p>
+<pre><code class="language-toml">[constraint.kind]
+type = "required_component"
+archetype = "door"
+component = "transform"
+</code></pre>
+<p>Use case: every door must have a position in the world.</p>
+<h3 id="required_child"><a class="header" href="#required_child"><code>required_child</code></a></h3>
+<p>Ensures that entities have a child entity of a specific archetype:</p>
+<pre><code class="language-toml">[constraint.kind]
+type = "required_child"
+archetype = "room"
+child_archetype = "door"
+</code></pre>
+<p>Use case: every room must have at least one door.</p>
+<h3 id="value_range"><a class="header" href="#value_range"><code>value_range</code></a></h3>
+<p>Checks that a numeric field falls within a valid range:</p>
+<pre><code class="language-toml">[constraint.kind]
+type = "value_range"
+field = "door.open_angle"
+min = 0.0
+max = 180.0
+</code></pre>
+<p>Use case: door angles must be physically possible.</p>
+<h3 id="reference_valid"><a class="header" href="#reference_valid"><code>reference_valid</code></a></h3>
+<p>Checks that an entity reference field points to an existing entity:</p>
+<pre><code class="language-toml">[constraint.kind]
+type = "reference_valid"
+field = "door.target_room"
+</code></pre>
+<p>Use case: a door’s target room must actually exist in the scene.</p>
+<h3 id="query_rule"><a class="header" href="#query_rule"><code>query_rule</code></a></h3>
+<p>The most flexible kind — validates that a query returns the expected number of results:</p>
+<pre><code class="language-toml">[constraint.kind]
+type = "query_rule"
+rule_query = "entities where archetype == 'player'"
+expected = "exactly_one"
+</code></pre>
+<p>Use case: a playable scene must have exactly one player entity.</p>
+<h2 id="auto-fix-strategies"><a class="header" href="#auto-fix-strategies">Auto-Fix Strategies</a></h2>
+<p>Some constraint violations can be fixed automatically. The <code>fix</code> section defines how:</p>
+<ul>
+<li><strong>set_default</strong> — set a missing field to its schema default</li>
+<li><strong>add_child</strong> — create a child entity with the required archetype</li>
+<li><strong>remove_invalid</strong> — remove entities that violate the constraint</li>
+<li><strong>assign_from_parent</strong> — copy a field value from the parent entity</li>
+</ul>
+<p>Auto-fix runs in a loop: fix violations, re-validate, fix new violations. Cycle detection prevents infinite loops.</p>
+<h2 id="cli-usage"><a class="header" href="#cli-usage">CLI Usage</a></h2>
+<pre><code class="language-bash"># Check a scene for violations
+flint validate levels/tavern.scene.toml
+
+# JSON output for parsing
+flint validate levels/tavern.scene.toml --format json
+
+# Preview what auto-fix would change
+flint validate levels/tavern.scene.toml --fix --dry-run
+
+# Apply auto-fixes
+flint validate levels/tavern.scene.toml --fix
+
+# Specify a schemas directory
+flint validate levels/tavern.scene.toml --schemas schemas
+</code></pre>
+<p>The exit code is 0 if all constraints pass, 1 if any errors are found. Warnings do not affect the exit code.</p>
+<h2 id="real-example"><a class="header" href="#real-example">Real Example</a></h2>
+<p>From <code>schemas/constraints/basics.toml</code>:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "doors_have_transform"
+description = "Every door must have a transform component"
+query = "entities where archetype == 'door'"
+severity = "error"
+message = "Door '{name}' is missing a transform component"
+
+[constraint.kind]
+type = "required_component"
+archetype = "door"
+component = "transform"
+
+[[constraint]]
+name = "rooms_have_bounds"
+description = "Every room must have a bounds component"
+query = "entities where archetype == 'room'"
+severity = "error"
+message = "Room '{name}' is missing a bounds component"
+
+[constraint.kind]
+type = "required_component"
+archetype = "room"
+component = "bounds"
+
+[[constraint]]
+name = "door_angle_range"
+description = "Door open angle must be between 0 and 180 degrees"
+query = "entities where archetype == 'door'"
+severity = "warning"
+message = "Door '{name}' has an open_angle outside the valid range"
+
+[constraint.kind]
+type = "value_range"
+field = "door.open_angle"
+min = 0.0
+max = 180.0
+</code></pre>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="../guides/writing-constraints.html">Writing Constraints</a> — practical guide to authoring rules</li>
+<li><a href="queries.html">Queries</a> — the query language used in constraint selectors</li>
+<li><a href="../formats/overview.html">File Formats</a> — constraint file format reference</li>
+</ul>
 
                     </main>
 

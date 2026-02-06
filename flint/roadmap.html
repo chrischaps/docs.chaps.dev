@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-0981ad03.js"></script>
+        <script src="toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -216,8 +216,8 @@
 </ul>
 <p><strong>Milestone:</strong> <code>flint serve --watch</code> shows a live PBR scene with shadows that updates when files change.</p>
 <h2 id="phase-4-interactive-runtime"><a class="header" href="#phase-4-interactive-runtime">Phase 4: Interactive Runtime</a></h2>
-<p><strong>Status: In Progress (Stages 1–3 of 5 complete)</strong></p>
-<p>The game runtime phase. A playable game loop with physics, audio, animation, and eventually scripting.</p>
+<p><strong>Status: Complete</strong></p>
+<p>The game runtime phase. A playable game loop with physics, audio, animation, scripting, and interactive entities.</p>
 <p><strong>Stage 1 — Game Loop + Physics: Complete</strong></p>
 <ul>
 <li><code>flint-runtime</code> — GameClock (fixed-timestep accumulator), InputState (keyboard/mouse with action bindings), EventBus, RuntimeSystem trait</li>
@@ -250,30 +250,52 @@
 <li>Skinned shadow mapping with dedicated shader entry point</li>
 <li>Demo animations — bobbing platform (4s loop), door swing (0.8s), skeletal test scene</li>
 </ul>
-<p><strong>Stage 4 — Scripting: Planned</strong></p>
+<p><strong>Stage 4 — Scripting: Complete</strong></p>
 <ul>
-<li><code>flint-script</code> — Rhai scripting for game logic (sandboxed)</li>
-<li>Entity API, event callbacks (<code>on_collision</code>, <code>on_trigger</code>, <code>on_action</code>)</li>
-<li>Animation and audio APIs for scripts</li>
-<li>Hot-reload for script files</li>
+<li><code>flint-script</code> — Rhai scripting engine with per-entity scopes and AST management</li>
+<li>Entity API (read/write components, spawn/despawn, position/rotation, distance)</li>
+<li>Input API (action pressed/just-pressed, mouse delta)</li>
+<li>Audio API (play_sound, play_sound_at, stop_sound) via deferred ScriptCommand pattern</li>
+<li>Animation API (play_clip, stop_clip, blend_to, set_anim_speed) via direct ECS writes</li>
+<li>Math API (clamp, lerp, random, trig, atan2)</li>
+<li>Event callbacks: <code>on_init</code>, <code>on_update</code>, <code>on_collision</code>, <code>on_trigger_enter/exit</code>, <code>on_action</code>, <code>on_interact</code></li>
+<li>Hot-reload via file timestamp checking (keeps old AST on compile error)</li>
+<li><code>script</code> component schema with <code>source</code> and <code>enabled</code> fields</li>
 </ul>
-<p><strong>Stage 5 — Integration: Planned</strong></p>
+<p><strong>Stage 5 — Integration: Complete</strong></p>
 <ul>
-<li>Interactable component with scripted behaviors</li>
-<li>Full demo: walk around, open animated doors, see NPC idle animations, hear sounds</li>
+<li><code>interactable</code> component schema (prompt_text, range, interaction_type, enabled)</li>
+<li>Proximity-based interaction with <code>find_nearest_interactable()</code> scanning</li>
+<li>egui HUD overlay: crosshair + interaction prompt text with fade in/out</li>
+<li>NPC behavior scripts: bartender (wave + glass clink), patron (random fidget), mysterious stranger (ominous reactions)</li>
+<li>Footstep sounds synced to player movement</li>
+<li>Ambient event system (random sounds: glass clinks, chair creaks)</li>
+<li>Full atmospheric tavern integration demo with scripts, audio, animation, and interactables</li>
 </ul>
-<p><strong>Milestone:</strong> <code>flint play tavern.scene.toml</code> launches a first-person walkable scene with physics, spatial audio, and animation.</p>
+<p><strong>Milestone:</strong> <code>flint play tavern.scene.toml</code> launches a first-person walkable scene with physics, spatial audio, animation, scripted NPCs, and interactive objects.</p>
 <h2 id="phase-5-ai-asset-pipeline"><a class="header" href="#phase-5-ai-asset-pipeline">Phase 5: AI Asset Pipeline</a></h2>
-<p><strong>Status: Planned</strong></p>
-<p>Integrated AI generation workflows for textures, meshes, and audio.</p>
-<p><strong>Planned:</strong></p>
+<p><strong>Status: Complete</strong></p>
+<p>Integrated AI generation workflows for textures, meshes, and audio with style consistency and provenance tracking.</p>
+<p><strong>Delivered:</strong></p>
 <ul>
-<li><code>flint-asset-gen</code> — Provider integrations (texture generation, mesh generation, audio generation)</li>
-<li>Style consistency validation against style guide TOML files</li>
-<li>Human task generation for assets that need manual creation</li>
-<li>Resolution strategy: <code>ai_generate</code> alongside existing <code>strict</code> and <code>placeholder</code></li>
+<li><code>flint-asset-gen</code> — pluggable <code>GenerationProvider</code> trait with four implementations:
+<ul>
+<li><strong>Flux</strong> — AI texture generation (PNG output)</li>
+<li><strong>Meshy</strong> — text-to-3D model generation (GLB output, async job polling)</li>
+<li><strong>ElevenLabs</strong> — AI sound effect and voice generation</li>
+<li><strong>Mock</strong> — generates minimal valid files for testing without network access</li>
 </ul>
-<p><strong>Milestone:</strong> <code>flint asset generate model --provider meshy</code> produces usable game assets.</p>
+</li>
+<li><strong>Style guides</strong> — TOML-defined visual vocabulary (palette, materials, geometry constraints) that enriches generation prompts for consistent asset aesthetics</li>
+<li><strong>Semantic asset definitions</strong> — <code>asset_def</code> component schema mapping intent to generation requests (description, material intent, wear level, size class)</li>
+<li><strong>Batch scene resolution</strong> — <code>flint asset resolve</code> with strategies: <code>ai_generate</code>, <code>human_task</code>, <code>ai_then_human</code></li>
+<li><strong>Model validation</strong> — <code>validate_model()</code> checks GLB geometry and materials against style constraints (triangle count, UVs, normals, roughness/metallic ranges)</li>
+<li><strong>Build manifests</strong> — provenance tracking for all generated assets (provider, prompt, content hash)</li>
+<li><strong>Layered configuration</strong> — <code>~/.flint/config.toml</code> &lt; <code>.flint/config.toml</code> &lt; environment variables for API keys and provider settings</li>
+<li><strong>Runtime catalog integration</strong> — <code>PlayerApp</code> resolves assets by name through catalog → hash → content store → file fallback chain</li>
+<li><strong>CLI commands</strong> — <code>flint asset generate</code>, <code>flint asset validate</code>, <code>flint asset manifest</code>, <code>flint asset regenerate</code>, <code>flint asset job status/list</code></li>
+</ul>
+<p><strong>Milestone:</strong> <code>flint asset generate texture -d "stone wall" --style medieval_tavern</code> produces a style-consistent texture, validates it, and stores it in the content-addressed catalog.</p>
 <h2 id="beyond-phase-5"><a class="header" href="#beyond-phase-5">Beyond Phase 5</a></h2>
 <p>These are ideas under consideration, not committed plans:</p>
 <ul>

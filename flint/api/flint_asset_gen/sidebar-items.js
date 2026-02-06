@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["batch","config","human_task","job","manifest","provider","providers","semantic","style","validate"]};

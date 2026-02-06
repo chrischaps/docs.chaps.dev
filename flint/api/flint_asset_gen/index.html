@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Flint Asset Gen - AI-powered asset generation pipeline"><title>flint_asset_gen - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="flint_asset_gen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate flint_asset_gen</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../flint_asset_gen/index.html">flint_<wbr>asset_<wbr>gen</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>flint_<wbr>asset_<wbr>gen</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/flint_asset_gen/lib.rs.html#1-26">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Flint Asset Gen - AI-powered asset generation pipeline</p>
+<p>Provides a pluggable provider framework for generating textures, 3D models,
+and audio via AI services (Flux, Meshy, ElevenLabs) with style guide support,
+job tracking, and content-addressed catalog integration.</p>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt id="reexport.FlintConfig"><code>pub use config::<a class="struct" href="config/struct.FlintConfig.html" title="struct flint_asset_gen::config::FlintConfig">FlintConfig</a>;</code></dt><dt id="reexport.GenerationJob"><code>pub use job::<a class="struct" href="job/struct.GenerationJob.html" title="struct flint_asset_gen::job::GenerationJob">GenerationJob</a>;</code></dt><dt id="reexport.JobStatus"><code>pub use job::<a class="enum" href="job/enum.JobStatus.html" title="enum flint_asset_gen::job::JobStatus">JobStatus</a>;</code></dt><dt id="reexport.JobStore"><code>pub use job::<a class="struct" href="job/struct.JobStore.html" title="struct flint_asset_gen::job::JobStore">JobStore</a>;</code></dt><dt id="reexport.BuildManifest"><code>pub use manifest::<a class="struct" href="manifest/struct.BuildManifest.html" title="struct flint_asset_gen::manifest::BuildManifest">BuildManifest</a>;</code></dt><dt id="reexport.AssetKind"><code>pub use provider::<a class="enum" href="provider/enum.AssetKind.html" title="enum flint_asset_gen::provider::AssetKind">AssetKind</a>;</code></dt><dt id="reexport.AudioParams"><code>pub use provider::<a class="struct" href="provider/struct.AudioParams.html" title="struct flint_asset_gen::provider::AudioParams">AudioParams</a>;</code></dt><dt id="reexport.GenerateRequest"><code>pub use provider::<a class="struct" href="provider/struct.GenerateRequest.html" title="struct flint_asset_gen::provider::GenerateRequest">GenerateRequest</a>;</code></dt><dt id="reexport.GenerateResult"><code>pub use provider::<a class="struct" href="provider/struct.GenerateResult.html" title="struct flint_asset_gen::provider::GenerateResult">GenerateResult</a>;</code></dt><dt id="reexport.GenerationProvider"><code>pub use provider::<a class="trait" href="provider/trait.GenerationProvider.html" title="trait flint_asset_gen::provider::GenerationProvider">GenerationProvider</a>;</code></dt><dt id="reexport.ModelParams"><code>pub use provider::<a class="struct" href="provider/struct.ModelParams.html" title="struct flint_asset_gen::provider::ModelParams">ModelParams</a>;</code></dt><dt id="reexport.ProviderStatus"><code>pub use provider::<a class="enum" href="provider/enum.ProviderStatus.html" title="enum flint_asset_gen::provider::ProviderStatus">ProviderStatus</a>;</code></dt><dt id="reexport.TextureParams"><code>pub use provider::<a class="struct" href="provider/struct.TextureParams.html" title="struct flint_asset_gen::provider::TextureParams">TextureParams</a>;</code></dt><dt id="reexport.SemanticAssetDef"><code>pub use semantic::<a class="struct" href="semantic/struct.SemanticAssetDef.html" title="struct flint_asset_gen::semantic::SemanticAssetDef">SemanticAssetDef</a>;</code></dt><dt id="reexport.StyleGuide"><code>pub use style::<a class="struct" href="style/struct.StyleGuide.html" title="struct flint_asset_gen::style::StyleGuide">StyleGuide</a>;</code></dt></dl><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="batch/index.html" title="mod flint_asset_gen::batch">batch</a></dt><dd>Batch scene resolution</dd><dt><a class="mod" href="config/index.html" title="mod flint_asset_gen::config">config</a></dt><dd>Layered configuration system</dd><dt><a class="mod" href="human_task/index.html" title="mod flint_asset_gen::human_task">human_<wbr>task</a></dt><dd>Human task file generation</dd><dt><a class="mod" href="job/index.html" title="mod flint_asset_gen::job">job</a></dt><dd>Job tracking for async generation tasks</dd><dt><a class="mod" href="manifest/index.html" title="mod flint_asset_gen::manifest">manifest</a></dt><dd>Build manifest for tracking generated assets</dd><dt><a class="mod" href="provider/index.html" title="mod flint_asset_gen::provider">provider</a></dt><dd>Generation provider trait and request/result types</dd><dt><a class="mod" href="providers/index.html" title="mod flint_asset_gen::providers">providers</a></dt><dd>Provider registry</dd><dt><a class="mod" href="semantic/index.html" title="mod flint_asset_gen::semantic">semantic</a></dt><dd>Semantic asset definitions</dd><dt><a class="mod" href="style/index.html" title="mod flint_asset_gen::style">style</a></dt><dd>Style guide system for enriching generation prompts</dd><dt><a class="mod" href="validate/index.html" title="mod flint_asset_gen::validate">validate</a></dt><dd>Model validation against style constraints</dd></dl></section></div></main></body></html>

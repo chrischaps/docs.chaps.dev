@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,22 +179,78 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="querying-entities"><a class="header" href="#querying-entities">Querying Entities</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Flint includes a SQL-inspired query language for filtering and inspecting entities. This page will cover:</p>
-<ul>
-<li>Basic query syntax: <code>entities where &lt;condition&gt;</code></li>
-<li>Comparison operators: <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, <code>contains</code></li>
-<li>Querying by archetype, component values, and nested fields</li>
-<li>Output formats: JSON and TOML</li>
-<li>Combining queries with shell tools (<code>jq</code>, pipes)</li>
-</ul>
-<p>For a full reference, see <a href="../concepts/queries.html">Queries</a>.</p>
-<p>Quick example:</p>
-<pre><code class="language-bash">flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml
-flint query "entities where door.locked == true" --scene levels/tavern.scene.toml
+<p>Flint includes a SQL-inspired query language for filtering and inspecting entities. Queries let you search scenes by archetype, component values, or nested field data.</p>
+<h2 id="basic-syntax"><a class="header" href="#basic-syntax">Basic Syntax</a></h2>
+<p>All queries follow the pattern:</p>
+<pre><code>entities where &lt;condition&gt;
 </code></pre>
+<p>The simplest query returns all entities:</p>
+<pre><code class="language-bash">flint query "entities" --scene levels/tavern.scene.toml
+</code></pre>
+<h2 id="filtering-by-archetype"><a class="header" href="#filtering-by-archetype">Filtering by Archetype</a></h2>
+<p>The most common filter — find entities of a specific type:</p>
+<pre><code class="language-bash"># Find all doors
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml
+
+# Find all rooms
+flint query "entities where archetype == 'room'" --scene levels/tavern.scene.toml
+</code></pre>
+<h2 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison Operators</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+</thead>
+<tbody>
+<tr><td><code>==</code></td><td>Equal</td><td><code>archetype == 'door'</code></td></tr>
+<tr><td><code>!=</code></td><td>Not equal</td><td><code>archetype != 'room'</code></td></tr>
+<tr><td><code>&gt;</code></td><td>Greater than</td><td><code>transform.position.y &gt; 5.0</code></td></tr>
+<tr><td><code>&lt;</code></td><td>Less than</td><td><code>door.open_angle &lt; 90</code></td></tr>
+<tr><td><code>&gt;=</code></td><td>Greater or equal</td><td><code>audio_source.volume &gt;= 0.5</code></td></tr>
+<tr><td><code>&lt;=</code></td><td>Less or equal</td><td><code>collider.friction &lt;= 0.3</code></td></tr>
+<tr><td><code>contains</code></td><td>String contains</td><td><code>name contains 'wall'</code></td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="querying-component-fields"><a class="header" href="#querying-component-fields">Querying Component Fields</a></h2>
+<p>Access component fields with dot notation:</p>
+<pre><code class="language-bash"># Find locked doors
+flint query "entities where door.locked == true" --scene levels/tavern.scene.toml
+
+# Find entities above a certain height
+flint query "entities where transform.position.y &gt; 2.0" --scene levels/tavern.scene.toml
+
+# Find loud audio sources
+flint query "entities where audio_source.volume &gt; 0.8" --scene levels/tavern.scene.toml
+</code></pre>
+<h2 id="output-formats"><a class="header" href="#output-formats">Output Formats</a></h2>
+<p>Query results can be formatted for different consumers:</p>
+<pre><code class="language-bash"># Human-readable (default)
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml
+
+# JSON for scripting and AI agents
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format json
+
+# TOML for configuration workflows
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format toml
+</code></pre>
+<h2 id="combining-with-shell-tools"><a class="header" href="#combining-with-shell-tools">Combining with Shell Tools</a></h2>
+<p>JSON output composes with standard tools:</p>
+<pre><code class="language-bash"># Count doors
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format json | jq length
+
+# Get just the names
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format json | jq '.[].name'
+
+# Find entities with a specific parent
+flint query "entities" --scene levels/tavern.scene.toml --format json | jq '.[] | select(.parent == "main_hall")'
+</code></pre>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="../concepts/queries.html">Queries</a> — full grammar reference and advanced usage</li>
+<li><a href="../concepts/constraints.html">Constraints</a> — queries used in validation rules</li>
+<li><a href="../cli-reference/overview.html">CLI Reference</a> — all command options</li>
+</ul>
 
                     </main>
 

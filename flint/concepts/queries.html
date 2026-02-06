@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,26 +179,127 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="queries"><a class="header" href="#queries">Queries</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Flint’s query system provides a SQL-inspired language for filtering and inspecting entities. This page will cover:</p>
-<ul>
-<li>Query grammar (PEG, parsed by pest)</li>
-<li>Full operator reference: <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, <code>contains</code></li>
-<li>Querying nested fields with dot notation (<code>door.locked</code>)</li>
-<li>Boolean logic: <code>and</code>, <code>or</code>, <code>not</code></li>
-<li>How queries are used in constraint definitions</li>
-<li>Performance characteristics and limitations</li>
-</ul>
-<p>Grammar overview:</p>
-<pre><code>entities where &lt;condition&gt;
-
-&lt;condition&gt; := &lt;field&gt; &lt;op&gt; &lt;value&gt;
-            | &lt;condition&gt; and &lt;condition&gt;
-            | &lt;condition&gt; or &lt;condition&gt;
-            | not &lt;condition&gt;
+<p>Flint’s query system provides a SQL-inspired language for filtering and inspecting entities. Queries are parsed by a PEG grammar (pest) and executed against the ECS world.</p>
+<h2 id="grammar"><a class="header" href="#grammar">Grammar</a></h2>
+<p>The query language is defined in <code>crates/flint-query/src/grammar.pest</code>:</p>
+<pre><code>query     = { resource ~ (where_clause)? }
+resource  = { "entities" | "components" }
+where_clause = { "where" ~ condition }
+condition = { field ~ operator ~ value }
+field     = { identifier ~ ("." ~ identifier)* }
+operator  = { "==" | "!=" | "contains" | "&gt;=" | "&lt;=" | "&gt;" | "&lt;" }
+value     = { string | number | boolean }
 </code></pre>
+<p>Whitespace is ignored between tokens. The <code>where</code> keyword is case-insensitive.</p>
+<h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
+<p>Two resource types can be queried:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Resource</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>entities</code></td><td>Returns entity data (name, archetype, components)</td></tr>
+<tr><td><code>components</code></td><td>Returns component definitions from the schema registry</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="operators"><a class="header" href="#operators">Operators</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Operator</th><th>Description</th><th>Value Types</th></tr>
+</thead>
+<tbody>
+<tr><td><code>==</code></td><td>Exact equality</td><td>string, number, boolean</td></tr>
+<tr><td><code>!=</code></td><td>Not equal</td><td>string, number, boolean</td></tr>
+<tr><td><code>&gt;</code></td><td>Greater than</td><td>number</td></tr>
+<tr><td><code>&lt;</code></td><td>Less than</td><td>number</td></tr>
+<tr><td><code>&gt;=</code></td><td>Greater than or equal</td><td>number</td></tr>
+<tr><td><code>&lt;=</code></td><td>Less than or equal</td><td>number</td></tr>
+<tr><td><code>contains</code></td><td>Substring match</td><td>string</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="field-paths"><a class="header" href="#field-paths">Field Paths</a></h2>
+<p>Fields use dot notation to access nested values:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Pattern</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>archetype</code></td><td>The entity’s archetype name</td></tr>
+<tr><td><code>name</code></td><td>The entity’s name</td></tr>
+<tr><td><code>door.locked</code></td><td>The <code>locked</code> field of the <code>door</code> component</td></tr>
+<tr><td><code>transform.position</code></td><td>The <code>position</code> field of the <code>transform</code> component</td></tr>
+</tbody>
+</table>
+</div>
+<p>Examples:</p>
+<pre><code class="language-bash"># Top-level entity properties
+flint query "entities where archetype == 'door'"
+flint query "entities where name contains 'wall'"
+
+# Component fields
+flint query "entities where door.locked == true"
+flint query "entities where audio_source.volume &gt; 0.5"
+flint query "entities where material.roughness &gt;= 0.8"
+flint query "entities where collider.shape == 'box'"
+</code></pre>
+<h2 id="value-types"><a class="header" href="#value-types">Value Types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Syntax</th><th>Examples</th></tr>
+</thead>
+<tbody>
+<tr><td>String</td><td>Single or double quotes</td><td><code>'door'</code>, <code>"wall"</code></td></tr>
+<tr><td>Number</td><td>Integers or decimals, optional negative</td><td><code>42</code>, <code>3.14</code>, <code>-1.5</code></td></tr>
+<tr><td>Boolean</td><td>Unquoted keywords</td><td><code>true</code>, <code>false</code></td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="use-in-constraints"><a class="header" href="#use-in-constraints">Use in Constraints</a></h2>
+<p>Queries power the constraint system. Each constraint rule includes a <code>query</code> field that selects which entities the constraint applies to:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "doors_have_transform"
+query = "entities where archetype == 'door'"
+severity = "error"
+message = "Door '{name}' is missing a transform component"
+
+[constraint.kind]
+type = "required_component"
+archetype = "door"
+component = "transform"
+</code></pre>
+<p>The query selects all door entities, and the constraint checks that each one has a transform component. See <a href="constraints.html">Constraints</a> for details.</p>
+<h2 id="cli-usage"><a class="header" href="#cli-usage">CLI Usage</a></h2>
+<pre><code class="language-bash"># Basic query
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml
+
+# JSON output for machine consumption
+flint query "entities" --scene levels/tavern.scene.toml --format json
+
+# TOML output
+flint query "entities where door.locked == true" --scene levels/tavern.scene.toml --format toml
+
+# Specify schemas directory
+flint query "entities" --scene levels/tavern.scene.toml --schemas schemas
+</code></pre>
+<h2 id="limitations"><a class="header" href="#limitations">Limitations</a></h2>
+<ul>
+<li>Conditions are currently single-clause (one field-operator-value comparison per query at the parser level)</li>
+<li>Boolean combinators (<code>and</code>, <code>or</code>, <code>not</code>) are part of the grammar design but not yet implemented in the parser</li>
+<li>Queries operate on in-memory ECS state, not directly on TOML files</li>
+<li>Performance is linear in entity count (queries scan all entities matching the resource type)</li>
+</ul>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="../getting-started/first-query.html">Querying Entities</a> — getting started tutorial</li>
+<li><a href="constraints.html">Constraints</a> — using queries in validation rules</li>
+<li><a href="../cli-reference/overview.html">CLI Reference</a> — command-line options</li>
+</ul>
 
                     </main>
 

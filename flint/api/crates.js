@@ -1,2 +1,2 @@
-window.ALL_CRATES = ["flint","flint_animation","flint_asset","flint_audio","flint_constraint","flint_core","flint_ecs","flint_import","flint_physics","flint_player","flint_query","flint_render","flint_runtime","flint_scene","flint_schema","flint_viewer","wgpu"];
-//{"start":21,"fragment_lengths":[7,18,14,14,19,13,12,15,16,15,14,15,16,14,15,15,7]}
+window.ALL_CRATES = ["flint","flint_animation","flint_asset","flint_asset_gen","flint_audio","flint_constraint","flint_core","flint_ecs","flint_import","flint_physics","flint_player","flint_query","flint_render","flint_runtime","flint_scene","flint_schema","flint_script","flint_viewer","wgpu"];
+//{"start":21,"fragment_lengths":[7,18,14,18,14,19,13,12,15,16,15,14,15,16,14,15,15,15,7]}

@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,18 +179,111 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="importing-assets"><a class="header" href="#importing-assets">Importing Assets</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>A practical guide to importing and managing assets in Flint. This guide will cover:</p>
+<p>This guide walks through importing external files into Flint’s content-addressed asset store.</p>
+<h2 id="basic-import"><a class="header" href="#basic-import">Basic Import</a></h2>
+<p>Import a glTF model with the <code>flint asset import</code> command:</p>
+<pre><code class="language-bash">flint asset import models/chair.glb --name tavern_chair --tags furniture,medieval
+</code></pre>
+<p>This does three things:</p>
+<ol>
+<li><strong>Hashes</strong> the file (SHA-256) and stores it under <code>.flint/assets/&lt;hash&gt;/</code></li>
+<li><strong>Extracts</strong> mesh, material, and texture data (for glTF/GLB files)</li>
+<li><strong>Writes</strong> a <code>.asset.toml</code> sidecar with metadata</li>
+</ol>
+<h2 id="content-addressed-storage"><a class="header" href="#content-addressed-storage">Content-Addressed Storage</a></h2>
+<p>Every imported file is stored by its content hash:</p>
+<pre><code>.flint/
+└── assets/
+    ├── a1/
+    │   └── a1b2c3d4e5f6...  (the actual file)
+    └── f7/
+        └── f7a8b9c0d1e2...  (another file)
+</code></pre>
+<p>The first two hex characters of the hash form a subdirectory, preventing any single directory from having too many entries. Identical files are automatically deduplicated — importing the same model twice stores it only once.</p>
+<h2 id="gltfglb-import"><a class="header" href="#gltfglb-import">glTF/GLB Import</a></h2>
+<p>For 3D models, the importer extracts structured data:</p>
+<pre><code class="language-bash">$ flint asset import models/tavern_door.glb --name tavern_door
+Imported: 3 mesh(es), 2 texture(s), 2 material(s)
+Asset 'tavern_door' registered.
+  Hash: sha256:a1b2c3...
+  Type: Mesh
+  Sidecar: assets/meshes/tavern_door.asset.toml
+</code></pre>
+<p>Extracted data includes:</p>
 <ul>
-<li>Importing glTF/GLB files with <code>flint asset import</code></li>
-<li>Understanding the content-addressed storage layout</li>
-<li>Working with <code>.asset.toml</code> sidecar metadata</li>
-<li>Tagging and organizing assets</li>
-<li>Resolving asset references in scenes</li>
-<li>Deduplication: what happens when you import the same file twice</li>
-<li>Preparing assets for future rendering (mesh, material, texture extraction)</li>
+<li><strong>Meshes</strong> — vertex positions, normals, texture coordinates, indices, and optionally joint indices/weights for skeletal meshes</li>
+<li><strong>Materials</strong> — PBR properties (base color, roughness, metallic, emissive)</li>
+<li><strong>Textures</strong> — embedded or referenced image files</li>
+<li><strong>Skeletons</strong> — joint hierarchy and inverse bind matrices (if the model has skins)</li>
+<li><strong>Animations</strong> — per-joint keyframe channels (translation, rotation, scale)</li>
+</ul>
+<h2 id="sidecar-metadata"><a class="header" href="#sidecar-metadata">Sidecar Metadata</a></h2>
+<p>Each imported asset gets an <code>.asset.toml</code> file in the <code>assets/</code> directory:</p>
+<pre><code class="language-toml">[asset]
+name = "tavern_chair"
+type = "mesh"
+hash = "sha256:a1b2c3d4e5f6..."
+source_path = "models/chair.glb"
+format = "glb"
+tags = ["furniture", "medieval"]
+</code></pre>
+<p>For AI-generated assets, the sidecar also records provenance:</p>
+<pre><code class="language-toml">[asset.properties]
+prompt = "weathered wooden tavern chair"
+provider = "meshy"
+</code></pre>
+<h2 id="tagging-and-organization"><a class="header" href="#tagging-and-organization">Tagging and Organization</a></h2>
+<p>Tags help organize and filter assets:</p>
+<pre><code class="language-bash"># Import with tags
+flint asset import models/barrel.glb --name barrel --tags furniture,storage,medieval
+
+# Filter by tag
+flint asset list --tag medieval
+
+# Filter by type
+flint asset list --type mesh
+
+# Get details on a specific asset
+flint asset info tavern_chair
+</code></pre>
+<h2 id="asset-catalog"><a class="header" href="#asset-catalog">Asset Catalog</a></h2>
+<p>The catalog is built by scanning all <code>.asset.toml</code> files in the <code>assets/</code> directory. It provides indexed lookup by name, type, and tag:</p>
+<pre><code class="language-bash"># List all assets
+flint asset list
+
+# JSON output for scripting
+flint asset list --format json
+</code></pre>
+<h2 id="resolving-references"><a class="header" href="#resolving-references">Resolving References</a></h2>
+<p>Check that a scene’s asset references are satisfied:</p>
+<pre><code class="language-bash"># Strict mode --- all references must exist
+flint asset resolve levels/tavern.scene.toml --strategy strict
+
+# Placeholder mode --- missing assets replaced with fallback geometry
+flint asset resolve levels/tavern.scene.toml --strategy placeholder
+
+# AI generation --- missing assets created by AI providers
+flint asset resolve levels/tavern.scene.toml --strategy ai_generate --style medieval_tavern
+</code></pre>
+<h2 id="supported-formats"><a class="header" href="#supported-formats">Supported Formats</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Format</th><th>Type</th><th>Import Support</th></tr>
+</thead>
+<tbody>
+<tr><td><code>.glb</code>, <code>.gltf</code></td><td>3D Model</td><td>Full (mesh, material, texture, skeleton, animation)</td></tr>
+<tr><td><code>.png</code>, <code>.jpg</code>, <code>.bmp</code>, <code>.tga</code>, <code>.hdr</code></td><td>Texture</td><td>Hash and catalog</td></tr>
+<tr><td><code>.wav</code>, <code>.ogg</code>, <code>.mp3</code>, <code>.flac</code></td><td>Audio</td><td>Hash and catalog</td></tr>
+<tr><td>Other</td><td>Generic</td><td>Hash and catalog (type guessed from extension)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="../concepts/assets.html">Assets</a> — content-addressed storage concept</li>
+<li><a href="../concepts/ai-generation.html">AI Asset Generation</a> — generating assets with AI providers</li>
+<li><a href="../formats/overview.html">File Formats</a> — <code>.asset.toml</code> sidecar format</li>
 </ul>
 
                     </main>

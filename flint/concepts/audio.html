@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -271,8 +271,32 @@ loop = true
 spatial = false
 </code></pre>
 <p>Supported audio formats: OGG, WAV, MP3, FLAC (via Kira’s symphonia backend).</p>
+<h2 id="scripting-integration"><a class="header" href="#scripting-integration">Scripting Integration</a></h2>
+<p>Audio can be controlled from <a href="scripting.html">Rhai scripts</a> using deferred commands. The script API produces <code>ScriptCommand</code> values that the player processes after the script update phase:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>play_sound(name)</code></td><td>Play a non-spatial sound by filename (without extension)</td></tr>
+<tr><td><code>play_sound_at(name, x, y, z, volume)</code></td><td>Play a spatial sound at a 3D position</td></tr>
+<tr><td><code>stop_sound(name)</code></td><td>Stop a playing sound</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// In a Rhai script:
+fn on_interact() {
+    play_sound("door_open");                          // Non-spatial
+    play_sound_at("glass_clink", 5.0, 1.0, 3.0, 0.8); // Spatial at position
+}
+<span class="boring">}</span></code></pre>
+<p>Sound names match files in the <code>audio/</code> directory. All <code>.ogg</code>, <code>.wav</code>, <code>.mp3</code>, and <code>.flac</code> files are automatically loaded at startup.</p>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
+<li><a href="scripting.html">Scripting</a> — full scripting API including audio functions</li>
 <li><a href="animation.html">Animation</a> — animation system that can trigger audio events</li>
 <li><a href="physics-and-runtime.html">Physics and Runtime</a> — the game loop and event bus that drives audio triggers</li>
 <li><a href="schemas.html">Schemas</a> — component and archetype definitions</li>

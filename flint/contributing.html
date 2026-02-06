@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-0981ad03.js"></script>
+        <script src="toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,17 +179,19 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
-<p>Flint is in active development (Phase 4 of 5). Contributions are welcome in these areas:</p>
+<p>All five phases of Flint are complete. Contributions are welcome in these areas:</p>
 <ul>
 <li><strong>Bug reports</strong> — file issues on GitHub</li>
 <li><strong>Schema definitions</strong> — new component and archetype schemas</li>
 <li><strong>Documentation</strong> — improvements to this guide</li>
-<li><strong>Test coverage</strong> — additional unit and integration tests (146 tests across 16 crates)</li>
+<li><strong>Test coverage</strong> — additional unit and integration tests (217 tests across 18 crates)</li>
 <li><strong>Constraint kinds</strong> — new validation rule types</li>
 <li><strong>Physics</strong> — additional collider shapes, improved character controller behavior</li>
 <li><strong>Rendering</strong> — post-processing effects, LOD, additional debug views</li>
 <li><strong>Audio</strong> — additional audio formats, reverb zones, music system</li>
 <li><strong>Animation</strong> — blend trees, additive blending, animation state machines</li>
+<li><strong>Scripting</strong> — new Rhai API functions, script debugging tools, performance profiling</li>
+<li><strong>AI generation</strong> — new provider integrations, improved style validation, prompt engineering</li>
 </ul>
 <h2 id="development-setup"><a class="header" href="#development-setup">Development Setup</a></h2>
 <pre><code class="language-bash">git clone https://github.com/chaps/flint.git
@@ -215,7 +217,7 @@ cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 <li>Prefer explicit over clever; readability over brevity</li>
 </ul>
 <h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
-<p>The project is a 16-crate Cargo workspace. See the <a href="architecture/overview.html">Architecture Overview</a> and <a href="architecture/crate-graph.html">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
+<p>The project is an 18-crate Cargo workspace. See the <a href="architecture/overview.html">Architecture Overview</a> and <a href="architecture/crate-graph.html">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
 <ul>
 <li>Dependencies flow in one direction (binary crates at the top, <code>flint-core</code> at the bottom)</li>
 <li>Components are dynamic <code>toml::Value</code>, not Rust types — schemas are runtime data</li>

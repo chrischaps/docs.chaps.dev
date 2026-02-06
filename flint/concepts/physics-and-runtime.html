@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -190,9 +190,10 @@
 <li><strong>Character controller</strong> — apply player movement based on input and physics state</li>
 <li><strong>Update audio</strong> — sync listener position to camera, process trigger events, update spatial tracks</li>
 <li><strong>Advance animation</strong> — tick property tweens and skeletal playback, write updated transforms to ECS, upload bone matrices to GPU</li>
-<li><strong>Render</strong> — draw the frame with the current entity positions</li>
+<li><strong>Run scripts</strong> — execute Rhai scripts (<code>on_update</code>, event callbacks), process deferred commands (audio, events)</li>
+<li><strong>Render</strong> — draw the frame with the current entity positions, HUD overlay (crosshair, interaction prompts)</li>
 </ol>
-<p>The <code>RuntimeSystem</code> trait provides a standard interface for systems that plug into this loop. Physics, audio, and animation each implement <code>RuntimeSystem</code> with <code>initialize()</code>, <code>fixed_update()</code>, <code>update()</code>, and <code>shutdown()</code> methods.</p>
+<p>The <code>RuntimeSystem</code> trait provides a standard interface for systems that plug into this loop. Physics, audio, animation, and scripting each implement <code>RuntimeSystem</code> with <code>initialize()</code>, <code>fixed_update()</code>, <code>update()</code>, and <code>shutdown()</code> methods.</p>
 <h2 id="physics-with-rapier-3d"><a class="header" href="#physics-with-rapier-3d">Physics with Rapier 3D</a></h2>
 <p>The <code>flint-physics</code> crate wraps Rapier 3D and bridges it to Flint’s TOML-based component system:</p>
 <ul>
@@ -257,6 +258,7 @@ body_type = "static"
 </ul>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
+<li><a href="scripting.html">Scripting</a> — Rhai scripting system for game logic</li>
 <li><a href="audio.html">Audio</a> — spatial audio with Kira</li>
 <li><a href="animation.html">Animation</a> — property tweens and skeletal animation</li>
 <li><a href="rendering.html">Rendering</a> — the PBR rendering pipeline</li>
@@ -272,7 +274,7 @@ body_type = "static"
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../guides/building-a-tavern.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../concepts/scripting.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -286,7 +288,7 @@ body_type = "static"
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../guides/building-a-tavern.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../concepts/scripting.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

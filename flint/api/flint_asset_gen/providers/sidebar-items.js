@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["available_providers","create_provider"],"mod":["elevenlabs","flux","meshy","mock"]};

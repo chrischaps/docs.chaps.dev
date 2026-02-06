@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,34 +179,208 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="ai-agent-workflow"><a class="header" href="#ai-agent-workflow">AI Agent Workflow</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>A guide for AI agents (and their developers) working with Flint. This guide will cover:</p>
-<ul>
-<li>The agent interaction loop: create, validate, query, render</li>
-<li>Structured I/O: JSON output for machine parsing</li>
-<li>Using queries for state inspection</li>
-<li>Constraint validation as automated feedback</li>
-<li>Headless rendering for visual verification</li>
-<li>Example: an agent building a complete scene from a text description</li>
-<li>Error handling patterns for agent workflows</li>
-<li>Best practices for deterministic scene construction</li>
-</ul>
-<p>Example agent workflow:</p>
-<pre><code class="language-bash"># 1. Create scene and entities
-flint scene create levels/dungeon.scene.toml --name "Dungeon Level 1"
-flint entity create --archetype room --name "entrance" --scene levels/dungeon.scene.toml ...
-
-# 2. Validate
-flint validate levels/dungeon.scene.toml --format json
-
-# 3. Query to verify
-flint query "entities where archetype == 'door'" --scene levels/dungeon.scene.toml --format json
-
-# 4. Render a preview
-flint render levels/dungeon.scene.toml --output preview.png
+<p>This guide covers how AI coding agents interact with Flint to build game scenes programmatically. It describes the agent interaction loop, error handling patterns, and best practices.</p>
+<h2 id="the-agent-interaction-loop"><a class="header" href="#the-agent-interaction-loop">The Agent Interaction Loop</a></h2>
+<p>An agent building a scene follows a create-validate-query-render cycle:</p>
+<pre><code>┌──────────────────────────────────────────────────┐
+│                                                  │
+│   1. Discover ──► 2. Create ──► 3. Validate ─┐   │
+│        ▲                                     │   │
+│        │          4. Query ◄─── 5. Fix ◄─────┘   │
+│        │              │                          │
+│        └──────────────┤                          │
+│                       ▼                          │
+│                  6. Render ──► Human Review       │
+│                                                  │
+└──────────────────────────────────────────────────┘
 </code></pre>
+<h3 id="step-1-discover-available-schemas"><a class="header" href="#step-1-discover-available-schemas">Step 1: Discover Available Schemas</a></h3>
+<p>Before creating entities, the agent learns what’s available:</p>
+<pre><code class="language-bash"># List available archetypes
+flint schema --list-archetypes --schemas schemas
+
+# Inspect a specific archetype
+flint schema player --schemas schemas
+
+# Inspect a component
+flint schema collider --schemas schemas
+</code></pre>
+<p>This tells the agent what fields exist, their types, and their defaults.</p>
+<h3 id="step-2-create-scene-and-entities"><a class="header" href="#step-2-create-scene-and-entities">Step 2: Create Scene and Entities</a></h3>
+<pre><code class="language-bash"># Create the scene file
+flint scene create levels/dungeon.scene.toml --name "Dungeon Level 1"
+
+# Create entities
+flint entity create --archetype room --name "entrance" \
+    --scene levels/dungeon.scene.toml
+
+flint entity create --archetype door --name "iron_gate" \
+    --parent "entrance" \
+    --scene levels/dungeon.scene.toml
+</code></pre>
+<p>Or the agent can write TOML directly — often faster for complex scenes:</p>
+<pre><code class="language-toml">[scene]
+name = "Dungeon Level 1"
+
+[entities.entrance]
+archetype = "room"
+
+[entities.entrance.transform]
+position = [0.0, 0.0, 0.0]
+
+[entities.entrance.bounds]
+size = [10.0, 4.0, 10.0]
+
+[entities.iron_gate]
+archetype = "door"
+parent = "entrance"
+
+[entities.iron_gate.transform]
+position = [0.0, 1.5, -5.0]
+</code></pre>
+<h3 id="step-3-validate"><a class="header" href="#step-3-validate">Step 3: Validate</a></h3>
+<p>Check the scene against constraints:</p>
+<pre><code class="language-bash">flint validate levels/dungeon.scene.toml --format json --schemas schemas
+</code></pre>
+<p>JSON output example:</p>
+<pre><code class="language-json">{
+  "valid": false,
+  "violations": [
+    {
+      "constraint": "doors_have_transform",
+      "entity": "iron_gate",
+      "severity": "error",
+      "message": "Door 'iron_gate' is missing a transform component"
+    }
+  ]
+}
+</code></pre>
+<p>The agent parses this JSON, understands what’s wrong, and proceeds to fix it.</p>
+<h3 id="step-4-query-to-verify"><a class="header" href="#step-4-query-to-verify">Step 4: Query to Verify</a></h3>
+<p>After fixing violations, the agent can query to confirm the scene state:</p>
+<pre><code class="language-bash"># Verify the door now has a transform
+flint query "entities where archetype == 'door'" \
+    --scene levels/dungeon.scene.toml --format json
+
+# Count entities
+flint query "entities" \
+    --scene levels/dungeon.scene.toml --format json | jq length
+</code></pre>
+<h3 id="step-5-fix-and-iterate"><a class="header" href="#step-5-fix-and-iterate">Step 5: Fix and Iterate</a></h3>
+<p>If validation fails, the agent can either:</p>
+<ul>
+<li>
+<p><strong>Auto-fix</strong> — let Flint handle it:</p>
+<pre><code class="language-bash">flint validate levels/dungeon.scene.toml --fix --dry-run --format json
+flint validate levels/dungeon.scene.toml --fix
+</code></pre>
+</li>
+<li>
+<p><strong>Manual fix</strong> — edit the TOML to add missing data</p>
+</li>
+</ul>
+<h3 id="step-6-render-for-review"><a class="header" href="#step-6-render-for-review">Step 6: Render for Review</a></h3>
+<p>Generate a preview image for human (or vision-model) review:</p>
+<pre><code class="language-bash">flint render levels/dungeon.scene.toml --output preview.png \
+    --width 1920 --height 1080 --distance 25 --yaw 45
+</code></pre>
+<h2 id="ai-asset-generation"><a class="header" href="#ai-asset-generation">AI Asset Generation</a></h2>
+<p>Agents can generate assets alongside scene construction:</p>
+<pre><code class="language-bash"># Generate textures for the scene
+flint asset generate texture \
+    -d "rough dungeon stone wall, torch-lit" \
+    --style medieval_tavern \
+    --name dungeon_wall_texture
+
+# Generate a 3D model
+flint asset generate model \
+    -d "iron-bound wooden door, medieval dungeon" \
+    --provider meshy \
+    --name iron_door_model
+
+# Batch-generate all missing assets for the entire scene
+flint asset resolve levels/dungeon.scene.toml \
+    --strategy ai_generate \
+    --style medieval_tavern
+</code></pre>
+<p>Semantic asset definitions in the scene file guide batch generation:</p>
+<pre><code class="language-toml">[entities.wall_section.asset_def]
+name = "dungeon_wall_texture"
+description = "Rough stone dungeon wall with moss and cracks"
+type = "texture"
+material_intent = "rough stone"
+wear_level = 0.8
+</code></pre>
+<h2 id="error-handling-patterns"><a class="header" href="#error-handling-patterns">Error Handling Patterns</a></h2>
+<h3 id="exit-codes"><a class="header" href="#exit-codes">Exit Codes</a></h3>
+<p>All Flint commands use standard exit codes:</p>
+<ul>
+<li><strong>0</strong> — success</li>
+<li><strong>1</strong> — error (validation failure, missing file, etc.)</li>
+</ul>
+<pre><code class="language-bash">flint validate levels/dungeon.scene.toml --format json
+if [ $? -ne 0 ]; then
+    echo "Validation failed, fixing..."
+    flint validate levels/dungeon.scene.toml --fix
+fi
+</code></pre>
+<h3 id="json-error-output"><a class="header" href="#json-error-output">JSON Error Output</a></h3>
+<p>Error details are always available in JSON:</p>
+<pre><code class="language-bash">flint validate levels/dungeon.scene.toml --format json 2&gt;/dev/null
+</code></pre>
+<h3 id="idempotent-operations"><a class="header" href="#idempotent-operations">Idempotent Operations</a></h3>
+<p>Most Flint operations are idempotent — running them twice produces the same result. This is important for agents that may retry failed operations.</p>
+<h2 id="example-agent-building-a-complete-scene"><a class="header" href="#example-agent-building-a-complete-scene">Example: Agent Building a Complete Scene</a></h2>
+<p>Here’s a complete agent workflow script:</p>
+<pre><code class="language-bash">#!/bin/bash
+set -e
+SCENE="levels/generated.scene.toml"
+SCHEMAS="schemas"
+
+# 1. Create scene
+flint scene create "$SCENE" --name "Agent-Generated Level"
+
+# 2. Build structure
+flint entity create --archetype room --name "main_room" --scene "$SCENE"
+flint entity create --archetype room --name "side_room" --scene "$SCENE"
+flint entity create --archetype door --name "connecting_door" \
+    --parent "main_room" --scene "$SCENE"
+
+# 3. Add player
+flint entity create --archetype player --name "player" --scene "$SCENE"
+
+# 4. Validate (will likely fail --- no transforms yet)
+flint validate "$SCENE" --schemas "$SCHEMAS" --format json || true
+
+# 5. Auto-fix what we can
+flint validate "$SCENE" --schemas "$SCHEMAS" --fix
+
+# 6. Verify
+ENTITY_COUNT=$(flint query "entities" --scene "$SCENE" --format json | jq length)
+echo "Scene has $ENTITY_COUNT entities"
+
+# 7. Render preview
+flint render "$SCENE" --output preview.png --schemas "$SCHEMAS" \
+    --width 1920 --height 1080
+
+echo "Scene built successfully. Preview: preview.png"
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<ul>
+<li><strong>Always validate after creating entities</strong> — catch problems early</li>
+<li><strong>Use JSON output</strong> — easier to parse than text</li>
+<li><strong>Use <code>--dry-run</code> before <code>--fix</code></strong> — preview changes before applying</li>
+<li><strong>Write TOML directly for complex scenes</strong> — faster than many CLI commands</li>
+<li><strong>Use semantic asset definitions</strong> — let batch resolution handle asset generation</li>
+<li><strong>Render previews</strong> — visual verification catches issues that validation can’t</li>
+</ul>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="../philosophy/ai-agent.html">AI Agent Interface</a> — the design philosophy</li>
+<li><a href="../philosophy/cli-first.html">CLI-First Workflow</a> — composable commands</li>
+<li><a href="../concepts/ai-generation.html">AI Asset Generation</a> — the AI asset pipeline</li>
+<li><a href="../cli-reference/overview.html">CLI Reference</a> — full command documentation</li>
+</ul>
 
                     </main>
 

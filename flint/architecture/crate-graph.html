@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,33 +179,33 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="crate-dependency-graph"><a class="header" href="#crate-dependency-graph">Crate Dependency Graph</a></h1>
-<p>This page shows how Flint’s sixteen crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
+<p>This page shows how Flint’s eighteen crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
 <h2 id="dependency-diagram"><a class="header" href="#dependency-diagram">Dependency Diagram</a></h2>
 <pre><code>          ┌─────────────┐                ┌──────────────┐
           │  flint-cli  │                │ flint-player │
           │  (binary)   │                │   (binary)   │
           └──────┬──────┘                └──────┬───────┘
                  │                              │
-    ┌────┬───┬──┴──┬────┬────┬────┐    ┌───┬───┴───┬───┬───┬───┐
-    │    │   │     │    │    │    │    │   │       │   │   │   │
-    ▼    │   ▼     ▼    ▼    ▼    ▼    ▼   ▼       ▼   │   │   │
- ┌──────┐│┌─────┐┌────┐│ ┌─────┐│ ┌────────┐┌────────┐│   │   │
- │viewer│││scene││qry ││ │const││ │runtime ││physics ││   │   │
- └──┬───┘│└──┬──┘└─┬──┘│ └──┬──┘│ └───┬────┘└───┬────┘│   │   │
-    │    │   │     │   │    │   │     │          │     │   │   │
-    │    ▼   │     │   │    │   │     │          │     ▼   ▼   │
-    │ ┌──────────┐ │   │    │   │     │          │  ┌─────────┐│
-    ├►│  render  │◄┘   │    │   │     │          │  │  audio  ││
-    │ └────┬─────┘     │    │   │     │          │  └────┬────┘│
-    │      │           │    │   │     │          │       │     │
-    │      │           │    │   │     │          │       │     ▼
-    │      │           │    │   │     │          │       │  ┌──────────┐
-    │      │           │    │   │     │          │       │  │animation │
-    │      ▼           │    │   │     │          │       │  └────┬─────┘
-    │ ┌──────────┐     │   ┌┘   │     │          │       │       │
-    │ │  import  │     │   │    │     │          │       │       │
-    │ └────┬─────┘     │   │    │     │          │       │       │
-    │      │           ▼   ▼    ▼     ▼          ▼       ▼       ▼
+    ┌────┬───┬──┴──┬────┬────┬─────┐   ┌───┬───┴───┬───┬───┬───┬───┐
+    │    │   │     │    │    │     │   │   │       │   │   │   │   │
+    ▼    │   ▼     ▼    ▼    ▼     ▼   ▼   ▼       ▼   │   │   │   │
+ ┌──────┐│┌─────┐┌────┐│ ┌─────┐┌────────┐┌────────┐┌────────┐│   │
+ │viewer│││scene││qry ││ │const││asset-gen││runtime ││physics ││   │
+ └──┬───┘│└──┬──┘└─┬──┘│ └──┬──┘└───┬────┘└───┬────┘└───┬────┘│   │
+    │    │   │     │   │    │       │          │         │     │   │
+    │    ▼   │     │   │    │       │          │         │     ▼   │
+    │ ┌──────────┐ │   │    │       │          │         │  ┌─────────┐
+    ├►│  render  │◄┘   │    │       │          │         │  │ script  │
+    │ └────┬─────┘     │    │       │          │         │  └────┬────┘
+    │      │           │    │       │          │         │       │
+    │      │           │    │       │          │         ▼       ▼
+    │      │           │    │       │          │      ┌─────────────┐
+    │      │           │    │       │          │      │audio  anim  │
+    │      ▼           │    │       │          │      └──────┬──────┘
+    │ ┌──────────┐     │   ┌┘      │          │             │
+    │ │  import  │     │   │       │          │             │
+    │ └────┬─────┘     │   │       │          │             │
+    │      │           ▼   ▼       ▼          ▼             ▼
     │      │    ┌──────────────────────────────────────────────────┐
     │      │    │              flint-ecs                            │
     │      │    │  (hecs wrapper, stable IDs, hierarchy)           │
@@ -244,8 +244,10 @@
 <tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>player</td></tr>
 <tr><td><code>flint-audio</code></td><td>core, ecs, runtime</td><td>player</td></tr>
 <tr><td><code>flint-animation</code></td><td>core, ecs, import, runtime</td><td>player</td></tr>
+<tr><td><code>flint-script</code></td><td>core, ecs, runtime</td><td>player</td></tr>
+<tr><td><code>flint-asset-gen</code></td><td>core, asset, import</td><td>cli</td></tr>
 <tr><td><code>flint-viewer</code></td><td>core, ecs, scene, schema, render, import, constraint</td><td>cli</td></tr>
-<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, import</td><td><em>(binary entry point)</em></td></tr>
+<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, script, import, asset</td><td><em>(binary entry point)</em></td></tr>
 <tr><td><code>flint-cli</code></td><td>all crates</td><td><em>(binary entry point)</em></td></tr>
 </tbody>
 </table>
@@ -257,13 +259,13 @@
 <li><strong>Core</strong> — fundamental types (<code>flint-core</code>)</li>
 <li><strong>Schema</strong> — data definitions (<code>flint-schema</code>)</li>
 <li><strong>Storage</strong> — entity and asset management (<code>flint-ecs</code>, <code>flint-asset</code>)</li>
-<li><strong>Logic</strong> — query, scene, constraint, import</li>
-<li><strong>Systems</strong> — render, runtime, physics, audio, animation</li>
+<li><strong>Logic</strong> — query, scene, constraint, import, asset-gen</li>
+<li><strong>Systems</strong> — render, runtime, physics, audio, animation, script</li>
 <li><strong>Applications</strong> — viewer, player</li>
 <li><strong>Interface</strong> — CLI binary (<code>flint-cli</code>), player binary (<code>flint-player</code>)</li>
 </ol>
 <p><strong>Two entry points.</strong> The CLI binary (<code>flint-cli</code>) serves scene authoring and validation workflows. The player binary (<code>flint-player</code>) serves interactive gameplay. Both share the same underlying crate hierarchy.</p>
-<p><strong>Independent subsystems.</strong> The constraint system, asset system, physics system, audio system, animation system, and render system don’t depend on each other. This means you can build and test each subsystem in isolation.</p>
+<p><strong>Independent subsystems.</strong> The constraint system, asset system, physics system, audio system, animation system, script system, asset generation system, and render system don’t depend on each other. This means you can build and test each subsystem in isolation.</p>
 <h2 id="external-dependencies"><a class="header" href="#external-dependencies">External Dependencies</a></h2>
 <p>Key third-party crates used across the workspace:</p>
 <div class="table-wrapper">
@@ -287,6 +289,9 @@
 <tr><td><code>sha2</code></td><td>flint-core, flint-asset</td><td>SHA-256 hashing</td></tr>
 <tr><td><code>gltf</code></td><td>flint-import</td><td>glTF file parsing (meshes, materials, skins, animations)</td></tr>
 <tr><td><code>crossbeam</code></td><td>flint-physics</td><td>Channel-based event collection (Rapier)</td></tr>
+<tr><td><code>rhai</code></td><td>flint-script</td><td>Embedded scripting language</td></tr>
+<tr><td><code>ureq</code></td><td>flint-asset-gen</td><td>HTTP client for AI provider APIs</td></tr>
+<tr><td><code>uuid</code></td><td>flint-asset-gen</td><td>Unique job identifiers</td></tr>
 </tbody>
 </table>
 </div>

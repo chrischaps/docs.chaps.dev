@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,12 +179,14 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="architecture-overview"><a class="header" href="#architecture-overview">Architecture Overview</a></h1>
-<p>Flint is structured as a sixteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
+<p>Flint is structured as an eighteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
 <h2 id="workspace-structure"><a class="header" href="#workspace-structure">Workspace Structure</a></h2>
 <pre><code>flint/
 ├── crates/
 │   ├── flint-cli/          # CLI binary (clap). Entry point for all commands.
-│   ├── flint-player/       # Standalone player binary with game loop, physics, audio, animation
+│   ├── flint-asset-gen/    # AI asset generation: providers, style guides, batch resolution
+│   ├── flint-player/       # Standalone player binary with game loop, physics, audio, animation, scripting
+│   ├── flint-script/       # Rhai scripting: ScriptEngine, ScriptSync, hot-reload
 │   ├── flint-viewer/       # egui-based GUI inspector with hot-reload
 │   ├── flint-animation/    # Two-tier animation: property tweens + skeletal/glTF
 │   ├── flint-audio/        # Kira spatial audio: 3D sounds, ambient loops, triggers
@@ -236,6 +238,8 @@
 <tr><td>GUI</td><td>egui 0.30</td><td>Immediate-mode, easy integration with wgpu</td></tr>
 <tr><td>Scene format</td><td>TOML</td><td>Human-readable, diffable, good Rust support</td></tr>
 <tr><td>Query parser</td><td>pest</td><td>PEG grammar, good error messages</td></tr>
+<tr><td>Scripting</td><td>Rhai 1.24</td><td>Sandboxed, embeddable, Rust-native</td></tr>
+<tr><td>AI generation</td><td>ureq</td><td>Lightweight HTTP client for provider APIs</td></tr>
 <tr><td>CLI framework</td><td>clap (derive)</td><td>Ergonomic, well-documented</td></tr>
 <tr><td>Error handling</td><td>thiserror + anyhow</td><td>Typed errors in libraries, flexible in binary</td></tr>
 </tbody>
@@ -250,13 +254,14 @@
   flint-cli                        flint-player
   (scene authoring)                (interactive gameplay)
       │                                  │
-      ├──► flint-viewer (GUI)            ├──► flint-runtime   (game loop, input)
-      ├──► flint-query  (queries)        ├──► flint-physics   (Rapier 3D)
-      ├──► flint-scene  (load/save)      ├──► flint-audio     (Kira spatial audio)
-      ├──► flint-render (renderer)       ├──► flint-animation (tweens + skeletal)
-      ├──► flint-constraint (validation) └──► flint-render    (PBR + skinned mesh)
-      ├──► flint-asset  (asset catalog)          │
-      └──► flint-import (glTF import)            ▼
+      ├──► flint-viewer    (GUI)         ├──► flint-runtime   (game loop, input)
+      ├──► flint-query     (queries)     ├──► flint-physics   (Rapier 3D)
+      ├──► flint-scene     (load/save)   ├──► flint-audio     (Kira spatial audio)
+      ├──► flint-render    (renderer)    ├──► flint-animation (tweens + skeletal)
+      ├──► flint-constraint(validation)  ├──► flint-script    (Rhai scripting)
+      ├──► flint-asset     (catalog)     └──► flint-render    (PBR + skinned mesh)
+      ├──► flint-asset-gen (AI gen)              │
+      └──► flint-import    (glTF import)         ▼
               │                              flint-import  (glTF meshes + skins)
               ▼                                  │
           flint-ecs                              ▼
@@ -344,14 +349,39 @@
 <li><code>AnimationSync</code> bridges ECS <code>animator</code> components to property playback</li>
 <li><code>SkeletalSync</code> bridges ECS to skeletal playback with bone matrix computation</li>
 </ul>
-<h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
-<p>Standalone player binary that wires together runtime, physics, audio, animation, and rendering:</p>
+<h3 id="flint-script"><a class="header" href="#flint-script">flint-script</a></h3>
+<p>Rhai scripting engine for runtime game logic:</p>
 <ul>
-<li>Full game loop: clock tick, fixed-step physics, audio sync, animation advance, first-person rendering</li>
+<li><code>ScriptEngine</code> — compiles <code>.rhai</code> files, manages per-entity <code>Scope</code> and <code>AST</code>, dispatches callbacks</li>
+<li><code>ScriptSync</code> — discovers entities with <code>script</code> components, monitors file timestamps for hot-reload</li>
+<li><code>ScriptSystem</code> — <code>RuntimeSystem</code> implementation running in <code>update()</code> (variable-rate)</li>
+<li>Full API: entity CRUD, input, time, audio, animation, math, events, logging</li>
+<li><code>ScriptCommand</code> pattern — deferred audio/event effects processed by PlayerApp after script batch</li>
+<li><code>ScriptCallContext</code> with raw <code>*mut FlintWorld</code> pointer for world access during call batches</li>
+</ul>
+<h3 id="flint-asset-gen"><a class="header" href="#flint-asset-gen">flint-asset-gen</a></h3>
+<p>AI asset generation pipeline:</p>
+<ul>
+<li><code>GenerationProvider</code> trait with pluggable implementations (Flux, Meshy, ElevenLabs, Mock)</li>
+<li><code>StyleGuide</code> — TOML-defined visual vocabulary (palette, materials, geometry constraints) for prompt enrichment</li>
+<li><code>SemanticAssetDef</code> — maps intent (description, material, wear level) to generation requests</li>
+<li>Batch scene resolution with strategies: <code>AiGenerate</code>, <code>HumanTask</code>, <code>AiThenHuman</code></li>
+<li><code>validate_model()</code> — checks GLB geometry and materials against style constraints</li>
+<li><code>BuildManifest</code> — provenance tracking (provider, prompt, content hash) for all generated assets</li>
+<li><code>FlintConfig</code> — layered configuration for API keys and provider settings</li>
+<li><code>JobStore</code> — persistent tracking of async generation jobs (for long-running 3D model generation)</li>
+</ul>
+<h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
+<p>Standalone player binary that wires together runtime, physics, audio, animation, scripting, and rendering:</p>
+<ul>
+<li>Full game loop: clock tick, fixed-step physics, audio sync, animation advance, script update, first-person rendering</li>
 <li>Scene loading with physics body creation from TOML collider/rigidbody components</li>
 <li>Audio source loading and spatial listener tracking</li>
 <li>Skeletal animation with bone matrix upload to GPU each frame</li>
-<li>First-person controls (WASD, mouse look, jump, sprint)</li>
+<li>Rhai script system with event dispatch (collisions, triggers, actions, interactions)</li>
+<li>Interactable entity system with HUD prompt overlay (egui crosshair + proximity text)</li>
+<li>First-person controls (WASD, mouse look, jump, sprint, interact)</li>
+<li>Optional asset catalog integration for runtime name-based asset resolution</li>
 </ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>
 <p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>serve</code>, <code>play</code>, <code>validate</code>, <code>asset</code>, <code>render</code>.</p>

@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -228,9 +228,13 @@ flint asset resolve levels/tavern.scene.toml --strategy strict
 <tbody>
 <tr><td><code>strict</code></td><td>All referenced assets must exist in the catalog. Missing assets are errors.</td></tr>
 <tr><td><code>placeholder</code></td><td>Missing assets are replaced with placeholder geometry. Useful during development.</td></tr>
+<tr><td><code>ai_generate</code></td><td>Missing assets are generated via AI providers (Flux, Meshy, ElevenLabs) and stored.</td></tr>
+<tr><td><code>human_task</code></td><td>Missing assets produce task files for manual creation by an artist.</td></tr>
+<tr><td><code>ai_then_human</code></td><td>Generate with AI first, then produce review tasks for human approval.</td></tr>
 </tbody>
 </table>
 </div>
+<p>The <code>ai_generate</code>, <code>human_task</code>, and <code>ai_then_human</code> strategies are part of the <a href="ai-generation.html">AI Asset Generation</a> pipeline.</p>
 <h2 id="asset-sidecar-files"><a class="header" href="#asset-sidecar-files">Asset Sidecar Files</a></h2>
 <p>Each asset in the catalog has a <code>.asset.toml</code> sidecar file storing metadata:</p>
 <pre><code class="language-toml">[asset]
@@ -240,9 +244,19 @@ hash = "sha256:a1b2c3..."
 source_path = "models/chair.glb"
 tags = ["furniture", "medieval"]
 </code></pre>
+<h2 id="runtime-catalog-resolution"><a class="header" href="#runtime-catalog-resolution">Runtime Catalog Resolution</a></h2>
+<p>The player can load the asset catalog at startup for name-based asset resolution. When an entity references an asset by name, the resolution chain is:</p>
+<ol>
+<li>Look up the name in the <code>AssetCatalog</code></li>
+<li>If found, resolve the content hash</li>
+<li>Load from the <code>ContentStore</code> path (<code>.flint/assets/&lt;hash&gt;</code>)</li>
+<li>Fall back to file-based loading if not in the catalog</li>
+</ol>
+<p>This allows scenes to reference both pre-imported and AI-generated assets by name without hardcoding file paths.</p>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
 <li><a href="../guides/importing-assets.html">Importing Assets</a> — step-by-step import guide</li>
+<li><a href="ai-generation.html">AI Asset Generation</a> — AI-powered asset creation pipeline</li>
 <li><a href="schemas.html">Schemas</a> — the <code>material</code> component schema for PBR properties</li>
 <li><a href="../formats/overview.html">File Formats</a> — asset sidecar TOML format reference</li>
 </ul>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["find_nearest_interactable"],"struct":["NearestInteractable","ScriptEngine","ScriptInstance"]};

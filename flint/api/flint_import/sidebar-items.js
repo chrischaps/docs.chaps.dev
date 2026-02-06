@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["JointProperty"],"fn":["import_gltf"],"struct":["ImportResult","ImportedChannel","ImportedJoint","ImportedKeyframe","ImportedMaterial","ImportedMesh","ImportedSkeletalClip","ImportedSkeleton","ImportedTexture"]};
+window.SIDEBAR_ITEMS = {"enum":["JointProperty"],"fn":["import_gltf"],"struct":["ImportResult","ImportedChannel","ImportedJoint","ImportedKeyframe","ImportedMaterial","ImportedMesh","ImportedSkeletalClip","ImportedSkeleton","ImportedTexture","MeshBounds"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BatchStrategy"],"fn":["resolve_scene","scan_scene_assets"],"struct":["BatchResult","MissingAsset"]};

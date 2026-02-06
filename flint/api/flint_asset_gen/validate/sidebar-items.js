@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CheckStatus"],"fn":["validate_model"],"struct":["ValidationCheck","ValidationReport"]};

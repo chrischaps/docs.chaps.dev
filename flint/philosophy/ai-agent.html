@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,19 +179,87 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="ai-agent-interface"><a class="header" href="#ai-agent-interface">AI Agent Interface</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Flint is designed to be an excellent interface for AI coding agents. This page will cover:</p>
+<p>Flint is designed from the ground up to be an excellent interface for AI coding agents. Where traditional engines optimize for human spatial reasoning and visual feedback, Flint optimizes for text-based reasoning, structured data, and automated validation.</p>
+<h2 id="the-problem-with-gui-engines"><a class="header" href="#the-problem-with-gui-engines">The Problem with GUI Engines</a></h2>
+<p>AI agents working with traditional game engines face fundamental friction:</p>
 <ul>
-<li>Why AI agents struggle with GUI-based game engines</li>
-<li>The structured input/output contract Flint provides</li>
-<li>How the query language enables agent introspection</li>
-<li>Constraint validation as an automated feedback loop</li>
-<li>Headless rendering for visual verification</li>
-<li>Example agent workflows for common tasks</li>
+<li><strong>Screenshot parsing</strong> — agents must interpret rendered pixels to understand scene state, an unreliable and lossy process</li>
+<li><strong>GUI automation</strong> — clicking buttons and dragging sliders through accessibility APIs or screenshot analysis is brittle</li>
+<li><strong>Binary formats</strong> — proprietary project files can’t be read, diffed, or generated as text</li>
+<li><strong>Implicit state</strong> — engine state lives in inspector panels, viewport selections, and undo histories that agents can’t access</li>
 </ul>
-<p>See the <a href="../guides/ai-agent-workflow.html">AI Agent Workflow</a> guide for practical examples.</p>
+<p>Flint eliminates all of these friction points.</p>
+<h2 id="structured-input-and-output"><a class="header" href="#structured-input-and-output">Structured Input and Output</a></h2>
+<p>Every Flint command accepts text input and produces structured text output:</p>
+<pre><code class="language-bash"># JSON output for machine parsing
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format json
+
+# Exit codes signal success (0) or failure (1)
+flint validate levels/tavern.scene.toml --format json
+echo $?  # 0 = valid, 1 = violations found
+</code></pre>
+<p>An agent can create entities, modify scenes, and inspect state entirely through text — no screenshots, no pixel coordinates, no GUI automation.</p>
+<h2 id="query-based-introspection"><a class="header" href="#query-based-introspection">Query-Based Introspection</a></h2>
+<p>The query language gives agents programmatic access to scene state. Instead of reading a screenshot to count doors, an agent can:</p>
+<pre><code class="language-bash"># How many doors are in this scene?
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format json | jq length
+
+# Is this door locked?
+flint query "entities where door.locked == true" --scene levels/tavern.scene.toml --format json
+
+# What components does the player entity have?
+flint query "entities where archetype == 'player'" --scene levels/tavern.scene.toml --format json
+</code></pre>
+<p>Queries return structured data that agents can parse, reason about, and use to plan their next action.</p>
+<h2 id="constraint-validation-as-feedback"><a class="header" href="#constraint-validation-as-feedback">Constraint Validation as Feedback</a></h2>
+<p>Constraints provide an automated feedback loop. An agent doesn’t need a human to check its work — it can validate programmatically:</p>
+<pre><code class="language-bash"># Agent creates some entities...
+flint entity create --archetype door --name "secret_door" --scene levels/tavern.scene.toml
+
+# Then checks if the scene is still valid
+flint validate levels/tavern.scene.toml --format json
+</code></pre>
+<p>If validation fails, the JSON output tells the agent exactly what’s wrong and how to fix it. The <code>--fix --dry-run</code> mode even previews what auto-fixes would apply. This creates a tight create-validate-fix loop that agents can execute without human intervention.</p>
+<h2 id="schema-introspection"><a class="header" href="#schema-introspection">Schema Introspection</a></h2>
+<p>Agents can discover what components and archetypes are available without reading documentation:</p>
+<pre><code class="language-bash"># What fields does the 'door' component have?
+flint schema door
+
+# What components does the 'player' archetype include?
+flint schema player
+</code></pre>
+<p>This means an agent can learn the engine’s data model at runtime, then use that knowledge to create valid entities.</p>
+<h2 id="headless-rendering"><a class="header" href="#headless-rendering">Headless Rendering</a></h2>
+<p>Visual verification without a window:</p>
+<pre><code class="language-bash"># Render the scene to an image file
+flint render levels/tavern.scene.toml --output preview.png --width 1920 --height 1080
+</code></pre>
+<p>An agent (or its supervisor) can render a preview image to check that the scene looks correct, without opening a GUI. This enables visual regression testing in CI and supports workflows where an agent builds a scene, renders a preview, and a human reviews the image.</p>
+<h2 id="toml-as-scene-format"><a class="header" href="#toml-as-scene-format">TOML as Scene Format</a></h2>
+<p>Scenes are plain TOML text files. An agent can:</p>
+<ul>
+<li><strong>Read</strong> a scene file directly as text</li>
+<li><strong>Write</strong> entity data by editing TOML</li>
+<li><strong>Diff</strong> changes with standard tools (<code>git diff</code>)</li>
+<li><strong>Generate</strong> entire scenes programmatically</li>
+<li><strong>Merge</strong> changes from multiple agents without conflicts (each entity is a distinct TOML section)</li>
+</ul>
+<p>No proprietary binary formats, no deserialization libraries, no SDK required.</p>
+<h2 id="ai-asset-generation"><a class="header" href="#ai-asset-generation">AI Asset Generation</a></h2>
+<p>Phase 5 extends the agent interface to asset creation. Agents can generate textures, 3D models, and audio through CLI commands:</p>
+<pre><code class="language-bash"># Generate a texture using AI
+flint asset generate texture -d "rough stone wall with mortar lines" --style medieval_tavern
+
+# Batch-generate all missing assets for a scene
+flint asset resolve my_scene.scene.toml --strategy ai_generate --style medieval_tavern
+</code></pre>
+<p>Style guides ensure generated assets maintain visual consistency, and model validation checks results against constraints — the same automated feedback loop that works for scene structure now works for asset quality.</p>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="cli-first.html">CLI-First Workflow</a> — the composable command interface</li>
+<li><a href="../guides/ai-agent-workflow.html">AI Agent Workflow</a> — step-by-step guide for agent developers</li>
+<li><a href="../concepts/ai-generation.html">AI Asset Generation</a> — the AI asset generation pipeline</li>
+</ul>
 
                     </main>
 

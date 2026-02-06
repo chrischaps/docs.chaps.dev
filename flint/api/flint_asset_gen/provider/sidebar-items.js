@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AssetKind","JobPollResult","ProviderStatus"],"struct":["AudioParams","GenerateRequest","GenerateResult","ModelParams","TextureParams"],"trait":["GenerationProvider"]};

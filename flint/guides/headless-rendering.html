@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,24 +179,99 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="headless-rendering"><a class="header" href="#headless-rendering">Headless Rendering</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>A guide to rendering scenes without a window, for CI pipelines and automated screenshots. This guide will cover:</p>
-<ul>
-<li>The <code>flint render</code> command and its options</li>
-<li>Setting camera position, angle, and field of view</li>
-<li>Output resolution and format</li>
-<li>Using headless rendering in CI/CD pipelines</li>
-<li>Visual regression testing with baseline comparisons</li>
-<li>Disabling the ground grid for clean screenshots</li>
-</ul>
-<p>Quick example:</p>
+<p>Flint can render scenes to PNG images without opening a window. This enables automated screenshots, visual regression testing, and CI pipeline integration.</p>
+<h2 id="the-flint-render-command"><a class="header" href="#the-flint-render-command">The <code>flint render</code> Command</a></h2>
+<pre><code class="language-bash">flint render levels/tavern.scene.toml --output preview.png
+</code></pre>
+<p>This loads the scene, renders a single frame with PBR shading and shadows, and writes the result to a PNG file.</p>
+<h2 id="camera-options"><a class="header" href="#camera-options">Camera Options</a></h2>
+<p>Control the camera position with orbit-style parameters:</p>
 <pre><code class="language-bash">flint render levels/tavern.scene.toml \
     --output preview.png \
     --width 1920 --height 1080 \
-    --distance 30 --yaw 45 --pitch 30
+    --distance 30 \
+    --yaw 45 \
+    --pitch 30
 </code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--output &lt;path&gt;</code></td><td><code>render.png</code></td><td>Output file path</td></tr>
+<tr><td><code>--width &lt;px&gt;</code></td><td>800</td><td>Image width in pixels</td></tr>
+<tr><td><code>--height &lt;px&gt;</code></td><td>600</td><td>Image height in pixels</td></tr>
+<tr><td><code>--distance &lt;units&gt;</code></td><td>20.0</td><td>Camera distance from origin</td></tr>
+<tr><td><code>--yaw &lt;degrees&gt;</code></td><td>0.0</td><td>Horizontal camera angle</td></tr>
+<tr><td><code>--pitch &lt;degrees&gt;</code></td><td>30.0</td><td>Vertical camera angle</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Path to schemas directory</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="ci-pipeline-integration"><a class="header" href="#ci-pipeline-integration">CI Pipeline Integration</a></h2>
+<p>Headless rendering works on machines without a display. Use it in CI to catch visual regressions:</p>
+<pre><code class="language-yaml"># Example GitHub Actions step
+- name: Render preview
+  run: |
+    cargo run --bin flint -- render levels/tavern.scene.toml \
+      --output screenshots/tavern.png \
+      --width 1920 --height 1080
+
+- name: Upload screenshot
+  uses: actions/upload-artifact@v4
+  with:
+    name: screenshots
+    path: screenshots/
+</code></pre>
+<h2 id="visual-regression-testing"><a class="header" href="#visual-regression-testing">Visual Regression Testing</a></h2>
+<p>A basic visual regression workflow:</p>
+<ol>
+<li>
+<p><strong>Baseline</strong> — render a reference image and commit it:</p>
+<pre><code class="language-bash">flint render levels/tavern.scene.toml --output tests/baseline/tavern.png
+</code></pre>
+</li>
+<li>
+<p><strong>Test</strong> — after changes, render again and compare:</p>
+<pre><code class="language-bash">flint render levels/tavern.scene.toml --output tests/current/tavern.png
+# Compare with your preferred tool (ImageMagick, pixelmatch, etc.)
+</code></pre>
+</li>
+<li>
+<p><strong>Update</strong> — if the change is intentional, update the baseline:</p>
+<pre><code class="language-bash">cp tests/current/tavern.png tests/baseline/tavern.png
+</code></pre>
+</li>
+</ol>
+<p>Since Flint’s renderer is deterministic for a given scene file and camera position, identical inputs produce identical outputs.</p>
+<h2 id="rendering-multiple-views"><a class="header" href="#rendering-multiple-views">Rendering Multiple Views</a></h2>
+<p>Script multiple renders for different angles:</p>
+<pre><code class="language-bash">#!/bin/bash
+SCENE="levels/tavern.scene.toml"
+
+for angle in 0 90 180 270; do
+    flint render "$SCENE" \
+        --output "screenshots/view_${angle}.png" \
+        --yaw $angle --pitch 25 --distance 25 \
+        --width 1920 --height 1080
+done
+</code></pre>
+<h2 id="rendering-pipeline-details"><a class="header" href="#rendering-pipeline-details">Rendering Pipeline Details</a></h2>
+<p>Headless rendering uses the same wgpu PBR pipeline as the interactive viewer:</p>
+<ul>
+<li><strong>Cook-Torrance BRDF</strong> with roughness/metallic workflow</li>
+<li><strong>Cascaded shadow mapping</strong> for directional light shadows</li>
+<li><strong>glTF mesh rendering</strong> with full material support</li>
+<li><strong>Skinned mesh rendering</strong> with bone matrix upload (for skeletal meshes)</li>
+</ul>
+<p>The only difference from interactive rendering is that the output goes to a texture-to-buffer copy instead of a swapchain surface.</p>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="../concepts/rendering.html">Rendering</a> — the PBR rendering pipeline</li>
+<li><a href="ai-agent-workflow.html">AI Agent Workflow</a> — using headless renders for agent verification</li>
+<li><a href="../cli-reference/overview.html">CLI Reference</a> — full command options</li>
+</ul>
 
                     </main>
 

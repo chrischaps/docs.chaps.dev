@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["extract_semantic_defs"],"struct":["AssetDefComponent","SemanticAssetDef"]};

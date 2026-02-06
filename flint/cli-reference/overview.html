@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -200,6 +200,12 @@
 <tr><td><code>flint asset list</code></td><td>List assets in the catalog</td></tr>
 <tr><td><code>flint asset info</code></td><td>Show details for a specific asset</td></tr>
 <tr><td><code>flint asset resolve</code></td><td>Check asset references in a scene</td></tr>
+<tr><td><code>flint asset generate</code></td><td>Generate an asset using AI providers</td></tr>
+<tr><td><code>flint asset validate</code></td><td>Validate a generated model against style constraints</td></tr>
+<tr><td><code>flint asset manifest</code></td><td>Generate a build manifest of all generated assets</td></tr>
+<tr><td><code>flint asset regenerate</code></td><td>Regenerate an existing asset with new parameters</td></tr>
+<tr><td><code>flint asset job status</code></td><td>Check status of an async generation job</td></tr>
+<tr><td><code>flint asset job list</code></td><td>List all generation jobs</td></tr>
 <tr><td><code>flint serve &lt;scene&gt;</code></td><td>Launch the hot-reload PBR viewer with egui inspector</td></tr>
 <tr><td><code>flint play &lt;scene&gt;</code></td><td>Play a scene with first-person controls and physics</td></tr>
 <tr><td><code>flint render &lt;scene&gt;</code></td><td>Render a scene to PNG (headless)</td></tr>
@@ -233,6 +239,7 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><td>Mouse</td><td>Look around</td></tr>
 <tr><td>Space</td><td>Jump</td></tr>
 <tr><td>Shift</td><td>Sprint</td></tr>
+<tr><td>E</td><td>Interact with nearby object</td></tr>
 <tr><td>Escape</td><td>Release cursor / Exit</td></tr>
 <tr><td>F1</td><td>Cycle debug rendering mode</td></tr>
 <tr><td>F4</td><td>Toggle shadows</td></tr>
@@ -245,6 +252,31 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <p>The player is also available as a standalone binary for distribution:</p>
 <pre><code class="language-bash">cargo run --bin flint-player -- demo/phase4_runtime.scene.toml --schemas schemas
 </code></pre>
+<h2 id="the-asset-generate-command"><a class="header" href="#the-asset-generate-command">The <code>asset generate</code> Command</a></h2>
+<p>Generate assets using AI providers:</p>
+<pre><code class="language-bash">flint asset generate texture -d "rough stone wall" --style medieval_tavern
+flint asset generate model -d "wooden chair" --provider meshy --seed 42
+flint asset generate audio -d "tavern ambient noise" --duration 10.0
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>-d</code>, <code>--description</code></td><td>Generation prompt (required)</td></tr>
+<tr><td><code>--name</code></td><td>Asset name (derived from description if omitted)</td></tr>
+<tr><td><code>--provider</code></td><td>Provider to use: <code>flux</code>, <code>meshy</code>, <code>elevenlabs</code>, <code>mock</code></td></tr>
+<tr><td><code>--style</code></td><td>Style guide name (e.g., <code>medieval_tavern</code>)</td></tr>
+<tr><td><code>--width</code>, <code>--height</code></td><td>Image dimensions for textures (default: 1024x1024)</td></tr>
+<tr><td><code>--seed</code></td><td>Random seed for reproducibility</td></tr>
+<tr><td><code>--tags</code></td><td>Comma-separated tags</td></tr>
+<tr><td><code>--output</code></td><td>Output directory (default: <code>.flint/generated</code>)</td></tr>
+<tr><td><code>--duration</code></td><td>Audio duration in seconds (default: 3.0)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Generated assets are automatically stored in content-addressed storage and registered in the asset catalog with a <code>.asset.toml</code> sidecar. Models are validated against style constraints after generation.</p>
 <h2 id="common-flags"><a class="header" href="#common-flags">Common Flags</a></h2>
 <div class="table-wrapper">
 <table>

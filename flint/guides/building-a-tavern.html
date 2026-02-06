@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,38 +179,240 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="building-a-tavern"><a class="header" href="#building-a-tavern">Building a Tavern</a></h1>
-<blockquote>
-<p>This page is a stub. Full tutorial coming soon.</p>
-</blockquote>
-<p>A step-by-step tutorial that builds a complete tavern scene from scratch using only CLI commands. This guide will cover:</p>
-<ul>
-<li>Project initialization with <code>flint init</code></li>
-<li>Building rooms with parent-child hierarchies</li>
-<li>Placing doors with component properties</li>
-<li>Furnishing spaces with tables, chairs, and decorations</li>
-<li>Adding characters (bartender, patrons, a mysterious stranger)</li>
-<li>Adding physics colliders for walkable geometry</li>
-<li>Creating a player entity with first-person controls</li>
-<li>Running queries to inspect the scene</li>
-<li>Validating against constraints</li>
-<li>Viewing the result with <code>flint serve --watch</code></li>
-<li>Walking through the tavern with <code>flint play</code></li>
-</ul>
-<p>This tutorial follows the same steps as the <code>demo/build-tavern.ps1</code> showcase script, explained in detail.</p>
-<p>In the meantime, you can explore the finished result:</p>
-<pre><code class="language-bash"># View the tavern in the scene viewer
-cargo run --bin flint -- serve demo/phase4_runtime.scene.toml --watch
+<p>This tutorial walks through building a complete tavern scene from scratch using Flint’s CLI. By the end, you’ll have a walkable tavern with physics, audio, animation, scripted NPCs, and interactive objects.</p>
+<h2 id="1-initialize-the-project"><a class="header" href="#1-initialize-the-project">1. Initialize the Project</a></h2>
+<pre><code class="language-bash">flint init tavern-game
+cd tavern-game
+</code></pre>
+<p>This creates a project directory with <code>schemas/</code> containing default component and archetype definitions.</p>
+<h2 id="2-create-the-scene"><a class="header" href="#2-create-the-scene">2. Create the Scene</a></h2>
+<pre><code class="language-bash">flint scene create levels/tavern.scene.toml --name "The Rusty Flagon"
+</code></pre>
+<h2 id="3-build-the-rooms"><a class="header" href="#3-build-the-rooms">3. Build the Rooms</a></h2>
+<p>Create the tavern’s three rooms using parent-child hierarchy:</p>
+<pre><code class="language-bash">SCENE="levels/tavern.scene.toml"
+
+# Main hall
+flint entity create --archetype room --name "main_hall" --scene $SCENE
+flint entity create --archetype room --name "kitchen" --scene $SCENE
+flint entity create --archetype room --name "storage" --scene $SCENE
+</code></pre>
+<p>Now edit the TOML directly to set positions and dimensions. Each room needs a transform and bounds:</p>
+<pre><code class="language-toml">[entities.main_hall]
+archetype = "room"
+
+[entities.main_hall.transform]
+position = [0.0, 0.0, 0.0]
+
+[entities.main_hall.bounds]
+size = [15.0, 4.0, 12.0]
+</code></pre>
+<h2 id="4-add-physics-colliders"><a class="header" href="#4-add-physics-colliders">4. Add Physics Colliders</a></h2>
+<p>For the scene to be walkable, surfaces need physics colliders. Add walls, floor, and ceiling:</p>
+<pre><code class="language-toml">[entities.floor]
+archetype = "wall"
+
+[entities.floor.transform]
+position = [0.0, -0.25, 0.0]
+
+[entities.floor.collider]
+shape = "box"
+size = [20.0, 0.5, 20.0]
+
+[entities.floor.rigidbody]
+body_type = "static"
+
+[entities.north_wall]
+archetype = "wall"
+
+[entities.north_wall.transform]
+position = [0.0, 2.0, -10.0]
+
+[entities.north_wall.collider]
+shape = "box"
+size = [20.0, 4.0, 0.5]
+
+[entities.north_wall.rigidbody]
+body_type = "static"
+</code></pre>
+<p>Repeat for all walls. Static rigidbodies are immovable world geometry that the player collides with.</p>
+<h2 id="5-create-the-player"><a class="header" href="#5-create-the-player">5. Create the Player</a></h2>
+<p>The player entity bundles a character controller, transform, and audio listener:</p>
+<pre><code class="language-toml">[entities.player]
+archetype = "player"
+
+[entities.player.transform]
+position = [0.0, 1.0, 5.0]
+
+[entities.player.character_controller]
+move_speed = 6.0
+jump_force = 7.0
+height = 1.8
+radius = 0.3
+</code></pre>
+<h2 id="6-add-furniture"><a class="header" href="#6-add-furniture">6. Add Furniture</a></h2>
+<p>Place objects throughout the tavern:</p>
+<pre><code class="language-toml">[entities.bar_counter]
+archetype = "furniture"
+
+[entities.bar_counter.transform]
+position = [-3.0, 0.5, -2.0]
+scale = [3.0, 1.0, 0.8]
+
+[entities.bar_counter.collider]
+shape = "box"
+size = [3.0, 1.0, 0.8]
+
+[entities.bar_counter.rigidbody]
+body_type = "static"
+
+[entities.fireplace]
+archetype = "furniture"
+
+[entities.fireplace.transform]
+position = [5.0, 0.5, -8.0]
+
+[entities.fireplace.material]
+emissive = [1.0, 0.4, 0.1]
+emissive_strength = 2.0
+</code></pre>
+<h2 id="7-add-audio"><a class="header" href="#7-add-audio">7. Add Audio</a></h2>
+<p>Attach spatial sounds to entities:</p>
+<pre><code class="language-toml">[entities.fireplace.audio_source]
+file = "audio/fire_crackle.ogg"
+volume = 0.8
+loop = true
+spatial = true
+min_distance = 1.0
+max_distance = 15.0
+
+[entities.ambience]
+
+[entities.ambience.audio_source]
+file = "audio/tavern_ambient.ogg"
+volume = 0.3
+loop = true
+spatial = false
+</code></pre>
+<p>Place audio files (OGG, WAV, MP3, or FLAC) in the <code>audio/</code> directory next to the scene.</p>
+<h2 id="8-add-animations"><a class="header" href="#8-add-animations">8. Add Animations</a></h2>
+<p>Create animation clips in <code>animations/</code>:</p>
+<pre><code class="language-toml"># animations/platform_bob.anim.toml
+name = "platform_bob"
+duration = 4.0
+
+[[tracks]]
+interpolation = "CubicSpline"
+
+[tracks.target]
+type = "Position"
+
+[[tracks.keyframes]]
+time = 0.0
+value = [2.0, 0.5, 3.0]
+
+[[tracks.keyframes]]
+time = 2.0
+value = [2.0, 1.5, 3.0]
+
+[[tracks.keyframes]]
+time = 4.0
+value = [2.0, 0.5, 3.0]
+</code></pre>
+<p>Attach an animator to the entity:</p>
+<pre><code class="language-toml">[entities.platform.animator]
+clip = "platform_bob"
+autoplay = true
+loop = true
+speed = 1.0
+</code></pre>
+<h2 id="9-add-interactable-objects"><a class="header" href="#9-add-interactable-objects">9. Add Interactable Objects</a></h2>
+<p>Make the door interactive with a script:</p>
+<pre><code class="language-toml">[entities.front_door]
+archetype = "door"
+
+[entities.front_door.transform]
+position = [0.0, 1.0, -5.0]
+
+[entities.front_door.interactable]
+prompt_text = "Open Door"
+range = 3.0
+interaction_type = "use"
+
+[entities.front_door.script]
+source = "door_interact.rhai"
+</code></pre>
+<p>Create the script in <code>scripts/door_interact.rhai</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let door_open = false;
+
+fn on_interact() {
+    let me = self_entity();
+    door_open = !door_open;
+
+    if door_open {
+        play_clip(me, "door_swing");
+        play_sound("door_open");
+    } else {
+        play_clip(me, "door_close");
+        play_sound("door_close");
+    }
+}
+<span class="boring">}</span></code></pre>
+<h2 id="10-add-npcs"><a class="header" href="#10-add-npcs">10. Add NPCs</a></h2>
+<p>Create NPC entities with scripts for behavior:</p>
+<pre><code class="language-toml">[entities.bartender]
+archetype = "npc"
+
+[entities.bartender.transform]
+position = [-3.0, 0.0, -3.0]
+
+[entities.bartender.interactable]
+prompt_text = "Talk to Bartender"
+range = 3.0
+interaction_type = "talk"
+
+[entities.bartender.script]
+source = "bartender.rhai"
+</code></pre>
+<h2 id="11-validate-and-test"><a class="header" href="#11-validate-and-test">11. Validate and Test</a></h2>
+<pre><code class="language-bash"># Check the scene against constraints
+flint validate levels/tavern.scene.toml
+
+# View in the scene viewer with hot-reload
+flint serve levels/tavern.scene.toml --watch
 
 # Walk through the tavern in first person
+flint play levels/tavern.scene.toml
+</code></pre>
+<h2 id="12-the-finished-result"><a class="header" href="#12-the-finished-result">12. The Finished Result</a></h2>
+<p>The <code>demo/phase4_runtime.scene.toml</code> in the Flint repository is a complete implementation of this tavern, with:</p>
+<ul>
+<li>Three rooms (main hall, kitchen, storage) with physics colliders on all surfaces</li>
+<li>A bar counter, tables, fireplace, and barrels</li>
+<li>Four NPCs: bartender, two patrons, and a mysterious stranger with scripted behaviors</li>
+<li>Spatial audio: fire crackle, ambient tavern noise, door sounds, glass clinks</li>
+<li>Property animations: bobbing platform, door swings</li>
+<li>Interactable doors and NPCs with HUD prompts</li>
+<li>Footstep sounds synced to player movement</li>
+</ul>
+<pre><code class="language-bash"># Try the finished demo
 cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 </code></pre>
-<p>The <code>demo/phase4_runtime.scene.toml</code> scene contains a three-room tavern with a main hall, kitchen, and storage room, furnished with a bar counter, tables, fireplace, and barrels. Four NPCs populate the space: a bartender, two patrons, and a mysterious stranger. All surfaces have physics colliders for first-person exploration.</p>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="../concepts/scripting.html">Scripting</a> — full Rhai API reference</li>
+<li><a href="../concepts/audio.html">Audio</a> — spatial audio system</li>
+<li><a href="../concepts/animation.html">Animation</a> — property tweens and skeletal animation</li>
+<li><a href="../concepts/physics-and-runtime.html">Physics and Runtime</a> — game loop and character controller</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../concepts/physics-and-runtime.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../concepts/ai-generation.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -224,7 +426,7 @@ cargo run --bin flint -- play demo/phase4_runtime.scene.toml
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../concepts/physics-and-runtime.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../concepts/ai-generation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

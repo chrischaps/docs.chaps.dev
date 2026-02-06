@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,30 +179,33 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="file-formats"><a class="header" href="#file-formats">File Formats</a></h1>
-<blockquote>
-<p>This page is a stub. Full reference coming soon.</p>
-</blockquote>
-<p>All Flint data formats use TOML. This page will provide a complete reference for:</p>
+<p>All Flint data formats use TOML. This page provides a complete reference for every file type.</p>
 <h2 id="scene-files-scenetoml"><a class="header" href="#scene-files-scenetoml">Scene Files (<code>.scene.toml</code>)</a></h2>
+<p>The primary data format. Each scene file contains metadata and a collection of named entities with their component data.</p>
 <pre><code class="language-toml">[scene]
 name = "Scene Name"
 version = "1.0"
 
 [entities.&lt;name&gt;]
 archetype = "&lt;archetype&gt;"
-parent = "&lt;parent_name&gt;"
+parent = "&lt;parent_name&gt;"          # Optional parent entity
 
 [entities.&lt;name&gt;.&lt;component&gt;]
 field = value
 </code></pre>
+<p>Scenes are loaded by <code>flint-scene</code> and can be edited with <code>flint entity create</code>, <code>flint entity delete</code>, or by hand. The <code>serve --watch</code> viewer reloads automatically when the file changes.</p>
 <h2 id="component-schemas-schemascomponentstoml"><a class="header" href="#component-schemas-schemascomponentstoml">Component Schemas (<code>schemas/components/*.toml</code>)</a></h2>
+<p>Define the fields, types, and defaults for each component kind. Components are dynamic — they exist as schema TOML, not compiled Rust types.</p>
 <pre><code class="language-toml">[component.&lt;name&gt;]
-description = "..."
+description = "Human-readable description"
 
 [component.&lt;name&gt;.fields]
-field_name = { type = "&lt;type&gt;", default = &lt;value&gt; }
+field_name = { type = "&lt;type&gt;", default = &lt;value&gt;, description = "..." }
 </code></pre>
+<p>Supported field types: <code>bool</code>, <code>i32</code>, <code>f32</code>, <code>string</code>, <code>vec3</code>, <code>enum</code>, <code>entity_ref</code>, <code>array</code>.</p>
+<p>Key component schemas: <code>transform</code>, <code>material</code>, <code>door</code>, <code>bounds</code>, <code>rigidbody</code>, <code>collider</code>, <code>character_controller</code>, <code>audio_source</code>, <code>audio_listener</code>, <code>audio_trigger</code>, <code>animator</code>, <code>skeleton</code>, <code>script</code>, <code>interactable</code>, <code>asset_def</code>.</p>
 <h2 id="archetype-schemas-schemasarchetypestoml"><a class="header" href="#archetype-schemas-schemasarchetypestoml">Archetype Schemas (<code>schemas/archetypes/*.toml</code>)</a></h2>
+<p>Bundle components together with sensible defaults for common entity types.</p>
 <pre><code class="language-toml">[archetype.&lt;name&gt;]
 description = "..."
 components = ["comp1", "comp2"]
@@ -211,47 +214,127 @@ components = ["comp1", "comp2"]
 field = value
 </code></pre>
 <h2 id="constraint-files-schemasconstraintstoml"><a class="header" href="#constraint-files-schemasconstraintstoml">Constraint Files (<code>schemas/constraints/*.toml</code>)</a></h2>
+<p>Declarative validation rules checked by <code>flint validate</code>. Each file can contain multiple <code>[[constraint]]</code> entries.</p>
 <pre><code class="language-toml">[[constraint]]
 name = "rule_name"
-query = "entities where ..."
-severity = "error"
-message = "..."
+description = "What this constraint checks"
+query = "entities where archetype == 'door'"
+severity = "error"                 # "error" or "warning"
+message = "Door '{name}' is missing a transform component"
 
 [constraint.kind]
-type = "&lt;kind&gt;"
+type = "required_component"        # Constraint type
+archetype = "door"
+component = "transform"
 </code></pre>
-<h2 id="animation-clips-demoanimationsanimtoml"><a class="header" href="#animation-clips-demoanimationsanimtoml">Animation Clips (<code>demo/animations/*.anim.toml</code>)</a></h2>
+<p>Constraint kinds: <code>required_component</code>, <code>required_child</code>, <code>value_range</code>, <code>reference_valid</code>, <code>query_rule</code>.</p>
+<h2 id="animation-clips-animationsanimtoml"><a class="header" href="#animation-clips-animationsanimtoml">Animation Clips (<code>animations/*.anim.toml</code>)</a></h2>
+<p>TOML-defined keyframe animation clips for property tweens. Loaded by scanning the animations directory at startup.</p>
 <pre><code class="language-toml">name = "clip_name"
 duration = 0.8
 
 [[tracks]]
-interpolation = "Linear"       # "Step", "Linear", or "CubicSpline"
+interpolation = "Linear"           # "Step", "Linear", or "CubicSpline"
 
 [tracks.target]
-type = "Rotation"              # "Position", "Rotation", "Scale", or "CustomFloat"
+type = "Rotation"                  # "Position", "Rotation", "Scale", or "CustomFloat"
+# component = "material"           # Required for CustomFloat
+# field = "emissive_strength"      # Required for CustomFloat
 
 [[tracks.keyframes]]
 time = 0.0
-value = [0.0, 0.0, 0.0]       # [x, y, z] (euler degrees for rotation)
+value = [0.0, 0.0, 0.0]           # [x, y, z] (euler degrees for rotation)
 
 [[tracks.keyframes]]
 time = 0.8
 value = [0.0, 90.0, 0.0]
-# in_tangent = [...]           # Optional, for CubicSpline
+# in_tangent = [...]               # Optional, for CubicSpline
 # out_tangent = [...]
 
-[[events]]                     # Optional timed events
+[[events]]                         # Optional timed events
 time = 0.0
 event_name = "door_start"
 </code></pre>
 <h2 id="asset-sidecars-assetsassettoml"><a class="header" href="#asset-sidecars-assetsassettoml">Asset Sidecars (<code>assets/**/*.asset.toml</code>)</a></h2>
+<p>Metadata files stored alongside imported assets in the catalog.</p>
 <pre><code class="language-toml">[asset]
 name = "asset_name"
-type = "mesh"
-hash = "sha256:..."
-source_path = "..."
-tags = ["tag1", "tag2"]
+type = "mesh"                      # mesh, texture, material, audio, script
+hash = "sha256:a1b2c3..."
+source_path = "models/chair.glb"
+format = "glb"
+tags = ["furniture", "medieval"]
+
+[asset.properties]                 # Optional provider-specific metadata
+prompt = "wooden tavern chair"
+provider = "meshy"
 </code></pre>
+<h2 id="style-guides-stylesstyletoml"><a class="header" href="#style-guides-stylesstyletoml">Style Guides (<code>styles/*.style.toml</code>)</a></h2>
+<p>Define visual vocabulary for consistent AI asset generation. Searched in <code>styles/</code> then <code>.flint/styles/</code>.</p>
+<pre><code class="language-toml">[style]
+name = "medieval_tavern"
+description = "Weathered medieval fantasy tavern"
+prompt_prefix = "Medieval fantasy tavern style, low-fantasy realism"
+prompt_suffix = "Photorealistic textures, warm candlelight tones"
+negative_prompt = "modern, sci-fi, neon, plastic"
+palette = ["#8B4513", "#A0522D", "#D4A574", "#4A4A4A"]
+
+[style.materials]
+roughness_range = [0.6, 0.95]
+metallic_range = [0.0, 0.15]
+preferred_materials = ["aged oak wood", "rough-hewn stone", "hammered wrought iron"]
+
+[style.geometry]
+max_triangles = 5000
+require_uvs = true
+require_normals = true
+</code></pre>
+<h2 id="semantic-asset-definitions-schemascomponentsasset_deftoml"><a class="header" href="#semantic-asset-definitions-schemascomponentsasset_deftoml">Semantic Asset Definitions (<code>schemas/components/asset_def.toml</code>)</a></h2>
+<p>The <code>asset_def</code> component schema describes what an entity needs in terms of assets, expressed as intent. Used by the batch resolver to auto-generate missing assets.</p>
+<pre><code class="language-toml">[entities.tavern_wall.asset_def]
+name = "tavern_wall_texture"
+description = "Rough stone wall with mortar lines"
+type = "texture"
+material_intent = "rough stone"
+wear_level = 0.7
+size_class = "large"
+tags = ["wall", "interior"]
+</code></pre>
+<h2 id="rhai-scripts-scriptsrhai"><a class="header" href="#rhai-scripts-scriptsrhai">Rhai Scripts (<code>scripts/*.rhai</code>)</a></h2>
+<p>Game logic scripts written in <a href="https://rhai.rs/">Rhai</a>. Attached to entities via the <code>script</code> component. See <a href="../concepts/scripting.html">Scripting</a> for the full API reference.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn on_init() {
+    log("Entity initialized");
+}
+
+fn on_update(dt) {
+    // Called every frame with delta time
+}
+
+fn on_interact() {
+    // Called when the player interacts with this entity
+    play_sound("door_open");
+}
+<span class="boring">}</span></code></pre>
+<h2 id="configuration-flintconfigtoml-flintconfigtoml"><a class="header" href="#configuration-flintconfigtoml-flintconfigtoml">Configuration (<code>~/.flint/config.toml</code>, <code>.flint/config.toml</code>)</a></h2>
+<p>Layered configuration for API keys and generation settings. Global config is merged with project-level config; environment variables override both.</p>
+<pre><code class="language-toml">[providers.flux]
+api_key = "your-api-key"
+enabled = true
+
+[providers.meshy]
+api_key = "your-api-key"
+enabled = true
+
+[providers.elevenlabs]
+api_key = "your-api-key"
+enabled = true
+
+[generation]
+default_style = "medieval_tavern"
+</code></pre>
+<p>Environment variable overrides: <code>FLINT_FLUX_API_KEY</code>, <code>FLINT_MESHY_API_KEY</code>, <code>FLINT_ELEVENLABS_API_KEY</code>.</p>
 
                     </main>
 

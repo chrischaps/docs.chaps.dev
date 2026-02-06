@@ -37,10 +37,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-0981ad03.js"></script>
+        <script src="toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -209,7 +209,7 @@ flint serve levels/tavern.scene.toml --watch
 flint play levels/tavern.scene.toml
 </code></pre>
 <h2 id="current-status"><a class="header" href="#current-status">Current Status</a></h2>
-<p>Flint is in active development through Phase 4. Phases 1–3 are complete, and Phase 4 Stages 1–3 (Game Loop, Audio, Animation) are implemented. The engine currently supports:</p>
+<p>All five phases of Flint’s development are complete. The engine supports:</p>
 <ul>
 <li><strong>Entity CRUD</strong> via CLI with archetype-based creation</li>
 <li><strong>Scene serialization</strong> in human-readable TOML</li>
@@ -228,8 +228,11 @@ flint play levels/tavern.scene.toml
 <li><strong>Spatial audio</strong> via Kira with 3D positioned sounds, ambient loops, and event-driven triggers</li>
 <li><strong>Property animation</strong> with TOML-defined keyframe clips (Step, Linear, CubicSpline interpolation)</li>
 <li><strong>Skeletal animation</strong> with glTF skin import, GPU bone matrix skinning, and crossfade blending</li>
+<li><strong>Rhai scripting</strong> with entity/input/audio/animation APIs, event callbacks, and hot-reload</li>
+<li><strong>Interactable entities</strong> with HUD prompts, proximity detection, and scripted behaviors</li>
+<li><strong>AI asset generation</strong> with pluggable providers (Flux textures, Meshy 3D models, ElevenLabs audio), style guides, batch scene resolution, model validation, and build manifests</li>
 </ul>
-<p>See the <a href="#roadmap">Roadmap</a> for what’s planned next.</p>
+<p>See the <a href="#roadmap">Roadmap</a> for the full development history.</p>
 <h2 id="who-is-this-for"><a class="header" href="#who-is-this-for">Who Is This For?</a></h2>
 <ul>
 <li><strong>AI agent developers</strong> building game content programmatically</li>
@@ -373,33 +376,182 @@ locked = false
 <p>This principle ensures Flint doesn’t optimize so hard for agents that humans can’t use it, or so hard for humans that agents can’t automate it.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="cli-first-workflow"><a class="header" href="#cli-first-workflow">CLI-First Workflow</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>The CLI-first principle means every engine operation is available as a composable command. This page will cover:</p>
+<p>Flint’s primary interface is the command line. Every engine operation — creating entities, querying scenes, validating constraints, importing assets, generating content — is a composable CLI command. Visual tools exist to <em>validate</em> results, not to <em>create</em> them.</p>
+<h2 id="why-cli-first"><a class="header" href="#why-cli-first">Why CLI-First?</a></h2>
+<p>Traditional game engines center on visual editors: drag a mesh into a viewport, tweak a slider, click Save. This works well for a single human at a desk, but it creates friction for:</p>
 <ul>
-<li>How CLI commands compose with pipes and shell tooling</li>
-<li>Structured output formats (JSON, TOML) for machine consumption</li>
-<li>Transaction mode for atomic multi-step operations</li>
-<li>Comparison with GUI-driven workflows in other engines</li>
-<li>Practical patterns for scripting scene construction</li>
+<li><strong>Automation</strong> — you can’t script a drag-and-drop operation</li>
+<li><strong>Reproducibility</strong> — a sequence of mouse clicks isn’t version-controllable</li>
+<li><strong>AI agents</strong> — they see text, not pixels</li>
+<li><strong>CI/CD</strong> — headless servers have no windows to click in</li>
+<li><strong>Collaboration</strong> — binary project files don’t merge cleanly in git</li>
 </ul>
-<p>See <a href="#design-principles">Design Principles</a> for an overview of this philosophy.</p>
+<p>Flint inverts the priority: text-first, visual-second. The CLI is the engine’s native language.</p>
+<h2 id="composable-commands"><a class="header" href="#composable-commands">Composable Commands</a></h2>
+<p>Every command reads structured input and produces structured output. This means standard shell patterns work naturally:</p>
+<pre><code class="language-bash"># Create a scene with several entities
+flint scene create levels/dungeon.scene.toml --name "Dungeon Level 1"
+flint entity create --archetype room --name "entrance" --scene levels/dungeon.scene.toml
+flint entity create --archetype door --name "iron_gate" --parent "entrance" --scene levels/dungeon.scene.toml
+
+# Query and filter with standard tools
+flint query "entities where archetype == 'door'" --scene levels/dungeon.scene.toml --format json
+
+# Validate and capture results
+flint validate levels/dungeon.scene.toml --format json
+
+# Render a preview image for review
+flint render levels/dungeon.scene.toml --output preview.png --width 1920 --height 1080
+</code></pre>
+<h2 id="structured-output"><a class="header" href="#structured-output">Structured Output</a></h2>
+<p>Commands support <code>--format json</code> and <code>--format toml</code> output modes, making their results machine-readable. This enables pipelines like:</p>
+<pre><code class="language-bash"># Count entities of each archetype
+flint query "entities" --scene levels/tavern.scene.toml --format json | jq 'group_by(.archetype) | map({archetype: .[0].archetype, count: length})'
+
+# Check if validation passes (exit code 0 = clean, 1 = violations)
+flint validate levels/tavern.scene.toml --format json &amp;&amp; echo "Scene is valid"
+</code></pre>
+<p>JSON output follows consistent schemas, so tools can parse results reliably across engine versions.</p>
+<h2 id="batch-operations"><a class="header" href="#batch-operations">Batch Operations</a></h2>
+<p>Because every operation is a command, building complex scenes is just a script:</p>
+<pre><code class="language-bash">#!/bin/bash
+SCENE="levels/tavern.scene.toml"
+
+flint scene create "$SCENE" --name "The Rusty Flagon"
+
+# Build the structure
+for room in main_hall kitchen storage; do
+    flint entity create --archetype room --name "$room" --scene "$SCENE"
+done
+
+# Add doors between rooms
+flint entity create --archetype door --name "kitchen_door" --parent "main_hall" --scene "$SCENE"
+flint entity create --archetype door --name "storage_door" --parent "kitchen" --scene "$SCENE"
+
+# Validate the whole thing
+flint validate "$SCENE" --fix
+</code></pre>
+<p>This script is version-controllable, reproducible, and can run in CI.</p>
+<h2 id="the-viewer-as-validator"><a class="header" href="#the-viewer-as-validator">The Viewer as Validator</a></h2>
+<p>The <code>flint serve --watch</code> viewer and <code>flint play</code> command are verification tools, not authoring tools. They answer the question: <em>“Does the scene I built look correct?”</em></p>
+<pre><code class="language-bash"># Edit the TOML in your text editor, viewer updates automatically
+flint serve levels/tavern.scene.toml --watch
+
+# Walk through the scene to verify physics, audio, and interactions
+flint play levels/tavern.scene.toml
+</code></pre>
+<p>The viewer hot-reloads when the scene file changes. Edit TOML, save, see the result — no GUI interaction required.</p>
+<h2 id="headless-rendering-for-ci"><a class="header" href="#headless-rendering-for-ci">Headless Rendering for CI</a></h2>
+<p>Scenes can be rendered to PNG without a window, enabling automated visual validation:</p>
+<pre><code class="language-bash">flint render levels/tavern.scene.toml --output screenshots/tavern.png --width 1920 --height 1080
+</code></pre>
+<p>This is the foundation for visual regression testing in CI pipelines — render a baseline, then compare future renders against it.</p>
+<h2 id="contrast-with-gui-engines"><a class="header" href="#contrast-with-gui-engines">Contrast with GUI Engines</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Aspect</th><th>GUI Engine</th><th>Flint</th></tr>
+</thead>
+<tbody>
+<tr><td>Primary input</td><td>Mouse clicks, drag-and-drop</td><td>CLI commands, TOML files</td></tr>
+<tr><td>Automation</td><td>Limited (editor scripting plugins)</td><td>Native (every operation is a command)</td></tr>
+<tr><td>Version control</td><td>Binary project files</td><td>Text TOML files, clean git diffs</td></tr>
+<tr><td>AI agent support</td><td>Screenshot parsing, GUI automation</td><td>Structured text I/O, query introspection</td></tr>
+<tr><td>Headless operation</td><td>Usually not supported</td><td>First-class (render, validate, query)</td></tr>
+<tr><td>Reproducibility</td><td>Manual steps, screenshots</td><td>Scripts, exit codes, structured output</td></tr>
+</tbody>
+</table>
+</div>
+<p>This doesn’t mean Flint is text-only. It means the text interface is <em>complete</em> — anything you can do in the viewer, you can do (and automate) from the command line.</p>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="#ai-agent-interface">AI Agent Interface</a> — how this philosophy benefits AI coding agents</li>
+<li><a href="#design-principles">Design Principles</a> — the broader design philosophy</li>
+<li><a href="#cli-reference">CLI Reference</a> — full command documentation</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="ai-agent-interface"><a class="header" href="#ai-agent-interface">AI Agent Interface</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Flint is designed to be an excellent interface for AI coding agents. This page will cover:</p>
+<p>Flint is designed from the ground up to be an excellent interface for AI coding agents. Where traditional engines optimize for human spatial reasoning and visual feedback, Flint optimizes for text-based reasoning, structured data, and automated validation.</p>
+<h2 id="the-problem-with-gui-engines"><a class="header" href="#the-problem-with-gui-engines">The Problem with GUI Engines</a></h2>
+<p>AI agents working with traditional game engines face fundamental friction:</p>
 <ul>
-<li>Why AI agents struggle with GUI-based game engines</li>
-<li>The structured input/output contract Flint provides</li>
-<li>How the query language enables agent introspection</li>
-<li>Constraint validation as an automated feedback loop</li>
-<li>Headless rendering for visual verification</li>
-<li>Example agent workflows for common tasks</li>
+<li><strong>Screenshot parsing</strong> — agents must interpret rendered pixels to understand scene state, an unreliable and lossy process</li>
+<li><strong>GUI automation</strong> — clicking buttons and dragging sliders through accessibility APIs or screenshot analysis is brittle</li>
+<li><strong>Binary formats</strong> — proprietary project files can’t be read, diffed, or generated as text</li>
+<li><strong>Implicit state</strong> — engine state lives in inspector panels, viewport selections, and undo histories that agents can’t access</li>
 </ul>
-<p>See the <a href="#ai-agent-workflow">AI Agent Workflow</a> guide for practical examples.</p>
+<p>Flint eliminates all of these friction points.</p>
+<h2 id="structured-input-and-output"><a class="header" href="#structured-input-and-output">Structured Input and Output</a></h2>
+<p>Every Flint command accepts text input and produces structured text output:</p>
+<pre><code class="language-bash"># JSON output for machine parsing
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format json
+
+# Exit codes signal success (0) or failure (1)
+flint validate levels/tavern.scene.toml --format json
+echo $?  # 0 = valid, 1 = violations found
+</code></pre>
+<p>An agent can create entities, modify scenes, and inspect state entirely through text — no screenshots, no pixel coordinates, no GUI automation.</p>
+<h2 id="query-based-introspection"><a class="header" href="#query-based-introspection">Query-Based Introspection</a></h2>
+<p>The query language gives agents programmatic access to scene state. Instead of reading a screenshot to count doors, an agent can:</p>
+<pre><code class="language-bash"># How many doors are in this scene?
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format json | jq length
+
+# Is this door locked?
+flint query "entities where door.locked == true" --scene levels/tavern.scene.toml --format json
+
+# What components does the player entity have?
+flint query "entities where archetype == 'player'" --scene levels/tavern.scene.toml --format json
+</code></pre>
+<p>Queries return structured data that agents can parse, reason about, and use to plan their next action.</p>
+<h2 id="constraint-validation-as-feedback"><a class="header" href="#constraint-validation-as-feedback">Constraint Validation as Feedback</a></h2>
+<p>Constraints provide an automated feedback loop. An agent doesn’t need a human to check its work — it can validate programmatically:</p>
+<pre><code class="language-bash"># Agent creates some entities...
+flint entity create --archetype door --name "secret_door" --scene levels/tavern.scene.toml
+
+# Then checks if the scene is still valid
+flint validate levels/tavern.scene.toml --format json
+</code></pre>
+<p>If validation fails, the JSON output tells the agent exactly what’s wrong and how to fix it. The <code>--fix --dry-run</code> mode even previews what auto-fixes would apply. This creates a tight create-validate-fix loop that agents can execute without human intervention.</p>
+<h2 id="schema-introspection"><a class="header" href="#schema-introspection">Schema Introspection</a></h2>
+<p>Agents can discover what components and archetypes are available without reading documentation:</p>
+<pre><code class="language-bash"># What fields does the 'door' component have?
+flint schema door
+
+# What components does the 'player' archetype include?
+flint schema player
+</code></pre>
+<p>This means an agent can learn the engine’s data model at runtime, then use that knowledge to create valid entities.</p>
+<h2 id="headless-rendering"><a class="header" href="#headless-rendering">Headless Rendering</a></h2>
+<p>Visual verification without a window:</p>
+<pre><code class="language-bash"># Render the scene to an image file
+flint render levels/tavern.scene.toml --output preview.png --width 1920 --height 1080
+</code></pre>
+<p>An agent (or its supervisor) can render a preview image to check that the scene looks correct, without opening a GUI. This enables visual regression testing in CI and supports workflows where an agent builds a scene, renders a preview, and a human reviews the image.</p>
+<h2 id="toml-as-scene-format"><a class="header" href="#toml-as-scene-format">TOML as Scene Format</a></h2>
+<p>Scenes are plain TOML text files. An agent can:</p>
+<ul>
+<li><strong>Read</strong> a scene file directly as text</li>
+<li><strong>Write</strong> entity data by editing TOML</li>
+<li><strong>Diff</strong> changes with standard tools (<code>git diff</code>)</li>
+<li><strong>Generate</strong> entire scenes programmatically</li>
+<li><strong>Merge</strong> changes from multiple agents without conflicts (each entity is a distinct TOML section)</li>
+</ul>
+<p>No proprietary binary formats, no deserialization libraries, no SDK required.</p>
+<h2 id="ai-asset-generation"><a class="header" href="#ai-asset-generation">AI Asset Generation</a></h2>
+<p>Phase 5 extends the agent interface to asset creation. Agents can generate textures, 3D models, and audio through CLI commands:</p>
+<pre><code class="language-bash"># Generate a texture using AI
+flint asset generate texture -d "rough stone wall with mortar lines" --style medieval_tavern
+
+# Batch-generate all missing assets for a scene
+flint asset resolve my_scene.scene.toml --strategy ai_generate --style medieval_tavern
+</code></pre>
+<p>Style guides ensure generated assets maintain visual consistency, and model validation checks results against constraints — the same automated feedback loop that works for scene structure now works for asset quality.</p>
+<h2 id="further-reading-1"><a class="header" href="#further-reading-1">Further Reading</a></h2>
+<ul>
+<li><a href="#cli-first-workflow">CLI-First Workflow</a> — the composable command interface</li>
+<li><a href="#ai-agent-workflow">AI Agent Workflow</a> — step-by-step guide for agent developers</li>
+<li><a href="#ai-asset-generation-1">AI Asset Generation</a> — the AI asset generation pipeline</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <p>Flint is built from source using the Rust toolchain. There are no pre-built binaries yet.</p>
@@ -694,22 +846,78 @@ max = [0.6, 0.8, 0.6]
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="querying-entities"><a class="header" href="#querying-entities">Querying Entities</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Flint includes a SQL-inspired query language for filtering and inspecting entities. This page will cover:</p>
-<ul>
-<li>Basic query syntax: <code>entities where &lt;condition&gt;</code></li>
-<li>Comparison operators: <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, <code>contains</code></li>
-<li>Querying by archetype, component values, and nested fields</li>
-<li>Output formats: JSON and TOML</li>
-<li>Combining queries with shell tools (<code>jq</code>, pipes)</li>
-</ul>
-<p>For a full reference, see <a href="#queries">Queries</a>.</p>
-<p>Quick example:</p>
-<pre><code class="language-bash">flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml
-flint query "entities where door.locked == true" --scene levels/tavern.scene.toml
+<p>Flint includes a SQL-inspired query language for filtering and inspecting entities. Queries let you search scenes by archetype, component values, or nested field data.</p>
+<h2 id="basic-syntax"><a class="header" href="#basic-syntax">Basic Syntax</a></h2>
+<p>All queries follow the pattern:</p>
+<pre><code>entities where &lt;condition&gt;
 </code></pre>
+<p>The simplest query returns all entities:</p>
+<pre><code class="language-bash">flint query "entities" --scene levels/tavern.scene.toml
+</code></pre>
+<h2 id="filtering-by-archetype"><a class="header" href="#filtering-by-archetype">Filtering by Archetype</a></h2>
+<p>The most common filter — find entities of a specific type:</p>
+<pre><code class="language-bash"># Find all doors
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml
+
+# Find all rooms
+flint query "entities where archetype == 'room'" --scene levels/tavern.scene.toml
+</code></pre>
+<h2 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison Operators</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+</thead>
+<tbody>
+<tr><td><code>==</code></td><td>Equal</td><td><code>archetype == 'door'</code></td></tr>
+<tr><td><code>!=</code></td><td>Not equal</td><td><code>archetype != 'room'</code></td></tr>
+<tr><td><code>&gt;</code></td><td>Greater than</td><td><code>transform.position.y &gt; 5.0</code></td></tr>
+<tr><td><code>&lt;</code></td><td>Less than</td><td><code>door.open_angle &lt; 90</code></td></tr>
+<tr><td><code>&gt;=</code></td><td>Greater or equal</td><td><code>audio_source.volume &gt;= 0.5</code></td></tr>
+<tr><td><code>&lt;=</code></td><td>Less or equal</td><td><code>collider.friction &lt;= 0.3</code></td></tr>
+<tr><td><code>contains</code></td><td>String contains</td><td><code>name contains 'wall'</code></td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="querying-component-fields"><a class="header" href="#querying-component-fields">Querying Component Fields</a></h2>
+<p>Access component fields with dot notation:</p>
+<pre><code class="language-bash"># Find locked doors
+flint query "entities where door.locked == true" --scene levels/tavern.scene.toml
+
+# Find entities above a certain height
+flint query "entities where transform.position.y &gt; 2.0" --scene levels/tavern.scene.toml
+
+# Find loud audio sources
+flint query "entities where audio_source.volume &gt; 0.8" --scene levels/tavern.scene.toml
+</code></pre>
+<h2 id="output-formats"><a class="header" href="#output-formats">Output Formats</a></h2>
+<p>Query results can be formatted for different consumers:</p>
+<pre><code class="language-bash"># Human-readable (default)
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml
+
+# JSON for scripting and AI agents
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format json
+
+# TOML for configuration workflows
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format toml
+</code></pre>
+<h2 id="combining-with-shell-tools"><a class="header" href="#combining-with-shell-tools">Combining with Shell Tools</a></h2>
+<p>JSON output composes with standard tools:</p>
+<pre><code class="language-bash"># Count doors
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format json | jq length
+
+# Get just the names
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml --format json | jq '.[].name'
+
+# Find entities with a specific parent
+flint query "entities" --scene levels/tavern.scene.toml --format json | jq '.[] | select(.parent == "main_hall")'
+</code></pre>
+<h2 id="further-reading-2"><a class="header" href="#further-reading-2">Further Reading</a></h2>
+<ul>
+<li><a href="#queries">Queries</a> — full grammar reference and advanced usage</li>
+<li><a href="#constraints">Constraints</a> — queries used in validation rules</li>
+<li><a href="#cli-reference">CLI Reference</a> — all command options</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="the-scene-viewer"><a class="header" href="#the-scene-viewer">The Scene Viewer</a></h1>
 <p>The Flint viewer is a real-time 3D window for validating scenes. It renders your scene with full PBR shading and shadows, and provides an egui inspector panel for browsing entities and editing component properties.</p>
@@ -756,7 +964,7 @@ flint query "entities where door.locked == true" --scene levels/tavern.scene.tom
 <pre><code class="language-bash">flint play levels/tavern.scene.toml
 </code></pre>
 <p>See the <a href="#cli-reference">CLI Reference</a> for full <code>play</code> command details and controls.</p>
-<h2 id="headless-rendering"><a class="header" href="#headless-rendering">Headless Rendering</a></h2>
+<h2 id="headless-rendering-1"><a class="header" href="#headless-rendering-1">Headless Rendering</a></h2>
 <p>For CI pipelines and automated screenshots, render to PNG without opening a window:</p>
 <pre><code class="language-bash">flint render levels/tavern.scene.toml --output preview.png --width 1920 --height 1080
 </code></pre>
@@ -857,7 +1065,7 @@ flint query "entities" --scene levels/dungeon.scene.toml
 # Filter by archetype
 flint query "entities where archetype == 'door'" --scene levels/dungeon.scene.toml
 </code></pre>
-<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<h2 id="further-reading-3"><a class="header" href="#further-reading-3">Further Reading</a></h2>
 <ul>
 <li><a href="#schemas">Schemas</a> — how components and archetypes are defined</li>
 <li><a href="#scenes">Scenes</a> — how entities are serialized to TOML</li>
@@ -1061,7 +1269,7 @@ current_hp = 30
 armor = 0.1
 </code></pre>
 <p>No engine recompilation needed — schemas are loaded at runtime from the TOML files.</p>
-<h2 id="further-reading-1"><a class="header" href="#further-reading-1">Further Reading</a></h2>
+<h2 id="further-reading-4"><a class="header" href="#further-reading-4">Further Reading</a></h2>
 <ul>
 <li><a href="#entities-and-ecs">Entities and ECS</a> — how schemas connect to the entity system</li>
 <li><a href="#constraints">Constraints</a> — rules that validate entities against schemas</li>
@@ -1210,7 +1418,7 @@ parent = "main_hall"
 position = [-5, 0, 0]
 </code></pre>
 <p>This scene defines 4 rooms, 4 doors, 9 pieces of furniture, and 6 characters — all in readable, diffable TOML.</p>
-<h2 id="further-reading-2"><a class="header" href="#further-reading-2">Further Reading</a></h2>
+<h2 id="further-reading-5"><a class="header" href="#further-reading-5">Further Reading</a></h2>
 <ul>
 <li><a href="#your-first-scene">Your First Scene</a> — hands-on guide to building a scene</li>
 <li><a href="#entities-and-ecs">Entities and ECS</a> — how scene entities map to the ECS</li>
@@ -1219,45 +1427,270 @@ position = [-5, 0, 0]
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="queries"><a class="header" href="#queries">Queries</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Flint’s query system provides a SQL-inspired language for filtering and inspecting entities. This page will cover:</p>
-<ul>
-<li>Query grammar (PEG, parsed by pest)</li>
-<li>Full operator reference: <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, <code>contains</code></li>
-<li>Querying nested fields with dot notation (<code>door.locked</code>)</li>
-<li>Boolean logic: <code>and</code>, <code>or</code>, <code>not</code></li>
-<li>How queries are used in constraint definitions</li>
-<li>Performance characteristics and limitations</li>
-</ul>
-<p>Grammar overview:</p>
-<pre><code>entities where &lt;condition&gt;
-
-&lt;condition&gt; := &lt;field&gt; &lt;op&gt; &lt;value&gt;
-            | &lt;condition&gt; and &lt;condition&gt;
-            | &lt;condition&gt; or &lt;condition&gt;
-            | not &lt;condition&gt;
+<p>Flint’s query system provides a SQL-inspired language for filtering and inspecting entities. Queries are parsed by a PEG grammar (pest) and executed against the ECS world.</p>
+<h2 id="grammar"><a class="header" href="#grammar">Grammar</a></h2>
+<p>The query language is defined in <code>crates/flint-query/src/grammar.pest</code>:</p>
+<pre><code>query     = { resource ~ (where_clause)? }
+resource  = { "entities" | "components" }
+where_clause = { "where" ~ condition }
+condition = { field ~ operator ~ value }
+field     = { identifier ~ ("." ~ identifier)* }
+operator  = { "==" | "!=" | "contains" | "&gt;=" | "&lt;=" | "&gt;" | "&lt;" }
+value     = { string | number | boolean }
 </code></pre>
+<p>Whitespace is ignored between tokens. The <code>where</code> keyword is case-insensitive.</p>
+<h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
+<p>Two resource types can be queried:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Resource</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>entities</code></td><td>Returns entity data (name, archetype, components)</td></tr>
+<tr><td><code>components</code></td><td>Returns component definitions from the schema registry</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="operators"><a class="header" href="#operators">Operators</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Operator</th><th>Description</th><th>Value Types</th></tr>
+</thead>
+<tbody>
+<tr><td><code>==</code></td><td>Exact equality</td><td>string, number, boolean</td></tr>
+<tr><td><code>!=</code></td><td>Not equal</td><td>string, number, boolean</td></tr>
+<tr><td><code>&gt;</code></td><td>Greater than</td><td>number</td></tr>
+<tr><td><code>&lt;</code></td><td>Less than</td><td>number</td></tr>
+<tr><td><code>&gt;=</code></td><td>Greater than or equal</td><td>number</td></tr>
+<tr><td><code>&lt;=</code></td><td>Less than or equal</td><td>number</td></tr>
+<tr><td><code>contains</code></td><td>Substring match</td><td>string</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="field-paths"><a class="header" href="#field-paths">Field Paths</a></h2>
+<p>Fields use dot notation to access nested values:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Pattern</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>archetype</code></td><td>The entity’s archetype name</td></tr>
+<tr><td><code>name</code></td><td>The entity’s name</td></tr>
+<tr><td><code>door.locked</code></td><td>The <code>locked</code> field of the <code>door</code> component</td></tr>
+<tr><td><code>transform.position</code></td><td>The <code>position</code> field of the <code>transform</code> component</td></tr>
+</tbody>
+</table>
+</div>
+<p>Examples:</p>
+<pre><code class="language-bash"># Top-level entity properties
+flint query "entities where archetype == 'door'"
+flint query "entities where name contains 'wall'"
+
+# Component fields
+flint query "entities where door.locked == true"
+flint query "entities where audio_source.volume &gt; 0.5"
+flint query "entities where material.roughness &gt;= 0.8"
+flint query "entities where collider.shape == 'box'"
+</code></pre>
+<h2 id="value-types"><a class="header" href="#value-types">Value Types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Syntax</th><th>Examples</th></tr>
+</thead>
+<tbody>
+<tr><td>String</td><td>Single or double quotes</td><td><code>'door'</code>, <code>"wall"</code></td></tr>
+<tr><td>Number</td><td>Integers or decimals, optional negative</td><td><code>42</code>, <code>3.14</code>, <code>-1.5</code></td></tr>
+<tr><td>Boolean</td><td>Unquoted keywords</td><td><code>true</code>, <code>false</code></td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="use-in-constraints"><a class="header" href="#use-in-constraints">Use in Constraints</a></h2>
+<p>Queries power the constraint system. Each constraint rule includes a <code>query</code> field that selects which entities the constraint applies to:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "doors_have_transform"
+query = "entities where archetype == 'door'"
+severity = "error"
+message = "Door '{name}' is missing a transform component"
+
+[constraint.kind]
+type = "required_component"
+archetype = "door"
+component = "transform"
+</code></pre>
+<p>The query selects all door entities, and the constraint checks that each one has a transform component. See <a href="#constraints">Constraints</a> for details.</p>
+<h2 id="cli-usage"><a class="header" href="#cli-usage">CLI Usage</a></h2>
+<pre><code class="language-bash"># Basic query
+flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml
+
+# JSON output for machine consumption
+flint query "entities" --scene levels/tavern.scene.toml --format json
+
+# TOML output
+flint query "entities where door.locked == true" --scene levels/tavern.scene.toml --format toml
+
+# Specify schemas directory
+flint query "entities" --scene levels/tavern.scene.toml --schemas schemas
+</code></pre>
+<h2 id="limitations"><a class="header" href="#limitations">Limitations</a></h2>
+<ul>
+<li>Conditions are currently single-clause (one field-operator-value comparison per query at the parser level)</li>
+<li>Boolean combinators (<code>and</code>, <code>or</code>, <code>not</code>) are part of the grammar design but not yet implemented in the parser</li>
+<li>Queries operate on in-memory ECS state, not directly on TOML files</li>
+<li>Performance is linear in entity count (queries scan all entities matching the resource type)</li>
+</ul>
+<h2 id="further-reading-6"><a class="header" href="#further-reading-6">Further Reading</a></h2>
+<ul>
+<li><a href="#querying-entities">Querying Entities</a> — getting started tutorial</li>
+<li><a href="#constraints">Constraints</a> — using queries in validation rules</li>
+<li><a href="#cli-reference">CLI Reference</a> — command-line options</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="constraints"><a class="header" href="#constraints">Constraints</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>Constraints are declarative validation rules that define what a correct scene looks like. This page will cover:</p>
-<ul>
-<li>Constraint file format (TOML in <code>schemas/constraints/</code>)</li>
-<li>Constraint kinds: <code>required_component</code>, <code>required_child</code>, <code>value_range</code>, <code>reference_valid</code>, <code>query_rule</code></li>
-<li>Auto-fix strategies: <code>add_child</code>, <code>set_default</code>, <code>remove_invalid</code>, <code>assign_from_parent</code></li>
-<li>The validation loop: evaluate, fix, re-evaluate, detect cycles</li>
-<li>CLI usage: <code>flint validate</code>, <code>--fix</code>, <code>--dry-run</code>, <code>--output-diff</code></li>
-<li>JSON and text output formats</li>
-</ul>
-<p>See the <a href="#writing-constraints">Writing Constraints</a> guide for practical examples.</p>
-<p>Quick start:</p>
-<pre><code class="language-bash">flint validate levels/tavern.scene.toml --schemas schemas
-flint validate levels/tavern.scene.toml --fix --dry-run
+<p>Constraints are declarative validation rules that define what a correct scene looks like. They live in TOML files under <code>schemas/constraints/</code> and are checked by <code>flint validate</code>.</p>
+<h2 id="constraint-file-format"><a class="header" href="#constraint-file-format">Constraint File Format</a></h2>
+<p>Each constraint file can contain multiple <code>[[constraint]]</code> entries:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "doors_have_transform"
+description = "Every door must have a transform component"
+query = "entities where archetype == 'door'"
+severity = "error"
+message = "Door '{name}' is missing a transform component"
+
+[constraint.kind]
+type = "required_component"
+archetype = "door"
+component = "transform"
 </code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>name</code></td><td>Unique identifier for the constraint</td></tr>
+<tr><td><code>description</code></td><td>Human-readable explanation of what the rule checks</td></tr>
+<tr><td><code>query</code></td><td>Flint query that selects which entities this constraint applies to</td></tr>
+<tr><td><code>severity</code></td><td><code>"error"</code> (blocks) or <code>"warning"</code> (advisory)</td></tr>
+<tr><td><code>message</code></td><td>Violation message. <code>{name}</code> is replaced with the entity name</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="constraint-kinds"><a class="header" href="#constraint-kinds">Constraint Kinds</a></h2>
+<h3 id="required_component"><a class="header" href="#required_component"><code>required_component</code></a></h3>
+<p>Ensures that entities matching the query have a specific component:</p>
+<pre><code class="language-toml">[constraint.kind]
+type = "required_component"
+archetype = "door"
+component = "transform"
+</code></pre>
+<p>Use case: every door must have a position in the world.</p>
+<h3 id="required_child"><a class="header" href="#required_child"><code>required_child</code></a></h3>
+<p>Ensures that entities have a child entity of a specific archetype:</p>
+<pre><code class="language-toml">[constraint.kind]
+type = "required_child"
+archetype = "room"
+child_archetype = "door"
+</code></pre>
+<p>Use case: every room must have at least one door.</p>
+<h3 id="value_range"><a class="header" href="#value_range"><code>value_range</code></a></h3>
+<p>Checks that a numeric field falls within a valid range:</p>
+<pre><code class="language-toml">[constraint.kind]
+type = "value_range"
+field = "door.open_angle"
+min = 0.0
+max = 180.0
+</code></pre>
+<p>Use case: door angles must be physically possible.</p>
+<h3 id="reference_valid"><a class="header" href="#reference_valid"><code>reference_valid</code></a></h3>
+<p>Checks that an entity reference field points to an existing entity:</p>
+<pre><code class="language-toml">[constraint.kind]
+type = "reference_valid"
+field = "door.target_room"
+</code></pre>
+<p>Use case: a door’s target room must actually exist in the scene.</p>
+<h3 id="query_rule"><a class="header" href="#query_rule"><code>query_rule</code></a></h3>
+<p>The most flexible kind — validates that a query returns the expected number of results:</p>
+<pre><code class="language-toml">[constraint.kind]
+type = "query_rule"
+rule_query = "entities where archetype == 'player'"
+expected = "exactly_one"
+</code></pre>
+<p>Use case: a playable scene must have exactly one player entity.</p>
+<h2 id="auto-fix-strategies"><a class="header" href="#auto-fix-strategies">Auto-Fix Strategies</a></h2>
+<p>Some constraint violations can be fixed automatically. The <code>fix</code> section defines how:</p>
+<ul>
+<li><strong>set_default</strong> — set a missing field to its schema default</li>
+<li><strong>add_child</strong> — create a child entity with the required archetype</li>
+<li><strong>remove_invalid</strong> — remove entities that violate the constraint</li>
+<li><strong>assign_from_parent</strong> — copy a field value from the parent entity</li>
+</ul>
+<p>Auto-fix runs in a loop: fix violations, re-validate, fix new violations. Cycle detection prevents infinite loops.</p>
+<h2 id="cli-usage-1"><a class="header" href="#cli-usage-1">CLI Usage</a></h2>
+<pre><code class="language-bash"># Check a scene for violations
+flint validate levels/tavern.scene.toml
+
+# JSON output for parsing
+flint validate levels/tavern.scene.toml --format json
+
+# Preview what auto-fix would change
+flint validate levels/tavern.scene.toml --fix --dry-run
+
+# Apply auto-fixes
+flint validate levels/tavern.scene.toml --fix
+
+# Specify a schemas directory
+flint validate levels/tavern.scene.toml --schemas schemas
+</code></pre>
+<p>The exit code is 0 if all constraints pass, 1 if any errors are found. Warnings do not affect the exit code.</p>
+<h2 id="real-example"><a class="header" href="#real-example">Real Example</a></h2>
+<p>From <code>schemas/constraints/basics.toml</code>:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "doors_have_transform"
+description = "Every door must have a transform component"
+query = "entities where archetype == 'door'"
+severity = "error"
+message = "Door '{name}' is missing a transform component"
+
+[constraint.kind]
+type = "required_component"
+archetype = "door"
+component = "transform"
+
+[[constraint]]
+name = "rooms_have_bounds"
+description = "Every room must have a bounds component"
+query = "entities where archetype == 'room'"
+severity = "error"
+message = "Room '{name}' is missing a bounds component"
+
+[constraint.kind]
+type = "required_component"
+archetype = "room"
+component = "bounds"
+
+[[constraint]]
+name = "door_angle_range"
+description = "Door open angle must be between 0 and 180 degrees"
+query = "entities where archetype == 'door'"
+severity = "warning"
+message = "Door '{name}' has an open_angle outside the valid range"
+
+[constraint.kind]
+type = "value_range"
+field = "door.open_angle"
+min = 0.0
+max = 180.0
+</code></pre>
+<h2 id="further-reading-7"><a class="header" href="#further-reading-7">Further Reading</a></h2>
+<ul>
+<li><a href="#writing-constraints">Writing Constraints</a> — practical guide to authoring rules</li>
+<li><a href="#queries">Queries</a> — the query language used in constraint selectors</li>
+<li><a href="#file-formats">File Formats</a> — constraint file format reference</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="assets"><a class="header" href="#assets">Assets</a></h1>
 <p>Flint uses a content-addressed asset system with SHA-256 hashing. Every imported file is identified by its content hash, which means identical files are automatically deduplicated and any change to a file produces a new, distinct hash.</p>
@@ -1309,9 +1742,13 @@ flint asset resolve levels/tavern.scene.toml --strategy strict
 <tbody>
 <tr><td><code>strict</code></td><td>All referenced assets must exist in the catalog. Missing assets are errors.</td></tr>
 <tr><td><code>placeholder</code></td><td>Missing assets are replaced with placeholder geometry. Useful during development.</td></tr>
+<tr><td><code>ai_generate</code></td><td>Missing assets are generated via AI providers (Flux, Meshy, ElevenLabs) and stored.</td></tr>
+<tr><td><code>human_task</code></td><td>Missing assets produce task files for manual creation by an artist.</td></tr>
+<tr><td><code>ai_then_human</code></td><td>Generate with AI first, then produce review tasks for human approval.</td></tr>
 </tbody>
 </table>
 </div>
+<p>The <code>ai_generate</code>, <code>human_task</code>, and <code>ai_then_human</code> strategies are part of the <a href="#ai-asset-generation-1">AI Asset Generation</a> pipeline.</p>
 <h2 id="asset-sidecar-files"><a class="header" href="#asset-sidecar-files">Asset Sidecar Files</a></h2>
 <p>Each asset in the catalog has a <code>.asset.toml</code> sidecar file storing metadata:</p>
 <pre><code class="language-toml">[asset]
@@ -1321,9 +1758,19 @@ hash = "sha256:a1b2c3..."
 source_path = "models/chair.glb"
 tags = ["furniture", "medieval"]
 </code></pre>
-<h2 id="further-reading-3"><a class="header" href="#further-reading-3">Further Reading</a></h2>
+<h2 id="runtime-catalog-resolution"><a class="header" href="#runtime-catalog-resolution">Runtime Catalog Resolution</a></h2>
+<p>The player can load the asset catalog at startup for name-based asset resolution. When an entity references an asset by name, the resolution chain is:</p>
+<ol>
+<li>Look up the name in the <code>AssetCatalog</code></li>
+<li>If found, resolve the content hash</li>
+<li>Load from the <code>ContentStore</code> path (<code>.flint/assets/&lt;hash&gt;</code>)</li>
+<li>Fall back to file-based loading if not in the catalog</li>
+</ol>
+<p>This allows scenes to reference both pre-imported and AI-generated assets by name without hardcoding file paths.</p>
+<h2 id="further-reading-8"><a class="header" href="#further-reading-8">Further Reading</a></h2>
 <ul>
 <li><a href="#importing-assets-1">Importing Assets</a> — step-by-step import guide</li>
+<li><a href="#ai-asset-generation-1">AI Asset Generation</a> — AI-powered asset creation pipeline</li>
 <li><a href="#schemas">Schemas</a> — the <code>material</code> component schema for PBR properties</li>
 <li><a href="#file-formats">File Formats</a> — asset sidecar TOML format reference</li>
 </ul>
@@ -1387,12 +1834,12 @@ tags = ["furniture", "medieval"]
 </code></pre>
 <h2 id="technology"><a class="header" href="#technology">Technology</a></h2>
 <p>The rendering stack uses winit 0.30’s <code>ApplicationHandler</code> trait pattern (not the older event-loop closure style). wgpu 23 provides the GPU abstraction, selecting the best available backend (Vulkan, Metal, or DX12) at runtime.</p>
-<h2 id="further-reading-4"><a class="header" href="#further-reading-4">Further Reading</a></h2>
+<h2 id="further-reading-9"><a class="header" href="#further-reading-9">Further Reading</a></h2>
 <ul>
 <li><a href="#the-scene-viewer">The Scene Viewer</a> — getting started with the viewer</li>
 <li><a href="#animation">Animation</a> — the animation system that drives skinned meshes</li>
 <li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop and first-person gameplay</li>
-<li><a href="#headless-rendering-1">Headless Rendering</a> — CI integration guide</li>
+<li><a href="#headless-rendering-2">Headless Rendering</a> — CI integration guide</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="audio"><a class="header" href="#audio">Audio</a></h1>
@@ -1488,8 +1935,32 @@ loop = true
 spatial = false
 </code></pre>
 <p>Supported audio formats: OGG, WAV, MP3, FLAC (via Kira’s symphonia backend).</p>
-<h2 id="further-reading-5"><a class="header" href="#further-reading-5">Further Reading</a></h2>
+<h2 id="scripting-integration"><a class="header" href="#scripting-integration">Scripting Integration</a></h2>
+<p>Audio can be controlled from <a href="#scripting">Rhai scripts</a> using deferred commands. The script API produces <code>ScriptCommand</code> values that the player processes after the script update phase:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>play_sound(name)</code></td><td>Play a non-spatial sound by filename (without extension)</td></tr>
+<tr><td><code>play_sound_at(name, x, y, z, volume)</code></td><td>Play a spatial sound at a 3D position</td></tr>
+<tr><td><code>stop_sound(name)</code></td><td>Stop a playing sound</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// In a Rhai script:
+fn on_interact() {
+    play_sound("door_open");                          // Non-spatial
+    play_sound_at("glass_clink", 5.0, 1.0, 3.0, 0.8); // Spatial at position
+}
+<span class="boring">}</span></code></pre>
+<p>Sound names match files in the <code>audio/</code> directory. All <code>.ogg</code>, <code>.wav</code>, <code>.mp3</code>, and <code>.flac</code> files are automatically loaded at startup.</p>
+<h2 id="further-reading-10"><a class="header" href="#further-reading-10">Further Reading</a></h2>
 <ul>
+<li><a href="#scripting">Scripting</a> — full scripting API including audio functions</li>
 <li><a href="#animation">Animation</a> — animation system that can trigger audio events</li>
 <li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop and event bus that drives audio triggers</li>
 <li><a href="#schemas">Schemas</a> — component and archetype definitions</li>
@@ -1654,8 +2125,37 @@ skin = "Armature"           # Name of the glTF skin
 <li><strong>AnimationSystem</strong> — top-level <code>RuntimeSystem</code> implementation that ticks both tiers</li>
 </ul>
 <p>Animation runs in <code>update()</code> (variable-rate), not <code>fixed_update()</code>, because smooth interpolation benefits from matching the rendering frame rate rather than the physics tick rate.</p>
-<h2 id="further-reading-6"><a class="header" href="#further-reading-6">Further Reading</a></h2>
+<h2 id="scripting-integration-1"><a class="header" href="#scripting-integration-1">Scripting Integration</a></h2>
+<p>Animations can be controlled from <a href="#scripting">Rhai scripts</a> by writing directly to the <code>animator</code> component. The <code>AnimationSync</code> system picks up changes on the next frame:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>play_clip(entity_id, clip_name)</code></td><td>Start playing a named animation clip</td></tr>
+<tr><td><code>stop_clip(entity_id)</code></td><td>Stop the current animation</td></tr>
+<tr><td><code>blend_to(entity_id, clip, duration)</code></td><td>Crossfade to another clip over the given duration</td></tr>
+<tr><td><code>set_anim_speed(entity_id, speed)</code></td><td>Set animation playback speed</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// In a Rhai script:
+fn on_interact() {
+    let me = self_entity();
+    play_clip(me, "door_swing");
+}
+
+fn on_init() {
+    let me = self_entity();
+    blend_to(me, "idle", 0.3);  // Smooth transition to idle
+}
+<span class="boring">}</span></code></pre>
+<h2 id="further-reading-11"><a class="header" href="#further-reading-11">Further Reading</a></h2>
 <ul>
+<li><a href="#scripting">Scripting</a> — full scripting API including animation functions</li>
 <li><a href="#audio">Audio</a> — audio system that responds to animation events</li>
 <li><a href="#rendering">Rendering</a> — the skinned mesh GPU pipeline</li>
 <li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop that drives animation</li>
@@ -1674,9 +2174,10 @@ skin = "Armature"           # Name of the glTF skin
 <li><strong>Character controller</strong> — apply player movement based on input and physics state</li>
 <li><strong>Update audio</strong> — sync listener position to camera, process trigger events, update spatial tracks</li>
 <li><strong>Advance animation</strong> — tick property tweens and skeletal playback, write updated transforms to ECS, upload bone matrices to GPU</li>
-<li><strong>Render</strong> — draw the frame with the current entity positions</li>
+<li><strong>Run scripts</strong> — execute Rhai scripts (<code>on_update</code>, event callbacks), process deferred commands (audio, events)</li>
+<li><strong>Render</strong> — draw the frame with the current entity positions, HUD overlay (crosshair, interaction prompts)</li>
 </ol>
-<p>The <code>RuntimeSystem</code> trait provides a standard interface for systems that plug into this loop. Physics, audio, and animation each implement <code>RuntimeSystem</code> with <code>initialize()</code>, <code>fixed_update()</code>, <code>update()</code>, and <code>shutdown()</code> methods.</p>
+<p>The <code>RuntimeSystem</code> trait provides a standard interface for systems that plug into this loop. Physics, audio, animation, and scripting each implement <code>RuntimeSystem</code> with <code>initialize()</code>, <code>fixed_update()</code>, <code>update()</code>, and <code>shutdown()</code> methods.</p>
 <h2 id="physics-with-rapier-3d"><a class="header" href="#physics-with-rapier-3d">Physics with Rapier 3D</a></h2>
 <p>The <code>flint-physics</code> crate wraps Rapier 3D and bridges it to Flint’s TOML-based component system:</p>
 <ul>
@@ -1739,8 +2240,9 @@ body_type = "static"
 <li>Mouse provides raw delta movement (via <code>DeviceEvent::MouseMotion</code>) for smooth camera look</li>
 <li>Action bindings map keys to game actions (move forward, jump, sprint, etc.)</li>
 </ul>
-<h2 id="further-reading-7"><a class="header" href="#further-reading-7">Further Reading</a></h2>
+<h2 id="further-reading-12"><a class="header" href="#further-reading-12">Further Reading</a></h2>
 <ul>
+<li><a href="#scripting">Scripting</a> — Rhai scripting system for game logic</li>
 <li><a href="#audio">Audio</a> — spatial audio with Kira</li>
 <li><a href="#animation">Animation</a> — property tweens and skeletal animation</li>
 <li><a href="#rendering">Rendering</a> — the PBR rendering pipeline</li>
@@ -1748,114 +2250,1302 @@ body_type = "static"
 <li><a href="#cli-reference">CLI Reference</a> — the <code>play</code> command and player binary</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="building-a-tavern"><a class="header" href="#building-a-tavern">Building a Tavern</a></h1>
-<blockquote>
-<p>This page is a stub. Full tutorial coming soon.</p>
-</blockquote>
-<p>A step-by-step tutorial that builds a complete tavern scene from scratch using only CLI commands. This guide will cover:</p>
+<h1 id="scripting"><a class="header" href="#scripting">Scripting</a></h1>
+<p>Flint’s scripting system provides runtime game logic through <a href="https://rhai.rs/">Rhai</a>, a lightweight embedded scripting language. Scripts can read and write entity data, respond to game events, control animation and audio, and hot-reload while the game is running.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>The <code>flint-script</code> crate integrates Rhai into the game loop:</p>
 <ul>
-<li>Project initialization with <code>flint init</code></li>
-<li>Building rooms with parent-child hierarchies</li>
-<li>Placing doors with component properties</li>
-<li>Furnishing spaces with tables, chairs, and decorations</li>
-<li>Adding characters (bartender, patrons, a mysterious stranger)</li>
-<li>Adding physics colliders for walkable geometry</li>
-<li>Creating a player entity with first-person controls</li>
-<li>Running queries to inspect the scene</li>
-<li>Validating against constraints</li>
-<li>Viewing the result with <code>flint serve --watch</code></li>
-<li>Walking through the tavern with <code>flint play</code></li>
+<li><strong>ScriptEngine</strong> — compiles and runs <code>.rhai</code> scripts, manages per-entity state (scope, AST, callbacks)</li>
+<li><strong>ScriptSync</strong> — discovers entities with <code>script</code> components, handles hot-reload by watching file timestamps</li>
+<li><strong>ScriptSystem</strong> — implements <code>RuntimeSystem</code> for game loop integration, running in <code>update()</code> (variable-rate)</li>
 </ul>
-<p>This tutorial follows the same steps as the <code>demo/build-tavern.ps1</code> showcase script, explained in detail.</p>
-<p>In the meantime, you can explore the finished result:</p>
-<pre><code class="language-bash"># View the tavern in the scene viewer
-cargo run --bin flint -- serve demo/phase4_runtime.scene.toml --watch
+<p>Scripts run each frame during the <code>update()</code> phase, after physics and before rendering. This gives them access to the latest physics state while allowing their output to affect the current frame’s visuals.</p>
+<h2 id="script-component"><a class="header" href="#script-component">Script Component</a></h2>
+<p>Attach a script to any entity with the <code>script</code> component:</p>
+<pre><code class="language-toml">[entities.my_door]
+archetype = "door"
+
+[entities.my_door.script]
+source = "door_interact.rhai"
+enabled = true
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>source</code></td><td>string</td><td><code>""</code></td><td>Path to <code>.rhai</code> file (relative to the <code>scripts/</code> directory)</td></tr>
+<tr><td><code>enabled</code></td><td>bool</td><td><code>true</code></td><td>Whether the script is active</td></tr>
+</tbody>
+</table>
+</div>
+<p>Script files live in the <code>scripts/</code> directory next to your scene file.</p>
+<h2 id="event-callbacks"><a class="header" href="#event-callbacks">Event Callbacks</a></h2>
+<p>Scripts define behavior through callback functions. The engine detects which callbacks are defined in each script’s AST and only calls those that exist:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Callback</th><th>Signature</th><th>When It Fires</th></tr>
+</thead>
+<tbody>
+<tr><td><code>on_init</code></td><td><code>fn on_init()</code></td><td>Once when the script is first loaded</td></tr>
+<tr><td><code>on_update</code></td><td><code>fn on_update(dt)</code></td><td>Every frame, with delta time in seconds</td></tr>
+<tr><td><code>on_collision</code></td><td><code>fn on_collision(other_id)</code></td><td>When this entity collides with another</td></tr>
+<tr><td><code>on_trigger_enter</code></td><td><code>fn on_trigger_enter(other_id)</code></td><td>When another entity enters a trigger volume</td></tr>
+<tr><td><code>on_trigger_exit</code></td><td><code>fn on_trigger_exit(other_id)</code></td><td>When another entity exits a trigger volume</td></tr>
+<tr><td><code>on_action</code></td><td><code>fn on_action(action_name)</code></td><td>When an input action fires (e.g., <code>"jump"</code>, <code>"interact"</code>)</td></tr>
+<tr><td><code>on_interact</code></td><td><code>fn on_interact()</code></td><td>When the player presses Interact near this entity</td></tr>
+</tbody>
+</table>
+</div>
+<p>The <code>on_interact</code> callback is sugar for the common pattern of proximity-based interaction. It automatically checks the entity’s <code>interactable</code> component for <code>range</code> (default 3.0) and <code>enabled</code> (default true) before firing.</p>
+<h2 id="api-reference"><a class="header" href="#api-reference">API Reference</a></h2>
+<p>All functions are available globally in every script. Entity IDs are passed as <code>i64</code> (Rhai’s native integer type).</p>
+<h3 id="entity-api"><a class="header" href="#entity-api">Entity API</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>self_entity()</code></td><td><code>i64</code></td><td>The entity ID of the entity this script is attached to</td></tr>
+<tr><td><code>get_entity(name)</code></td><td><code>i64</code></td><td>Look up an entity by name. Returns <code>-1</code> if not found</td></tr>
+<tr><td><code>entity_exists(id)</code></td><td><code>bool</code></td><td>Check whether an entity ID is valid</td></tr>
+<tr><td><code>entity_name(id)</code></td><td><code>String</code></td><td>Get the name of an entity</td></tr>
+<tr><td><code>has_component(id, component)</code></td><td><code>bool</code></td><td>Check if an entity has a specific component</td></tr>
+<tr><td><code>get_field(id, component, field)</code></td><td><code>Dynamic</code></td><td>Read a component field value</td></tr>
+<tr><td><code>set_field(id, component, field, value)</code></td><td>—</td><td>Write a component field value</td></tr>
+<tr><td><code>get_position(id)</code></td><td><code>Map</code></td><td>Get entity position as <code>#{x, y, z}</code></td></tr>
+<tr><td><code>set_position(id, x, y, z)</code></td><td>—</td><td>Set entity position</td></tr>
+<tr><td><code>get_rotation(id)</code></td><td><code>Map</code></td><td>Get entity rotation (euler degrees) as <code>#{x, y, z}</code></td></tr>
+<tr><td><code>set_rotation(id, x, y, z)</code></td><td>—</td><td>Set entity rotation (euler degrees)</td></tr>
+<tr><td><code>distance(a, b)</code></td><td><code>f64</code></td><td>Euclidean distance between two entities</td></tr>
+<tr><td><code>spawn_entity(name)</code></td><td><code>i64</code></td><td>Create a new entity. Returns its ID or <code>-1</code> on failure</td></tr>
+<tr><td><code>despawn_entity(id)</code></td><td>—</td><td>Remove an entity from the world</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="input-api"><a class="header" href="#input-api">Input API</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>is_action_pressed(action)</code></td><td><code>bool</code></td><td>Whether an action is currently held</td></tr>
+<tr><td><code>is_action_just_pressed(action)</code></td><td><code>bool</code></td><td>Whether an action was pressed this frame</td></tr>
+<tr><td><code>mouse_delta_x()</code></td><td><code>f64</code></td><td>Horizontal mouse movement this frame</td></tr>
+<tr><td><code>mouse_delta_y()</code></td><td><code>f64</code></td><td>Vertical mouse movement this frame</td></tr>
+</tbody>
+</table>
+</div>
+<p>Available action names: <code>move_forward</code>, <code>move_backward</code>, <code>move_left</code>, <code>move_right</code>, <code>jump</code>, <code>interact</code>, <code>sprint</code>.</p>
+<h3 id="time-api"><a class="header" href="#time-api">Time API</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>delta_time()</code></td><td><code>f64</code></td><td>Seconds since last frame</td></tr>
+<tr><td><code>total_time()</code></td><td><code>f64</code></td><td>Total elapsed time since scene start</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="audio-api"><a class="header" href="#audio-api">Audio API</a></h3>
+<p>Audio functions produce deferred commands that the player processes after the script update phase:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>play_sound(name)</code></td><td>Play a non-spatial sound by filename</td></tr>
+<tr><td><code>play_sound_at(name, x, y, z, volume)</code></td><td>Play a spatial sound at a 3D position</td></tr>
+<tr><td><code>stop_sound(name)</code></td><td>Stop a playing sound</td></tr>
+</tbody>
+</table>
+</div>
+<p>Sound names match the audio files loaded from the <code>audio/</code> directory (without extension).</p>
+<h3 id="animation-api"><a class="header" href="#animation-api">Animation API</a></h3>
+<p>Animation functions write directly to the <code>animator</code> component on the target entity. The <code>AnimationSync</code> system picks up changes on the next frame:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>play_clip(entity_id, clip_name)</code></td><td>Start playing a named animation clip</td></tr>
+<tr><td><code>stop_clip(entity_id)</code></td><td>Stop the current animation</td></tr>
+<tr><td><code>blend_to(entity_id, clip, duration)</code></td><td>Crossfade to another clip over the given duration</td></tr>
+<tr><td><code>set_anim_speed(entity_id, speed)</code></td><td>Set animation playback speed</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="math-api"><a class="header" href="#math-api">Math API</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>clamp(val, min, max)</code></td><td><code>f64</code></td><td>Clamp a value to a range</td></tr>
+<tr><td><code>lerp(a, b, t)</code></td><td><code>f64</code></td><td>Linear interpolation between <code>a</code> and <code>b</code></td></tr>
+<tr><td><code>random()</code></td><td><code>f64</code></td><td>Random value in <code>[0, 1)</code></td></tr>
+<tr><td><code>random_range(min, max)</code></td><td><code>f64</code></td><td>Random value in <code>[min, max)</code></td></tr>
+<tr><td><code>sin(x)</code></td><td><code>f64</code></td><td>Sine</td></tr>
+<tr><td><code>cos(x)</code></td><td><code>f64</code></td><td>Cosine</td></tr>
+<tr><td><code>abs(x)</code></td><td><code>f64</code></td><td>Absolute value</td></tr>
+<tr><td><code>sqrt(x)</code></td><td><code>f64</code></td><td>Square root</td></tr>
+<tr><td><code>floor(x)</code></td><td><code>f64</code></td><td>Floor</td></tr>
+<tr><td><code>ceil(x)</code></td><td><code>f64</code></td><td>Ceiling</td></tr>
+<tr><td><code>min(a, b)</code></td><td><code>f64</code></td><td>Minimum of two values</td></tr>
+<tr><td><code>max(a, b)</code></td><td><code>f64</code></td><td>Maximum of two values</td></tr>
+<tr><td><code>atan2(y, x)</code></td><td><code>f64</code></td><td>Two-argument arctangent</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="event-api"><a class="header" href="#event-api">Event API</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>fire_event(name)</code></td><td>Fire a named game event</td></tr>
+<tr><td><code>fire_event_data(name, data)</code></td><td>Fire an event with a data map payload</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="log-api"><a class="header" href="#log-api">Log API</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>log(msg)</code></td><td>Log an info-level message</td></tr>
+<tr><td><code>log_warn(msg)</code></td><td>Log a warning</td></tr>
+<tr><td><code>log_error(msg)</code></td><td>Log an error</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="hot-reload"><a class="header" href="#hot-reload">Hot-Reload</a></h2>
+<p>The script system checks file modification timestamps each frame. When a <code>.rhai</code> file changes on disk:</p>
+<ol>
+<li>The file is recompiled to a new AST</li>
+<li>If compilation succeeds, the old AST is replaced and the new version takes effect immediately</li>
+<li>If compilation fails, the old AST is kept and an error is logged — the game never crashes from a script typo</li>
+</ol>
+<p>This enables a fast iteration workflow: edit a script in your text editor, save, and see the result in the running game without restarting.</p>
+<h2 id="interactable-system"><a class="header" href="#interactable-system">Interactable System</a></h2>
+<p>The <code>interactable</code> component marks entities that the player can interact with at close range. It works together with scripting to create interactive objects:</p>
+<pre><code class="language-toml">[entities.tavern_door]
+archetype = "door"
+
+[entities.tavern_door.interactable]
+prompt_text = "Open Door"
+range = 3.0
+interaction_type = "use"
+enabled = true
+
+[entities.tavern_door.script]
+source = "door_interact.rhai"
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>prompt_text</code></td><td>string</td><td><code>"Interact"</code></td><td>Text shown on the HUD when in range</td></tr>
+<tr><td><code>range</code></td><td>f32</td><td><code>3.0</code></td><td>Maximum interaction distance from the player</td></tr>
+<tr><td><code>interaction_type</code></td><td>string</td><td><code>"use"</code></td><td>Type of interaction: <code>use</code>, <code>talk</code>, <code>examine</code></td></tr>
+<tr><td><code>enabled</code></td><td>bool</td><td><code>true</code></td><td>Whether this interactable is currently active</td></tr>
+</tbody>
+</table>
+</div>
+<p>When the player is within <code>range</code> of an enabled interactable entity, the HUD displays a crosshair and the <code>prompt_text</code>. Pressing the Interact key (<code>E</code>) fires the <code>on_interact</code> callback on the entity’s script.</p>
+<p>The <code>find_nearest_interactable()</code> function scans all interactable entities each frame to determine which (if any) to highlight. The HUD prompt fades in and out based on proximity.</p>
+<h2 id="example-interactive-door"><a class="header" href="#example-interactive-door">Example: Interactive Door</a></h2>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// scripts/door_interact.rhai
+
+let door_open = false;
+
+fn on_interact() {
+    let me = self_entity();
+    door_open = !door_open;
+
+    if door_open {
+        play_clip(me, "door_swing");
+        play_sound("door_open");
+        log("Door opened");
+    } else {
+        play_clip(me, "door_close");
+        play_sound("door_close");
+        log("Door closed");
+    }
+}
+<span class="boring">}</span></code></pre>
+<h2 id="example-flickering-torch"><a class="header" href="#example-flickering-torch">Example: Flickering Torch</a></h2>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// scripts/torch_flicker.rhai
+
+fn on_update(dt) {
+    let me = self_entity();
+    let t = total_time();
+
+    // Flicker the emissive intensity with layered sine waves
+    let flicker = 0.8 + 0.2 * sin(t * 8.0) * sin(t * 13.0 + 0.7);
+    set_field(me, "material", "emissive_strength", clamp(flicker, 0.3, 1.0));
+}
+<span class="boring">}</span></code></pre>
+<h2 id="example-npc-bartender"><a class="header" href="#example-npc-bartender">Example: NPC Bartender</a></h2>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// scripts/bartender.rhai
+
+fn on_init() {
+    let me = self_entity();
+    play_clip(me, "idle");
+    log("Bartender ready to serve");
+}
+
+fn on_interact() {
+    let me = self_entity();
+    let player = get_entity("player");
+    let dist = distance(me, player);
+
+    // Face the player
+    let my_pos = get_position(me);
+    let player_pos = get_position(player);
+    let angle = atan2(player_pos.x - my_pos.x, player_pos.z - my_pos.z);
+    set_rotation(me, 0.0, angle * 57.2958, 0.0);
+
+    // React
+    play_sound("glass_clink");
+    blend_to(me, "wave", 0.3);
+    log("Bartender waves at you");
+}
+<span class="boring">}</span></code></pre>
+<h2 id="architecture-2"><a class="header" href="#architecture-2">Architecture</a></h2>
+<pre><code>on_init ──► ScriptEngine.call_inits()
+                │
+                ▼
+            per-entity Scope + AST
+                │
+                ▼
+on_update ──► ScriptEngine.call_updates(dt)
+                │
+                ▼
+events ────► ScriptEngine.process_events()
+                │                    │
+                ▼                    ▼
+        ECS reads/writes      ScriptCommands
+        (via ScriptCallContext)  (PlaySound, FireEvent, Log)
+                                     │
+                                     ▼
+                              PlayerApp processes
+                              deferred commands
+</code></pre>
+<p>Each entity gets its own Rhai <code>Scope</code>, preserving persistent variables between frames. The <code>Engine</code> is shared across all entities. World access happens through a <code>ScriptCallContext</code> that holds a raw pointer to the <code>FlintWorld</code> — valid only during the call batch, cleared immediately after.</p>
+<h2 id="further-reading-13"><a class="header" href="#further-reading-13">Further Reading</a></h2>
+<ul>
+<li><a href="#audio">Audio</a> — sound system that scripts can control</li>
+<li><a href="#animation">Animation</a> — animation system driven by script commands</li>
+<li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop that calls scripts</li>
+<li><a href="#building-a-tavern">Building a Tavern</a> — tutorial using scripts for interactive entities</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="ai-asset-generation-1"><a class="header" href="#ai-asset-generation-1">AI Asset Generation</a></h1>
+<p>Flint includes an integrated AI asset generation pipeline through the <code>flint-asset-gen</code> crate. The system connects to external AI services to produce textures, 3D models, and audio from text descriptions, while maintaining visual consistency through style guides and validating results against constraints.</p>
+<h2 id="overview-1"><a class="header" href="#overview-1">Overview</a></h2>
+<p>The pipeline follows a request-enrich-generate-validate-catalog flow:</p>
+<pre><code>Description + Style Guide
+        │
+        ▼
+  Prompt Enrichment (palette, materials, constraints)
+        │
+        ▼
+  GenerationProvider (Flux / Meshy / ElevenLabs / Mock)
+        │
+        ▼
+  Post-generation Validation (geometry, materials)
+        │
+        ▼
+  Content-Addressed Storage + Asset Catalog
+</code></pre>
+<h2 id="providers"><a class="header" href="#providers">Providers</a></h2>
+<p>Flint uses a pluggable <code>GenerationProvider</code> trait. Each provider handles one or more asset types:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Provider</th><th>Asset Types</th><th>Service</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Flux</strong></td><td>Textures</td><td>Flux API</td><td>AI image generation for PBR textures</td></tr>
+<tr><td><strong>Meshy</strong></td><td>3D Models</td><td>Meshy API</td><td>Text-to-3D model generation (GLB output)</td></tr>
+<tr><td><strong>ElevenLabs</strong></td><td>Audio</td><td>ElevenLabs API</td><td>AI sound effect and voice generation</td></tr>
+<tr><td><strong>Mock</strong></td><td>All</td><td>Local</td><td>Generates minimal valid files for testing without network access</td></tr>
+</tbody>
+</table>
+</div>
+<p>The <code>GenerationProvider</code> trait defines the interface:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait GenerationProvider: Send {
+    fn name(&amp;self) -&gt; &amp;str;
+    fn supported_kinds(&amp;self) -&gt; Vec&lt;AssetKind&gt;;
+    fn health_check(&amp;self) -&gt; Result&lt;ProviderStatus&gt;;
+    fn generate(&amp;self, request: &amp;GenerateRequest, style: Option&lt;&amp;StyleGuide&gt;, output_dir: &amp;Path) -&gt; Result&lt;GenerateResult&gt;;
+    fn submit_job(&amp;self, request: &amp;GenerateRequest, style: Option&lt;&amp;StyleGuide&gt;) -&gt; Result&lt;GenerationJob&gt;;
+    fn poll_job(&amp;self, job: &amp;GenerationJob) -&gt; Result&lt;JobPollResult&gt;;
+    fn download_result(&amp;self, job: &amp;GenerationJob, output_dir: &amp;Path) -&gt; Result&lt;GenerateResult&gt;;
+    fn build_prompt(&amp;self, request: &amp;GenerateRequest, style: Option&lt;&amp;StyleGuide&gt;) -&gt; String;
+}
+<span class="boring">}</span></code></pre>
+<p>The Mock provider generates solid-color PNGs, minimal valid GLB files, and silence WAV files — useful for testing workflows and CI pipelines without API keys or network access.</p>
+<h2 id="style-guides"><a class="header" href="#style-guides">Style Guides</a></h2>
+<p>Style guides enforce visual consistency across generated assets. They are TOML files that define a palette, material constraints, geometry constraints, and prompt modifiers:</p>
+<pre><code class="language-toml"># styles/medieval_tavern.style.toml
+[style]
+name = "medieval_tavern"
+description = "Weathered medieval fantasy tavern"
+prompt_prefix = "Medieval fantasy tavern style, low-fantasy realism"
+prompt_suffix = "Photorealistic textures, warm candlelight tones"
+negative_prompt = "modern, sci-fi, neon, plastic, chrome"
+palette = ["#8B4513", "#A0522D", "#D4A574", "#4A4A4A", "#2F1B0E"]
+
+[style.materials]
+roughness_range = [0.6, 0.95]
+metallic_range = [0.0, 0.15]
+preferred_materials = ["aged oak wood", "rough-hewn stone", "hammered wrought iron"]
+
+[style.geometry]
+max_triangles = 5000
+require_uvs = true
+require_normals = true
+</code></pre>
+<p>When a style guide is active, the provider enriches the generation prompt by prepending the <code>prompt_prefix</code>, appending palette colors and material descriptors, and adding the <code>prompt_suffix</code>. The <code>negative_prompt</code> tells AI services what to avoid.</p>
+<p>Style guides are searched in <code>styles/</code> then <code>.flint/styles/</code> by name (e.g., <code>medieval_tavern</code> finds <code>styles/medieval_tavern.style.toml</code>).</p>
+<h2 id="semantic-asset-definitions"><a class="header" href="#semantic-asset-definitions">Semantic Asset Definitions</a></h2>
+<p>The <code>asset_def</code> component describes what an entity <em>needs</em> in terms of assets, expressed as intent rather than file paths:</p>
+<pre><code class="language-toml">[entities.tavern_wall]
+archetype = "wall"
+
+[entities.tavern_wall.asset_def]
+name = "tavern_wall_texture"
+description = "Rough stone wall with mortar lines, medieval tavern interior"
+type = "texture"
+material_intent = "rough stone"
+wear_level = 0.7
+tags = ["wall", "interior", "medieval"]
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>name</code></td><td>string</td><td>Asset name identifier</td></tr>
+<tr><td><code>description</code></td><td>string</td><td>What this asset is for (used as the generation prompt)</td></tr>
+<tr><td><code>type</code></td><td>string</td><td>Asset type: <code>texture</code>, <code>model</code>, or <code>audio</code></td></tr>
+<tr><td><code>material_intent</code></td><td>string</td><td>Material intent (e.g., “aged wood”, “rough stone”)</td></tr>
+<tr><td><code>wear_level</code></td><td>f32</td><td>How worn/damaged (0.0 = pristine, 1.0 = heavily worn)</td></tr>
+<tr><td><code>size_class</code></td><td>string</td><td>Size class: <code>small</code>, <code>medium</code>, <code>large</code>, <code>huge</code></td></tr>
+<tr><td><code>tags</code></td><td>array</td><td>Tags for categorization</td></tr>
+</tbody>
+</table>
+</div>
+<p>These definitions let the batch resolver automatically generate all assets a scene needs.</p>
+<h2 id="batch-resolution"><a class="header" href="#batch-resolution">Batch Resolution</a></h2>
+<p>The <code>flint asset resolve</code> command can resolve an entire scene’s asset needs at once using different strategies:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Strategy</th><th>Behavior</th></tr>
+</thead>
+<tbody>
+<tr><td><code>strict</code></td><td>All assets must already exist in the catalog. Missing assets are errors.</td></tr>
+<tr><td><code>placeholder</code></td><td>Missing assets get placeholder geometry.</td></tr>
+<tr><td><code>ai_generate</code></td><td>Missing assets are generated via AI providers and stored in the catalog.</td></tr>
+<tr><td><code>human_task</code></td><td>Missing assets produce task files for manual creation.</td></tr>
+<tr><td><code>ai_then_human</code></td><td>Generate with AI first, then produce review tasks for human approval.</td></tr>
+</tbody>
+</table>
+</div>
+<pre><code class="language-bash"># Generate all missing assets for a scene using AI
+flint asset resolve my_scene.scene.toml --strategy ai_generate --style medieval_tavern
+
+# Create task files for a human artist
+flint asset resolve my_scene.scene.toml --strategy human_task --output-dir tasks/
+</code></pre>
+<h2 id="model-validation"><a class="header" href="#model-validation">Model Validation</a></h2>
+<p>After generating a 3D model, Flint can validate it against a style guide’s constraints. The validator imports the GLB file through the same <code>import_gltf()</code> pipeline used by the player, then checks:</p>
+<ul>
+<li><strong>Triangle count</strong> against <code>geometry.max_triangles</code></li>
+<li><strong>UV coordinates</strong> present if <code>geometry.require_uvs</code> is set</li>
+<li><strong>Normals</strong> present if <code>geometry.require_normals</code> is set</li>
+<li><strong>Material properties</strong> against <code>materials.roughness_range</code> and <code>materials.metallic_range</code></li>
+</ul>
+<pre><code class="language-bash">flint asset validate model.glb --style medieval_tavern
+</code></pre>
+<p>Each check reports Pass, Warn, or Fail status.</p>
+<h2 id="build-manifests"><a class="header" href="#build-manifests">Build Manifests</a></h2>
+<p>Build manifests track the provenance of all generated assets in a project. They record which provider generated each asset, what prompt was used, and the content hash:</p>
+<pre><code class="language-bash">flint asset manifest --assets-dir assets --output build/manifest.toml
+</code></pre>
+<p>The manifest scans <code>.asset.toml</code> sidecar files for <code>provider</code> properties to identify which assets were AI-generated vs. manually created. This is useful for auditing, reproducing builds, and tracking which assets need regeneration when style guides change.</p>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<p>Flint uses a layered configuration system for API keys and provider settings:</p>
+<p><strong>Global config</strong> (<code>~/.flint/config.toml</code>):</p>
+<pre><code class="language-toml">[providers.flux]
+api_key = "your-flux-key"
+enabled = true
+
+[providers.meshy]
+api_key = "your-meshy-key"
+enabled = true
+
+[providers.elevenlabs]
+api_key = "your-elevenlabs-key"
+enabled = true
+
+[generation]
+default_style = "medieval_tavern"
+</code></pre>
+<p><strong>Project config</strong> (<code>.flint/config.toml</code>): overrides global settings for this project.</p>
+<p><strong>Environment variables</strong>: override both config files:</p>
+<ul>
+<li><code>FLINT_FLUX_API_KEY</code></li>
+<li><code>FLINT_MESHY_API_KEY</code></li>
+<li><code>FLINT_ELEVENLABS_API_KEY</code></li>
+</ul>
+<p>The layering order is: global config &lt; project config &lt; environment variables.</p>
+<h2 id="cli-commands"><a class="header" href="#cli-commands">CLI Commands</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Command</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>flint asset generate &lt;type&gt; -d "&lt;prompt&gt;"</code></td><td>Generate a single asset</td></tr>
+<tr><td><code>flint asset generate texture -d "stone wall" --style medieval_tavern</code></td><td>Generate with style guide</td></tr>
+<tr><td><code>flint asset generate model -d "wooden chair" --provider meshy</code></td><td>Generate with specific provider</td></tr>
+<tr><td><code>flint asset resolve &lt;scene&gt; --strategy ai_generate</code></td><td>Batch-generate all missing scene assets</td></tr>
+<tr><td><code>flint asset validate &lt;file&gt; --style &lt;name&gt;</code></td><td>Validate a model against style constraints</td></tr>
+<tr><td><code>flint asset manifest</code></td><td>Generate a build manifest of all generated assets</td></tr>
+<tr><td><code>flint asset regenerate &lt;name&gt; --seed 42</code></td><td>Regenerate an existing asset with a new seed</td></tr>
+<tr><td><code>flint asset job status &lt;id&gt;</code></td><td>Check status of an async generation job</td></tr>
+<tr><td><code>flint asset job list</code></td><td>List all generation jobs</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="runtime-catalog-integration"><a class="header" href="#runtime-catalog-integration">Runtime Catalog Integration</a></h2>
+<p>The player can optionally load the asset catalog at startup for runtime asset resolution. When an entity references an asset by name, the resolution chain is:</p>
+<ol>
+<li>Look up the name in the <code>AssetCatalog</code></li>
+<li>If found, resolve the content hash</li>
+<li>Load from the <code>ContentStore</code> path (<code>.flint/assets/&lt;hash&gt;</code>)</li>
+<li>Fall back to file-based loading if not in the catalog</li>
+</ol>
+<p>This means scenes can seamlessly reference both pre-imported and AI-generated assets by name, without hardcoding file paths.</p>
+<h2 id="further-reading-14"><a class="header" href="#further-reading-14">Further Reading</a></h2>
+<ul>
+<li><a href="#assets">Assets</a> — content-addressed storage and catalog system</li>
+<li><a href="#file-formats">File Formats</a> — <code>.style.toml</code> and <code>asset_def.toml</code> format reference</li>
+<li><a href="#cli-reference">CLI Reference</a> — full command documentation</li>
+<li><a href="#ai-agent-workflow">AI Agent Workflow</a> — using AI generation in automated workflows</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="building-a-tavern"><a class="header" href="#building-a-tavern">Building a Tavern</a></h1>
+<p>This tutorial walks through building a complete tavern scene from scratch using Flint’s CLI. By the end, you’ll have a walkable tavern with physics, audio, animation, scripted NPCs, and interactive objects.</p>
+<h2 id="1-initialize-the-project"><a class="header" href="#1-initialize-the-project">1. Initialize the Project</a></h2>
+<pre><code class="language-bash">flint init tavern-game
+cd tavern-game
+</code></pre>
+<p>This creates a project directory with <code>schemas/</code> containing default component and archetype definitions.</p>
+<h2 id="2-create-the-scene"><a class="header" href="#2-create-the-scene">2. Create the Scene</a></h2>
+<pre><code class="language-bash">flint scene create levels/tavern.scene.toml --name "The Rusty Flagon"
+</code></pre>
+<h2 id="3-build-the-rooms"><a class="header" href="#3-build-the-rooms">3. Build the Rooms</a></h2>
+<p>Create the tavern’s three rooms using parent-child hierarchy:</p>
+<pre><code class="language-bash">SCENE="levels/tavern.scene.toml"
+
+# Main hall
+flint entity create --archetype room --name "main_hall" --scene $SCENE
+flint entity create --archetype room --name "kitchen" --scene $SCENE
+flint entity create --archetype room --name "storage" --scene $SCENE
+</code></pre>
+<p>Now edit the TOML directly to set positions and dimensions. Each room needs a transform and bounds:</p>
+<pre><code class="language-toml">[entities.main_hall]
+archetype = "room"
+
+[entities.main_hall.transform]
+position = [0.0, 0.0, 0.0]
+
+[entities.main_hall.bounds]
+size = [15.0, 4.0, 12.0]
+</code></pre>
+<h2 id="4-add-physics-colliders"><a class="header" href="#4-add-physics-colliders">4. Add Physics Colliders</a></h2>
+<p>For the scene to be walkable, surfaces need physics colliders. Add walls, floor, and ceiling:</p>
+<pre><code class="language-toml">[entities.floor]
+archetype = "wall"
+
+[entities.floor.transform]
+position = [0.0, -0.25, 0.0]
+
+[entities.floor.collider]
+shape = "box"
+size = [20.0, 0.5, 20.0]
+
+[entities.floor.rigidbody]
+body_type = "static"
+
+[entities.north_wall]
+archetype = "wall"
+
+[entities.north_wall.transform]
+position = [0.0, 2.0, -10.0]
+
+[entities.north_wall.collider]
+shape = "box"
+size = [20.0, 4.0, 0.5]
+
+[entities.north_wall.rigidbody]
+body_type = "static"
+</code></pre>
+<p>Repeat for all walls. Static rigidbodies are immovable world geometry that the player collides with.</p>
+<h2 id="5-create-the-player"><a class="header" href="#5-create-the-player">5. Create the Player</a></h2>
+<p>The player entity bundles a character controller, transform, and audio listener:</p>
+<pre><code class="language-toml">[entities.player]
+archetype = "player"
+
+[entities.player.transform]
+position = [0.0, 1.0, 5.0]
+
+[entities.player.character_controller]
+move_speed = 6.0
+jump_force = 7.0
+height = 1.8
+radius = 0.3
+</code></pre>
+<h2 id="6-add-furniture"><a class="header" href="#6-add-furniture">6. Add Furniture</a></h2>
+<p>Place objects throughout the tavern:</p>
+<pre><code class="language-toml">[entities.bar_counter]
+archetype = "furniture"
+
+[entities.bar_counter.transform]
+position = [-3.0, 0.5, -2.0]
+scale = [3.0, 1.0, 0.8]
+
+[entities.bar_counter.collider]
+shape = "box"
+size = [3.0, 1.0, 0.8]
+
+[entities.bar_counter.rigidbody]
+body_type = "static"
+
+[entities.fireplace]
+archetype = "furniture"
+
+[entities.fireplace.transform]
+position = [5.0, 0.5, -8.0]
+
+[entities.fireplace.material]
+emissive = [1.0, 0.4, 0.1]
+emissive_strength = 2.0
+</code></pre>
+<h2 id="7-add-audio"><a class="header" href="#7-add-audio">7. Add Audio</a></h2>
+<p>Attach spatial sounds to entities:</p>
+<pre><code class="language-toml">[entities.fireplace.audio_source]
+file = "audio/fire_crackle.ogg"
+volume = 0.8
+loop = true
+spatial = true
+min_distance = 1.0
+max_distance = 15.0
+
+[entities.ambience]
+
+[entities.ambience.audio_source]
+file = "audio/tavern_ambient.ogg"
+volume = 0.3
+loop = true
+spatial = false
+</code></pre>
+<p>Place audio files (OGG, WAV, MP3, or FLAC) in the <code>audio/</code> directory next to the scene.</p>
+<h2 id="8-add-animations"><a class="header" href="#8-add-animations">8. Add Animations</a></h2>
+<p>Create animation clips in <code>animations/</code>:</p>
+<pre><code class="language-toml"># animations/platform_bob.anim.toml
+name = "platform_bob"
+duration = 4.0
+
+[[tracks]]
+interpolation = "CubicSpline"
+
+[tracks.target]
+type = "Position"
+
+[[tracks.keyframes]]
+time = 0.0
+value = [2.0, 0.5, 3.0]
+
+[[tracks.keyframes]]
+time = 2.0
+value = [2.0, 1.5, 3.0]
+
+[[tracks.keyframes]]
+time = 4.0
+value = [2.0, 0.5, 3.0]
+</code></pre>
+<p>Attach an animator to the entity:</p>
+<pre><code class="language-toml">[entities.platform.animator]
+clip = "platform_bob"
+autoplay = true
+loop = true
+speed = 1.0
+</code></pre>
+<h2 id="9-add-interactable-objects"><a class="header" href="#9-add-interactable-objects">9. Add Interactable Objects</a></h2>
+<p>Make the door interactive with a script:</p>
+<pre><code class="language-toml">[entities.front_door]
+archetype = "door"
+
+[entities.front_door.transform]
+position = [0.0, 1.0, -5.0]
+
+[entities.front_door.interactable]
+prompt_text = "Open Door"
+range = 3.0
+interaction_type = "use"
+
+[entities.front_door.script]
+source = "door_interact.rhai"
+</code></pre>
+<p>Create the script in <code>scripts/door_interact.rhai</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let door_open = false;
+
+fn on_interact() {
+    let me = self_entity();
+    door_open = !door_open;
+
+    if door_open {
+        play_clip(me, "door_swing");
+        play_sound("door_open");
+    } else {
+        play_clip(me, "door_close");
+        play_sound("door_close");
+    }
+}
+<span class="boring">}</span></code></pre>
+<h2 id="10-add-npcs"><a class="header" href="#10-add-npcs">10. Add NPCs</a></h2>
+<p>Create NPC entities with scripts for behavior:</p>
+<pre><code class="language-toml">[entities.bartender]
+archetype = "npc"
+
+[entities.bartender.transform]
+position = [-3.0, 0.0, -3.0]
+
+[entities.bartender.interactable]
+prompt_text = "Talk to Bartender"
+range = 3.0
+interaction_type = "talk"
+
+[entities.bartender.script]
+source = "bartender.rhai"
+</code></pre>
+<h2 id="11-validate-and-test"><a class="header" href="#11-validate-and-test">11. Validate and Test</a></h2>
+<pre><code class="language-bash"># Check the scene against constraints
+flint validate levels/tavern.scene.toml
+
+# View in the scene viewer with hot-reload
+flint serve levels/tavern.scene.toml --watch
 
 # Walk through the tavern in first person
+flint play levels/tavern.scene.toml
+</code></pre>
+<h2 id="12-the-finished-result"><a class="header" href="#12-the-finished-result">12. The Finished Result</a></h2>
+<p>The <code>demo/phase4_runtime.scene.toml</code> in the Flint repository is a complete implementation of this tavern, with:</p>
+<ul>
+<li>Three rooms (main hall, kitchen, storage) with physics colliders on all surfaces</li>
+<li>A bar counter, tables, fireplace, and barrels</li>
+<li>Four NPCs: bartender, two patrons, and a mysterious stranger with scripted behaviors</li>
+<li>Spatial audio: fire crackle, ambient tavern noise, door sounds, glass clinks</li>
+<li>Property animations: bobbing platform, door swings</li>
+<li>Interactable doors and NPCs with HUD prompts</li>
+<li>Footstep sounds synced to player movement</li>
+</ul>
+<pre><code class="language-bash"># Try the finished demo
 cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 </code></pre>
-<p>The <code>demo/phase4_runtime.scene.toml</code> scene contains a three-room tavern with a main hall, kitchen, and storage room, furnished with a bar counter, tables, fireplace, and barrels. Four NPCs populate the space: a bartender, two patrons, and a mysterious stranger. All surfaces have physics colliders for first-person exploration.</p>
+<h2 id="further-reading-15"><a class="header" href="#further-reading-15">Further Reading</a></h2>
+<ul>
+<li><a href="#scripting">Scripting</a> — full Rhai API reference</li>
+<li><a href="#audio">Audio</a> — spatial audio system</li>
+<li><a href="#animation">Animation</a> — property tweens and skeletal animation</li>
+<li><a href="#physics-and-runtime">Physics and Runtime</a> — game loop and character controller</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="writing-constraints"><a class="header" href="#writing-constraints">Writing Constraints</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>A practical guide to authoring constraint rules for your project. This guide will cover:</p>
+<p>This guide walks through authoring constraint rules for your Flint project. Constraints are declarative TOML rules that define what a valid scene looks like, checked by <code>flint validate</code>.</p>
+<h2 id="anatomy-of-a-constraint-file"><a class="header" href="#anatomy-of-a-constraint-file">Anatomy of a Constraint File</a></h2>
+<p>Constraint files live in <code>schemas/constraints/</code> and contain one or more <code>[[constraint]]</code> entries:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "unique_identifier"
+description = "Human-readable explanation"
+query = "entities where &lt;condition&gt;"
+severity = "error"
+message = "Violation message for '{name}'"
+
+[constraint.kind]
+type = "&lt;kind&gt;"
+# kind-specific fields...
+</code></pre>
 <ul>
-<li>Anatomy of a constraint TOML file</li>
-<li>Choosing the right constraint kind for your rule</li>
-<li>Writing effective query selectors</li>
-<li>Adding auto-fix strategies</li>
-<li>Testing constraints with <code>--dry-run</code></li>
-<li>Debugging constraint evaluation order</li>
-<li>Cascade detection and cycle prevention</li>
-<li>Best practices for organizing constraint files</li>
+<li><strong>name</strong> — unique identifier, used in logs and JSON output</li>
+<li><strong>description</strong> — what the rule checks (for documentation)</li>
+<li><strong>query</strong> — which entities this constraint applies to</li>
+<li><strong>severity</strong> — <code>"error"</code> fails validation, <code>"warning"</code> is advisory</li>
+<li><strong>message</strong> — shown when violated. <code>{name}</code> is replaced with the entity name</li>
+</ul>
+<h2 id="choosing-the-right-kind"><a class="header" href="#choosing-the-right-kind">Choosing the Right Kind</a></h2>
+<h3 id="required_component--entity-x-must-have-component-y"><a class="header" href="#required_component--entity-x-must-have-component-y"><code>required_component</code> — “Entity X must have component Y”</a></h3>
+<p>The most common kind. Use when an archetype needs a specific component:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "doors_have_transform"
+description = "Every door must have a transform"
+query = "entities where archetype == 'door'"
+severity = "error"
+message = "Door '{name}' is missing a transform component"
+
+[constraint.kind]
+type = "required_component"
+archetype = "door"
+component = "transform"
+</code></pre>
+<h3 id="value_range--field-x-must-be-between-a-and-b"><a class="header" href="#value_range--field-x-must-be-between-a-and-b"><code>value_range</code> — “Field X must be between A and B”</a></h3>
+<p>Validates that a numeric field is within bounds:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "door_angle_range"
+description = "Door open angle must be between 0 and 180"
+query = "entities where archetype == 'door'"
+severity = "warning"
+message = "Door '{name}' has an invalid open_angle"
+
+[constraint.kind]
+type = "value_range"
+field = "door.open_angle"
+min = 0.0
+max = 180.0
+</code></pre>
+<h3 id="required_child--entity-x-must-have-a-child-of-archetype-y"><a class="header" href="#required_child--entity-x-must-have-a-child-of-archetype-y"><code>required_child</code> — “Entity X must have a child of archetype Y”</a></h3>
+<p>Enforces parent-child relationships:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "rooms_have_door"
+description = "Every room needs at least one exit"
+query = "entities where archetype == 'room'"
+severity = "error"
+message = "Room '{name}' has no door"
+
+[constraint.kind]
+type = "required_child"
+archetype = "room"
+child_archetype = "door"
+</code></pre>
+<h3 id="reference_valid--this-reference-field-must-point-to-an-existing-entity"><a class="header" href="#reference_valid--this-reference-field-must-point-to-an-existing-entity"><code>reference_valid</code> — “This reference field must point to an existing entity”</a></h3>
+<p>Checks referential integrity:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "door_target_exists"
+description = "Door target room must exist"
+query = "entities where archetype == 'door'"
+severity = "error"
+message = "Door '{name}' references a non-existent target"
+
+[constraint.kind]
+type = "reference_valid"
+field = "door.target_room"
+</code></pre>
+<h3 id="query_rule--this-query-must-return-the-expected-count"><a class="header" href="#query_rule--this-query-must-return-the-expected-count"><code>query_rule</code> — “This query must return the expected count”</a></h3>
+<p>The most flexible kind, for arbitrary rules:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "one_player"
+description = "Playable scenes need exactly one player"
+query = "entities where archetype == 'player'"
+severity = "error"
+message = "Scene must have exactly one player entity"
+
+[constraint.kind]
+type = "query_rule"
+rule_query = "entities where archetype == 'player'"
+expected = "exactly_one"
+</code></pre>
+<h2 id="auto-fix-strategies-1"><a class="header" href="#auto-fix-strategies-1">Auto-Fix Strategies</a></h2>
+<p>Add a <code>[constraint.fix]</code> section to enable automatic repair:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "rooms_have_bounds"
+query = "entities where archetype == 'room'"
+severity = "error"
+message = "Room '{name}' needs bounds"
+
+[constraint.kind]
+type = "required_component"
+archetype = "room"
+component = "bounds"
+
+[constraint.fix]
+strategy = "set_default"
+</code></pre>
+<p>Available strategies:</p>
+<ul>
+<li><strong>set_default</strong> — add the missing component with schema defaults</li>
+<li><strong>add_child</strong> — create a child entity of the required archetype</li>
+<li><strong>remove_invalid</strong> — remove entities that violate the rule</li>
+<li><strong>assign_from_parent</strong> — copy a value from the parent entity</li>
+</ul>
+<h2 id="testing-constraints"><a class="header" href="#testing-constraints">Testing Constraints</a></h2>
+<p>Always test with <code>--dry-run</code> first to preview changes:</p>
+<pre><code class="language-bash"># See what violations exist
+flint validate levels/tavern.scene.toml --schemas schemas
+
+# Preview auto-fix changes without applying
+flint validate levels/tavern.scene.toml --fix --dry-run
+
+# Apply fixes
+flint validate levels/tavern.scene.toml --fix
+</code></pre>
+<p>JSON output gives machine-readable results for CI:</p>
+<pre><code class="language-bash">flint validate levels/tavern.scene.toml --format json
+</code></pre>
+<h2 id="organizing-constraint-files"><a class="header" href="#organizing-constraint-files">Organizing Constraint Files</a></h2>
+<p>Group related constraints into files by topic:</p>
+<pre><code>schemas/constraints/
+├── basics.toml          # Fundamental rules (transform required, etc.)
+├── physics.toml         # Physics constraints (collider sizes, mass ranges)
+├── audio.toml           # Audio constraints (volume ranges, spatial settings)
+└── gameplay.toml        # Game-specific rules (one player, door connectivity)
+</code></pre>
+<p>All <code>.toml</code> files in <code>schemas/constraints/</code> are loaded automatically.</p>
+<h2 id="cascade-detection"><a class="header" href="#cascade-detection">Cascade Detection</a></h2>
+<p>When auto-fix modifies one entity, it might cause a different constraint to fail. Flint handles this by running fix-validate cycles. If a cycle is detected (the same violation keeps appearing), the fixer stops and reports the issue.</p>
+<h2 id="further-reading-16"><a class="header" href="#further-reading-16">Further Reading</a></h2>
+<ul>
+<li><a href="#constraints">Constraints</a> — constraint system reference</li>
+<li><a href="#queries">Queries</a> — query syntax used in constraint selectors</li>
+<li><a href="#file-formats">File Formats</a> — constraint TOML format</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="importing-assets-1"><a class="header" href="#importing-assets-1">Importing Assets</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>A practical guide to importing and managing assets in Flint. This guide will cover:</p>
+<p>This guide walks through importing external files into Flint’s content-addressed asset store.</p>
+<h2 id="basic-import"><a class="header" href="#basic-import">Basic Import</a></h2>
+<p>Import a glTF model with the <code>flint asset import</code> command:</p>
+<pre><code class="language-bash">flint asset import models/chair.glb --name tavern_chair --tags furniture,medieval
+</code></pre>
+<p>This does three things:</p>
+<ol>
+<li><strong>Hashes</strong> the file (SHA-256) and stores it under <code>.flint/assets/&lt;hash&gt;/</code></li>
+<li><strong>Extracts</strong> mesh, material, and texture data (for glTF/GLB files)</li>
+<li><strong>Writes</strong> a <code>.asset.toml</code> sidecar with metadata</li>
+</ol>
+<h2 id="content-addressed-storage"><a class="header" href="#content-addressed-storage">Content-Addressed Storage</a></h2>
+<p>Every imported file is stored by its content hash:</p>
+<pre><code>.flint/
+└── assets/
+    ├── a1/
+    │   └── a1b2c3d4e5f6...  (the actual file)
+    └── f7/
+        └── f7a8b9c0d1e2...  (another file)
+</code></pre>
+<p>The first two hex characters of the hash form a subdirectory, preventing any single directory from having too many entries. Identical files are automatically deduplicated — importing the same model twice stores it only once.</p>
+<h2 id="gltfglb-import-1"><a class="header" href="#gltfglb-import-1">glTF/GLB Import</a></h2>
+<p>For 3D models, the importer extracts structured data:</p>
+<pre><code class="language-bash">$ flint asset import models/tavern_door.glb --name tavern_door
+Imported: 3 mesh(es), 2 texture(s), 2 material(s)
+Asset 'tavern_door' registered.
+  Hash: sha256:a1b2c3...
+  Type: Mesh
+  Sidecar: assets/meshes/tavern_door.asset.toml
+</code></pre>
+<p>Extracted data includes:</p>
 <ul>
-<li>Importing glTF/GLB files with <code>flint asset import</code></li>
-<li>Understanding the content-addressed storage layout</li>
-<li>Working with <code>.asset.toml</code> sidecar metadata</li>
-<li>Tagging and organizing assets</li>
-<li>Resolving asset references in scenes</li>
-<li>Deduplication: what happens when you import the same file twice</li>
-<li>Preparing assets for future rendering (mesh, material, texture extraction)</li>
+<li><strong>Meshes</strong> — vertex positions, normals, texture coordinates, indices, and optionally joint indices/weights for skeletal meshes</li>
+<li><strong>Materials</strong> — PBR properties (base color, roughness, metallic, emissive)</li>
+<li><strong>Textures</strong> — embedded or referenced image files</li>
+<li><strong>Skeletons</strong> — joint hierarchy and inverse bind matrices (if the model has skins)</li>
+<li><strong>Animations</strong> — per-joint keyframe channels (translation, rotation, scale)</li>
+</ul>
+<h2 id="sidecar-metadata"><a class="header" href="#sidecar-metadata">Sidecar Metadata</a></h2>
+<p>Each imported asset gets an <code>.asset.toml</code> file in the <code>assets/</code> directory:</p>
+<pre><code class="language-toml">[asset]
+name = "tavern_chair"
+type = "mesh"
+hash = "sha256:a1b2c3d4e5f6..."
+source_path = "models/chair.glb"
+format = "glb"
+tags = ["furniture", "medieval"]
+</code></pre>
+<p>For AI-generated assets, the sidecar also records provenance:</p>
+<pre><code class="language-toml">[asset.properties]
+prompt = "weathered wooden tavern chair"
+provider = "meshy"
+</code></pre>
+<h2 id="tagging-and-organization"><a class="header" href="#tagging-and-organization">Tagging and Organization</a></h2>
+<p>Tags help organize and filter assets:</p>
+<pre><code class="language-bash"># Import with tags
+flint asset import models/barrel.glb --name barrel --tags furniture,storage,medieval
+
+# Filter by tag
+flint asset list --tag medieval
+
+# Filter by type
+flint asset list --type mesh
+
+# Get details on a specific asset
+flint asset info tavern_chair
+</code></pre>
+<h2 id="asset-catalog-1"><a class="header" href="#asset-catalog-1">Asset Catalog</a></h2>
+<p>The catalog is built by scanning all <code>.asset.toml</code> files in the <code>assets/</code> directory. It provides indexed lookup by name, type, and tag:</p>
+<pre><code class="language-bash"># List all assets
+flint asset list
+
+# JSON output for scripting
+flint asset list --format json
+</code></pre>
+<h2 id="resolving-references"><a class="header" href="#resolving-references">Resolving References</a></h2>
+<p>Check that a scene’s asset references are satisfied:</p>
+<pre><code class="language-bash"># Strict mode --- all references must exist
+flint asset resolve levels/tavern.scene.toml --strategy strict
+
+# Placeholder mode --- missing assets replaced with fallback geometry
+flint asset resolve levels/tavern.scene.toml --strategy placeholder
+
+# AI generation --- missing assets created by AI providers
+flint asset resolve levels/tavern.scene.toml --strategy ai_generate --style medieval_tavern
+</code></pre>
+<h2 id="supported-formats"><a class="header" href="#supported-formats">Supported Formats</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Format</th><th>Type</th><th>Import Support</th></tr>
+</thead>
+<tbody>
+<tr><td><code>.glb</code>, <code>.gltf</code></td><td>3D Model</td><td>Full (mesh, material, texture, skeleton, animation)</td></tr>
+<tr><td><code>.png</code>, <code>.jpg</code>, <code>.bmp</code>, <code>.tga</code>, <code>.hdr</code></td><td>Texture</td><td>Hash and catalog</td></tr>
+<tr><td><code>.wav</code>, <code>.ogg</code>, <code>.mp3</code>, <code>.flac</code></td><td>Audio</td><td>Hash and catalog</td></tr>
+<tr><td>Other</td><td>Generic</td><td>Hash and catalog (type guessed from extension)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="further-reading-17"><a class="header" href="#further-reading-17">Further Reading</a></h2>
+<ul>
+<li><a href="#assets">Assets</a> — content-addressed storage concept</li>
+<li><a href="#ai-asset-generation-1">AI Asset Generation</a> — generating assets with AI providers</li>
+<li><a href="#file-formats">File Formats</a> — <code>.asset.toml</code> sidecar format</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="headless-rendering-1"><a class="header" href="#headless-rendering-1">Headless Rendering</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>A guide to rendering scenes without a window, for CI pipelines and automated screenshots. This guide will cover:</p>
-<ul>
-<li>The <code>flint render</code> command and its options</li>
-<li>Setting camera position, angle, and field of view</li>
-<li>Output resolution and format</li>
-<li>Using headless rendering in CI/CD pipelines</li>
-<li>Visual regression testing with baseline comparisons</li>
-<li>Disabling the ground grid for clean screenshots</li>
-</ul>
-<p>Quick example:</p>
+<h1 id="headless-rendering-2"><a class="header" href="#headless-rendering-2">Headless Rendering</a></h1>
+<p>Flint can render scenes to PNG images without opening a window. This enables automated screenshots, visual regression testing, and CI pipeline integration.</p>
+<h2 id="the-flint-render-command"><a class="header" href="#the-flint-render-command">The <code>flint render</code> Command</a></h2>
+<pre><code class="language-bash">flint render levels/tavern.scene.toml --output preview.png
+</code></pre>
+<p>This loads the scene, renders a single frame with PBR shading and shadows, and writes the result to a PNG file.</p>
+<h2 id="camera-options"><a class="header" href="#camera-options">Camera Options</a></h2>
+<p>Control the camera position with orbit-style parameters:</p>
 <pre><code class="language-bash">flint render levels/tavern.scene.toml \
     --output preview.png \
     --width 1920 --height 1080 \
-    --distance 30 --yaw 45 --pitch 30
+    --distance 30 \
+    --yaw 45 \
+    --pitch 30
 </code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--output &lt;path&gt;</code></td><td><code>render.png</code></td><td>Output file path</td></tr>
+<tr><td><code>--width &lt;px&gt;</code></td><td>800</td><td>Image width in pixels</td></tr>
+<tr><td><code>--height &lt;px&gt;</code></td><td>600</td><td>Image height in pixels</td></tr>
+<tr><td><code>--distance &lt;units&gt;</code></td><td>20.0</td><td>Camera distance from origin</td></tr>
+<tr><td><code>--yaw &lt;degrees&gt;</code></td><td>0.0</td><td>Horizontal camera angle</td></tr>
+<tr><td><code>--pitch &lt;degrees&gt;</code></td><td>30.0</td><td>Vertical camera angle</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Path to schemas directory</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="ci-pipeline-integration"><a class="header" href="#ci-pipeline-integration">CI Pipeline Integration</a></h2>
+<p>Headless rendering works on machines without a display. Use it in CI to catch visual regressions:</p>
+<pre><code class="language-yaml"># Example GitHub Actions step
+- name: Render preview
+  run: |
+    cargo run --bin flint -- render levels/tavern.scene.toml \
+      --output screenshots/tavern.png \
+      --width 1920 --height 1080
+
+- name: Upload screenshot
+  uses: actions/upload-artifact@v4
+  with:
+    name: screenshots
+    path: screenshots/
+</code></pre>
+<h2 id="visual-regression-testing"><a class="header" href="#visual-regression-testing">Visual Regression Testing</a></h2>
+<p>A basic visual regression workflow:</p>
+<ol>
+<li>
+<p><strong>Baseline</strong> — render a reference image and commit it:</p>
+<pre><code class="language-bash">flint render levels/tavern.scene.toml --output tests/baseline/tavern.png
+</code></pre>
+</li>
+<li>
+<p><strong>Test</strong> — after changes, render again and compare:</p>
+<pre><code class="language-bash">flint render levels/tavern.scene.toml --output tests/current/tavern.png
+# Compare with your preferred tool (ImageMagick, pixelmatch, etc.)
+</code></pre>
+</li>
+<li>
+<p><strong>Update</strong> — if the change is intentional, update the baseline:</p>
+<pre><code class="language-bash">cp tests/current/tavern.png tests/baseline/tavern.png
+</code></pre>
+</li>
+</ol>
+<p>Since Flint’s renderer is deterministic for a given scene file and camera position, identical inputs produce identical outputs.</p>
+<h2 id="rendering-multiple-views"><a class="header" href="#rendering-multiple-views">Rendering Multiple Views</a></h2>
+<p>Script multiple renders for different angles:</p>
+<pre><code class="language-bash">#!/bin/bash
+SCENE="levels/tavern.scene.toml"
+
+for angle in 0 90 180 270; do
+    flint render "$SCENE" \
+        --output "screenshots/view_${angle}.png" \
+        --yaw $angle --pitch 25 --distance 25 \
+        --width 1920 --height 1080
+done
+</code></pre>
+<h2 id="rendering-pipeline-details"><a class="header" href="#rendering-pipeline-details">Rendering Pipeline Details</a></h2>
+<p>Headless rendering uses the same wgpu PBR pipeline as the interactive viewer:</p>
+<ul>
+<li><strong>Cook-Torrance BRDF</strong> with roughness/metallic workflow</li>
+<li><strong>Cascaded shadow mapping</strong> for directional light shadows</li>
+<li><strong>glTF mesh rendering</strong> with full material support</li>
+<li><strong>Skinned mesh rendering</strong> with bone matrix upload (for skeletal meshes)</li>
+</ul>
+<p>The only difference from interactive rendering is that the output goes to a texture-to-buffer copy instead of a swapchain surface.</p>
+<h2 id="further-reading-18"><a class="header" href="#further-reading-18">Further Reading</a></h2>
+<ul>
+<li><a href="#rendering">Rendering</a> — the PBR rendering pipeline</li>
+<li><a href="#ai-agent-workflow">AI Agent Workflow</a> — using headless renders for agent verification</li>
+<li><a href="#cli-reference">CLI Reference</a> — full command options</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="ai-agent-workflow"><a class="header" href="#ai-agent-workflow">AI Agent Workflow</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>A guide for AI agents (and their developers) working with Flint. This guide will cover:</p>
-<ul>
-<li>The agent interaction loop: create, validate, query, render</li>
-<li>Structured I/O: JSON output for machine parsing</li>
-<li>Using queries for state inspection</li>
-<li>Constraint validation as automated feedback</li>
-<li>Headless rendering for visual verification</li>
-<li>Example: an agent building a complete scene from a text description</li>
-<li>Error handling patterns for agent workflows</li>
-<li>Best practices for deterministic scene construction</li>
-</ul>
-<p>Example agent workflow:</p>
-<pre><code class="language-bash"># 1. Create scene and entities
-flint scene create levels/dungeon.scene.toml --name "Dungeon Level 1"
-flint entity create --archetype room --name "entrance" --scene levels/dungeon.scene.toml ...
-
-# 2. Validate
-flint validate levels/dungeon.scene.toml --format json
-
-# 3. Query to verify
-flint query "entities where archetype == 'door'" --scene levels/dungeon.scene.toml --format json
-
-# 4. Render a preview
-flint render levels/dungeon.scene.toml --output preview.png
+<p>This guide covers how AI coding agents interact with Flint to build game scenes programmatically. It describes the agent interaction loop, error handling patterns, and best practices.</p>
+<h2 id="the-agent-interaction-loop"><a class="header" href="#the-agent-interaction-loop">The Agent Interaction Loop</a></h2>
+<p>An agent building a scene follows a create-validate-query-render cycle:</p>
+<pre><code>┌──────────────────────────────────────────────────┐
+│                                                  │
+│   1. Discover ──► 2. Create ──► 3. Validate ─┐   │
+│        ▲                                     │   │
+│        │          4. Query ◄─── 5. Fix ◄─────┘   │
+│        │              │                          │
+│        └──────────────┤                          │
+│                       ▼                          │
+│                  6. Render ──► Human Review       │
+│                                                  │
+└──────────────────────────────────────────────────┘
 </code></pre>
+<h3 id="step-1-discover-available-schemas"><a class="header" href="#step-1-discover-available-schemas">Step 1: Discover Available Schemas</a></h3>
+<p>Before creating entities, the agent learns what’s available:</p>
+<pre><code class="language-bash"># List available archetypes
+flint schema --list-archetypes --schemas schemas
+
+# Inspect a specific archetype
+flint schema player --schemas schemas
+
+# Inspect a component
+flint schema collider --schemas schemas
+</code></pre>
+<p>This tells the agent what fields exist, their types, and their defaults.</p>
+<h3 id="step-2-create-scene-and-entities"><a class="header" href="#step-2-create-scene-and-entities">Step 2: Create Scene and Entities</a></h3>
+<pre><code class="language-bash"># Create the scene file
+flint scene create levels/dungeon.scene.toml --name "Dungeon Level 1"
+
+# Create entities
+flint entity create --archetype room --name "entrance" \
+    --scene levels/dungeon.scene.toml
+
+flint entity create --archetype door --name "iron_gate" \
+    --parent "entrance" \
+    --scene levels/dungeon.scene.toml
+</code></pre>
+<p>Or the agent can write TOML directly — often faster for complex scenes:</p>
+<pre><code class="language-toml">[scene]
+name = "Dungeon Level 1"
+
+[entities.entrance]
+archetype = "room"
+
+[entities.entrance.transform]
+position = [0.0, 0.0, 0.0]
+
+[entities.entrance.bounds]
+size = [10.0, 4.0, 10.0]
+
+[entities.iron_gate]
+archetype = "door"
+parent = "entrance"
+
+[entities.iron_gate.transform]
+position = [0.0, 1.5, -5.0]
+</code></pre>
+<h3 id="step-3-validate"><a class="header" href="#step-3-validate">Step 3: Validate</a></h3>
+<p>Check the scene against constraints:</p>
+<pre><code class="language-bash">flint validate levels/dungeon.scene.toml --format json --schemas schemas
+</code></pre>
+<p>JSON output example:</p>
+<pre><code class="language-json">{
+  "valid": false,
+  "violations": [
+    {
+      "constraint": "doors_have_transform",
+      "entity": "iron_gate",
+      "severity": "error",
+      "message": "Door 'iron_gate' is missing a transform component"
+    }
+  ]
+}
+</code></pre>
+<p>The agent parses this JSON, understands what’s wrong, and proceeds to fix it.</p>
+<h3 id="step-4-query-to-verify"><a class="header" href="#step-4-query-to-verify">Step 4: Query to Verify</a></h3>
+<p>After fixing violations, the agent can query to confirm the scene state:</p>
+<pre><code class="language-bash"># Verify the door now has a transform
+flint query "entities where archetype == 'door'" \
+    --scene levels/dungeon.scene.toml --format json
+
+# Count entities
+flint query "entities" \
+    --scene levels/dungeon.scene.toml --format json | jq length
+</code></pre>
+<h3 id="step-5-fix-and-iterate"><a class="header" href="#step-5-fix-and-iterate">Step 5: Fix and Iterate</a></h3>
+<p>If validation fails, the agent can either:</p>
+<ul>
+<li>
+<p><strong>Auto-fix</strong> — let Flint handle it:</p>
+<pre><code class="language-bash">flint validate levels/dungeon.scene.toml --fix --dry-run --format json
+flint validate levels/dungeon.scene.toml --fix
+</code></pre>
+</li>
+<li>
+<p><strong>Manual fix</strong> — edit the TOML to add missing data</p>
+</li>
+</ul>
+<h3 id="step-6-render-for-review"><a class="header" href="#step-6-render-for-review">Step 6: Render for Review</a></h3>
+<p>Generate a preview image for human (or vision-model) review:</p>
+<pre><code class="language-bash">flint render levels/dungeon.scene.toml --output preview.png \
+    --width 1920 --height 1080 --distance 25 --yaw 45
+</code></pre>
+<h2 id="ai-asset-generation-2"><a class="header" href="#ai-asset-generation-2">AI Asset Generation</a></h2>
+<p>Agents can generate assets alongside scene construction:</p>
+<pre><code class="language-bash"># Generate textures for the scene
+flint asset generate texture \
+    -d "rough dungeon stone wall, torch-lit" \
+    --style medieval_tavern \
+    --name dungeon_wall_texture
+
+# Generate a 3D model
+flint asset generate model \
+    -d "iron-bound wooden door, medieval dungeon" \
+    --provider meshy \
+    --name iron_door_model
+
+# Batch-generate all missing assets for the entire scene
+flint asset resolve levels/dungeon.scene.toml \
+    --strategy ai_generate \
+    --style medieval_tavern
+</code></pre>
+<p>Semantic asset definitions in the scene file guide batch generation:</p>
+<pre><code class="language-toml">[entities.wall_section.asset_def]
+name = "dungeon_wall_texture"
+description = "Rough stone dungeon wall with moss and cracks"
+type = "texture"
+material_intent = "rough stone"
+wear_level = 0.8
+</code></pre>
+<h2 id="error-handling-patterns"><a class="header" href="#error-handling-patterns">Error Handling Patterns</a></h2>
+<h3 id="exit-codes"><a class="header" href="#exit-codes">Exit Codes</a></h3>
+<p>All Flint commands use standard exit codes:</p>
+<ul>
+<li><strong>0</strong> — success</li>
+<li><strong>1</strong> — error (validation failure, missing file, etc.)</li>
+</ul>
+<pre><code class="language-bash">flint validate levels/dungeon.scene.toml --format json
+if [ $? -ne 0 ]; then
+    echo "Validation failed, fixing..."
+    flint validate levels/dungeon.scene.toml --fix
+fi
+</code></pre>
+<h3 id="json-error-output"><a class="header" href="#json-error-output">JSON Error Output</a></h3>
+<p>Error details are always available in JSON:</p>
+<pre><code class="language-bash">flint validate levels/dungeon.scene.toml --format json 2&gt;/dev/null
+</code></pre>
+<h3 id="idempotent-operations"><a class="header" href="#idempotent-operations">Idempotent Operations</a></h3>
+<p>Most Flint operations are idempotent — running them twice produces the same result. This is important for agents that may retry failed operations.</p>
+<h2 id="example-agent-building-a-complete-scene"><a class="header" href="#example-agent-building-a-complete-scene">Example: Agent Building a Complete Scene</a></h2>
+<p>Here’s a complete agent workflow script:</p>
+<pre><code class="language-bash">#!/bin/bash
+set -e
+SCENE="levels/generated.scene.toml"
+SCHEMAS="schemas"
+
+# 1. Create scene
+flint scene create "$SCENE" --name "Agent-Generated Level"
+
+# 2. Build structure
+flint entity create --archetype room --name "main_room" --scene "$SCENE"
+flint entity create --archetype room --name "side_room" --scene "$SCENE"
+flint entity create --archetype door --name "connecting_door" \
+    --parent "main_room" --scene "$SCENE"
+
+# 3. Add player
+flint entity create --archetype player --name "player" --scene "$SCENE"
+
+# 4. Validate (will likely fail --- no transforms yet)
+flint validate "$SCENE" --schemas "$SCHEMAS" --format json || true
+
+# 5. Auto-fix what we can
+flint validate "$SCENE" --schemas "$SCHEMAS" --fix
+
+# 6. Verify
+ENTITY_COUNT=$(flint query "entities" --scene "$SCENE" --format json | jq length)
+echo "Scene has $ENTITY_COUNT entities"
+
+# 7. Render preview
+flint render "$SCENE" --output preview.png --schemas "$SCHEMAS" \
+    --width 1920 --height 1080
+
+echo "Scene built successfully. Preview: preview.png"
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<ul>
+<li><strong>Always validate after creating entities</strong> — catch problems early</li>
+<li><strong>Use JSON output</strong> — easier to parse than text</li>
+<li><strong>Use <code>--dry-run</code> before <code>--fix</code></strong> — preview changes before applying</li>
+<li><strong>Write TOML directly for complex scenes</strong> — faster than many CLI commands</li>
+<li><strong>Use semantic asset definitions</strong> — let batch resolution handle asset generation</li>
+<li><strong>Render previews</strong> — visual verification catches issues that validation can’t</li>
+</ul>
+<h2 id="further-reading-19"><a class="header" href="#further-reading-19">Further Reading</a></h2>
+<ul>
+<li><a href="#ai-agent-interface">AI Agent Interface</a> — the design philosophy</li>
+<li><a href="#cli-first-workflow">CLI-First Workflow</a> — composable commands</li>
+<li><a href="#ai-asset-generation-1">AI Asset Generation</a> — the AI asset pipeline</li>
+<li><a href="#cli-reference">CLI Reference</a> — full command documentation</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="cli-reference"><a class="header" href="#cli-reference">CLI Reference</a></h1>
 <p>Flint’s CLI is the primary interface for all engine operations. Below is a reference of available commands.</p>
@@ -1879,6 +3569,12 @@ flint render levels/dungeon.scene.toml --output preview.png
 <tr><td><code>flint asset list</code></td><td>List assets in the catalog</td></tr>
 <tr><td><code>flint asset info</code></td><td>Show details for a specific asset</td></tr>
 <tr><td><code>flint asset resolve</code></td><td>Check asset references in a scene</td></tr>
+<tr><td><code>flint asset generate</code></td><td>Generate an asset using AI providers</td></tr>
+<tr><td><code>flint asset validate</code></td><td>Validate a generated model against style constraints</td></tr>
+<tr><td><code>flint asset manifest</code></td><td>Generate a build manifest of all generated assets</td></tr>
+<tr><td><code>flint asset regenerate</code></td><td>Regenerate an existing asset with new parameters</td></tr>
+<tr><td><code>flint asset job status</code></td><td>Check status of an async generation job</td></tr>
+<tr><td><code>flint asset job list</code></td><td>List all generation jobs</td></tr>
 <tr><td><code>flint serve &lt;scene&gt;</code></td><td>Launch the hot-reload PBR viewer with egui inspector</td></tr>
 <tr><td><code>flint play &lt;scene&gt;</code></td><td>Play a scene with first-person controls and physics</td></tr>
 <tr><td><code>flint render &lt;scene&gt;</code></td><td>Render a scene to PNG (headless)</td></tr>
@@ -1912,6 +3608,7 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><td>Mouse</td><td>Look around</td></tr>
 <tr><td>Space</td><td>Jump</td></tr>
 <tr><td>Shift</td><td>Sprint</td></tr>
+<tr><td>E</td><td>Interact with nearby object</td></tr>
 <tr><td>Escape</td><td>Release cursor / Exit</td></tr>
 <tr><td>F1</td><td>Cycle debug rendering mode</td></tr>
 <tr><td>F4</td><td>Toggle shadows</td></tr>
@@ -1924,6 +3621,31 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <p>The player is also available as a standalone binary for distribution:</p>
 <pre><code class="language-bash">cargo run --bin flint-player -- demo/phase4_runtime.scene.toml --schemas schemas
 </code></pre>
+<h2 id="the-asset-generate-command"><a class="header" href="#the-asset-generate-command">The <code>asset generate</code> Command</a></h2>
+<p>Generate assets using AI providers:</p>
+<pre><code class="language-bash">flint asset generate texture -d "rough stone wall" --style medieval_tavern
+flint asset generate model -d "wooden chair" --provider meshy --seed 42
+flint asset generate audio -d "tavern ambient noise" --duration 10.0
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>-d</code>, <code>--description</code></td><td>Generation prompt (required)</td></tr>
+<tr><td><code>--name</code></td><td>Asset name (derived from description if omitted)</td></tr>
+<tr><td><code>--provider</code></td><td>Provider to use: <code>flux</code>, <code>meshy</code>, <code>elevenlabs</code>, <code>mock</code></td></tr>
+<tr><td><code>--style</code></td><td>Style guide name (e.g., <code>medieval_tavern</code>)</td></tr>
+<tr><td><code>--width</code>, <code>--height</code></td><td>Image dimensions for textures (default: 1024x1024)</td></tr>
+<tr><td><code>--seed</code></td><td>Random seed for reproducibility</td></tr>
+<tr><td><code>--tags</code></td><td>Comma-separated tags</td></tr>
+<tr><td><code>--output</code></td><td>Output directory (default: <code>.flint/generated</code>)</td></tr>
+<tr><td><code>--duration</code></td><td>Audio duration in seconds (default: 3.0)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Generated assets are automatically stored in content-addressed storage and registered in the asset catalog with a <code>.asset.toml</code> sidecar. Models are validated against style constraints after generation.</p>
 <h2 id="common-flags"><a class="header" href="#common-flags">Common Flags</a></h2>
 <div class="table-wrapper">
 <table>
@@ -1953,30 +3675,33 @@ flint query "entities where archetype == 'door'" --scene levels/tavern.scene.tom
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="file-formats"><a class="header" href="#file-formats">File Formats</a></h1>
-<blockquote>
-<p>This page is a stub. Full reference coming soon.</p>
-</blockquote>
-<p>All Flint data formats use TOML. This page will provide a complete reference for:</p>
+<p>All Flint data formats use TOML. This page provides a complete reference for every file type.</p>
 <h2 id="scene-files-scenetoml"><a class="header" href="#scene-files-scenetoml">Scene Files (<code>.scene.toml</code>)</a></h2>
+<p>The primary data format. Each scene file contains metadata and a collection of named entities with their component data.</p>
 <pre><code class="language-toml">[scene]
 name = "Scene Name"
 version = "1.0"
 
 [entities.&lt;name&gt;]
 archetype = "&lt;archetype&gt;"
-parent = "&lt;parent_name&gt;"
+parent = "&lt;parent_name&gt;"          # Optional parent entity
 
 [entities.&lt;name&gt;.&lt;component&gt;]
 field = value
 </code></pre>
+<p>Scenes are loaded by <code>flint-scene</code> and can be edited with <code>flint entity create</code>, <code>flint entity delete</code>, or by hand. The <code>serve --watch</code> viewer reloads automatically when the file changes.</p>
 <h2 id="component-schemas-schemascomponentstoml"><a class="header" href="#component-schemas-schemascomponentstoml">Component Schemas (<code>schemas/components/*.toml</code>)</a></h2>
+<p>Define the fields, types, and defaults for each component kind. Components are dynamic — they exist as schema TOML, not compiled Rust types.</p>
 <pre><code class="language-toml">[component.&lt;name&gt;]
-description = "..."
+description = "Human-readable description"
 
 [component.&lt;name&gt;.fields]
-field_name = { type = "&lt;type&gt;", default = &lt;value&gt; }
+field_name = { type = "&lt;type&gt;", default = &lt;value&gt;, description = "..." }
 </code></pre>
+<p>Supported field types: <code>bool</code>, <code>i32</code>, <code>f32</code>, <code>string</code>, <code>vec3</code>, <code>enum</code>, <code>entity_ref</code>, <code>array</code>.</p>
+<p>Key component schemas: <code>transform</code>, <code>material</code>, <code>door</code>, <code>bounds</code>, <code>rigidbody</code>, <code>collider</code>, <code>character_controller</code>, <code>audio_source</code>, <code>audio_listener</code>, <code>audio_trigger</code>, <code>animator</code>, <code>skeleton</code>, <code>script</code>, <code>interactable</code>, <code>asset_def</code>.</p>
 <h2 id="archetype-schemas-schemasarchetypestoml"><a class="header" href="#archetype-schemas-schemasarchetypestoml">Archetype Schemas (<code>schemas/archetypes/*.toml</code>)</a></h2>
+<p>Bundle components together with sensible defaults for common entity types.</p>
 <pre><code class="language-toml">[archetype.&lt;name&gt;]
 description = "..."
 components = ["comp1", "comp2"]
@@ -1985,55 +3710,137 @@ components = ["comp1", "comp2"]
 field = value
 </code></pre>
 <h2 id="constraint-files-schemasconstraintstoml"><a class="header" href="#constraint-files-schemasconstraintstoml">Constraint Files (<code>schemas/constraints/*.toml</code>)</a></h2>
+<p>Declarative validation rules checked by <code>flint validate</code>. Each file can contain multiple <code>[[constraint]]</code> entries.</p>
 <pre><code class="language-toml">[[constraint]]
 name = "rule_name"
-query = "entities where ..."
-severity = "error"
-message = "..."
+description = "What this constraint checks"
+query = "entities where archetype == 'door'"
+severity = "error"                 # "error" or "warning"
+message = "Door '{name}' is missing a transform component"
 
 [constraint.kind]
-type = "&lt;kind&gt;"
+type = "required_component"        # Constraint type
+archetype = "door"
+component = "transform"
 </code></pre>
-<h2 id="animation-clips-demoanimationsanimtoml"><a class="header" href="#animation-clips-demoanimationsanimtoml">Animation Clips (<code>demo/animations/*.anim.toml</code>)</a></h2>
+<p>Constraint kinds: <code>required_component</code>, <code>required_child</code>, <code>value_range</code>, <code>reference_valid</code>, <code>query_rule</code>.</p>
+<h2 id="animation-clips-animationsanimtoml"><a class="header" href="#animation-clips-animationsanimtoml">Animation Clips (<code>animations/*.anim.toml</code>)</a></h2>
+<p>TOML-defined keyframe animation clips for property tweens. Loaded by scanning the animations directory at startup.</p>
 <pre><code class="language-toml">name = "clip_name"
 duration = 0.8
 
 [[tracks]]
-interpolation = "Linear"       # "Step", "Linear", or "CubicSpline"
+interpolation = "Linear"           # "Step", "Linear", or "CubicSpline"
 
 [tracks.target]
-type = "Rotation"              # "Position", "Rotation", "Scale", or "CustomFloat"
+type = "Rotation"                  # "Position", "Rotation", "Scale", or "CustomFloat"
+# component = "material"           # Required for CustomFloat
+# field = "emissive_strength"      # Required for CustomFloat
 
 [[tracks.keyframes]]
 time = 0.0
-value = [0.0, 0.0, 0.0]       # [x, y, z] (euler degrees for rotation)
+value = [0.0, 0.0, 0.0]           # [x, y, z] (euler degrees for rotation)
 
 [[tracks.keyframes]]
 time = 0.8
 value = [0.0, 90.0, 0.0]
-# in_tangent = [...]           # Optional, for CubicSpline
+# in_tangent = [...]               # Optional, for CubicSpline
 # out_tangent = [...]
 
-[[events]]                     # Optional timed events
+[[events]]                         # Optional timed events
 time = 0.0
 event_name = "door_start"
 </code></pre>
 <h2 id="asset-sidecars-assetsassettoml"><a class="header" href="#asset-sidecars-assetsassettoml">Asset Sidecars (<code>assets/**/*.asset.toml</code>)</a></h2>
+<p>Metadata files stored alongside imported assets in the catalog.</p>
 <pre><code class="language-toml">[asset]
 name = "asset_name"
-type = "mesh"
-hash = "sha256:..."
-source_path = "..."
-tags = ["tag1", "tag2"]
+type = "mesh"                      # mesh, texture, material, audio, script
+hash = "sha256:a1b2c3..."
+source_path = "models/chair.glb"
+format = "glb"
+tags = ["furniture", "medieval"]
+
+[asset.properties]                 # Optional provider-specific metadata
+prompt = "wooden tavern chair"
+provider = "meshy"
 </code></pre>
+<h2 id="style-guides-stylesstyletoml"><a class="header" href="#style-guides-stylesstyletoml">Style Guides (<code>styles/*.style.toml</code>)</a></h2>
+<p>Define visual vocabulary for consistent AI asset generation. Searched in <code>styles/</code> then <code>.flint/styles/</code>.</p>
+<pre><code class="language-toml">[style]
+name = "medieval_tavern"
+description = "Weathered medieval fantasy tavern"
+prompt_prefix = "Medieval fantasy tavern style, low-fantasy realism"
+prompt_suffix = "Photorealistic textures, warm candlelight tones"
+negative_prompt = "modern, sci-fi, neon, plastic"
+palette = ["#8B4513", "#A0522D", "#D4A574", "#4A4A4A"]
+
+[style.materials]
+roughness_range = [0.6, 0.95]
+metallic_range = [0.0, 0.15]
+preferred_materials = ["aged oak wood", "rough-hewn stone", "hammered wrought iron"]
+
+[style.geometry]
+max_triangles = 5000
+require_uvs = true
+require_normals = true
+</code></pre>
+<h2 id="semantic-asset-definitions-schemascomponentsasset_deftoml"><a class="header" href="#semantic-asset-definitions-schemascomponentsasset_deftoml">Semantic Asset Definitions (<code>schemas/components/asset_def.toml</code>)</a></h2>
+<p>The <code>asset_def</code> component schema describes what an entity needs in terms of assets, expressed as intent. Used by the batch resolver to auto-generate missing assets.</p>
+<pre><code class="language-toml">[entities.tavern_wall.asset_def]
+name = "tavern_wall_texture"
+description = "Rough stone wall with mortar lines"
+type = "texture"
+material_intent = "rough stone"
+wear_level = 0.7
+size_class = "large"
+tags = ["wall", "interior"]
+</code></pre>
+<h2 id="rhai-scripts-scriptsrhai"><a class="header" href="#rhai-scripts-scriptsrhai">Rhai Scripts (<code>scripts/*.rhai</code>)</a></h2>
+<p>Game logic scripts written in <a href="https://rhai.rs/">Rhai</a>. Attached to entities via the <code>script</code> component. See <a href="#scripting">Scripting</a> for the full API reference.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn on_init() {
+    log("Entity initialized");
+}
+
+fn on_update(dt) {
+    // Called every frame with delta time
+}
+
+fn on_interact() {
+    // Called when the player interacts with this entity
+    play_sound("door_open");
+}
+<span class="boring">}</span></code></pre>
+<h2 id="configuration-flintconfigtoml-flintconfigtoml"><a class="header" href="#configuration-flintconfigtoml-flintconfigtoml">Configuration (<code>~/.flint/config.toml</code>, <code>.flint/config.toml</code>)</a></h2>
+<p>Layered configuration for API keys and generation settings. Global config is merged with project-level config; environment variables override both.</p>
+<pre><code class="language-toml">[providers.flux]
+api_key = "your-api-key"
+enabled = true
+
+[providers.meshy]
+api_key = "your-api-key"
+enabled = true
+
+[providers.elevenlabs]
+api_key = "your-api-key"
+enabled = true
+
+[generation]
+default_style = "medieval_tavern"
+</code></pre>
+<p>Environment variable overrides: <code>FLINT_FLUX_API_KEY</code>, <code>FLINT_MESHY_API_KEY</code>, <code>FLINT_ELEVENLABS_API_KEY</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="architecture-overview"><a class="header" href="#architecture-overview">Architecture Overview</a></h1>
-<p>Flint is structured as a sixteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
+<p>Flint is structured as an eighteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
 <h2 id="workspace-structure"><a class="header" href="#workspace-structure">Workspace Structure</a></h2>
 <pre><code>flint/
 ├── crates/
 │   ├── flint-cli/          # CLI binary (clap). Entry point for all commands.
-│   ├── flint-player/       # Standalone player binary with game loop, physics, audio, animation
+│   ├── flint-asset-gen/    # AI asset generation: providers, style guides, batch resolution
+│   ├── flint-player/       # Standalone player binary with game loop, physics, audio, animation, scripting
+│   ├── flint-script/       # Rhai scripting: ScriptEngine, ScriptSync, hot-reload
 │   ├── flint-viewer/       # egui-based GUI inspector with hot-reload
 │   ├── flint-animation/    # Two-tier animation: property tweens + skeletal/glTF
 │   ├── flint-audio/        # Kira spatial audio: 3D sounds, ambient loops, triggers
@@ -2085,6 +3892,8 @@ tags = ["tag1", "tag2"]
 <tr><td>GUI</td><td>egui 0.30</td><td>Immediate-mode, easy integration with wgpu</td></tr>
 <tr><td>Scene format</td><td>TOML</td><td>Human-readable, diffable, good Rust support</td></tr>
 <tr><td>Query parser</td><td>pest</td><td>PEG grammar, good error messages</td></tr>
+<tr><td>Scripting</td><td>Rhai 1.24</td><td>Sandboxed, embeddable, Rust-native</td></tr>
+<tr><td>AI generation</td><td>ureq</td><td>Lightweight HTTP client for provider APIs</td></tr>
 <tr><td>CLI framework</td><td>clap (derive)</td><td>Ergonomic, well-documented</td></tr>
 <tr><td>Error handling</td><td>thiserror + anyhow</td><td>Typed errors in libraries, flexible in binary</td></tr>
 </tbody>
@@ -2099,13 +3908,14 @@ tags = ["tag1", "tag2"]
   flint-cli                        flint-player
   (scene authoring)                (interactive gameplay)
       │                                  │
-      ├──► flint-viewer (GUI)            ├──► flint-runtime   (game loop, input)
-      ├──► flint-query  (queries)        ├──► flint-physics   (Rapier 3D)
-      ├──► flint-scene  (load/save)      ├──► flint-audio     (Kira spatial audio)
-      ├──► flint-render (renderer)       ├──► flint-animation (tweens + skeletal)
-      ├──► flint-constraint (validation) └──► flint-render    (PBR + skinned mesh)
-      ├──► flint-asset  (asset catalog)          │
-      └──► flint-import (glTF import)            ▼
+      ├──► flint-viewer    (GUI)         ├──► flint-runtime   (game loop, input)
+      ├──► flint-query     (queries)     ├──► flint-physics   (Rapier 3D)
+      ├──► flint-scene     (load/save)   ├──► flint-audio     (Kira spatial audio)
+      ├──► flint-render    (renderer)    ├──► flint-animation (tweens + skeletal)
+      ├──► flint-constraint(validation)  ├──► flint-script    (Rhai scripting)
+      ├──► flint-asset     (catalog)     └──► flint-render    (PBR + skinned mesh)
+      ├──► flint-asset-gen (AI gen)              │
+      └──► flint-import    (glTF import)         ▼
               │                              flint-import  (glTF meshes + skins)
               ▼                                  │
           flint-ecs                              ▼
@@ -2193,51 +4003,76 @@ tags = ["tag1", "tag2"]
 <li><code>AnimationSync</code> bridges ECS <code>animator</code> components to property playback</li>
 <li><code>SkeletalSync</code> bridges ECS to skeletal playback with bone matrix computation</li>
 </ul>
-<h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
-<p>Standalone player binary that wires together runtime, physics, audio, animation, and rendering:</p>
+<h3 id="flint-script"><a class="header" href="#flint-script">flint-script</a></h3>
+<p>Rhai scripting engine for runtime game logic:</p>
 <ul>
-<li>Full game loop: clock tick, fixed-step physics, audio sync, animation advance, first-person rendering</li>
+<li><code>ScriptEngine</code> — compiles <code>.rhai</code> files, manages per-entity <code>Scope</code> and <code>AST</code>, dispatches callbacks</li>
+<li><code>ScriptSync</code> — discovers entities with <code>script</code> components, monitors file timestamps for hot-reload</li>
+<li><code>ScriptSystem</code> — <code>RuntimeSystem</code> implementation running in <code>update()</code> (variable-rate)</li>
+<li>Full API: entity CRUD, input, time, audio, animation, math, events, logging</li>
+<li><code>ScriptCommand</code> pattern — deferred audio/event effects processed by PlayerApp after script batch</li>
+<li><code>ScriptCallContext</code> with raw <code>*mut FlintWorld</code> pointer for world access during call batches</li>
+</ul>
+<h3 id="flint-asset-gen"><a class="header" href="#flint-asset-gen">flint-asset-gen</a></h3>
+<p>AI asset generation pipeline:</p>
+<ul>
+<li><code>GenerationProvider</code> trait with pluggable implementations (Flux, Meshy, ElevenLabs, Mock)</li>
+<li><code>StyleGuide</code> — TOML-defined visual vocabulary (palette, materials, geometry constraints) for prompt enrichment</li>
+<li><code>SemanticAssetDef</code> — maps intent (description, material, wear level) to generation requests</li>
+<li>Batch scene resolution with strategies: <code>AiGenerate</code>, <code>HumanTask</code>, <code>AiThenHuman</code></li>
+<li><code>validate_model()</code> — checks GLB geometry and materials against style constraints</li>
+<li><code>BuildManifest</code> — provenance tracking (provider, prompt, content hash) for all generated assets</li>
+<li><code>FlintConfig</code> — layered configuration for API keys and provider settings</li>
+<li><code>JobStore</code> — persistent tracking of async generation jobs (for long-running 3D model generation)</li>
+</ul>
+<h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
+<p>Standalone player binary that wires together runtime, physics, audio, animation, scripting, and rendering:</p>
+<ul>
+<li>Full game loop: clock tick, fixed-step physics, audio sync, animation advance, script update, first-person rendering</li>
 <li>Scene loading with physics body creation from TOML collider/rigidbody components</li>
 <li>Audio source loading and spatial listener tracking</li>
 <li>Skeletal animation with bone matrix upload to GPU each frame</li>
-<li>First-person controls (WASD, mouse look, jump, sprint)</li>
+<li>Rhai script system with event dispatch (collisions, triggers, actions, interactions)</li>
+<li>Interactable entity system with HUD prompt overlay (egui crosshair + proximity text)</li>
+<li>First-person controls (WASD, mouse look, jump, sprint, interact)</li>
+<li>Optional asset catalog integration for runtime name-based asset resolution</li>
 </ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>
 <p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>serve</code>, <code>play</code>, <code>validate</code>, <code>asset</code>, <code>render</code>.</p>
-<h2 id="further-reading-8"><a class="header" href="#further-reading-8">Further Reading</a></h2>
+<h2 id="further-reading-20"><a class="header" href="#further-reading-20">Further Reading</a></h2>
 <ul>
 <li><a href="#crate-dependency-graph">Crate Dependency Graph</a> — visual dependency diagram</li>
 <li><a href="#design-principles">Design Principles</a> — the principles behind these decisions</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="crate-dependency-graph"><a class="header" href="#crate-dependency-graph">Crate Dependency Graph</a></h1>
-<p>This page shows how Flint’s sixteen crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
+<p>This page shows how Flint’s eighteen crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
 <h2 id="dependency-diagram"><a class="header" href="#dependency-diagram">Dependency Diagram</a></h2>
 <pre><code>          ┌─────────────┐                ┌──────────────┐
           │  flint-cli  │                │ flint-player │
           │  (binary)   │                │   (binary)   │
           └──────┬──────┘                └──────┬───────┘
                  │                              │
-    ┌────┬───┬──┴──┬────┬────┬────┐    ┌───┬───┴───┬───┬───┬───┐
-    │    │   │     │    │    │    │    │   │       │   │   │   │
-    ▼    │   ▼     ▼    ▼    ▼    ▼    ▼   ▼       ▼   │   │   │
- ┌──────┐│┌─────┐┌────┐│ ┌─────┐│ ┌────────┐┌────────┐│   │   │
- │viewer│││scene││qry ││ │const││ │runtime ││physics ││   │   │
- └──┬───┘│└──┬──┘└─┬──┘│ └──┬──┘│ └───┬────┘└───┬────┘│   │   │
-    │    │   │     │   │    │   │     │          │     │   │   │
-    │    ▼   │     │   │    │   │     │          │     ▼   ▼   │
-    │ ┌──────────┐ │   │    │   │     │          │  ┌─────────┐│
-    ├►│  render  │◄┘   │    │   │     │          │  │  audio  ││
-    │ └────┬─────┘     │    │   │     │          │  └────┬────┘│
-    │      │           │    │   │     │          │       │     │
-    │      │           │    │   │     │          │       │     ▼
-    │      │           │    │   │     │          │       │  ┌──────────┐
-    │      │           │    │   │     │          │       │  │animation │
-    │      ▼           │    │   │     │          │       │  └────┬─────┘
-    │ ┌──────────┐     │   ┌┘   │     │          │       │       │
-    │ │  import  │     │   │    │     │          │       │       │
-    │ └────┬─────┘     │   │    │     │          │       │       │
-    │      │           ▼   ▼    ▼     ▼          ▼       ▼       ▼
+    ┌────┬───┬──┴──┬────┬────┬─────┐   ┌───┬───┴───┬───┬───┬───┬───┐
+    │    │   │     │    │    │     │   │   │       │   │   │   │   │
+    ▼    │   ▼     ▼    ▼    ▼     ▼   ▼   ▼       ▼   │   │   │   │
+ ┌──────┐│┌─────┐┌────┐│ ┌─────┐┌────────┐┌────────┐┌────────┐│   │
+ │viewer│││scene││qry ││ │const││asset-gen││runtime ││physics ││   │
+ └──┬───┘│└──┬──┘└─┬──┘│ └──┬──┘└───┬────┘└───┬────┘└───┬────┘│   │
+    │    │   │     │   │    │       │          │         │     │   │
+    │    ▼   │     │   │    │       │          │         │     ▼   │
+    │ ┌──────────┐ │   │    │       │          │         │  ┌─────────┐
+    ├►│  render  │◄┘   │    │       │          │         │  │ script  │
+    │ └────┬─────┘     │    │       │          │         │  └────┬────┘
+    │      │           │    │       │          │         │       │
+    │      │           │    │       │          │         ▼       ▼
+    │      │           │    │       │          │      ┌─────────────┐
+    │      │           │    │       │          │      │audio  anim  │
+    │      ▼           │    │       │          │      └──────┬──────┘
+    │ ┌──────────┐     │   ┌┘      │          │             │
+    │ │  import  │     │   │       │          │             │
+    │ └────┬─────┘     │   │       │          │             │
+    │      │           ▼   ▼       ▼          ▼             ▼
     │      │    ┌──────────────────────────────────────────────────┐
     │      │    │              flint-ecs                            │
     │      │    │  (hecs wrapper, stable IDs, hierarchy)           │
@@ -2276,8 +4111,10 @@ tags = ["tag1", "tag2"]
 <tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>player</td></tr>
 <tr><td><code>flint-audio</code></td><td>core, ecs, runtime</td><td>player</td></tr>
 <tr><td><code>flint-animation</code></td><td>core, ecs, import, runtime</td><td>player</td></tr>
+<tr><td><code>flint-script</code></td><td>core, ecs, runtime</td><td>player</td></tr>
+<tr><td><code>flint-asset-gen</code></td><td>core, asset, import</td><td>cli</td></tr>
 <tr><td><code>flint-viewer</code></td><td>core, ecs, scene, schema, render, import, constraint</td><td>cli</td></tr>
-<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, import</td><td><em>(binary entry point)</em></td></tr>
+<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, script, import, asset</td><td><em>(binary entry point)</em></td></tr>
 <tr><td><code>flint-cli</code></td><td>all crates</td><td><em>(binary entry point)</em></td></tr>
 </tbody>
 </table>
@@ -2289,13 +4126,13 @@ tags = ["tag1", "tag2"]
 <li><strong>Core</strong> — fundamental types (<code>flint-core</code>)</li>
 <li><strong>Schema</strong> — data definitions (<code>flint-schema</code>)</li>
 <li><strong>Storage</strong> — entity and asset management (<code>flint-ecs</code>, <code>flint-asset</code>)</li>
-<li><strong>Logic</strong> — query, scene, constraint, import</li>
-<li><strong>Systems</strong> — render, runtime, physics, audio, animation</li>
+<li><strong>Logic</strong> — query, scene, constraint, import, asset-gen</li>
+<li><strong>Systems</strong> — render, runtime, physics, audio, animation, script</li>
 <li><strong>Applications</strong> — viewer, player</li>
 <li><strong>Interface</strong> — CLI binary (<code>flint-cli</code>), player binary (<code>flint-player</code>)</li>
 </ol>
 <p><strong>Two entry points.</strong> The CLI binary (<code>flint-cli</code>) serves scene authoring and validation workflows. The player binary (<code>flint-player</code>) serves interactive gameplay. Both share the same underlying crate hierarchy.</p>
-<p><strong>Independent subsystems.</strong> The constraint system, asset system, physics system, audio system, animation system, and render system don’t depend on each other. This means you can build and test each subsystem in isolation.</p>
+<p><strong>Independent subsystems.</strong> The constraint system, asset system, physics system, audio system, animation system, script system, asset generation system, and render system don’t depend on each other. This means you can build and test each subsystem in isolation.</p>
 <h2 id="external-dependencies"><a class="header" href="#external-dependencies">External Dependencies</a></h2>
 <p>Key third-party crates used across the workspace:</p>
 <div class="table-wrapper">
@@ -2319,6 +4156,9 @@ tags = ["tag1", "tag2"]
 <tr><td><code>sha2</code></td><td>flint-core, flint-asset</td><td>SHA-256 hashing</td></tr>
 <tr><td><code>gltf</code></td><td>flint-import</td><td>glTF file parsing (meshes, materials, skins, animations)</td></tr>
 <tr><td><code>crossbeam</code></td><td>flint-physics</td><td>Channel-based event collection (Rapier)</td></tr>
+<tr><td><code>rhai</code></td><td>flint-script</td><td>Embedded scripting language</td></tr>
+<tr><td><code>ureq</code></td><td>flint-asset-gen</td><td>HTTP client for AI provider APIs</td></tr>
+<tr><td><code>uuid</code></td><td>flint-asset-gen</td><td>Unique job identifiers</td></tr>
 </tbody>
 </table>
 </div>
@@ -2361,8 +4201,8 @@ tags = ["tag1", "tag2"]
 </ul>
 <p><strong>Milestone:</strong> <code>flint serve --watch</code> shows a live PBR scene with shadows that updates when files change.</p>
 <h2 id="phase-4-interactive-runtime"><a class="header" href="#phase-4-interactive-runtime">Phase 4: Interactive Runtime</a></h2>
-<p><strong>Status: In Progress (Stages 1–3 of 5 complete)</strong></p>
-<p>The game runtime phase. A playable game loop with physics, audio, animation, and eventually scripting.</p>
+<p><strong>Status: Complete</strong></p>
+<p>The game runtime phase. A playable game loop with physics, audio, animation, scripting, and interactive entities.</p>
 <p><strong>Stage 1 — Game Loop + Physics: Complete</strong></p>
 <ul>
 <li><code>flint-runtime</code> — GameClock (fixed-timestep accumulator), InputState (keyboard/mouse with action bindings), EventBus, RuntimeSystem trait</li>
@@ -2395,30 +4235,52 @@ tags = ["tag1", "tag2"]
 <li>Skinned shadow mapping with dedicated shader entry point</li>
 <li>Demo animations — bobbing platform (4s loop), door swing (0.8s), skeletal test scene</li>
 </ul>
-<p><strong>Stage 4 — Scripting: Planned</strong></p>
+<p><strong>Stage 4 — Scripting: Complete</strong></p>
 <ul>
-<li><code>flint-script</code> — Rhai scripting for game logic (sandboxed)</li>
-<li>Entity API, event callbacks (<code>on_collision</code>, <code>on_trigger</code>, <code>on_action</code>)</li>
-<li>Animation and audio APIs for scripts</li>
-<li>Hot-reload for script files</li>
+<li><code>flint-script</code> — Rhai scripting engine with per-entity scopes and AST management</li>
+<li>Entity API (read/write components, spawn/despawn, position/rotation, distance)</li>
+<li>Input API (action pressed/just-pressed, mouse delta)</li>
+<li>Audio API (play_sound, play_sound_at, stop_sound) via deferred ScriptCommand pattern</li>
+<li>Animation API (play_clip, stop_clip, blend_to, set_anim_speed) via direct ECS writes</li>
+<li>Math API (clamp, lerp, random, trig, atan2)</li>
+<li>Event callbacks: <code>on_init</code>, <code>on_update</code>, <code>on_collision</code>, <code>on_trigger_enter/exit</code>, <code>on_action</code>, <code>on_interact</code></li>
+<li>Hot-reload via file timestamp checking (keeps old AST on compile error)</li>
+<li><code>script</code> component schema with <code>source</code> and <code>enabled</code> fields</li>
 </ul>
-<p><strong>Stage 5 — Integration: Planned</strong></p>
+<p><strong>Stage 5 — Integration: Complete</strong></p>
 <ul>
-<li>Interactable component with scripted behaviors</li>
-<li>Full demo: walk around, open animated doors, see NPC idle animations, hear sounds</li>
+<li><code>interactable</code> component schema (prompt_text, range, interaction_type, enabled)</li>
+<li>Proximity-based interaction with <code>find_nearest_interactable()</code> scanning</li>
+<li>egui HUD overlay: crosshair + interaction prompt text with fade in/out</li>
+<li>NPC behavior scripts: bartender (wave + glass clink), patron (random fidget), mysterious stranger (ominous reactions)</li>
+<li>Footstep sounds synced to player movement</li>
+<li>Ambient event system (random sounds: glass clinks, chair creaks)</li>
+<li>Full atmospheric tavern integration demo with scripts, audio, animation, and interactables</li>
 </ul>
-<p><strong>Milestone:</strong> <code>flint play tavern.scene.toml</code> launches a first-person walkable scene with physics, spatial audio, and animation.</p>
+<p><strong>Milestone:</strong> <code>flint play tavern.scene.toml</code> launches a first-person walkable scene with physics, spatial audio, animation, scripted NPCs, and interactive objects.</p>
 <h2 id="phase-5-ai-asset-pipeline"><a class="header" href="#phase-5-ai-asset-pipeline">Phase 5: AI Asset Pipeline</a></h2>
-<p><strong>Status: Planned</strong></p>
-<p>Integrated AI generation workflows for textures, meshes, and audio.</p>
-<p><strong>Planned:</strong></p>
+<p><strong>Status: Complete</strong></p>
+<p>Integrated AI generation workflows for textures, meshes, and audio with style consistency and provenance tracking.</p>
+<p><strong>Delivered:</strong></p>
 <ul>
-<li><code>flint-asset-gen</code> — Provider integrations (texture generation, mesh generation, audio generation)</li>
-<li>Style consistency validation against style guide TOML files</li>
-<li>Human task generation for assets that need manual creation</li>
-<li>Resolution strategy: <code>ai_generate</code> alongside existing <code>strict</code> and <code>placeholder</code></li>
+<li><code>flint-asset-gen</code> — pluggable <code>GenerationProvider</code> trait with four implementations:
+<ul>
+<li><strong>Flux</strong> — AI texture generation (PNG output)</li>
+<li><strong>Meshy</strong> — text-to-3D model generation (GLB output, async job polling)</li>
+<li><strong>ElevenLabs</strong> — AI sound effect and voice generation</li>
+<li><strong>Mock</strong> — generates minimal valid files for testing without network access</li>
 </ul>
-<p><strong>Milestone:</strong> <code>flint asset generate model --provider meshy</code> produces usable game assets.</p>
+</li>
+<li><strong>Style guides</strong> — TOML-defined visual vocabulary (palette, materials, geometry constraints) that enriches generation prompts for consistent asset aesthetics</li>
+<li><strong>Semantic asset definitions</strong> — <code>asset_def</code> component schema mapping intent to generation requests (description, material intent, wear level, size class)</li>
+<li><strong>Batch scene resolution</strong> — <code>flint asset resolve</code> with strategies: <code>ai_generate</code>, <code>human_task</code>, <code>ai_then_human</code></li>
+<li><strong>Model validation</strong> — <code>validate_model()</code> checks GLB geometry and materials against style constraints (triangle count, UVs, normals, roughness/metallic ranges)</li>
+<li><strong>Build manifests</strong> — provenance tracking for all generated assets (provider, prompt, content hash)</li>
+<li><strong>Layered configuration</strong> — <code>~/.flint/config.toml</code> &lt; <code>.flint/config.toml</code> &lt; environment variables for API keys and provider settings</li>
+<li><strong>Runtime catalog integration</strong> — <code>PlayerApp</code> resolves assets by name through catalog → hash → content store → file fallback chain</li>
+<li><strong>CLI commands</strong> — <code>flint asset generate</code>, <code>flint asset validate</code>, <code>flint asset manifest</code>, <code>flint asset regenerate</code>, <code>flint asset job status/list</code></li>
+</ul>
+<p><strong>Milestone:</strong> <code>flint asset generate texture -d "stone wall" --style medieval_tavern</code> produces a style-consistent texture, validates it, and stores it in the content-addressed catalog.</p>
 <h2 id="beyond-phase-5"><a class="header" href="#beyond-phase-5">Beyond Phase 5</a></h2>
 <p>These are ideas under consideration, not committed plans:</p>
 <ul>
@@ -2430,17 +4292,19 @@ tags = ["tag1", "tag2"]
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
-<p>Flint is in active development (Phase 4 of 5). Contributions are welcome in these areas:</p>
+<p>All five phases of Flint are complete. Contributions are welcome in these areas:</p>
 <ul>
 <li><strong>Bug reports</strong> — file issues on GitHub</li>
 <li><strong>Schema definitions</strong> — new component and archetype schemas</li>
 <li><strong>Documentation</strong> — improvements to this guide</li>
-<li><strong>Test coverage</strong> — additional unit and integration tests (146 tests across 16 crates)</li>
+<li><strong>Test coverage</strong> — additional unit and integration tests (217 tests across 18 crates)</li>
 <li><strong>Constraint kinds</strong> — new validation rule types</li>
 <li><strong>Physics</strong> — additional collider shapes, improved character controller behavior</li>
 <li><strong>Rendering</strong> — post-processing effects, LOD, additional debug views</li>
 <li><strong>Audio</strong> — additional audio formats, reverb zones, music system</li>
 <li><strong>Animation</strong> — blend trees, additive blending, animation state machines</li>
+<li><strong>Scripting</strong> — new Rhai API functions, script debugging tools, performance profiling</li>
+<li><strong>AI generation</strong> — new provider integrations, improved style validation, prompt engineering</li>
 </ul>
 <h2 id="development-setup"><a class="header" href="#development-setup">Development Setup</a></h2>
 <pre><code class="language-bash">git clone https://github.com/chaps/flint.git
@@ -2465,8 +4329,8 @@ cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 <li>Tests live alongside the code they test (<code>#[cfg(test)]</code> modules)</li>
 <li>Prefer explicit over clever; readability over brevity</li>
 </ul>
-<h2 id="architecture-2"><a class="header" href="#architecture-2">Architecture</a></h2>
-<p>The project is a 16-crate Cargo workspace. See the <a href="#architecture-overview">Architecture Overview</a> and <a href="#crate-dependency-graph">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
+<h2 id="architecture-3"><a class="header" href="#architecture-3">Architecture</a></h2>
+<p>The project is an 18-crate Cargo workspace. See the <a href="#architecture-overview">Architecture Overview</a> and <a href="#crate-dependency-graph">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
 <ul>
 <li>Dependencies flow in one direction (binary crates at the top, <code>flint-core</code> at the bottom)</li>
 <li>Components are dynamic <code>toml::Value</code>, not Rust types — schemas are runtime data</li>

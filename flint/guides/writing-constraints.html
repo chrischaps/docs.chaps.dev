@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0981ad03.js"></script>
+        <script src="../toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,19 +179,151 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="writing-constraints"><a class="header" href="#writing-constraints">Writing Constraints</a></h1>
-<blockquote>
-<p>This page is a stub. Content coming soon.</p>
-</blockquote>
-<p>A practical guide to authoring constraint rules for your project. This guide will cover:</p>
+<p>This guide walks through authoring constraint rules for your Flint project. Constraints are declarative TOML rules that define what a valid scene looks like, checked by <code>flint validate</code>.</p>
+<h2 id="anatomy-of-a-constraint-file"><a class="header" href="#anatomy-of-a-constraint-file">Anatomy of a Constraint File</a></h2>
+<p>Constraint files live in <code>schemas/constraints/</code> and contain one or more <code>[[constraint]]</code> entries:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "unique_identifier"
+description = "Human-readable explanation"
+query = "entities where &lt;condition&gt;"
+severity = "error"
+message = "Violation message for '{name}'"
+
+[constraint.kind]
+type = "&lt;kind&gt;"
+# kind-specific fields...
+</code></pre>
 <ul>
-<li>Anatomy of a constraint TOML file</li>
-<li>Choosing the right constraint kind for your rule</li>
-<li>Writing effective query selectors</li>
-<li>Adding auto-fix strategies</li>
-<li>Testing constraints with <code>--dry-run</code></li>
-<li>Debugging constraint evaluation order</li>
-<li>Cascade detection and cycle prevention</li>
-<li>Best practices for organizing constraint files</li>
+<li><strong>name</strong> — unique identifier, used in logs and JSON output</li>
+<li><strong>description</strong> — what the rule checks (for documentation)</li>
+<li><strong>query</strong> — which entities this constraint applies to</li>
+<li><strong>severity</strong> — <code>"error"</code> fails validation, <code>"warning"</code> is advisory</li>
+<li><strong>message</strong> — shown when violated. <code>{name}</code> is replaced with the entity name</li>
+</ul>
+<h2 id="choosing-the-right-kind"><a class="header" href="#choosing-the-right-kind">Choosing the Right Kind</a></h2>
+<h3 id="required_component--entity-x-must-have-component-y"><a class="header" href="#required_component--entity-x-must-have-component-y"><code>required_component</code> — “Entity X must have component Y”</a></h3>
+<p>The most common kind. Use when an archetype needs a specific component:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "doors_have_transform"
+description = "Every door must have a transform"
+query = "entities where archetype == 'door'"
+severity = "error"
+message = "Door '{name}' is missing a transform component"
+
+[constraint.kind]
+type = "required_component"
+archetype = "door"
+component = "transform"
+</code></pre>
+<h3 id="value_range--field-x-must-be-between-a-and-b"><a class="header" href="#value_range--field-x-must-be-between-a-and-b"><code>value_range</code> — “Field X must be between A and B”</a></h3>
+<p>Validates that a numeric field is within bounds:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "door_angle_range"
+description = "Door open angle must be between 0 and 180"
+query = "entities where archetype == 'door'"
+severity = "warning"
+message = "Door '{name}' has an invalid open_angle"
+
+[constraint.kind]
+type = "value_range"
+field = "door.open_angle"
+min = 0.0
+max = 180.0
+</code></pre>
+<h3 id="required_child--entity-x-must-have-a-child-of-archetype-y"><a class="header" href="#required_child--entity-x-must-have-a-child-of-archetype-y"><code>required_child</code> — “Entity X must have a child of archetype Y”</a></h3>
+<p>Enforces parent-child relationships:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "rooms_have_door"
+description = "Every room needs at least one exit"
+query = "entities where archetype == 'room'"
+severity = "error"
+message = "Room '{name}' has no door"
+
+[constraint.kind]
+type = "required_child"
+archetype = "room"
+child_archetype = "door"
+</code></pre>
+<h3 id="reference_valid--this-reference-field-must-point-to-an-existing-entity"><a class="header" href="#reference_valid--this-reference-field-must-point-to-an-existing-entity"><code>reference_valid</code> — “This reference field must point to an existing entity”</a></h3>
+<p>Checks referential integrity:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "door_target_exists"
+description = "Door target room must exist"
+query = "entities where archetype == 'door'"
+severity = "error"
+message = "Door '{name}' references a non-existent target"
+
+[constraint.kind]
+type = "reference_valid"
+field = "door.target_room"
+</code></pre>
+<h3 id="query_rule--this-query-must-return-the-expected-count"><a class="header" href="#query_rule--this-query-must-return-the-expected-count"><code>query_rule</code> — “This query must return the expected count”</a></h3>
+<p>The most flexible kind, for arbitrary rules:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "one_player"
+description = "Playable scenes need exactly one player"
+query = "entities where archetype == 'player'"
+severity = "error"
+message = "Scene must have exactly one player entity"
+
+[constraint.kind]
+type = "query_rule"
+rule_query = "entities where archetype == 'player'"
+expected = "exactly_one"
+</code></pre>
+<h2 id="auto-fix-strategies"><a class="header" href="#auto-fix-strategies">Auto-Fix Strategies</a></h2>
+<p>Add a <code>[constraint.fix]</code> section to enable automatic repair:</p>
+<pre><code class="language-toml">[[constraint]]
+name = "rooms_have_bounds"
+query = "entities where archetype == 'room'"
+severity = "error"
+message = "Room '{name}' needs bounds"
+
+[constraint.kind]
+type = "required_component"
+archetype = "room"
+component = "bounds"
+
+[constraint.fix]
+strategy = "set_default"
+</code></pre>
+<p>Available strategies:</p>
+<ul>
+<li><strong>set_default</strong> — add the missing component with schema defaults</li>
+<li><strong>add_child</strong> — create a child entity of the required archetype</li>
+<li><strong>remove_invalid</strong> — remove entities that violate the rule</li>
+<li><strong>assign_from_parent</strong> — copy a value from the parent entity</li>
+</ul>
+<h2 id="testing-constraints"><a class="header" href="#testing-constraints">Testing Constraints</a></h2>
+<p>Always test with <code>--dry-run</code> first to preview changes:</p>
+<pre><code class="language-bash"># See what violations exist
+flint validate levels/tavern.scene.toml --schemas schemas
+
+# Preview auto-fix changes without applying
+flint validate levels/tavern.scene.toml --fix --dry-run
+
+# Apply fixes
+flint validate levels/tavern.scene.toml --fix
+</code></pre>
+<p>JSON output gives machine-readable results for CI:</p>
+<pre><code class="language-bash">flint validate levels/tavern.scene.toml --format json
+</code></pre>
+<h2 id="organizing-constraint-files"><a class="header" href="#organizing-constraint-files">Organizing Constraint Files</a></h2>
+<p>Group related constraints into files by topic:</p>
+<pre><code>schemas/constraints/
+├── basics.toml          # Fundamental rules (transform required, etc.)
+├── physics.toml         # Physics constraints (collider sizes, mass ranges)
+├── audio.toml           # Audio constraints (volume ranges, spatial settings)
+└── gameplay.toml        # Game-specific rules (one player, door connectivity)
+</code></pre>
+<p>All <code>.toml</code> files in <code>schemas/constraints/</code> are loaded automatically.</p>
+<h2 id="cascade-detection"><a class="header" href="#cascade-detection">Cascade Detection</a></h2>
+<p>When auto-fix modifies one entity, it might cause a different constraint to fail. Flint handles this by running fix-validate cycles. If a cycle is detected (the same violation keeps appearing), the fixer stops and reports the issue.</p>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="../concepts/constraints.html">Constraints</a> — constraint system reference</li>
+<li><a href="../concepts/queries.html">Queries</a> — query syntax used in constraint selectors</li>
+<li><a href="../formats/overview.html">File Formats</a> — constraint TOML format</li>
 </ul>
 
                     </main>

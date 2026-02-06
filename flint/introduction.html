@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-54da5ca8.js";
+            window.path_to_searchindex_js = "searchindex-0d42d88f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-0981ad03.js"></script>
+        <script src="toc-72460a65.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -208,7 +208,7 @@ flint serve levels/tavern.scene.toml --watch
 flint play levels/tavern.scene.toml
 </code></pre>
 <h2 id="current-status"><a class="header" href="#current-status">Current Status</a></h2>
-<p>Flint is in active development through Phase 4. Phases 1–3 are complete, and Phase 4 Stages 1–3 (Game Loop, Audio, Animation) are implemented. The engine currently supports:</p>
+<p>All five phases of Flint’s development are complete. The engine supports:</p>
 <ul>
 <li><strong>Entity CRUD</strong> via CLI with archetype-based creation</li>
 <li><strong>Scene serialization</strong> in human-readable TOML</li>
@@ -227,8 +227,11 @@ flint play levels/tavern.scene.toml
 <li><strong>Spatial audio</strong> via Kira with 3D positioned sounds, ambient loops, and event-driven triggers</li>
 <li><strong>Property animation</strong> with TOML-defined keyframe clips (Step, Linear, CubicSpline interpolation)</li>
 <li><strong>Skeletal animation</strong> with glTF skin import, GPU bone matrix skinning, and crossfade blending</li>
+<li><strong>Rhai scripting</strong> with entity/input/audio/animation APIs, event callbacks, and hot-reload</li>
+<li><strong>Interactable entities</strong> with HUD prompts, proximity detection, and scripted behaviors</li>
+<li><strong>AI asset generation</strong> with pluggable providers (Flux textures, Meshy 3D models, ElevenLabs audio), style guides, batch scene resolution, model validation, and build manifests</li>
 </ul>
-<p>See the <a href="roadmap.html">Roadmap</a> for what’s planned next.</p>
+<p>See the <a href="roadmap.html">Roadmap</a> for the full development history.</p>
 <h2 id="who-is-this-for"><a class="header" href="#who-is-this-for">Who Is This For?</a></h2>
 <ul>
 <li><strong>AI agent developers</strong> building game content programmatically</li>
