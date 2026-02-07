@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["LogLevel","ScriptCommand"],"struct":["InputSnapshot","ScriptCallContext"]};
+window.SIDEBAR_ITEMS = {"enum":["DrawCommand","LogLevel","ScriptCommand"],"struct":["InputSnapshot","ScriptCallContext"]};

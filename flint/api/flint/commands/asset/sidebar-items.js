@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AssetCommands","JobCommands"],"fn":["format_asset_toml","guess_asset_type","parse_asset_type","run","run_generate","run_import","run_info","run_job","run_list","run_manifest","run_regenerate","run_resolve","run_validate"]};
+window.SIDEBAR_ITEMS = {"enum":["AssetCommands","JobCommands"],"fn":["collect_scene_asset_references","guess_asset_type","parse_asset_type","push_ref_if_string","run","run_generate","run_import","run_info","run_job","run_list","run_manifest","run_regenerate","run_resolve","run_validate"],"struct":["SceneAssetReference"]};

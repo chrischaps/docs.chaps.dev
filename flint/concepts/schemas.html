@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
+            window.path_to_searchindex_js = "../searchindex-9b411e96.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-72460a65.js"></script>
+        <script src="../toc-5a4e14e8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -220,7 +220,7 @@ required_key = { type = "entity_ref", optional = true }
 <li><code>values</code> — valid options for enum types</li>
 </ul>
 <h2 id="built-in-components"><a class="header" href="#built-in-components">Built-in Components</a></h2>
-<p>Flint ships with seven built-in component schemas:</p>
+<p>Flint ships with several built-in component schemas:</p>
 <h3 id="transform"><a class="header" href="#transform">Transform</a></h3>
 <pre><code class="language-toml"># schemas/components/transform.toml
 [component.transform]
@@ -294,6 +294,23 @@ height = { type = "f32", default = 1.8, min = 0.1 }
 radius = { type = "f32", default = 0.4, min = 0.1 }
 camera_mode = { type = "enum", values = ["first_person", "orbit"], default = "first_person" }
 </code></pre>
+<h3 id="sprite"><a class="header" href="#sprite">Sprite</a></h3>
+<pre><code class="language-toml"># schemas/components/sprite.toml
+[component.sprite]
+description = "Billboard sprite rendered as a camera-facing quad"
+
+[component.sprite.fields]
+texture = { type = "string", default = "", description = "Sprite sheet texture name" }
+width = { type = "f32", default = 1.0, min = 0.01, description = "World-space width" }
+height = { type = "f32", default = 1.0, min = 0.01, description = "World-space height" }
+frame = { type = "i32", default = 0, min = 0, description = "Current frame index" }
+frames_x = { type = "i32", default = 1, min = 1, description = "Columns in sprite sheet" }
+frames_y = { type = "i32", default = 1, min = 1, description = "Rows in sprite sheet" }
+anchor_y = { type = "f32", default = 0.0, description = "Vertical anchor (0=bottom, 0.5=center)" }
+fullbright = { type = "bool", default = true, description = "Bypass PBR lighting" }
+visible = { type = "bool", default = true }
+</code></pre>
+<p>The sprite component is used for billboard sprites that always face the camera. See <a href="rendering.html#billboard-sprites">Rendering: Billboard Sprites</a> for details on the rendering pipeline.</p>
 <h2 id="archetype-schemas"><a class="header" href="#archetype-schemas">Archetype Schemas</a></h2>
 <p>Archetypes bundle components together with defaults. They live in <code>schemas/archetypes/</code>:</p>
 <pre><code class="language-toml"># schemas/archetypes/room.toml
@@ -375,11 +392,44 @@ current_hp = 30
 armor = 0.1
 </code></pre>
 <p>No engine recompilation needed — schemas are loaded at runtime from the TOML files.</p>
+<h2 id="game-project-schemas"><a class="header" href="#game-project-schemas">Game Project Schemas</a></h2>
+<p>Games can define their own schemas that extend or override the engine’s built-in schemas. The <code>--schemas</code> flag accepts multiple paths, with later paths taking priority:</p>
+<pre><code class="language-bash">flint play games/doom_fps/scenes/arena.scene.toml \
+  --schemas schemas \
+  --schemas games/doom_fps/schemas
+</code></pre>
+<p>In this example, <code>schemas/</code> provides the engine’s built-in components (transform, material, rigidbody, etc.) and <code>games/doom_fps/schemas/</code> adds game-specific components (health, weapon, enemy AI). If both directories define a component with the same name, the game’s definition wins.</p>
+<h3 id="game-project-directory-structure"><a class="header" href="#game-project-directory-structure">Game Project Directory Structure</a></h3>
+<pre><code>games/
+└── doom_fps/
+    ├── schemas/
+    │   ├── components/
+    │   │   ├── health.toml
+    │   │   ├── weapon.toml
+    │   │   └── enemy_ai.toml
+    │   └── archetypes/
+    │       ├── enemy.toml
+    │       └── pickup.toml
+    ├── scripts/
+    │   ├── enemy_ai.rhai
+    │   ├── weapon.rhai
+    │   └── hud.rhai
+    ├── scenes/
+    │   └── fps_arena.scene.toml
+    ├── sprites/
+    │   └── imp.png
+    └── audio/
+        ├── shotgun.ogg
+        └── imp_death.ogg
+</code></pre>
+<p>This separation keeps game-specific data out of the engine directory, allowing multiple games to share the same engine schemas while defining their own components and archetypes.</p>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
 <li><a href="entities-and-ecs.html">Entities and ECS</a> — how schemas connect to the entity system</li>
 <li><a href="constraints.html">Constraints</a> — rules that validate entities against schemas</li>
 <li><a href="scenes.html">Scenes</a> — how schema-defined entities are serialized</li>
+<li><a href="rendering.html">Rendering</a> — billboard sprite rendering pipeline</li>
+<li><a href="../cli-reference/overview.html">CLI Reference</a> — multi-schema CLI usage</li>
 </ul>
 
                     </main>

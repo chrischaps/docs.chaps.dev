@@ -37,10 +37,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-0d42d88f.js";
+            window.path_to_searchindex_js = "searchindex-9b411e96.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-72460a65.js"></script>
+        <script src="toc-5a4e14e8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1114,7 +1114,7 @@ required_key = { type = "entity_ref", optional = true }
 <li><code>values</code> — valid options for enum types</li>
 </ul>
 <h2 id="built-in-components"><a class="header" href="#built-in-components">Built-in Components</a></h2>
-<p>Flint ships with seven built-in component schemas:</p>
+<p>Flint ships with several built-in component schemas:</p>
 <h3 id="transform"><a class="header" href="#transform">Transform</a></h3>
 <pre><code class="language-toml"># schemas/components/transform.toml
 [component.transform]
@@ -1188,6 +1188,23 @@ height = { type = "f32", default = 1.8, min = 0.1 }
 radius = { type = "f32", default = 0.4, min = 0.1 }
 camera_mode = { type = "enum", values = ["first_person", "orbit"], default = "first_person" }
 </code></pre>
+<h3 id="sprite"><a class="header" href="#sprite">Sprite</a></h3>
+<pre><code class="language-toml"># schemas/components/sprite.toml
+[component.sprite]
+description = "Billboard sprite rendered as a camera-facing quad"
+
+[component.sprite.fields]
+texture = { type = "string", default = "", description = "Sprite sheet texture name" }
+width = { type = "f32", default = 1.0, min = 0.01, description = "World-space width" }
+height = { type = "f32", default = 1.0, min = 0.01, description = "World-space height" }
+frame = { type = "i32", default = 0, min = 0, description = "Current frame index" }
+frames_x = { type = "i32", default = 1, min = 1, description = "Columns in sprite sheet" }
+frames_y = { type = "i32", default = 1, min = 1, description = "Rows in sprite sheet" }
+anchor_y = { type = "f32", default = 0.0, description = "Vertical anchor (0=bottom, 0.5=center)" }
+fullbright = { type = "bool", default = true, description = "Bypass PBR lighting" }
+visible = { type = "bool", default = true }
+</code></pre>
+<p>The sprite component is used for billboard sprites that always face the camera. See <a href="#billboard-sprites">Rendering: Billboard Sprites</a> for details on the rendering pipeline.</p>
 <h2 id="archetype-schemas"><a class="header" href="#archetype-schemas">Archetype Schemas</a></h2>
 <p>Archetypes bundle components together with defaults. They live in <code>schemas/archetypes/</code>:</p>
 <pre><code class="language-toml"># schemas/archetypes/room.toml
@@ -1269,11 +1286,44 @@ current_hp = 30
 armor = 0.1
 </code></pre>
 <p>No engine recompilation needed — schemas are loaded at runtime from the TOML files.</p>
+<h2 id="game-project-schemas"><a class="header" href="#game-project-schemas">Game Project Schemas</a></h2>
+<p>Games can define their own schemas that extend or override the engine’s built-in schemas. The <code>--schemas</code> flag accepts multiple paths, with later paths taking priority:</p>
+<pre><code class="language-bash">flint play games/doom_fps/scenes/arena.scene.toml \
+  --schemas schemas \
+  --schemas games/doom_fps/schemas
+</code></pre>
+<p>In this example, <code>schemas/</code> provides the engine’s built-in components (transform, material, rigidbody, etc.) and <code>games/doom_fps/schemas/</code> adds game-specific components (health, weapon, enemy AI). If both directories define a component with the same name, the game’s definition wins.</p>
+<h3 id="game-project-directory-structure"><a class="header" href="#game-project-directory-structure">Game Project Directory Structure</a></h3>
+<pre><code>games/
+└── doom_fps/
+    ├── schemas/
+    │   ├── components/
+    │   │   ├── health.toml
+    │   │   ├── weapon.toml
+    │   │   └── enemy_ai.toml
+    │   └── archetypes/
+    │       ├── enemy.toml
+    │       └── pickup.toml
+    ├── scripts/
+    │   ├── enemy_ai.rhai
+    │   ├── weapon.rhai
+    │   └── hud.rhai
+    ├── scenes/
+    │   └── fps_arena.scene.toml
+    ├── sprites/
+    │   └── imp.png
+    └── audio/
+        ├── shotgun.ogg
+        └── imp_death.ogg
+</code></pre>
+<p>This separation keeps game-specific data out of the engine directory, allowing multiple games to share the same engine schemas while defining their own components and archetypes.</p>
 <h2 id="further-reading-4"><a class="header" href="#further-reading-4">Further Reading</a></h2>
 <ul>
 <li><a href="#entities-and-ecs">Entities and ECS</a> — how schemas connect to the entity system</li>
 <li><a href="#constraints">Constraints</a> — rules that validate entities against schemas</li>
 <li><a href="#scenes">Scenes</a> — how schema-defined entities are serialized</li>
+<li><a href="#rendering">Rendering</a> — billboard sprite rendering pipeline</li>
+<li><a href="#cli-reference">CLI Reference</a> — multi-schema CLI usage</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="scenes"><a class="header" href="#scenes">Scenes</a></h1>
@@ -1820,6 +1870,54 @@ tags = ["furniture", "medieval"]
 <li>Skinned pipeline uses bind groups 0–3: transform, material, lights, and bones (storage buffer, read-only, vertex-visible)</li>
 </ul>
 <p>Skinned meshes also cast shadows through a dedicated <code>vs_skinned_shadow</code> shader entry point that applies bone transforms before depth rendering.</p>
+<h2 id="billboard-sprites"><a class="header" href="#billboard-sprites">Billboard Sprites</a></h2>
+<p>Billboard sprites are camera-facing quads used for 2D elements in 3D space — enemies, pickups, particle effects, and environmental details. They always face the camera, like classic Doom-style sprites.</p>
+<p>The <code>BillboardPipeline</code> is a separate rendering pipeline from PBR, optimized for flat textured quads:</p>
+<ul>
+<li><strong>No vertex buffer</strong> — quad positions are generated procedurally from <code>vertex_index</code> (4 vertices per sprite)</li>
+<li><strong>Per-sprite uniform buffer</strong> — each sprite gets its own instance data (position, size, frame, anchor)</li>
+<li><strong>Binary alpha</strong> — the fragment shader uses <code>discard</code> for transparent pixels (avoids order-independent transparency complexity)</li>
+<li><strong>Sprite sheet animation</strong> — supports multi-frame sprite sheets via <code>frame</code>, <code>frames_x</code>, and <code>frames_y</code> fields</li>
+<li><strong>Render order</strong> — billboard sprites render after skinned meshes in the pipeline</li>
+</ul>
+<h3 id="sprite-component"><a class="header" href="#sprite-component">Sprite Component</a></h3>
+<p>Attach a sprite to any entity with the <code>sprite</code> component:</p>
+<pre><code class="language-toml">[entities.imp]
+archetype = "enemy"
+
+[entities.imp.transform]
+position = [10, 0, 5]
+
+[entities.imp.sprite]
+texture = "imp_spritesheet"
+width = 1.5
+height = 2.0
+frames_x = 4
+frames_y = 1
+frame = 0
+anchor_y = 0.0
+fullbright = true
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>texture</code></td><td>string</td><td><code>""</code></td><td>Sprite sheet texture name (from <code>sprites/</code> directory)</td></tr>
+<tr><td><code>width</code></td><td>f32</td><td><code>1.0</code></td><td>World-space width of the quad</td></tr>
+<tr><td><code>height</code></td><td>f32</td><td><code>1.0</code></td><td>World-space height of the quad</td></tr>
+<tr><td><code>frame</code></td><td>i32</td><td><code>0</code></td><td>Current frame index in the sprite sheet</td></tr>
+<tr><td><code>frames_x</code></td><td>i32</td><td><code>1</code></td><td>Number of columns in the sprite sheet</td></tr>
+<tr><td><code>frames_y</code></td><td>i32</td><td><code>1</code></td><td>Number of rows in the sprite sheet</td></tr>
+<tr><td><code>anchor_y</code></td><td>f32</td><td><code>0.0</code></td><td>Vertical anchor point (0.0 = bottom, 0.5 = center)</td></tr>
+<tr><td><code>fullbright</code></td><td>bool</td><td><code>true</code></td><td>If true, bypasses PBR lighting (always fully lit)</td></tr>
+<tr><td><code>visible</code></td><td>bool</td><td><code>true</code></td><td>Whether the sprite is rendered</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="design-decisions"><a class="header" href="#design-decisions">Design Decisions</a></h3>
+<p>Billboard sprites use a <strong>separate pipeline</strong> rather than extending the PBR pipeline. This keeps the PBR shaders clean and allows sprites to opt out of lighting entirely (<code>fullbright = true</code>). The <code>discard</code>-based alpha approach is simple and avoids the significant complexity of order-independent transparency, at the cost of no partial transparency (pixels are either fully opaque or fully transparent).</p>
 <h2 id="viewer-vs-headless"><a class="header" href="#viewer-vs-headless">Viewer vs Headless</a></h2>
 <p>The renderer operates in two modes:</p>
 <p><strong>Viewer mode</strong> (<code>flint serve --watch</code>) opens an interactive window with:</p>
@@ -1837,6 +1935,8 @@ tags = ["furniture", "medieval"]
 <h2 id="further-reading-9"><a class="header" href="#further-reading-9">Further Reading</a></h2>
 <ul>
 <li><a href="#the-scene-viewer">The Scene Viewer</a> — getting started with the viewer</li>
+<li><a href="#scripting">Scripting</a> — UI draw API for script-driven HUD overlays</li>
+<li><a href="#schemas">Schemas</a> — sprite component schema definition</li>
 <li><a href="#animation">Animation</a> — the animation system that drives skinned meshes</li>
 <li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop and first-person gameplay</li>
 <li><a href="#headless-rendering-2">Headless Rendering</a> — CI integration guide</li>
@@ -1943,7 +2043,8 @@ spatial = false
 <tr><th>Function</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>play_sound(name)</code></td><td>Play a non-spatial sound by filename (without extension)</td></tr>
+<tr><td><code>play_sound(name)</code></td><td>Play a non-spatial sound at default volume</td></tr>
+<tr><td><code>play_sound(name, volume)</code></td><td>Play a non-spatial sound at the given volume (0.0–1.0)</td></tr>
 <tr><td><code>play_sound_at(name, x, y, z, volume)</code></td><td>Play a spatial sound at a 3D position</td></tr>
 <tr><td><code>stop_sound(name)</code></td><td>Stop a playing sound</td></tr>
 </tbody>
@@ -2233,12 +2334,55 @@ body_type = "static"
 <p>Then play the scene:</p>
 <pre><code class="language-bash">flint play my_scene.scene.toml
 </code></pre>
+<h2 id="raycasting"><a class="header" href="#raycasting">Raycasting</a></h2>
+<p>The physics system provides raycasting for line-of-sight checks, hitscan weapons, and interaction targeting. <code>PhysicsWorld::raycast()</code> casts a ray through the Rapier collision world and returns the first hit:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct EntityRaycastHit {
+    pub entity_id: EntityId,
+    pub distance: f32,
+    pub point: [f32; 3],
+    pub normal: [f32; 3],
+}
+<span class="boring">}</span></code></pre>
+<p>The function resolves Rapier collider handles back to Flint <code>EntityId</code>s through the collider-to-entity map maintained by <code>PhysicsSync</code>. An optional <code>exclude_entity</code> parameter lets callers exclude a specific entity (typically the shooter) from the results.</p>
+<p>Raycasting is exposed to scripts via the <code>raycast()</code> function — see <a href="#physics-api">Scripting: Physics API</a> for the script-level interface and examples.</p>
 <h2 id="input-system"><a class="header" href="#input-system">Input System</a></h2>
 <p>The <code>InputState</code> struct tracks keyboard and mouse state each frame:</p>
 <ul>
 <li>Keyboard keys are tracked as pressed/released</li>
+<li><strong>Mouse buttons</strong> are tracked alongside keyboard keys, with their own action binding map</li>
 <li>Mouse provides raw delta movement (via <code>DeviceEvent::MouseMotion</code>) for smooth camera look</li>
-<li>Action bindings map keys to game actions (move forward, jump, sprint, etc.)</li>
+<li>Action bindings map keys and mouse buttons to game actions</li>
+</ul>
+<h3 id="default-action-bindings"><a class="header" href="#default-action-bindings">Default Action Bindings</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Action</th><th>Key / Button</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>move_forward</code></td><td>W</td><td>Move forward</td></tr>
+<tr><td><code>move_backward</code></td><td>S</td><td>Move backward</td></tr>
+<tr><td><code>move_left</code></td><td>A</td><td>Strafe left</td></tr>
+<tr><td><code>move_right</code></td><td>D</td><td>Strafe right</td></tr>
+<tr><td><code>jump</code></td><td>Space</td><td>Jump</td></tr>
+<tr><td><code>interact</code></td><td>E</td><td>Interact with nearby object</td></tr>
+<tr><td><code>sprint</code></td><td>Left Shift</td><td>Sprint (hold)</td></tr>
+<tr><td><code>weapon_1</code></td><td>1</td><td>Select weapon slot 1</td></tr>
+<tr><td><code>weapon_2</code></td><td>2</td><td>Select weapon slot 2</td></tr>
+<tr><td><code>reload</code></td><td>R</td><td>Reload weapon</td></tr>
+<tr><td><code>fire</code></td><td>Left Mouse Button</td><td>Fire weapon</td></tr>
+</tbody>
+</table>
+</div>
+<p>Mouse button bindings are stored in a separate <code>mouse_button_map</code> alongside the keyboard <code>action_map</code>. Both maps feed into the same <code>is_action_pressed()</code> / <code>is_action_just_pressed()</code> interface, so scripts don’t need to distinguish between key-triggered and mouse-triggered actions.</p>
+<h2 id="runtime-physics-updates"><a class="header" href="#runtime-physics-updates">Runtime Physics Updates</a></h2>
+<p>The physics system handles several runtime updates beyond the core simulation:</p>
+<ul>
+<li><strong>Sensor flag updates</strong> — when game logic marks an entity as dead, its collider can be set to a sensor (non-solid) so other entities pass through it</li>
+<li><strong>Kinematic body sync</strong> — script-controlled position changes are written back to Rapier kinematic bodies each frame</li>
+<li><strong>Collision event drain</strong> — the <code>ChannelEventCollector</code> collects collision and contact events each physics step; these are drained and dispatched as script callbacks (<code>on_collision</code>, <code>on_trigger_enter</code>, <code>on_trigger_exit</code>)</li>
 </ul>
 <h2 id="further-reading-12"><a class="header" href="#further-reading-12">Further Reading</a></h2>
 <ul>
@@ -2296,6 +2440,7 @@ enabled = true
 <tr><td><code>on_trigger_exit</code></td><td><code>fn on_trigger_exit(other_id)</code></td><td>When another entity exits a trigger volume</td></tr>
 <tr><td><code>on_action</code></td><td><code>fn on_action(action_name)</code></td><td>When an input action fires (e.g., <code>"jump"</code>, <code>"interact"</code>)</td></tr>
 <tr><td><code>on_interact</code></td><td><code>fn on_interact()</code></td><td>When the player presses Interact near this entity</td></tr>
+<tr><td><code>on_draw_ui</code></td><td><code>fn on_draw_ui()</code></td><td>Every frame after <code>on_update</code>, for 2D HUD draw commands</td></tr>
 </tbody>
 </table>
 </div>
@@ -2310,10 +2455,12 @@ enabled = true
 </thead>
 <tbody>
 <tr><td><code>self_entity()</code></td><td><code>i64</code></td><td>The entity ID of the entity this script is attached to</td></tr>
+<tr><td><code>this_entity()</code></td><td><code>i64</code></td><td>Alias for <code>self_entity()</code></td></tr>
 <tr><td><code>get_entity(name)</code></td><td><code>i64</code></td><td>Look up an entity by name. Returns <code>-1</code> if not found</td></tr>
 <tr><td><code>entity_exists(id)</code></td><td><code>bool</code></td><td>Check whether an entity ID is valid</td></tr>
 <tr><td><code>entity_name(id)</code></td><td><code>String</code></td><td>Get the name of an entity</td></tr>
 <tr><td><code>has_component(id, component)</code></td><td><code>bool</code></td><td>Check if an entity has a specific component</td></tr>
+<tr><td><code>get_component(id, component)</code></td><td><code>Map</code></td><td>Get an entire component as a map (or <code>()</code> if missing)</td></tr>
 <tr><td><code>get_field(id, component, field)</code></td><td><code>Dynamic</code></td><td>Read a component field value</td></tr>
 <tr><td><code>set_field(id, component, field, value)</code></td><td>—</td><td>Write a component field value</td></tr>
 <tr><td><code>get_position(id)</code></td><td><code>Map</code></td><td>Get entity position as <code>#{x, y, z}</code></td></tr>
@@ -2340,7 +2487,8 @@ enabled = true
 </tbody>
 </table>
 </div>
-<p>Available action names: <code>move_forward</code>, <code>move_backward</code>, <code>move_left</code>, <code>move_right</code>, <code>jump</code>, <code>interact</code>, <code>sprint</code>.</p>
+<p>Available action names: <code>move_forward</code>, <code>move_backward</code>, <code>move_left</code>, <code>move_right</code>, <code>jump</code>, <code>interact</code>, <code>sprint</code>, <code>weapon_1</code>, <code>weapon_2</code>, <code>reload</code>, <code>fire</code>.</p>
+<p>The <code>fire</code> action is bound to the left mouse button by default. <code>weapon_1</code> and <code>weapon_2</code> are bound to the <code>1</code> and <code>2</code> keys, and <code>reload</code> to <code>R</code>. See <a href="#physics-and-runtime">Physics and Runtime</a> for the full action binding table.</p>
 <h3 id="time-api"><a class="header" href="#time-api">Time API</a></h3>
 <div class="table-wrapper">
 <table>
@@ -2361,7 +2509,8 @@ enabled = true
 <tr><th>Function</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>play_sound(name)</code></td><td>Play a non-spatial sound by filename</td></tr>
+<tr><td><code>play_sound(name)</code></td><td>Play a non-spatial sound at default volume</td></tr>
+<tr><td><code>play_sound(name, volume)</code></td><td>Play a non-spatial sound at the given volume (0.0–1.0)</td></tr>
 <tr><td><code>play_sound_at(name, x, y, z, volume)</code></td><td>Play a spatial sound at a 3D position</td></tr>
 <tr><td><code>stop_sound(name)</code></td><td>Stop a playing sound</td></tr>
 </tbody>
@@ -2426,11 +2575,105 @@ enabled = true
 </thead>
 <tbody>
 <tr><td><code>log(msg)</code></td><td>Log an info-level message</td></tr>
+<tr><td><code>log_info(msg)</code></td><td>Alias for <code>log()</code></td></tr>
 <tr><td><code>log_warn(msg)</code></td><td>Log a warning</td></tr>
 <tr><td><code>log_error(msg)</code></td><td>Log an error</td></tr>
 </tbody>
 </table>
 </div>
+<h3 id="physics-api"><a class="header" href="#physics-api">Physics API</a></h3>
+<p>Physics functions provide raycasting and camera access for combat, line-of-sight checks, and interaction targeting:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>raycast(ox, oy, oz, dx, dy, dz, max_dist)</code></td><td><code>Map</code> or <code>()</code></td><td>Cast a ray from origin in direction. Returns hit info or <code>()</code> if nothing hit</td></tr>
+<tr><td><code>get_camera_direction()</code></td><td><code>Map</code></td><td>Camera forward vector as <code>#{x, y, z}</code></td></tr>
+<tr><td><code>get_camera_position()</code></td><td><code>Map</code></td><td>Camera world position as <code>#{x, y, z}</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The <code>raycast()</code> function automatically excludes the calling entity’s collider from results. On a hit, it returns a map with these fields:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>entity</code></td><td><code>i64</code></td><td>Entity ID of the hit object</td></tr>
+<tr><td><code>distance</code></td><td><code>f64</code></td><td>Distance from origin to hit point</td></tr>
+<tr><td><code>point_x</code>, <code>point_y</code>, <code>point_z</code></td><td><code>f64</code></td><td>World-space hit position</td></tr>
+<tr><td><code>normal_x</code>, <code>normal_y</code>, <code>normal_z</code></td><td><code>f64</code></td><td>Surface normal at hit point</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Example: Hitscan weapon</strong></p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn fire_weapon() {
+    let cam_pos = get_camera_position();
+    let cam_dir = get_camera_direction();
+    let hit = raycast(cam_pos.x, cam_pos.y, cam_pos.z,
+                      cam_dir.x, cam_dir.y, cam_dir.z, 100.0);
+    if hit != () {
+        let target = hit.entity;
+        if has_component(target, "health") {
+            let hp = get_field(target, "health", "current_hp");
+            set_field(target, "health", "current_hp", hp - 25);
+        }
+    }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="ui-draw-api"><a class="header" href="#ui-draw-api">UI Draw API</a></h3>
+<p>The draw API lets scripts render 2D overlays each frame via the <code>on_draw_ui()</code> callback. Draw commands are issued in screen-space coordinates (logical points, not physical pixels) and rendered by the engine through egui.</p>
+<h4 id="draw-primitives"><a class="header" href="#draw-primitives">Draw Primitives</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>draw_text(x, y, text, size, r, g, b, a)</code></td><td>Draw text at position</td></tr>
+<tr><td><code>draw_text_ex(x, y, text, size, r, g, b, a, layer)</code></td><td>Draw text with explicit layer</td></tr>
+<tr><td><code>draw_rect(x, y, w, h, r, g, b, a)</code></td><td>Draw filled rectangle</td></tr>
+<tr><td><code>draw_rect_ex(x, y, w, h, r, g, b, a, rounding, layer)</code></td><td>Filled rectangle with corner rounding and layer</td></tr>
+<tr><td><code>draw_rect_outline(x, y, w, h, r, g, b, a, thickness)</code></td><td>Rectangle outline</td></tr>
+<tr><td><code>draw_circle(x, y, radius, r, g, b, a)</code></td><td>Draw filled circle</td></tr>
+<tr><td><code>draw_circle_outline(x, y, radius, r, g, b, a, thickness)</code></td><td>Circle outline</td></tr>
+<tr><td><code>draw_line(x1, y1, x2, y2, r, g, b, a, thickness)</code></td><td>Draw a line segment</td></tr>
+<tr><td><code>draw_sprite(x, y, w, h, name)</code></td><td>Draw a sprite image</td></tr>
+<tr><td><code>draw_sprite_ex(x, y, w, h, name, u0, v0, u1, v1, r, g, b, a, layer)</code></td><td>Sprite with custom UV coordinates, tint, and layer</td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="query-functions"><a class="header" href="#query-functions">Query Functions</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>screen_width()</code></td><td><code>f64</code></td><td>Logical screen width in points</td></tr>
+<tr><td><code>screen_height()</code></td><td><code>f64</code></td><td>Logical screen height in points</td></tr>
+<tr><td><code>measure_text(text, size)</code></td><td><code>Map</code></td><td>Approximate text size as <code>#{width, height}</code></td></tr>
+<tr><td><code>find_nearest_interactable()</code></td><td><code>Map</code> or <code>()</code></td><td>Nearest interactable entity info, or <code>()</code> if none in range</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>find_nearest_interactable()</code> returns a map with <code>entity</code> (ID), <code>prompt_text</code>, <code>interaction_type</code>, and <code>distance</code> fields when an interactable entity is within range.</p>
+<h4 id="layer-ordering"><a class="header" href="#layer-ordering">Layer Ordering</a></h4>
+<p>All draw commands accept a <code>layer</code> parameter (or default to 0). Commands are sorted by layer before rendering:</p>
+<ul>
+<li><strong>Negative layers</strong> render behind (background elements)</li>
+<li><strong>Layer 0</strong> is the default</li>
+<li><strong>Positive layers</strong> render in front (foreground elements)</li>
+</ul>
+<h4 id="coordinate-system"><a class="header" href="#coordinate-system">Coordinate System</a></h4>
+<p>Coordinates are in <strong>egui logical points</strong>, not physical pixels. On high-DPI displays, logical points differ from pixels by the scale factor. Use <code>screen_width()</code> and <code>screen_height()</code> for layout calculations — they return the correct logical dimensions.</p>
+<h4 id="sprite-loading"><a class="header" href="#sprite-loading">Sprite Loading</a></h4>
+<p>Sprite names map to image files in the <code>sprites/</code> directory (without extension). Supported formats: PNG, JPG, BMP, TGA. Textures are lazy-loaded on first use and cached for subsequent frames.</p>
 <h2 id="hot-reload"><a class="header" href="#hot-reload">Hot-Reload</a></h2>
 <p>The script system checks file modification timestamps each frame. When a <code>.rhai</code> file changes on disk:</p>
 <ol>
@@ -2548,16 +2791,67 @@ events ────► ScriptEngine.process_events()
         ECS reads/writes      ScriptCommands
         (via ScriptCallContext)  (PlaySound, FireEvent, Log)
                                      │
-                                     ▼
-                              PlayerApp processes
-                              deferred commands
+on_draw_ui ► ScriptEngine            ▼
+                │              PlayerApp processes
+                ▼              deferred commands
+          DrawCommands
+          (Text, Rect, Circle,
+           Line, Sprite)
+                │
+                ▼
+          egui layer_painter()
+          renders 2D overlay
 </code></pre>
 <p>Each entity gets its own Rhai <code>Scope</code>, preserving persistent variables between frames. The <code>Engine</code> is shared across all entities. World access happens through a <code>ScriptCallContext</code> that holds a raw pointer to the <code>FlintWorld</code> — valid only during the call batch, cleared immediately after.</p>
+<h2 id="example-combat-hud"><a class="header" href="#example-combat-hud">Example: Combat HUD</a></h2>
+<p>For game-specific UI, use a dedicated <code>hud_controller</code> entity with a <code>script</code> component. The entity has no physical presence in the world — it exists only to run the HUD script:</p>
+<pre><code class="language-toml">[entities.hud_controller]
+
+[entities.hud_controller.script]
+source = "hud.rhai"
+</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// scripts/hud.rhai
+
+fn on_draw_ui() {
+    let sw = screen_width();
+    let sh = screen_height();
+
+    // Crosshair
+    let cx = sw / 2.0;
+    let cy = sh / 2.0;
+    draw_line(cx - 10.0, cy, cx + 10.0, cy, 0.0, 1.0, 0.0, 0.8, 2.0);
+    draw_line(cx, cy - 10.0, cx, cy + 10.0, 0.0, 1.0, 0.0, 0.8, 2.0);
+
+    // Health bar
+    let player = get_entity("player");
+    if player != -1 &amp;&amp; has_component(player, "health") {
+        let hp = get_field(player, "health", "current_hp");
+        let max_hp = get_field(player, "health", "max_hp");
+        let pct = hp / max_hp;
+
+        draw_rect(20.0, sh - 40.0, 200.0, 20.0, 0.2, 0.2, 0.2, 0.8);
+        draw_rect(20.0, sh - 40.0, 200.0 * pct, 20.0, 0.8, 0.1, 0.1, 0.9);
+        draw_text(25.0, sh - 38.0, `HP: ${hp}/${max_hp}`, 14.0, 1.0, 1.0, 1.0, 1.0);
+    }
+
+    // Interaction prompt
+    let interact = find_nearest_interactable();
+    if interact != () {
+        let prompt = interact.prompt_text;
+        let tw = measure_text(prompt, 18.0);
+        draw_text(cx - tw.width / 2.0, cy + 40.0, `[E] ${prompt}`, 18.0, 1.0, 1.0, 1.0, 0.9);
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>This pattern keeps all game-specific HUD logic in scripts rather than engine code. The engine provides only the generic draw primitives.</p>
 <h2 id="further-reading-13"><a class="header" href="#further-reading-13">Further Reading</a></h2>
 <ul>
 <li><a href="#audio">Audio</a> — sound system that scripts can control</li>
 <li><a href="#animation">Animation</a> — animation system driven by script commands</li>
 <li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop that calls scripts</li>
+<li><a href="#rendering">Rendering</a> — billboard sprites and the PBR pipeline</li>
 <li><a href="#building-a-tavern">Building a Tavern</a> — tutorial using scripts for interactive entities</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -3547,6 +3841,175 @@ echo "Scene built successfully. Preview: preview.png"
 <li><a href="#cli-reference">CLI Reference</a> — full command documentation</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="building-a-game-project"><a class="header" href="#building-a-game-project">Building a Game Project</a></h1>
+<p>This guide walks through setting up a standalone game project that uses Flint’s engine schemas while defining its own game-specific components, scripts, and assets.</p>
+<h2 id="directory-structure"><a class="header" href="#directory-structure">Directory Structure</a></h2>
+<p>Game projects live in <code>games/&lt;name&gt;/</code> with their own schemas, scripts, scenes, and asset directories:</p>
+<pre><code>games/
+└── my_game/
+    ├── schemas/
+    │   ├── components/       # Game-specific component definitions
+    │   │   ├── health.toml
+    │   │   ├── weapon.toml
+    │   │   └── enemy_ai.toml
+    │   └── archetypes/       # Game-specific archetype bundles
+    │       ├── enemy.toml
+    │       └── pickup.toml
+    ├── scripts/              # Rhai game logic scripts
+    │   ├── player_weapon.rhai
+    │   ├── enemy_ai.rhai
+    │   └── hud.rhai
+    ├── scenes/               # Scene files
+    │   └── level_1.scene.toml
+    ├── sprites/              # Billboard sprite textures
+    │   ├── enemy.png
+    │   └── pickup_health.png
+    └── audio/                # Sound effects and music
+        ├── weapon_fire.ogg
+        └── enemy_death.ogg
+</code></pre>
+<h2 id="multi-schema-layering"><a class="header" href="#multi-schema-layering">Multi-Schema Layering</a></h2>
+<p>The key to the game project pattern is the <code>--schemas</code> flag, which accepts multiple paths. Schemas load in order, with later paths overriding earlier ones:</p>
+<pre><code class="language-bash">flint play games/my_game/scenes/level_1.scene.toml \
+  --schemas schemas \
+  --schemas games/my_game/schemas
+</code></pre>
+<p>This loads:</p>
+<ol>
+<li><strong>Engine schemas</strong> from <code>schemas/</code> — built-in components like <code>transform</code>, <code>material</code>, <code>rigidbody</code>, <code>collider</code>, <code>character_controller</code>, <code>sprite</code>, etc.</li>
+<li><strong>Game schemas</strong> from <code>games/my_game/schemas/</code> — game-specific components like <code>health</code>, <code>weapon</code>, <code>enemy_ai</code></li>
+</ol>
+<p>If both directories define a component with the same name, the game’s version takes priority.</p>
+<h2 id="defining-game-components"><a class="header" href="#defining-game-components">Defining Game Components</a></h2>
+<p>Create component schemas in <code>games/my_game/schemas/components/</code>:</p>
+<pre><code class="language-toml"># games/my_game/schemas/components/health.toml
+[component.health]
+description = "Hit points for damageable entities"
+
+[component.health.fields]
+max_hp = { type = "i32", default = 100, min = 1 }
+current_hp = { type = "i32", default = 100, min = 0 }
+</code></pre>
+<pre><code class="language-toml"># games/my_game/schemas/components/weapon.toml
+[component.weapon]
+description = "Weapon carried by the player"
+
+[component.weapon.fields]
+name = { type = "string", default = "Pistol" }
+damage = { type = "i32", default = 10 }
+fire_rate = { type = "f32", default = 0.5 }
+ammo = { type = "i32", default = 50 }
+max_ammo = { type = "i32", default = 100 }
+</code></pre>
+<h2 id="defining-game-archetypes"><a class="header" href="#defining-game-archetypes">Defining Game Archetypes</a></h2>
+<p>Bundle game components with engine components:</p>
+<pre><code class="language-toml"># games/my_game/schemas/archetypes/enemy.toml
+[archetype.enemy]
+description = "A hostile NPC with health and a sprite"
+components = ["transform", "health", "sprite", "collider", "rigidbody", "script"]
+
+[archetype.enemy.defaults.health]
+max_hp = 50
+current_hp = 50
+
+[archetype.enemy.defaults.sprite]
+fullbright = true
+
+[archetype.enemy.defaults.rigidbody]
+body_type = "kinematic"
+
+[archetype.enemy.defaults.collider]
+shape = "box"
+size = [1.0, 2.0, 1.0]
+</code></pre>
+<h2 id="writing-the-scene"><a class="header" href="#writing-the-scene">Writing the Scene</a></h2>
+<p>Reference game archetypes in your scene file just like engine archetypes:</p>
+<pre><code class="language-toml">[scene]
+name = "Level 1"
+
+[entities.player]
+archetype = "player"
+
+[entities.player.transform]
+position = [0, 1, 0]
+
+[entities.player.character_controller]
+move_speed = 8.0
+
+[entities.player.health]
+max_hp = 100
+current_hp = 100
+
+[entities.enemy_1]
+archetype = "enemy"
+
+[entities.enemy_1.transform]
+position = [10, 0, 5]
+
+[entities.enemy_1.sprite]
+texture = "enemy"
+width = 1.5
+height = 2.0
+
+[entities.enemy_1.script]
+source = "enemy_ai.rhai"
+
+[entities.hud_controller]
+
+[entities.hud_controller.script]
+source = "hud.rhai"
+</code></pre>
+<h2 id="script-driven-game-logic"><a class="header" href="#script-driven-game-logic">Script-Driven Game Logic</a></h2>
+<p>All game-specific behavior lives in Rhai scripts. The engine provides generic APIs (entity, input, audio, physics, draw) and your scripts implement game rules:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// games/my_game/scripts/hud.rhai
+
+fn on_draw_ui() {
+    let sw = screen_width();
+    let sh = screen_height();
+
+    // Crosshair
+    let cx = sw / 2.0;
+    let cy = sh / 2.0;
+    draw_line(cx - 8.0, cy, cx + 8.0, cy, 0.0, 1.0, 0.0, 0.8, 2.0);
+    draw_line(cx, cy - 8.0, cx, cy + 8.0, 0.0, 1.0, 0.0, 0.8, 2.0);
+
+    // Health display
+    let player = get_entity("player");
+    if player != -1 &amp;&amp; has_component(player, "health") {
+        let hp = get_field(player, "health", "current_hp");
+        let max_hp = get_field(player, "health", "max_hp");
+        draw_text(20.0, sh - 30.0, `HP: ${hp}/${max_hp}`, 16.0, 1.0, 1.0, 1.0, 1.0);
+    }
+}
+<span class="boring">}</span></code></pre>
+<h2 id="running-the-game"><a class="header" href="#running-the-game">Running the Game</a></h2>
+<pre><code class="language-bash"># Via the CLI
+flint play games/my_game/scenes/level_1.scene.toml \
+  --schemas schemas \
+  --schemas games/my_game/schemas
+
+# Via the standalone player
+cargo run --bin flint-player -- games/my_game/scenes/level_1.scene.toml \
+  --schemas schemas \
+  --schemas games/my_game/schemas
+</code></pre>
+<h2 id="asset-resolution"><a class="header" href="#asset-resolution">Asset Resolution</a></h2>
+<p>Scripts, audio, and sprite paths are resolved relative to the game project root. When a scene lives in <code>games/my_game/scenes/</code>, the engine looks for:</p>
+<ul>
+<li>Scripts in <code>games/my_game/scripts/</code></li>
+<li>Audio in <code>games/my_game/audio/</code></li>
+<li>Sprites in <code>games/my_game/sprites/</code></li>
+</ul>
+<h2 id="further-reading-20"><a class="header" href="#further-reading-20">Further Reading</a></h2>
+<ul>
+<li><a href="#schemas">Schemas</a> — component and archetype schema system</li>
+<li><a href="#scripting">Scripting</a> — full Rhai scripting API</li>
+<li><a href="#rendering">Rendering</a> — billboard sprites and PBR pipeline</li>
+<li><a href="#cli-reference">CLI Reference</a> — the <code>play</code> command and <code>--schemas</code> flag</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="cli-reference"><a class="header" href="#cli-reference">CLI Reference</a></h1>
 <p>Flint’s CLI is the primary interface for all engine operations. Below is a reference of available commands.</p>
 <h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
@@ -3592,7 +4055,7 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><th>Flag</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (default: <code>schemas</code>)</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (repeatable; later paths override earlier). Default: <code>schemas</code></td></tr>
 <tr><td><code>--fullscreen</code></td><td>Launch in fullscreen mode</td></tr>
 </tbody>
 </table>
@@ -3606,9 +4069,12 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tbody>
 <tr><td>WASD</td><td>Move</td></tr>
 <tr><td>Mouse</td><td>Look around</td></tr>
+<tr><td>Left Click</td><td>Fire (weapon)</td></tr>
 <tr><td>Space</td><td>Jump</td></tr>
 <tr><td>Shift</td><td>Sprint</td></tr>
 <tr><td>E</td><td>Interact with nearby object</td></tr>
+<tr><td>R</td><td>Reload</td></tr>
+<tr><td>1 / 2</td><td>Select weapon slot</td></tr>
 <tr><td>Escape</td><td>Release cursor / Exit</td></tr>
 <tr><td>F1</td><td>Cycle debug rendering mode</td></tr>
 <tr><td>F4</td><td>Toggle shadows</td></tr>
@@ -3617,9 +4083,20 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 </table>
 </div>
 <p>The <code>play</code> command requires the scene to have a <code>player</code> archetype entity with a <code>character_controller</code> component. Physics colliders on other entities define the walkable geometry.</p>
+<h3 id="game-project-pattern"><a class="header" href="#game-project-pattern">Game Project Pattern</a></h3>
+<p>Games that define their own schemas, scripts, and assets use multiple <code>--schemas</code> paths. The engine schemas come first, then the game-specific schemas overlay on top:</p>
+<pre><code class="language-bash">flint play games/doom_fps/scenes/fps_arena.scene.toml \
+  --schemas schemas \
+  --schemas games/doom_fps/schemas
+</code></pre>
+<p>This loads the engine’s built-in components (transform, material, rigidbody, etc.) from <code>schemas/</code>, then adds game-specific components (health, weapon, enemy AI) from <code>games/doom_fps/schemas/</code>. See <a href="#game-project-schemas">Schemas: Game Project Schemas</a> for directory structure details.</p>
 <h3 id="standalone-player-binary"><a class="header" href="#standalone-player-binary">Standalone Player Binary</a></h3>
 <p>The player is also available as a standalone binary for distribution:</p>
 <pre><code class="language-bash">cargo run --bin flint-player -- demo/phase4_runtime.scene.toml --schemas schemas
+
+# With game project schemas
+cargo run --bin flint-player -- games/doom_fps/scenes/fps_arena.scene.toml \
+  --schemas schemas --schemas games/doom_fps/schemas
 </code></pre>
 <h2 id="the-asset-generate-command"><a class="header" href="#the-asset-generate-command">The <code>asset generate</code> Command</a></h2>
 <p>Generate assets using AI providers:</p>
@@ -3654,7 +4131,7 @@ flint asset generate audio -d "tavern ambient noise" --duration 10.0
 </thead>
 <tbody>
 <tr><td><code>--scene &lt;path&gt;</code></td><td>Path to scene file</td></tr>
-<tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (default: <code>schemas</code>)</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (repeatable for multi-schema layering; default: <code>schemas</code>)</td></tr>
 <tr><td><code>--format &lt;fmt&gt;</code></td><td>Output format: <code>json</code>, <code>toml</code>, or <code>text</code></td></tr>
 <tr><td><code>--watch</code></td><td>Watch for file changes (with <code>serve</code>)</td></tr>
 <tr><td><code>--fix</code></td><td>Apply auto-fixes (with <code>validate</code>)</td></tr>
@@ -3699,7 +4176,7 @@ description = "Human-readable description"
 field_name = { type = "&lt;type&gt;", default = &lt;value&gt;, description = "..." }
 </code></pre>
 <p>Supported field types: <code>bool</code>, <code>i32</code>, <code>f32</code>, <code>string</code>, <code>vec3</code>, <code>enum</code>, <code>entity_ref</code>, <code>array</code>.</p>
-<p>Key component schemas: <code>transform</code>, <code>material</code>, <code>door</code>, <code>bounds</code>, <code>rigidbody</code>, <code>collider</code>, <code>character_controller</code>, <code>audio_source</code>, <code>audio_listener</code>, <code>audio_trigger</code>, <code>animator</code>, <code>skeleton</code>, <code>script</code>, <code>interactable</code>, <code>asset_def</code>.</p>
+<p>Key component schemas: <code>transform</code>, <code>material</code>, <code>door</code>, <code>bounds</code>, <code>rigidbody</code>, <code>collider</code>, <code>character_controller</code>, <code>audio_source</code>, <code>audio_listener</code>, <code>audio_trigger</code>, <code>animator</code>, <code>skeleton</code>, <code>script</code>, <code>interactable</code>, <code>sprite</code>, <code>asset_def</code>.</p>
 <h2 id="archetype-schemas-schemasarchetypestoml"><a class="header" href="#archetype-schemas-schemasarchetypestoml">Archetype Schemas (<code>schemas/archetypes/*.toml</code>)</a></h2>
 <p>Bundle components together with sensible defaults for common entity types.</p>
 <pre><code class="language-toml">[archetype.&lt;name&gt;]
@@ -3856,10 +4333,11 @@ default_style = "medieval_tavern"
 │   ├── flint-schema/       # Component/archetype schema loading and validation
 │   └── flint-core/         # Fundamental types: EntityId, Transform, Vec3, etc.
 ├── schemas/                # Default component, archetype, and constraint definitions
+├── games/                  # Game projects with their own schemas/scripts/scenes/assets
 ├── demo/                   # Showcase scenes and build scripts
 └── docs/                   # This documentation (mdBook)
 </code></pre>
-<h2 id="design-decisions"><a class="header" href="#design-decisions">Design Decisions</a></h2>
+<h2 id="design-decisions-1"><a class="header" href="#design-decisions-1">Design Decisions</a></h2>
 <h3 id="dynamic-components"><a class="header" href="#dynamic-components">Dynamic Components</a></h3>
 <p>The most significant architectural choice: components are stored as <code>toml::Value</code> rather than Rust types. This means:</p>
 <ul>
@@ -3959,6 +4437,7 @@ default_style = "medieval_tavern"
 <li><strong>Cook-Torrance shading</strong> — physically-based BRDF with roughness/metallic workflow</li>
 <li><strong>Cascaded shadow mapping</strong> — directional light shadows across multiple distance ranges</li>
 <li><strong>glTF mesh rendering</strong> — imported models rendered with full material support</li>
+<li><strong>Billboard sprite pipeline</strong> — camera-facing quads with sprite sheet animation and binary alpha</li>
 <li><strong>Camera modes</strong> — orbit (scene viewer) and first-person (player), sharing view/projection math</li>
 <li><strong>Headless mode</strong> — render to PNG for CI and automated screenshots</li>
 </ul>
@@ -3981,8 +4460,8 @@ default_style = "medieval_tavern"
 <h3 id="flint-physics"><a class="header" href="#flint-physics">flint-physics</a></h3>
 <p>Rapier 3D integration:</p>
 <ul>
-<li><code>PhysicsWorld</code> — manages Rapier rigid body and collider sets</li>
-<li><code>PhysicsSync</code> — bridges TOML component data to Rapier bodies</li>
+<li><code>PhysicsWorld</code> — manages Rapier rigid body and collider sets, raycasting via <code>EntityRaycastHit</code></li>
+<li><code>PhysicsSync</code> — bridges TOML component data to Rapier bodies, maintains collider-to-entity mapping</li>
 <li><code>CharacterController</code> — kinematic first-person movement with gravity, jumping, and ground detection</li>
 <li>Uses kinematic bodies for player control, static bodies for world geometry</li>
 </ul>
@@ -4009,9 +4488,11 @@ default_style = "medieval_tavern"
 <li><code>ScriptEngine</code> — compiles <code>.rhai</code> files, manages per-entity <code>Scope</code> and <code>AST</code>, dispatches callbacks</li>
 <li><code>ScriptSync</code> — discovers entities with <code>script</code> components, monitors file timestamps for hot-reload</li>
 <li><code>ScriptSystem</code> — <code>RuntimeSystem</code> implementation running in <code>update()</code> (variable-rate)</li>
-<li>Full API: entity CRUD, input, time, audio, animation, math, events, logging</li>
+<li>Full API: entity CRUD, input, time, audio, animation, physics (raycast, camera), math, events, logging, UI draw</li>
 <li><code>ScriptCommand</code> pattern — deferred audio/event effects processed by PlayerApp after script batch</li>
+<li><code>DrawCommand</code> pattern — immediate-mode 2D draw primitives (text, rect, circle, line, sprite) rendered via egui</li>
 <li><code>ScriptCallContext</code> with raw <code>*mut FlintWorld</code> pointer for world access during call batches</li>
+<li>Depends on <code>flint-physics</code> for raycast and camera direction access</li>
 </ul>
 <h3 id="flint-asset-gen"><a class="header" href="#flint-asset-gen">flint-asset-gen</a></h3>
 <p>AI asset generation pipeline:</p>
@@ -4033,13 +4514,14 @@ default_style = "medieval_tavern"
 <li>Audio source loading and spatial listener tracking</li>
 <li>Skeletal animation with bone matrix upload to GPU each frame</li>
 <li>Rhai script system with event dispatch (collisions, triggers, actions, interactions)</li>
-<li>Interactable entity system with HUD prompt overlay (egui crosshair + proximity text)</li>
-<li>First-person controls (WASD, mouse look, jump, sprint, interact)</li>
+<li>Script-driven 2D HUD overlay via <code>DrawCommand</code> pipeline (replaces hardcoded HUD)</li>
+<li>Billboard sprite rendering for Doom-style entities</li>
+<li>First-person controls (WASD, mouse look, jump, sprint, interact, fire)</li>
 <li>Optional asset catalog integration for runtime name-based asset resolution</li>
 </ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>
 <p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>serve</code>, <code>play</code>, <code>validate</code>, <code>asset</code>, <code>render</code>.</p>
-<h2 id="further-reading-20"><a class="header" href="#further-reading-20">Further Reading</a></h2>
+<h2 id="further-reading-21"><a class="header" href="#further-reading-21">Further Reading</a></h2>
 <ul>
 <li><a href="#crate-dependency-graph">Crate Dependency Graph</a> — visual dependency diagram</li>
 <li><a href="#design-principles">Design Principles</a> — the principles behind these decisions</li>
@@ -4062,7 +4544,7 @@ default_style = "medieval_tavern"
     │    │   │     │   │    │       │          │         │     │   │
     │    ▼   │     │   │    │       │          │         │     ▼   │
     │ ┌──────────┐ │   │    │       │          │         │  ┌─────────┐
-    ├►│  render  │◄┘   │    │       │          │         │  │ script  │
+    ├►│  render  │◄┘   │    │       │          │         ├─►│ script  │
     │ └────┬─────┘     │    │       │          │         │  └────┬────┘
     │      │           │    │       │          │         │       │
     │      │           │    │       │          │         ▼       ▼
@@ -4108,10 +4590,10 @@ default_style = "medieval_tavern"
 <tr><td><code>flint-constraint</code></td><td>core, ecs, schema, query</td><td>viewer, cli</td></tr>
 <tr><td><code>flint-render</code></td><td>core, ecs, import</td><td>viewer, player, cli</td></tr>
 <tr><td><code>flint-runtime</code></td><td>core, ecs</td><td>physics, audio, animation, player</td></tr>
-<tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>player</td></tr>
+<tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>script, player</td></tr>
 <tr><td><code>flint-audio</code></td><td>core, ecs, runtime</td><td>player</td></tr>
 <tr><td><code>flint-animation</code></td><td>core, ecs, import, runtime</td><td>player</td></tr>
-<tr><td><code>flint-script</code></td><td>core, ecs, runtime</td><td>player</td></tr>
+<tr><td><code>flint-script</code></td><td>core, ecs, runtime, physics</td><td>player</td></tr>
 <tr><td><code>flint-asset-gen</code></td><td>core, asset, import</td><td>cli</td></tr>
 <tr><td><code>flint-viewer</code></td><td>core, ecs, scene, schema, render, import, constraint</td><td>cli</td></tr>
 <tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, script, import, asset</td><td><em>(binary entry point)</em></td></tr>
@@ -4132,7 +4614,7 @@ default_style = "medieval_tavern"
 <li><strong>Interface</strong> — CLI binary (<code>flint-cli</code>), player binary (<code>flint-player</code>)</li>
 </ol>
 <p><strong>Two entry points.</strong> The CLI binary (<code>flint-cli</code>) serves scene authoring and validation workflows. The player binary (<code>flint-player</code>) serves interactive gameplay. Both share the same underlying crate hierarchy.</p>
-<p><strong>Independent subsystems.</strong> The constraint system, asset system, physics system, audio system, animation system, script system, asset generation system, and render system don’t depend on each other. This means you can build and test each subsystem in isolation.</p>
+<p><strong>Mostly independent subsystems.</strong> The constraint, asset, physics, audio, animation, asset generation, and render systems don’t depend on each other. The one exception is <code>flint-script</code>, which depends on <code>flint-physics</code> for raycasting and camera direction access. This means most subsystems can be built and tested in isolation.</p>
 <h2 id="external-dependencies"><a class="header" href="#external-dependencies">External Dependencies</a></h2>
 <p>Key third-party crates used across the workspace:</p>
 <div class="table-wrapper">
@@ -4164,7 +4646,7 @@ default_style = "medieval_tavern"
 </div>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="roadmap"><a class="header" href="#roadmap">Roadmap</a></h1>
-<p>Flint’s development is organized into five phases. Each phase delivers a usable milestone that builds on the previous one.</p>
+<p>Flint’s development is organized into phases. Each phase delivers a usable milestone that builds on the previous one.</p>
 <h2 id="phase-1-foundation--cli--query--schema"><a class="header" href="#phase-1-foundation--cli--query--schema">Phase 1: Foundation — CLI + Query + Schema</a></h2>
 <p><strong>Status: Complete</strong></p>
 <p>The foundation phase established the core data model and CLI interface. An agent (or human) can create, query, and modify scenes entirely through commands.</p>
@@ -4281,8 +4763,25 @@ default_style = "medieval_tavern"
 <li><strong>CLI commands</strong> — <code>flint asset generate</code>, <code>flint asset validate</code>, <code>flint asset manifest</code>, <code>flint asset regenerate</code>, <code>flint asset job status/list</code></li>
 </ul>
 <p><strong>Milestone:</strong> <code>flint asset generate texture -d "stone wall" --style medieval_tavern</code> produces a style-consistent texture, validates it, and stores it in the content-addressed catalog.</p>
-<h2 id="beyond-phase-5"><a class="header" href="#beyond-phase-5">Beyond Phase 5</a></h2>
-<p>These are ideas under consideration, not committed plans:</p>
+<h2 id="phase-a-doom-style-fps"><a class="header" href="#phase-a-doom-style-fps">Phase A: Doom-Style FPS</a></h2>
+<p><strong>Status: Complete</strong></p>
+<p>A minimum playable Doom-style first-person shooter, demonstrating the engine’s capability for real-time action gameplay with billboard sprites, raycasting combat, and game-level logic entirely in scripts.</p>
+<p><strong>Delivered:</strong></p>
+<ul>
+<li><strong>Billboard sprite rendering</strong> — <code>BillboardPipeline</code> with camera-facing quads, sprite sheet animation, binary alpha via <code>discard</code>, per-sprite uniform buffers. <code>sprite</code> component schema (texture, width, height, frame, frames_x/y, anchor_y, fullbright, visible)</li>
+<li><strong>Raycasting</strong> — <code>PhysicsWorld::raycast()</code> with <code>EntityRaycastHit</code> struct, collider-to-entity resolution, self-exclusion. Exposed to Rhai scripts as <code>raycast()</code>, <code>get_camera_direction()</code>, <code>get_camera_position()</code></li>
+<li><strong>Script-driven HUD</strong> — <code>DrawCommand</code> pipeline with text, rect, circle, line, and sprite primitives. <code>on_draw_ui()</code> callback, <code>screen_width()</code>/<code>screen_height()</code>, <code>measure_text()</code>, <code>find_nearest_interactable()</code>. All game UI lives in <code>.rhai</code> scripts, not engine code</li>
+<li><strong>Mouse button action bindings</strong> — <code>mouse_button_map</code> alongside keyboard <code>action_map</code>; <code>fire</code> bound to left mouse button by default. <code>weapon_1</code>/<code>weapon_2</code>/<code>reload</code> actions added</li>
+<li><strong>Game project pattern</strong> — <code>games/&lt;name&gt;/</code> directory structure with own schemas/scripts/scenes/assets. <code>--schemas</code> flag accepts multiple paths with later-path-wins priority</li>
+<li><strong>Multi-directory schema loading</strong> — <code>SchemaRegistry::load_from_multiple_dirs()</code> merges engine and game schemas</li>
+<li><strong>Enemy AI state machine</strong> — idle/chase/attack/dead states with line-of-sight checks, patrol patterns, and damage response (all in Rhai scripts)</li>
+<li><strong>Health/ammo pickups</strong> — pickup component with collect-on-proximity logic in scripts</li>
+<li><strong>Combat HUD</strong> — crosshair, health bar, ammo counter, damage flash overlay, weapon name display, interaction prompts (all script-driven via <code>hud.rhai</code>)</li>
+<li><strong>Additional script APIs</strong> — <code>this_entity()</code> alias, <code>get_component()</code>, <code>play_sound(name, volume)</code> overload, <code>log_info()</code> alias</li>
+</ul>
+<p><strong>Milestone:</strong> <code>flint play games/doom_fps/scenes/fps_arena.scene.toml --schemas schemas --schemas games/doom_fps/schemas</code> launches a playable FPS with enemies, weapons, pickups, and a full combat HUD.</p>
+<h2 id="beyond-phase-a"><a class="header" href="#beyond-phase-a">Beyond Phase A</a></h2>
+<p>These are ideas under consideration, not committed plans. See <code>DOOM_FPS_GAPS.md</code> for 55 remaining gaps toward a feature-complete Doom clone.</p>
 <ul>
 <li><strong>Networking</strong> — multiplayer support</li>
 <li><strong>Post-processing</strong> — bloom, ambient occlusion, tone mapping, LOD</li>

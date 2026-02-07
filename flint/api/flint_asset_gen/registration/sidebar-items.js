@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["register_generated_asset","register_generated_asset_with_roots","write_asset_sidecar","write_asset_sidecar_with_root"],"struct":["RegisteredAsset"]};

@@ -228,16 +228,24 @@
 <a href=#152 id=152 data-nosnippet>152</a>    }
 <a href=#153 id=153 data-nosnippet>153</a>}
 <a href=#154 id=154 data-nosnippet>154</a>
-<a href=#155 id=155 data-nosnippet>155</a><span class="doccomment">/// Load scripts from the `scripts/` directory next to the scene file
-<a href=#156 id=156 data-nosnippet>156</a></span><span class="kw">pub fn </span>load_scripts_from_scene(scene_path: <span class="kw-2">&amp;</span>str, sync: <span class="kw-2">&amp;mut </span>ScriptSync) {
-<a href=#157 id=157 data-nosnippet>157</a>    <span class="kw">let </span>scene_dir = Path::new(scene_path)
-<a href=#158 id=158 data-nosnippet>158</a>        .parent()
-<a href=#159 id=159 data-nosnippet>159</a>        .unwrap_or_else(|| Path::new(<span class="string">"."</span>));
-<a href=#160 id=160 data-nosnippet>160</a>
-<a href=#161 id=161 data-nosnippet>161</a>    <span class="kw">let </span>scripts_dir = scene_dir.join(<span class="string">"scripts"</span>);
-<a href=#162 id=162 data-nosnippet>162</a>    <span class="kw">if </span>scripts_dir.is_dir() {
-<a href=#163 id=163 data-nosnippet>163</a>        sync.set_scripts_dir(scripts_dir);
-<a href=#164 id=164 data-nosnippet>164</a>    } <span class="kw">else </span>{
-<a href=#165 id=165 data-nosnippet>165</a>        <span class="comment">// Scripts dir doesn't exist — no scripts to load, but that's fine
-<a href=#166 id=166 data-nosnippet>166</a>    </span>}
-<a href=#167 id=167 data-nosnippet>167</a>}</code></pre></div></section></main></body></html>
+<a href=#155 id=155 data-nosnippet>155</a><span class="doccomment">/// Load scripts from the `scripts/` directory next to the scene file.
+<a href=#156 id=156 data-nosnippet>156</a>/// Also checks one level up (e.g. game root) for projects that use a `scenes/` subdirectory.
+<a href=#157 id=157 data-nosnippet>157</a></span><span class="kw">pub fn </span>load_scripts_from_scene(scene_path: <span class="kw-2">&amp;</span>str, sync: <span class="kw-2">&amp;mut </span>ScriptSync) {
+<a href=#158 id=158 data-nosnippet>158</a>    <span class="kw">let </span>scene_dir = Path::new(scene_path)
+<a href=#159 id=159 data-nosnippet>159</a>        .parent()
+<a href=#160 id=160 data-nosnippet>160</a>        .unwrap_or_else(|| Path::new(<span class="string">"."</span>));
+<a href=#161 id=161 data-nosnippet>161</a>
+<a href=#162 id=162 data-nosnippet>162</a>    <span class="kw">let </span>scripts_dir = scene_dir.join(<span class="string">"scripts"</span>);
+<a href=#163 id=163 data-nosnippet>163</a>    <span class="kw">if </span>scripts_dir.is_dir() {
+<a href=#164 id=164 data-nosnippet>164</a>        sync.set_scripts_dir(scripts_dir);
+<a href=#165 id=165 data-nosnippet>165</a>        <span class="kw">return</span>;
+<a href=#166 id=166 data-nosnippet>166</a>    }
+<a href=#167 id=167 data-nosnippet>167</a>
+<a href=#168 id=168 data-nosnippet>168</a>    <span class="comment">// Check parent directory (game project structure: scenes/ and scripts/ are siblings)
+<a href=#169 id=169 data-nosnippet>169</a>    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = scene_dir.parent() {
+<a href=#170 id=170 data-nosnippet>170</a>        <span class="kw">let </span>scripts_dir = parent.join(<span class="string">"scripts"</span>);
+<a href=#171 id=171 data-nosnippet>171</a>        <span class="kw">if </span>scripts_dir.is_dir() {
+<a href=#172 id=172 data-nosnippet>172</a>            sync.set_scripts_dir(scripts_dir);
+<a href=#173 id=173 data-nosnippet>173</a>        }
+<a href=#174 id=174 data-nosnippet>174</a>    }
+<a href=#175 id=175 data-nosnippet>175</a>}</code></pre></div></section></main></body></html>

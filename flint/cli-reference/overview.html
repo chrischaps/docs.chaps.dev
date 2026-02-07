@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
+            window.path_to_searchindex_js = "../searchindex-9b411e96.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-72460a65.js"></script>
+        <script src="../toc-5a4e14e8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -223,7 +223,7 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><th>Flag</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (default: <code>schemas</code>)</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (repeatable; later paths override earlier). Default: <code>schemas</code></td></tr>
 <tr><td><code>--fullscreen</code></td><td>Launch in fullscreen mode</td></tr>
 </tbody>
 </table>
@@ -237,9 +237,12 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tbody>
 <tr><td>WASD</td><td>Move</td></tr>
 <tr><td>Mouse</td><td>Look around</td></tr>
+<tr><td>Left Click</td><td>Fire (weapon)</td></tr>
 <tr><td>Space</td><td>Jump</td></tr>
 <tr><td>Shift</td><td>Sprint</td></tr>
 <tr><td>E</td><td>Interact with nearby object</td></tr>
+<tr><td>R</td><td>Reload</td></tr>
+<tr><td>1 / 2</td><td>Select weapon slot</td></tr>
 <tr><td>Escape</td><td>Release cursor / Exit</td></tr>
 <tr><td>F1</td><td>Cycle debug rendering mode</td></tr>
 <tr><td>F4</td><td>Toggle shadows</td></tr>
@@ -248,9 +251,20 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 </table>
 </div>
 <p>The <code>play</code> command requires the scene to have a <code>player</code> archetype entity with a <code>character_controller</code> component. Physics colliders on other entities define the walkable geometry.</p>
+<h3 id="game-project-pattern"><a class="header" href="#game-project-pattern">Game Project Pattern</a></h3>
+<p>Games that define their own schemas, scripts, and assets use multiple <code>--schemas</code> paths. The engine schemas come first, then the game-specific schemas overlay on top:</p>
+<pre><code class="language-bash">flint play games/doom_fps/scenes/fps_arena.scene.toml \
+  --schemas schemas \
+  --schemas games/doom_fps/schemas
+</code></pre>
+<p>This loads the engine’s built-in components (transform, material, rigidbody, etc.) from <code>schemas/</code>, then adds game-specific components (health, weapon, enemy AI) from <code>games/doom_fps/schemas/</code>. See <a href="../concepts/schemas.html#game-project-schemas">Schemas: Game Project Schemas</a> for directory structure details.</p>
 <h3 id="standalone-player-binary"><a class="header" href="#standalone-player-binary">Standalone Player Binary</a></h3>
 <p>The player is also available as a standalone binary for distribution:</p>
 <pre><code class="language-bash">cargo run --bin flint-player -- demo/phase4_runtime.scene.toml --schemas schemas
+
+# With game project schemas
+cargo run --bin flint-player -- games/doom_fps/scenes/fps_arena.scene.toml \
+  --schemas schemas --schemas games/doom_fps/schemas
 </code></pre>
 <h2 id="the-asset-generate-command"><a class="header" href="#the-asset-generate-command">The <code>asset generate</code> Command</a></h2>
 <p>Generate assets using AI providers:</p>
@@ -285,7 +299,7 @@ flint asset generate audio -d "tavern ambient noise" --duration 10.0
 </thead>
 <tbody>
 <tr><td><code>--scene &lt;path&gt;</code></td><td>Path to scene file</td></tr>
-<tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (default: <code>schemas</code>)</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (repeatable for multi-schema layering; default: <code>schemas</code>)</td></tr>
 <tr><td><code>--format &lt;fmt&gt;</code></td><td>Output format: <code>json</code>, <code>toml</code>, or <code>text</code></td></tr>
 <tr><td><code>--watch</code></td><td>Watch for file changes (with <code>serve</code>)</td></tr>
 <tr><td><code>--fix</code></td><td>Apply auto-fixes (with <code>validate</code>)</td></tr>
@@ -309,7 +323,7 @@ flint query "entities where archetype == 'door'" --scene levels/tavern.scene.tom
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../guides/ai-agent-workflow.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../guides/building-a-game-project.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -323,7 +337,7 @@ flint query "entities where archetype == 'door'" --scene levels/tavern.scene.tom
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../guides/ai-agent-workflow.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../guides/building-a-game-project.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

@@ -87,16 +87,24 @@
 <a href=#11 id=11 data-nosnippet>11</a><span class="kw">pub mod </span>manifest;
 <a href=#12 id=12 data-nosnippet>12</a><span class="kw">pub mod </span>provider;
 <a href=#13 id=13 data-nosnippet>13</a><span class="kw">pub mod </span>providers;
-<a href=#14 id=14 data-nosnippet>14</a><span class="kw">pub mod </span>semantic;
-<a href=#15 id=15 data-nosnippet>15</a><span class="kw">pub mod </span>style;
-<a href=#16 id=16 data-nosnippet>16</a><span class="kw">pub mod </span>validate;
-<a href=#17 id=17 data-nosnippet>17</a>
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">pub use </span>config::FlintConfig;
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">pub use </span>job::{GenerationJob, JobStatus, JobStore};
-<a href=#20 id=20 data-nosnippet>20</a><span class="kw">pub use </span>manifest::BuildManifest;
-<a href=#21 id=21 data-nosnippet>21</a><span class="kw">pub use </span>provider::{
-<a href=#22 id=22 data-nosnippet>22</a>    AssetKind, AudioParams, GenerateRequest, GenerateResult, GenerationProvider, ModelParams,
-<a href=#23 id=23 data-nosnippet>23</a>    ProviderStatus, TextureParams,
-<a href=#24 id=24 data-nosnippet>24</a>};
-<a href=#25 id=25 data-nosnippet>25</a><span class="kw">pub use </span>semantic::SemanticAssetDef;
-<a href=#26 id=26 data-nosnippet>26</a><span class="kw">pub use </span>style::StyleGuide;</code></pre></div></section></main></body></html>
+<a href=#14 id=14 data-nosnippet>14</a><span class="kw">pub mod </span>registration;
+<a href=#15 id=15 data-nosnippet>15</a><span class="kw">pub mod </span>semantic;
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">pub mod </span>style;
+<a href=#17 id=17 data-nosnippet>17</a><span class="kw">pub mod </span>validate;
+<a href=#18 id=18 data-nosnippet>18</a>
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">pub use </span>config::FlintConfig;
+<a href=#20 id=20 data-nosnippet>20</a><span class="kw">pub use </span>job::{GenerationJob, JobStatus, JobStore};
+<a href=#21 id=21 data-nosnippet>21</a><span class="kw">pub use </span>manifest::BuildManifest;
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">pub use </span>provider::{
+<a href=#23 id=23 data-nosnippet>23</a>    AssetKind, AudioParams, GenerateRequest, GenerateResult, GenerationProvider, ModelParams,
+<a href=#24 id=24 data-nosnippet>24</a>    ProviderStatus, TextureParams,
+<a href=#25 id=25 data-nosnippet>25</a>};
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">pub use </span>semantic::SemanticAssetDef;
+<a href=#27 id=27 data-nosnippet>27</a><span class="kw">pub use </span>style::StyleGuide;
+<a href=#28 id=28 data-nosnippet>28</a><span class="kw">pub use </span>registration::{
+<a href=#29 id=29 data-nosnippet>29</a>    register_generated_asset,
+<a href=#30 id=30 data-nosnippet>30</a>    register_generated_asset_with_roots,
+<a href=#31 id=31 data-nosnippet>31</a>    write_asset_sidecar,
+<a href=#32 id=32 data-nosnippet>32</a>    write_asset_sidecar_with_root,
+<a href=#33 id=33 data-nosnippet>33</a>    RegisteredAsset,
+<a href=#34 id=34 data-nosnippet>34</a>};</code></pre></div></section></main></body></html>

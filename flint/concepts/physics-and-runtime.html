@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
+            window.path_to_searchindex_js = "../searchindex-9b411e96.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-72460a65.js"></script>
+        <script src="../toc-5a4e14e8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -249,12 +249,55 @@ body_type = "static"
 <p>Then play the scene:</p>
 <pre><code class="language-bash">flint play my_scene.scene.toml
 </code></pre>
+<h2 id="raycasting"><a class="header" href="#raycasting">Raycasting</a></h2>
+<p>The physics system provides raycasting for line-of-sight checks, hitscan weapons, and interaction targeting. <code>PhysicsWorld::raycast()</code> casts a ray through the Rapier collision world and returns the first hit:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct EntityRaycastHit {
+    pub entity_id: EntityId,
+    pub distance: f32,
+    pub point: [f32; 3],
+    pub normal: [f32; 3],
+}
+<span class="boring">}</span></code></pre>
+<p>The function resolves Rapier collider handles back to Flint <code>EntityId</code>s through the collider-to-entity map maintained by <code>PhysicsSync</code>. An optional <code>exclude_entity</code> parameter lets callers exclude a specific entity (typically the shooter) from the results.</p>
+<p>Raycasting is exposed to scripts via the <code>raycast()</code> function — see <a href="scripting.html#physics-api">Scripting: Physics API</a> for the script-level interface and examples.</p>
 <h2 id="input-system"><a class="header" href="#input-system">Input System</a></h2>
 <p>The <code>InputState</code> struct tracks keyboard and mouse state each frame:</p>
 <ul>
 <li>Keyboard keys are tracked as pressed/released</li>
+<li><strong>Mouse buttons</strong> are tracked alongside keyboard keys, with their own action binding map</li>
 <li>Mouse provides raw delta movement (via <code>DeviceEvent::MouseMotion</code>) for smooth camera look</li>
-<li>Action bindings map keys to game actions (move forward, jump, sprint, etc.)</li>
+<li>Action bindings map keys and mouse buttons to game actions</li>
+</ul>
+<h3 id="default-action-bindings"><a class="header" href="#default-action-bindings">Default Action Bindings</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Action</th><th>Key / Button</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>move_forward</code></td><td>W</td><td>Move forward</td></tr>
+<tr><td><code>move_backward</code></td><td>S</td><td>Move backward</td></tr>
+<tr><td><code>move_left</code></td><td>A</td><td>Strafe left</td></tr>
+<tr><td><code>move_right</code></td><td>D</td><td>Strafe right</td></tr>
+<tr><td><code>jump</code></td><td>Space</td><td>Jump</td></tr>
+<tr><td><code>interact</code></td><td>E</td><td>Interact with nearby object</td></tr>
+<tr><td><code>sprint</code></td><td>Left Shift</td><td>Sprint (hold)</td></tr>
+<tr><td><code>weapon_1</code></td><td>1</td><td>Select weapon slot 1</td></tr>
+<tr><td><code>weapon_2</code></td><td>2</td><td>Select weapon slot 2</td></tr>
+<tr><td><code>reload</code></td><td>R</td><td>Reload weapon</td></tr>
+<tr><td><code>fire</code></td><td>Left Mouse Button</td><td>Fire weapon</td></tr>
+</tbody>
+</table>
+</div>
+<p>Mouse button bindings are stored in a separate <code>mouse_button_map</code> alongside the keyboard <code>action_map</code>. Both maps feed into the same <code>is_action_pressed()</code> / <code>is_action_just_pressed()</code> interface, so scripts don’t need to distinguish between key-triggered and mouse-triggered actions.</p>
+<h2 id="runtime-physics-updates"><a class="header" href="#runtime-physics-updates">Runtime Physics Updates</a></h2>
+<p>The physics system handles several runtime updates beyond the core simulation:</p>
+<ul>
+<li><strong>Sensor flag updates</strong> — when game logic marks an entity as dead, its collider can be set to a sensor (non-solid) so other entities pass through it</li>
+<li><strong>Kinematic body sync</strong> — script-controlled position changes are written back to Rapier kinematic bodies each frame</li>
+<li><strong>Collision event drain</strong> — the <code>ChannelEventCollector</code> collects collision and contact events each physics step; these are drained and dispatched as script callbacks (<code>on_collision</code>, <code>on_trigger_enter</code>, <code>on_trigger_exit</code>)</li>
 </ul>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>

@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
+            window.path_to_searchindex_js = "../searchindex-9b411e96.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-72460a65.js"></script>
+        <script src="../toc-5a4e14e8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -223,6 +223,54 @@
 <li>Skinned pipeline uses bind groups 0–3: transform, material, lights, and bones (storage buffer, read-only, vertex-visible)</li>
 </ul>
 <p>Skinned meshes also cast shadows through a dedicated <code>vs_skinned_shadow</code> shader entry point that applies bone transforms before depth rendering.</p>
+<h2 id="billboard-sprites"><a class="header" href="#billboard-sprites">Billboard Sprites</a></h2>
+<p>Billboard sprites are camera-facing quads used for 2D elements in 3D space — enemies, pickups, particle effects, and environmental details. They always face the camera, like classic Doom-style sprites.</p>
+<p>The <code>BillboardPipeline</code> is a separate rendering pipeline from PBR, optimized for flat textured quads:</p>
+<ul>
+<li><strong>No vertex buffer</strong> — quad positions are generated procedurally from <code>vertex_index</code> (4 vertices per sprite)</li>
+<li><strong>Per-sprite uniform buffer</strong> — each sprite gets its own instance data (position, size, frame, anchor)</li>
+<li><strong>Binary alpha</strong> — the fragment shader uses <code>discard</code> for transparent pixels (avoids order-independent transparency complexity)</li>
+<li><strong>Sprite sheet animation</strong> — supports multi-frame sprite sheets via <code>frame</code>, <code>frames_x</code>, and <code>frames_y</code> fields</li>
+<li><strong>Render order</strong> — billboard sprites render after skinned meshes in the pipeline</li>
+</ul>
+<h3 id="sprite-component"><a class="header" href="#sprite-component">Sprite Component</a></h3>
+<p>Attach a sprite to any entity with the <code>sprite</code> component:</p>
+<pre><code class="language-toml">[entities.imp]
+archetype = "enemy"
+
+[entities.imp.transform]
+position = [10, 0, 5]
+
+[entities.imp.sprite]
+texture = "imp_spritesheet"
+width = 1.5
+height = 2.0
+frames_x = 4
+frames_y = 1
+frame = 0
+anchor_y = 0.0
+fullbright = true
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>texture</code></td><td>string</td><td><code>""</code></td><td>Sprite sheet texture name (from <code>sprites/</code> directory)</td></tr>
+<tr><td><code>width</code></td><td>f32</td><td><code>1.0</code></td><td>World-space width of the quad</td></tr>
+<tr><td><code>height</code></td><td>f32</td><td><code>1.0</code></td><td>World-space height of the quad</td></tr>
+<tr><td><code>frame</code></td><td>i32</td><td><code>0</code></td><td>Current frame index in the sprite sheet</td></tr>
+<tr><td><code>frames_x</code></td><td>i32</td><td><code>1</code></td><td>Number of columns in the sprite sheet</td></tr>
+<tr><td><code>frames_y</code></td><td>i32</td><td><code>1</code></td><td>Number of rows in the sprite sheet</td></tr>
+<tr><td><code>anchor_y</code></td><td>f32</td><td><code>0.0</code></td><td>Vertical anchor point (0.0 = bottom, 0.5 = center)</td></tr>
+<tr><td><code>fullbright</code></td><td>bool</td><td><code>true</code></td><td>If true, bypasses PBR lighting (always fully lit)</td></tr>
+<tr><td><code>visible</code></td><td>bool</td><td><code>true</code></td><td>Whether the sprite is rendered</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="design-decisions"><a class="header" href="#design-decisions">Design Decisions</a></h3>
+<p>Billboard sprites use a <strong>separate pipeline</strong> rather than extending the PBR pipeline. This keeps the PBR shaders clean and allows sprites to opt out of lighting entirely (<code>fullbright = true</code>). The <code>discard</code>-based alpha approach is simple and avoids the significant complexity of order-independent transparency, at the cost of no partial transparency (pixels are either fully opaque or fully transparent).</p>
 <h2 id="viewer-vs-headless"><a class="header" href="#viewer-vs-headless">Viewer vs Headless</a></h2>
 <p>The renderer operates in two modes:</p>
 <p><strong>Viewer mode</strong> (<code>flint serve --watch</code>) opens an interactive window with:</p>
@@ -240,6 +288,8 @@
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
 <li><a href="../getting-started/viewing.html">The Scene Viewer</a> — getting started with the viewer</li>
+<li><a href="scripting.html">Scripting</a> — UI draw API for script-driven HUD overlays</li>
+<li><a href="schemas.html">Schemas</a> — sprite component schema definition</li>
 <li><a href="animation.html">Animation</a> — the animation system that drives skinned meshes</li>
 <li><a href="physics-and-runtime.html">Physics and Runtime</a> — the game loop and first-person gameplay</li>
 <li><a href="../guides/headless-rendering.html">Headless Rendering</a> — CI integration guide</li>

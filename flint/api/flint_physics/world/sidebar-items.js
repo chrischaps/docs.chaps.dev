@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["PhysicsWorld"]};
+window.SIDEBAR_ITEMS = {"struct":["PhysicsWorld","RaycastHit"]};

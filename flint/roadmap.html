@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-0d42d88f.js";
+            window.path_to_searchindex_js = "searchindex-9b411e96.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-72460a65.js"></script>
+        <script src="toc-5a4e14e8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,7 +179,7 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="roadmap"><a class="header" href="#roadmap">Roadmap</a></h1>
-<p>Flint’s development is organized into five phases. Each phase delivers a usable milestone that builds on the previous one.</p>
+<p>Flint’s development is organized into phases. Each phase delivers a usable milestone that builds on the previous one.</p>
 <h2 id="phase-1-foundation--cli--query--schema"><a class="header" href="#phase-1-foundation--cli--query--schema">Phase 1: Foundation — CLI + Query + Schema</a></h2>
 <p><strong>Status: Complete</strong></p>
 <p>The foundation phase established the core data model and CLI interface. An agent (or human) can create, query, and modify scenes entirely through commands.</p>
@@ -296,8 +296,25 @@
 <li><strong>CLI commands</strong> — <code>flint asset generate</code>, <code>flint asset validate</code>, <code>flint asset manifest</code>, <code>flint asset regenerate</code>, <code>flint asset job status/list</code></li>
 </ul>
 <p><strong>Milestone:</strong> <code>flint asset generate texture -d "stone wall" --style medieval_tavern</code> produces a style-consistent texture, validates it, and stores it in the content-addressed catalog.</p>
-<h2 id="beyond-phase-5"><a class="header" href="#beyond-phase-5">Beyond Phase 5</a></h2>
-<p>These are ideas under consideration, not committed plans:</p>
+<h2 id="phase-a-doom-style-fps"><a class="header" href="#phase-a-doom-style-fps">Phase A: Doom-Style FPS</a></h2>
+<p><strong>Status: Complete</strong></p>
+<p>A minimum playable Doom-style first-person shooter, demonstrating the engine’s capability for real-time action gameplay with billboard sprites, raycasting combat, and game-level logic entirely in scripts.</p>
+<p><strong>Delivered:</strong></p>
+<ul>
+<li><strong>Billboard sprite rendering</strong> — <code>BillboardPipeline</code> with camera-facing quads, sprite sheet animation, binary alpha via <code>discard</code>, per-sprite uniform buffers. <code>sprite</code> component schema (texture, width, height, frame, frames_x/y, anchor_y, fullbright, visible)</li>
+<li><strong>Raycasting</strong> — <code>PhysicsWorld::raycast()</code> with <code>EntityRaycastHit</code> struct, collider-to-entity resolution, self-exclusion. Exposed to Rhai scripts as <code>raycast()</code>, <code>get_camera_direction()</code>, <code>get_camera_position()</code></li>
+<li><strong>Script-driven HUD</strong> — <code>DrawCommand</code> pipeline with text, rect, circle, line, and sprite primitives. <code>on_draw_ui()</code> callback, <code>screen_width()</code>/<code>screen_height()</code>, <code>measure_text()</code>, <code>find_nearest_interactable()</code>. All game UI lives in <code>.rhai</code> scripts, not engine code</li>
+<li><strong>Mouse button action bindings</strong> — <code>mouse_button_map</code> alongside keyboard <code>action_map</code>; <code>fire</code> bound to left mouse button by default. <code>weapon_1</code>/<code>weapon_2</code>/<code>reload</code> actions added</li>
+<li><strong>Game project pattern</strong> — <code>games/&lt;name&gt;/</code> directory structure with own schemas/scripts/scenes/assets. <code>--schemas</code> flag accepts multiple paths with later-path-wins priority</li>
+<li><strong>Multi-directory schema loading</strong> — <code>SchemaRegistry::load_from_multiple_dirs()</code> merges engine and game schemas</li>
+<li><strong>Enemy AI state machine</strong> — idle/chase/attack/dead states with line-of-sight checks, patrol patterns, and damage response (all in Rhai scripts)</li>
+<li><strong>Health/ammo pickups</strong> — pickup component with collect-on-proximity logic in scripts</li>
+<li><strong>Combat HUD</strong> — crosshair, health bar, ammo counter, damage flash overlay, weapon name display, interaction prompts (all script-driven via <code>hud.rhai</code>)</li>
+<li><strong>Additional script APIs</strong> — <code>this_entity()</code> alias, <code>get_component()</code>, <code>play_sound(name, volume)</code> overload, <code>log_info()</code> alias</li>
+</ul>
+<p><strong>Milestone:</strong> <code>flint play games/doom_fps/scenes/fps_arena.scene.toml --schemas schemas --schemas games/doom_fps/schemas</code> launches a playable FPS with enemies, weapons, pickups, and a full combat HUD.</p>
+<h2 id="beyond-phase-a"><a class="header" href="#beyond-phase-a">Beyond Phase A</a></h2>
+<p>These are ideas under consideration, not committed plans. See <code>DOOM_FPS_GAPS.md</code> for 55 remaining gaps toward a feature-complete Doom clone.</p>
 <ul>
 <li><strong>Networking</strong> — multiplayer support</li>
 <li><strong>Post-processing</strong> — bloom, ambient occlusion, tone mapping, LOD</li>

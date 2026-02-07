@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["load_animations_from_world","load_models_from_world","load_textures_from_world","run"],"struct":["ViewerApp","ViewerState"]};

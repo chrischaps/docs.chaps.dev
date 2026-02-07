@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
+            window.path_to_searchindex_js = "../searchindex-9b411e96.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-72460a65.js"></script>
+        <script src="../toc-5a4e14e8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -195,7 +195,7 @@
     │    │   │     │   │    │       │          │         │     │   │
     │    ▼   │     │   │    │       │          │         │     ▼   │
     │ ┌──────────┐ │   │    │       │          │         │  ┌─────────┐
-    ├►│  render  │◄┘   │    │       │          │         │  │ script  │
+    ├►│  render  │◄┘   │    │       │          │         ├─►│ script  │
     │ └────┬─────┘     │    │       │          │         │  └────┬────┘
     │      │           │    │       │          │         │       │
     │      │           │    │       │          │         ▼       ▼
@@ -241,10 +241,10 @@
 <tr><td><code>flint-constraint</code></td><td>core, ecs, schema, query</td><td>viewer, cli</td></tr>
 <tr><td><code>flint-render</code></td><td>core, ecs, import</td><td>viewer, player, cli</td></tr>
 <tr><td><code>flint-runtime</code></td><td>core, ecs</td><td>physics, audio, animation, player</td></tr>
-<tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>player</td></tr>
+<tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>script, player</td></tr>
 <tr><td><code>flint-audio</code></td><td>core, ecs, runtime</td><td>player</td></tr>
 <tr><td><code>flint-animation</code></td><td>core, ecs, import, runtime</td><td>player</td></tr>
-<tr><td><code>flint-script</code></td><td>core, ecs, runtime</td><td>player</td></tr>
+<tr><td><code>flint-script</code></td><td>core, ecs, runtime, physics</td><td>player</td></tr>
 <tr><td><code>flint-asset-gen</code></td><td>core, asset, import</td><td>cli</td></tr>
 <tr><td><code>flint-viewer</code></td><td>core, ecs, scene, schema, render, import, constraint</td><td>cli</td></tr>
 <tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, script, import, asset</td><td><em>(binary entry point)</em></td></tr>
@@ -265,7 +265,7 @@
 <li><strong>Interface</strong> — CLI binary (<code>flint-cli</code>), player binary (<code>flint-player</code>)</li>
 </ol>
 <p><strong>Two entry points.</strong> The CLI binary (<code>flint-cli</code>) serves scene authoring and validation workflows. The player binary (<code>flint-player</code>) serves interactive gameplay. Both share the same underlying crate hierarchy.</p>
-<p><strong>Independent subsystems.</strong> The constraint system, asset system, physics system, audio system, animation system, script system, asset generation system, and render system don’t depend on each other. This means you can build and test each subsystem in isolation.</p>
+<p><strong>Mostly independent subsystems.</strong> The constraint, asset, physics, audio, animation, asset generation, and render systems don’t depend on each other. The one exception is <code>flint-script</code>, which depends on <code>flint-physics</code> for raycasting and camera direction access. This means most subsystems can be built and tested in isolation.</p>
 <h2 id="external-dependencies"><a class="header" href="#external-dependencies">External Dependencies</a></h2>
 <p>Key third-party crates used across the workspace:</p>
 <div class="table-wrapper">

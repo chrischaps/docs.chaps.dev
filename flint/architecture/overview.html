@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-0d42d88f.js";
+            window.path_to_searchindex_js = "../searchindex-9b411e96.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-72460a65.js"></script>
+        <script src="../toc-5a4e14e8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -202,6 +202,7 @@
 │   ├── flint-schema/       # Component/archetype schema loading and validation
 │   └── flint-core/         # Fundamental types: EntityId, Transform, Vec3, etc.
 ├── schemas/                # Default component, archetype, and constraint definitions
+├── games/                  # Game projects with their own schemas/scripts/scenes/assets
 ├── demo/                   # Showcase scenes and build scripts
 └── docs/                   # This documentation (mdBook)
 </code></pre>
@@ -305,6 +306,7 @@
 <li><strong>Cook-Torrance shading</strong> — physically-based BRDF with roughness/metallic workflow</li>
 <li><strong>Cascaded shadow mapping</strong> — directional light shadows across multiple distance ranges</li>
 <li><strong>glTF mesh rendering</strong> — imported models rendered with full material support</li>
+<li><strong>Billboard sprite pipeline</strong> — camera-facing quads with sprite sheet animation and binary alpha</li>
 <li><strong>Camera modes</strong> — orbit (scene viewer) and first-person (player), sharing view/projection math</li>
 <li><strong>Headless mode</strong> — render to PNG for CI and automated screenshots</li>
 </ul>
@@ -327,8 +329,8 @@
 <h3 id="flint-physics"><a class="header" href="#flint-physics">flint-physics</a></h3>
 <p>Rapier 3D integration:</p>
 <ul>
-<li><code>PhysicsWorld</code> — manages Rapier rigid body and collider sets</li>
-<li><code>PhysicsSync</code> — bridges TOML component data to Rapier bodies</li>
+<li><code>PhysicsWorld</code> — manages Rapier rigid body and collider sets, raycasting via <code>EntityRaycastHit</code></li>
+<li><code>PhysicsSync</code> — bridges TOML component data to Rapier bodies, maintains collider-to-entity mapping</li>
 <li><code>CharacterController</code> — kinematic first-person movement with gravity, jumping, and ground detection</li>
 <li>Uses kinematic bodies for player control, static bodies for world geometry</li>
 </ul>
@@ -355,9 +357,11 @@
 <li><code>ScriptEngine</code> — compiles <code>.rhai</code> files, manages per-entity <code>Scope</code> and <code>AST</code>, dispatches callbacks</li>
 <li><code>ScriptSync</code> — discovers entities with <code>script</code> components, monitors file timestamps for hot-reload</li>
 <li><code>ScriptSystem</code> — <code>RuntimeSystem</code> implementation running in <code>update()</code> (variable-rate)</li>
-<li>Full API: entity CRUD, input, time, audio, animation, math, events, logging</li>
+<li>Full API: entity CRUD, input, time, audio, animation, physics (raycast, camera), math, events, logging, UI draw</li>
 <li><code>ScriptCommand</code> pattern — deferred audio/event effects processed by PlayerApp after script batch</li>
+<li><code>DrawCommand</code> pattern — immediate-mode 2D draw primitives (text, rect, circle, line, sprite) rendered via egui</li>
 <li><code>ScriptCallContext</code> with raw <code>*mut FlintWorld</code> pointer for world access during call batches</li>
+<li>Depends on <code>flint-physics</code> for raycast and camera direction access</li>
 </ul>
 <h3 id="flint-asset-gen"><a class="header" href="#flint-asset-gen">flint-asset-gen</a></h3>
 <p>AI asset generation pipeline:</p>
@@ -379,8 +383,9 @@
 <li>Audio source loading and spatial listener tracking</li>
 <li>Skeletal animation with bone matrix upload to GPU each frame</li>
 <li>Rhai script system with event dispatch (collisions, triggers, actions, interactions)</li>
-<li>Interactable entity system with HUD prompt overlay (egui crosshair + proximity text)</li>
-<li>First-person controls (WASD, mouse look, jump, sprint, interact)</li>
+<li>Script-driven 2D HUD overlay via <code>DrawCommand</code> pipeline (replaces hardcoded HUD)</li>
+<li>Billboard sprite rendering for Doom-style entities</li>
+<li>First-person controls (WASD, mouse look, jump, sprint, interact, fire)</li>
 <li>Optional asset catalog integration for runtime name-based asset resolution</li>
 </ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>

@@ -79,7 +79,7 @@
     &amp;mut self,
     device: &amp;<a class="struct" href="../wgpu/api/device/struct.Device.html" title="struct wgpu::api::device::Device">Device</a>,
     name: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.str.html">str</a>,
-    import_result: &amp;ImportResult,
+    import_result: &amp;<a class="struct" href="../flint_import/types/struct.ImportResult.html" title="struct flint_import::types::ImportResult">ImportResult</a>,
     default_color: [<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.array.html">4</a>],
 )</h4></section></summary><div class="docblock"><p>Upload an imported model’s meshes to the GPU</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.get" class="method"><a class="src rightside" href="../src/flint_render/gpu_mesh.rs.html#175-177">Source</a><h4 class="code-header">pub fn <a href="#method.get" class="fn">get</a>(&amp;self, name: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.92.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="struct" href="https://doc.rust-lang.org/1.92.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="struct.GpuMesh.html" title="struct flint_render::GpuMesh">GpuMesh</a>&gt;&gt;</h4></section></summary><div class="docblock"><p>Get cached GPU meshes by asset name</p>
@@ -88,7 +88,7 @@
     &amp;mut self,
     device: &amp;<a class="struct" href="../wgpu/api/device/struct.Device.html" title="struct wgpu::api::device::Device">Device</a>,
     name: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.str.html">str</a>,
-    import_result: &amp;ImportResult,
+    import_result: &amp;<a class="struct" href="../flint_import/types/struct.ImportResult.html" title="struct flint_import::types::ImportResult">ImportResult</a>,
     default_color: [<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.array.html">4</a>],
     bone_bind_group_layout: &amp;<a class="struct" href="../wgpu/api/bind_group_layout/struct.BindGroupLayout.html" title="struct wgpu::api::bind_group_layout::BindGroupLayout">BindGroupLayout</a>,
 )</h4></section></summary><div class="docblock"><p>Upload skinned meshes from an imported model to the GPU</p>
