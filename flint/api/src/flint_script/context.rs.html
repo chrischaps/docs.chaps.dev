@@ -201,68 +201,73 @@
 <a href=#125 id=125 data-nosnippet>125</a>    <span class="doccomment">/// Screen dimensions in pixels (set before scripts run)
 <a href=#126 id=126 data-nosnippet>126</a>    </span><span class="kw">pub </span>screen_width: f32,
 <a href=#127 id=127 data-nosnippet>127</a>    <span class="kw">pub </span>screen_height: f32,
-<a href=#128 id=128 data-nosnippet>128</a>}
-<a href=#129 id=129 data-nosnippet>129</a>
-<a href=#130 id=130 data-nosnippet>130</a><span class="comment">// SAFETY: ScriptCallContext is only accessed from the main thread within
-<a href=#131 id=131 data-nosnippet>131</a>// controlled call scopes. The world pointer is valid only during those scopes.
-<a href=#132 id=132 data-nosnippet>132</a></span><span class="kw">unsafe impl </span>Send <span class="kw">for </span>ScriptCallContext {}
-<a href=#133 id=133 data-nosnippet>133</a><span class="kw">unsafe impl </span>Sync <span class="kw">for </span>ScriptCallContext {}
-<a href=#134 id=134 data-nosnippet>134</a>
-<a href=#135 id=135 data-nosnippet>135</a><span class="kw">impl </span>Default <span class="kw">for </span>ScriptCallContext {
-<a href=#136 id=136 data-nosnippet>136</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-<a href=#137 id=137 data-nosnippet>137</a>        <span class="self">Self</span>::new()
-<a href=#138 id=138 data-nosnippet>138</a>    }
-<a href=#139 id=139 data-nosnippet>139</a>}
-<a href=#140 id=140 data-nosnippet>140</a>
-<a href=#141 id=141 data-nosnippet>141</a><span class="kw">impl </span>ScriptCallContext {
-<a href=#142 id=142 data-nosnippet>142</a>    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-<a href=#143 id=143 data-nosnippet>143</a>        <span class="self">Self </span>{
-<a href=#144 id=144 data-nosnippet>144</a>            world: std::ptr::null_mut(),
-<a href=#145 id=145 data-nosnippet>145</a>            physics: std::ptr::null(),
-<a href=#146 id=146 data-nosnippet>146</a>            camera_position: [<span class="number">0.0</span>; <span class="number">3</span>],
-<a href=#147 id=147 data-nosnippet>147</a>            camera_direction: [<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>],
-<a href=#148 id=148 data-nosnippet>148</a>            current_entity: EntityId::from_raw(<span class="number">0</span>),
-<a href=#149 id=149 data-nosnippet>149</a>            commands: Vec::new(),
-<a href=#150 id=150 data-nosnippet>150</a>            draw_commands: Vec::new(),
-<a href=#151 id=151 data-nosnippet>151</a>            input: InputSnapshot::default(),
-<a href=#152 id=152 data-nosnippet>152</a>            delta_time: <span class="number">0.0</span>,
-<a href=#153 id=153 data-nosnippet>153</a>            total_time: <span class="number">0.0</span>,
-<a href=#154 id=154 data-nosnippet>154</a>            screen_width: <span class="number">1280.0</span>,
-<a href=#155 id=155 data-nosnippet>155</a>            screen_height: <span class="number">720.0</span>,
-<a href=#156 id=156 data-nosnippet>156</a>        }
-<a href=#157 id=157 data-nosnippet>157</a>    }
-<a href=#158 id=158 data-nosnippet>158</a>
-<a href=#159 id=159 data-nosnippet>159</a>    <span class="doccomment">/// Get a reference to the world. Panics if called outside a valid scope.
-<a href=#160 id=160 data-nosnippet>160</a>    ///
-<a href=#161 id=161 data-nosnippet>161</a>    /// # Safety
-<a href=#162 id=162 data-nosnippet>162</a>    /// Caller must ensure the world pointer was set and is still valid
-<a href=#163 id=163 data-nosnippet>163</a>    /// (i.e., called within the scope of `call_update` or `process_events`).
-<a href=#164 id=164 data-nosnippet>164</a>    </span><span class="kw">pub unsafe fn </span>world_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>FlintWorld {
-<a href=#165 id=165 data-nosnippet>165</a>        <span class="macro">assert!</span>(!<span class="self">self</span>.world.is_null(), <span class="string">"ScriptCallContext: world pointer is null (called outside scope)"</span>);
-<a href=#166 id=166 data-nosnippet>166</a>        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.world }
-<a href=#167 id=167 data-nosnippet>167</a>    }
-<a href=#168 id=168 data-nosnippet>168</a>
-<a href=#169 id=169 data-nosnippet>169</a>    <span class="doccomment">/// Get a mutable reference to the world. Panics if called outside a valid scope.
-<a href=#170 id=170 data-nosnippet>170</a>    ///
-<a href=#171 id=171 data-nosnippet>171</a>    /// # Safety
-<a href=#172 id=172 data-nosnippet>172</a>    /// Caller must ensure the world pointer was set, is still valid, and no other
-<a href=#173 id=173 data-nosnippet>173</a>    /// references to the world exist (i.e., called within the scope of
-<a href=#174 id=174 data-nosnippet>174</a>    /// `call_update` or `process_events`).
-<a href=#175 id=175 data-nosnippet>175</a>    </span><span class="attr">#[allow(clippy::mut_from_ref)]
-<a href=#176 id=176 data-nosnippet>176</a>    </span><span class="kw">pub unsafe fn </span>world_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>FlintWorld {
-<a href=#177 id=177 data-nosnippet>177</a>        <span class="macro">assert!</span>(!<span class="self">self</span>.world.is_null(), <span class="string">"ScriptCallContext: world pointer is null (called outside scope)"</span>);
-<a href=#178 id=178 data-nosnippet>178</a>        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><span class="self">self</span>.world }
-<a href=#179 id=179 data-nosnippet>179</a>    }
-<a href=#180 id=180 data-nosnippet>180</a>
-<a href=#181 id=181 data-nosnippet>181</a>    <span class="doccomment">/// Get a reference to the physics system. Returns None if not set.
-<a href=#182 id=182 data-nosnippet>182</a>    ///
-<a href=#183 id=183 data-nosnippet>183</a>    /// # Safety
-<a href=#184 id=184 data-nosnippet>184</a>    /// Caller must ensure the physics pointer was set and is still valid.
-<a href=#185 id=185 data-nosnippet>185</a>    </span><span class="kw">pub unsafe fn </span>physics_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>PhysicsSystem&gt; {
-<a href=#186 id=186 data-nosnippet>186</a>        <span class="kw">if </span><span class="self">self</span>.physics.is_null() {
-<a href=#187 id=187 data-nosnippet>187</a>            <span class="prelude-val">None
-<a href=#188 id=188 data-nosnippet>188</a>        </span>} <span class="kw">else </span>{
-<a href=#189 id=189 data-nosnippet>189</a>            <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.physics })
-<a href=#190 id=190 data-nosnippet>190</a>        }
-<a href=#191 id=191 data-nosnippet>191</a>    }
-<a href=#192 id=192 data-nosnippet>192</a>}</code></pre></div></section></main></body></html>
+<a href=#128 id=128 data-nosnippet>128</a>    <span class="doccomment">/// Script-driven camera overrides (set by set_camera_position/set_camera_target)
+<a href=#129 id=129 data-nosnippet>129</a>    </span><span class="kw">pub </span>camera_position_override: <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">3</span>]&gt;,
+<a href=#130 id=130 data-nosnippet>130</a>    <span class="kw">pub </span>camera_target_override: <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">3</span>]&gt;,
+<a href=#131 id=131 data-nosnippet>131</a>}
+<a href=#132 id=132 data-nosnippet>132</a>
+<a href=#133 id=133 data-nosnippet>133</a><span class="comment">// SAFETY: ScriptCallContext is only accessed from the main thread within
+<a href=#134 id=134 data-nosnippet>134</a>// controlled call scopes. The world pointer is valid only during those scopes.
+<a href=#135 id=135 data-nosnippet>135</a></span><span class="kw">unsafe impl </span>Send <span class="kw">for </span>ScriptCallContext {}
+<a href=#136 id=136 data-nosnippet>136</a><span class="kw">unsafe impl </span>Sync <span class="kw">for </span>ScriptCallContext {}
+<a href=#137 id=137 data-nosnippet>137</a>
+<a href=#138 id=138 data-nosnippet>138</a><span class="kw">impl </span>Default <span class="kw">for </span>ScriptCallContext {
+<a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#140 id=140 data-nosnippet>140</a>        <span class="self">Self</span>::new()
+<a href=#141 id=141 data-nosnippet>141</a>    }
+<a href=#142 id=142 data-nosnippet>142</a>}
+<a href=#143 id=143 data-nosnippet>143</a>
+<a href=#144 id=144 data-nosnippet>144</a><span class="kw">impl </span>ScriptCallContext {
+<a href=#145 id=145 data-nosnippet>145</a>    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+<a href=#146 id=146 data-nosnippet>146</a>        <span class="self">Self </span>{
+<a href=#147 id=147 data-nosnippet>147</a>            world: std::ptr::null_mut(),
+<a href=#148 id=148 data-nosnippet>148</a>            physics: std::ptr::null(),
+<a href=#149 id=149 data-nosnippet>149</a>            camera_position: [<span class="number">0.0</span>; <span class="number">3</span>],
+<a href=#150 id=150 data-nosnippet>150</a>            camera_direction: [<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>],
+<a href=#151 id=151 data-nosnippet>151</a>            current_entity: EntityId::from_raw(<span class="number">0</span>),
+<a href=#152 id=152 data-nosnippet>152</a>            commands: Vec::new(),
+<a href=#153 id=153 data-nosnippet>153</a>            draw_commands: Vec::new(),
+<a href=#154 id=154 data-nosnippet>154</a>            input: InputSnapshot::default(),
+<a href=#155 id=155 data-nosnippet>155</a>            delta_time: <span class="number">0.0</span>,
+<a href=#156 id=156 data-nosnippet>156</a>            total_time: <span class="number">0.0</span>,
+<a href=#157 id=157 data-nosnippet>157</a>            screen_width: <span class="number">1280.0</span>,
+<a href=#158 id=158 data-nosnippet>158</a>            screen_height: <span class="number">720.0</span>,
+<a href=#159 id=159 data-nosnippet>159</a>            camera_position_override: <span class="prelude-val">None</span>,
+<a href=#160 id=160 data-nosnippet>160</a>            camera_target_override: <span class="prelude-val">None</span>,
+<a href=#161 id=161 data-nosnippet>161</a>        }
+<a href=#162 id=162 data-nosnippet>162</a>    }
+<a href=#163 id=163 data-nosnippet>163</a>
+<a href=#164 id=164 data-nosnippet>164</a>    <span class="doccomment">/// Get a reference to the world. Panics if called outside a valid scope.
+<a href=#165 id=165 data-nosnippet>165</a>    ///
+<a href=#166 id=166 data-nosnippet>166</a>    /// # Safety
+<a href=#167 id=167 data-nosnippet>167</a>    /// Caller must ensure the world pointer was set and is still valid
+<a href=#168 id=168 data-nosnippet>168</a>    /// (i.e., called within the scope of `call_update` or `process_events`).
+<a href=#169 id=169 data-nosnippet>169</a>    </span><span class="kw">pub unsafe fn </span>world_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>FlintWorld {
+<a href=#170 id=170 data-nosnippet>170</a>        <span class="macro">assert!</span>(!<span class="self">self</span>.world.is_null(), <span class="string">"ScriptCallContext: world pointer is null (called outside scope)"</span>);
+<a href=#171 id=171 data-nosnippet>171</a>        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.world }
+<a href=#172 id=172 data-nosnippet>172</a>    }
+<a href=#173 id=173 data-nosnippet>173</a>
+<a href=#174 id=174 data-nosnippet>174</a>    <span class="doccomment">/// Get a mutable reference to the world. Panics if called outside a valid scope.
+<a href=#175 id=175 data-nosnippet>175</a>    ///
+<a href=#176 id=176 data-nosnippet>176</a>    /// # Safety
+<a href=#177 id=177 data-nosnippet>177</a>    /// Caller must ensure the world pointer was set, is still valid, and no other
+<a href=#178 id=178 data-nosnippet>178</a>    /// references to the world exist (i.e., called within the scope of
+<a href=#179 id=179 data-nosnippet>179</a>    /// `call_update` or `process_events`).
+<a href=#180 id=180 data-nosnippet>180</a>    </span><span class="attr">#[allow(clippy::mut_from_ref)]
+<a href=#181 id=181 data-nosnippet>181</a>    </span><span class="kw">pub unsafe fn </span>world_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>FlintWorld {
+<a href=#182 id=182 data-nosnippet>182</a>        <span class="macro">assert!</span>(!<span class="self">self</span>.world.is_null(), <span class="string">"ScriptCallContext: world pointer is null (called outside scope)"</span>);
+<a href=#183 id=183 data-nosnippet>183</a>        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><span class="self">self</span>.world }
+<a href=#184 id=184 data-nosnippet>184</a>    }
+<a href=#185 id=185 data-nosnippet>185</a>
+<a href=#186 id=186 data-nosnippet>186</a>    <span class="doccomment">/// Get a reference to the physics system. Returns None if not set.
+<a href=#187 id=187 data-nosnippet>187</a>    ///
+<a href=#188 id=188 data-nosnippet>188</a>    /// # Safety
+<a href=#189 id=189 data-nosnippet>189</a>    /// Caller must ensure the physics pointer was set and is still valid.
+<a href=#190 id=190 data-nosnippet>190</a>    </span><span class="kw">pub unsafe fn </span>physics_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>PhysicsSystem&gt; {
+<a href=#191 id=191 data-nosnippet>191</a>        <span class="kw">if </span><span class="self">self</span>.physics.is_null() {
+<a href=#192 id=192 data-nosnippet>192</a>            <span class="prelude-val">None
+<a href=#193 id=193 data-nosnippet>193</a>        </span>} <span class="kw">else </span>{
+<a href=#194 id=194 data-nosnippet>194</a>            <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.physics })
+<a href=#195 id=195 data-nosnippet>195</a>        }
+<a href=#196 id=196 data-nosnippet>196</a>    }
+<a href=#197 id=197 data-nosnippet>197</a>}</code></pre></div></section></main></body></html>

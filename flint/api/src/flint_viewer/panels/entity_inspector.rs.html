@@ -111,7 +111,7 @@
 <a href=#35 id=35 data-nosnippet>35</a>        <span class="comment">// Transform
 <a href=#36 id=36 data-nosnippet>36</a>        </span><span class="kw">let </span>transform = world.get_transform(entity_id).unwrap_or_default();
 <a href=#37 id=37 data-nosnippet>37</a>        ui.separator();
-<a href=#38 id=38 data-nosnippet>38</a>        ui.collapsing(<span class="string">"Transform"</span>, |ui| {
+<a href=#38 id=38 data-nosnippet>38</a>        egui::CollapsingHeader::new(<span class="string">"Transform"</span>).default_open(<span class="bool-val">true</span>).show(ui, |ui| {
 <a href=#39 id=39 data-nosnippet>39</a>            ui.horizontal(|ui| {
 <a href=#40 id=40 data-nosnippet>40</a>                ui.label(<span class="string">"Position:"</span>);
 <a href=#41 id=41 data-nosnippet>41</a>                ui.monospace(<span class="macro">format!</span>(
@@ -139,7 +139,7 @@
 <a href=#63 id=63 data-nosnippet>63</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(components) = world.get_components(entity_id) {
 <a href=#64 id=64 data-nosnippet>64</a>            <span class="kw">for </span>(comp_name, comp_value) <span class="kw">in </span>components.data.iter() {
 <a href=#65 id=65 data-nosnippet>65</a>                ui.separator();
-<a href=#66 id=66 data-nosnippet>66</a>                ui.collapsing(comp_name, |ui| {
+<a href=#66 id=66 data-nosnippet>66</a>                egui::CollapsingHeader::new(comp_name).default_open(<span class="bool-val">true</span>).show(ui, |ui| {
 <a href=#67 id=67 data-nosnippet>67</a>                    display_toml_value(ui, comp_value);
 <a href=#68 id=68 data-nosnippet>68</a>                });
 <a href=#69 id=69 data-nosnippet>69</a>            }

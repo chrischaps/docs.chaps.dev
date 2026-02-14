@@ -36,7 +36,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-9b411e96.js";
+            window.path_to_searchindex_js = "../searchindex-ce485dde.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-5a4e14e8.js"></script>
@@ -218,7 +218,7 @@ enabled = true
 </thead>
 <tbody>
 <tr><td><code>on_init</code></td><td><code>fn on_init()</code></td><td>Once when the script is first loaded</td></tr>
-<tr><td><code>on_update</code></td><td><code>fn on_update(dt)</code></td><td>Every frame, with delta time in seconds</td></tr>
+<tr><td><code>on_update</code></td><td><code>fn on_update()</code></td><td>Every frame. Use <code>delta_time()</code> for frame delta</td></tr>
 <tr><td><code>on_collision</code></td><td><code>fn on_collision(other_id)</code></td><td>When this entity collides with another</td></tr>
 <tr><td><code>on_trigger_enter</code></td><td><code>fn on_trigger_enter(other_id)</code></td><td>When another entity enters a trigger volume</td></tr>
 <tr><td><code>on_trigger_exit</code></td><td><code>fn on_trigger_exit(other_id)</code></td><td>When another entity exits a trigger volume</td></tr>
@@ -266,13 +266,15 @@ enabled = true
 <tbody>
 <tr><td><code>is_action_pressed(action)</code></td><td><code>bool</code></td><td>Whether an action is currently held</td></tr>
 <tr><td><code>is_action_just_pressed(action)</code></td><td><code>bool</code></td><td>Whether an action was pressed this frame</td></tr>
+<tr><td><code>is_action_just_released(action)</code></td><td><code>bool</code></td><td>Whether an action was released this frame</td></tr>
+<tr><td><code>get_action_value(action)</code></td><td><code>f64</code></td><td>Analog value for Axis1d actions (0.0 if not bound)</td></tr>
 <tr><td><code>mouse_delta_x()</code></td><td><code>f64</code></td><td>Horizontal mouse movement this frame</td></tr>
 <tr><td><code>mouse_delta_y()</code></td><td><code>f64</code></td><td>Vertical mouse movement this frame</td></tr>
 </tbody>
 </table>
 </div>
-<p>Available action names: <code>move_forward</code>, <code>move_backward</code>, <code>move_left</code>, <code>move_right</code>, <code>jump</code>, <code>interact</code>, <code>sprint</code>, <code>weapon_1</code>, <code>weapon_2</code>, <code>reload</code>, <code>fire</code>.</p>
-<p>The <code>fire</code> action is bound to the left mouse button by default. <code>weapon_1</code> and <code>weapon_2</code> are bound to the <code>1</code> and <code>2</code> keys, and <code>reload</code> to <code>R</code>. See <a href="physics-and-runtime.html">Physics and Runtime</a> for the full action binding table.</p>
+<p>Action names are defined by input configuration files and are fully customizable per game. The built-in defaults include: <code>move_forward</code>, <code>move_backward</code>, <code>move_left</code>, <code>move_right</code>, <code>jump</code>, <code>interact</code>, <code>sprint</code>, <code>weapon_1</code>, <code>weapon_2</code>, <code>reload</code>, <code>fire</code>. Games can define arbitrary custom actions in their input config TOML files and query them from scripts with <code>is_action_pressed("custom_action")</code>.</p>
+<p>Input bindings support keyboard, mouse, and gamepad devices. See <a href="physics-and-runtime.html#input-system">Physics and Runtime: Input System</a> for the config file format and layered loading model.</p>
 <h3 id="time-api"><a class="header" href="#time-api">Time API</a></h3>
 <div class="table-wrapper">
 <table>
@@ -316,6 +318,15 @@ enabled = true
 </tbody>
 </table>
 </div>
+<h3 id="coordinate-system"><a class="header" href="#coordinate-system">Coordinate System</a></h3>
+<p>Flint uses a <strong>Y-up, right-handed</strong> coordinate system:</p>
+<ul>
+<li><strong>Forward</strong> = <code>-Z</code> (into the screen)</li>
+<li><strong>Right</strong> = <code>+X</code></li>
+<li><strong>Up</strong> = <code>+Y</code></li>
+</ul>
+<p>Euler angles are stored as <code>(pitch, yaw, roll)</code> in <strong>degrees</strong>, applied in ZYX order. Positive yaw rotates counter-clockwise when viewed from above (i.e., turns left).</p>
+<p>Use the direction helpers (<code>forward_from_yaw</code>, <code>right_from_yaw</code>) to convert a yaw angle into a world-space direction vector. These encode the coordinate convention so scripts don’t need to compute the trig manually.</p>
 <h3 id="math-api"><a class="header" href="#math-api">Math API</a></h3>
 <div class="table-wrapper">
 <table>
@@ -323,19 +334,26 @@ enabled = true
 <tr><th>Function</th><th>Returns</th><th>Description</th></tr>
 </thead>
 <tbody>
+<tr><td><code>PI()</code></td><td><code>f64</code></td><td>The constant π (3.14159…)</td></tr>
+<tr><td><code>TAU()</code></td><td><code>f64</code></td><td>The constant τ = 2π (6.28318…)</td></tr>
+<tr><td><code>deg_to_rad(degrees)</code></td><td><code>f64</code></td><td>Convert degrees to radians</td></tr>
+<tr><td><code>rad_to_deg(radians)</code></td><td><code>f64</code></td><td>Convert radians to degrees</td></tr>
+<tr><td><code>forward_from_yaw(yaw_deg)</code></td><td><code>Map</code></td><td>Forward direction vector <code>#{x, y, z}</code> for a given yaw in degrees</td></tr>
+<tr><td><code>right_from_yaw(yaw_deg)</code></td><td><code>Map</code></td><td>Right direction vector <code>#{x, y, z}</code> for a given yaw in degrees</td></tr>
+<tr><td><code>wrap_angle(degrees)</code></td><td><code>f64</code></td><td>Normalize an angle to <code>[0, 360)</code></td></tr>
 <tr><td><code>clamp(val, min, max)</code></td><td><code>f64</code></td><td>Clamp a value to a range</td></tr>
 <tr><td><code>lerp(a, b, t)</code></td><td><code>f64</code></td><td>Linear interpolation between <code>a</code> and <code>b</code></td></tr>
 <tr><td><code>random()</code></td><td><code>f64</code></td><td>Random value in <code>[0, 1)</code></td></tr>
 <tr><td><code>random_range(min, max)</code></td><td><code>f64</code></td><td>Random value in <code>[min, max)</code></td></tr>
-<tr><td><code>sin(x)</code></td><td><code>f64</code></td><td>Sine</td></tr>
-<tr><td><code>cos(x)</code></td><td><code>f64</code></td><td>Cosine</td></tr>
+<tr><td><code>sin(x)</code></td><td><code>f64</code></td><td>Sine (radians)</td></tr>
+<tr><td><code>cos(x)</code></td><td><code>f64</code></td><td>Cosine (radians)</td></tr>
 <tr><td><code>abs(x)</code></td><td><code>f64</code></td><td>Absolute value</td></tr>
 <tr><td><code>sqrt(x)</code></td><td><code>f64</code></td><td>Square root</td></tr>
 <tr><td><code>floor(x)</code></td><td><code>f64</code></td><td>Floor</td></tr>
 <tr><td><code>ceil(x)</code></td><td><code>f64</code></td><td>Ceiling</td></tr>
 <tr><td><code>min(a, b)</code></td><td><code>f64</code></td><td>Minimum of two values</td></tr>
 <tr><td><code>max(a, b)</code></td><td><code>f64</code></td><td>Maximum of two values</td></tr>
-<tr><td><code>atan2(y, x)</code></td><td><code>f64</code></td><td>Two-argument arctangent</td></tr>
+<tr><td><code>atan2(y, x)</code></td><td><code>f64</code></td><td>Two-argument arctangent (radians)</td></tr>
 </tbody>
 </table>
 </div>
@@ -454,7 +472,7 @@ enabled = true
 <li><strong>Layer 0</strong> is the default</li>
 <li><strong>Positive layers</strong> render in front (foreground elements)</li>
 </ul>
-<h4 id="coordinate-system"><a class="header" href="#coordinate-system">Coordinate System</a></h4>
+<h4 id="coordinate-system-1"><a class="header" href="#coordinate-system-1">Coordinate System</a></h4>
 <p>Coordinates are in <strong>egui logical points</strong>, not physical pixels. On high-DPI displays, logical points differ from pixels by the scale factor. Use <code>screen_width()</code> and <code>screen_height()</code> for layout calculations — they return the correct logical dimensions.</p>
 <h4 id="sprite-loading"><a class="header" href="#sprite-loading">Sprite Loading</a></h4>
 <p>Sprite names map to image files in the <code>sprites/</code> directory (without extension). Supported formats: PNG, JPG, BMP, TGA. Textures are lazy-loaded on first use and cached for subsequent frames.</p>
@@ -522,7 +540,7 @@ fn on_interact() {
 </span><span class="boring">fn main() {
 </span>// scripts/torch_flicker.rhai
 
-fn on_update(dt) {
+fn on_update() {
     let me = self_entity();
     let t = total_time();
 
@@ -566,7 +584,7 @@ fn on_interact() {
             per-entity Scope + AST
                 │
                 ▼
-on_update ──► ScriptEngine.call_updates(dt)
+on_update ──► ScriptEngine.call_updates()
                 │
                 ▼
 events ────► ScriptEngine.process_events()

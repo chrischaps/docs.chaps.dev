@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["catmull_rom","rotate_around_axis","sample_closed_spline","sample_open_spline"],"struct":["SplineControlPoint","SplineSample"]};

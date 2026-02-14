@@ -126,7 +126,7 @@
 <a href=#50 id=50 data-nosnippet>50</a>
 <a href=#51 id=51 data-nosnippet>51</a>        <span class="comment">// Set component data
 <a href=#52 id=52 data-nosnippet>52</a>        </span><span class="kw">for </span>(comp_name, comp_data) <span class="kw">in </span><span class="kw-2">&amp;</span>entity_def.components {
-<a href=#53 id=53 data-nosnippet>53</a>            world.set_component(id, comp_name, comp_data.clone())<span class="question-mark">?</span>;
+<a href=#53 id=53 data-nosnippet>53</a>            world.merge_component(id, comp_name, comp_data.clone())<span class="question-mark">?</span>;
 <a href=#54 id=54 data-nosnippet>54</a>        }
 <a href=#55 id=55 data-nosnippet>55</a>
 <a href=#56 id=56 data-nosnippet>56</a>        <span class="comment">// Set parent relationship
@@ -185,7 +185,7 @@
 <a href=#109 id=109 data-nosnippet>109</a>
 <a href=#110 id=110 data-nosnippet>110</a>        <span class="comment">// Set component data
 <a href=#111 id=111 data-nosnippet>111</a>        </span><span class="kw">for </span>(comp_name, comp_data) <span class="kw">in </span><span class="kw-2">&amp;</span>entity_def.components {
-<a href=#112 id=112 data-nosnippet>112</a>            world.set_component(id, comp_name, comp_data.clone())<span class="question-mark">?</span>;
+<a href=#112 id=112 data-nosnippet>112</a>            world.merge_component(id, comp_name, comp_data.clone())<span class="question-mark">?</span>;
 <a href=#113 id=113 data-nosnippet>113</a>        }
 <a href=#114 id=114 data-nosnippet>114</a>
 <a href=#115 id=115 data-nosnippet>115</a>        <span class="comment">// Set parent relationship

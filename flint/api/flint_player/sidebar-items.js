@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["PlayerApp"]};
+window.SIDEBAR_ITEMS = {"mod":["spline_gen"],"struct":["PlayerApp"]};

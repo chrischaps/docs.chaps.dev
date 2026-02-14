@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["EntityInspector","RenderStats","SceneTree"]};
+window.SIDEBAR_ITEMS = {"enum":["GizmoAction"],"struct":["CameraView","EntityInspector","RenderStats","SceneTree","ViewGizmo"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["GameEvent"],"struct":["EventBus","GameClock","InputState"],"trait":["RuntimeSystem"]};
+window.SIDEBAR_ITEMS = {"enum":["ActionKind","AxisDirection","Binding","GameEvent","GamepadSelector","RebindMode"],"struct":["ActionConfig","EventBus","GameClock","InputConfig","InputState"],"trait":["RuntimeSystem"]};

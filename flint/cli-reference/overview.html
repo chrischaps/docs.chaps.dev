@@ -36,7 +36,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-9b411e96.js";
+            window.path_to_searchindex_js = "../searchindex-ce485dde.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-5a4e14e8.js"></script>
@@ -225,10 +225,12 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tbody>
 <tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (repeatable; later paths override earlier). Default: <code>schemas</code></td></tr>
 <tr><td><code>--fullscreen</code></td><td>Launch in fullscreen mode</td></tr>
+<tr><td><code>--input-config &lt;path&gt;</code></td><td>Input config overlay path (highest priority, overrides all other layers)</td></tr>
 </tbody>
 </table>
 </div>
-<h3 id="player-controls"><a class="header" href="#player-controls">Player Controls</a></h3>
+<h3 id="player-controls-defaults"><a class="header" href="#player-controls-defaults">Player Controls (Defaults)</a></h3>
+<p>These are the built-in defaults. Games can override any binding via input config files (see <a href="../concepts/physics-and-runtime.html#input-system">Physics and Runtime: Input System</a>).</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -250,21 +252,24 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 </tbody>
 </table>
 </div>
+<p>Gamepad controllers are also supported when connected. Bindings for gamepad buttons and axes can be configured in input config TOML files.</p>
 <p>The <code>play</code> command requires the scene to have a <code>player</code> archetype entity with a <code>character_controller</code> component. Physics colliders on other entities define the walkable geometry.</p>
 <h3 id="game-project-pattern"><a class="header" href="#game-project-pattern">Game Project Pattern</a></h3>
-<p>Games that define their own schemas, scripts, and assets use multiple <code>--schemas</code> paths. The engine schemas come first, then the game-specific schemas overlay on top:</p>
-<pre><code class="language-bash">flint play games/doom_fps/scenes/fps_arena.scene.toml \
-  --schemas schemas \
-  --schemas games/doom_fps/schemas
+<p>Games that define their own schemas, scripts, and assets use multiple <code>--schemas</code> paths. Game projects typically live in their own repositories with the engine included as a git subtree at <code>engine/</code>. The engine schemas come first, then the game-specific schemas overlay on top:</p>
+<pre><code class="language-bash"># From a game project root (engine at engine/)
+cargo run --manifest-path engine/Cargo.toml --bin flint-player -- \
+  scenes/level_1.scene.toml \
+  --schemas engine/schemas \
+  --schemas schemas
 </code></pre>
-<p>This loads the engine’s built-in components (transform, material, rigidbody, etc.) from <code>schemas/</code>, then adds game-specific components (health, weapon, enemy AI) from <code>games/doom_fps/schemas/</code>. See <a href="../concepts/schemas.html#game-project-schemas">Schemas: Game Project Schemas</a> for directory structure details.</p>
+<p>This loads the engine’s built-in components (transform, material, rigidbody, etc.) from <code>engine/schemas/</code>, then adds game-specific components (health, weapon, enemy AI) from the game’s own <code>schemas/</code>. See <a href="../concepts/schemas.html#game-project-schemas">Schemas: Game Project Schemas</a> for directory structure details and <a href="../guides/building-a-game-project.html">Building a Game Project</a> for the full workflow.</p>
 <h3 id="standalone-player-binary"><a class="header" href="#standalone-player-binary">Standalone Player Binary</a></h3>
 <p>The player is also available as a standalone binary for distribution:</p>
 <pre><code class="language-bash">cargo run --bin flint-player -- demo/phase4_runtime.scene.toml --schemas schemas
 
-# With game project schemas
-cargo run --bin flint-player -- games/doom_fps/scenes/fps_arena.scene.toml \
-  --schemas schemas --schemas games/doom_fps/schemas
+# With game project schemas (from a game repo with engine subtree)
+cargo run --manifest-path engine/Cargo.toml --bin flint-player -- \
+  scenes/level_1.scene.toml --schemas engine/schemas --schemas schemas
 </code></pre>
 <h2 id="the-asset-generate-command"><a class="header" href="#the-asset-generate-command">The <code>asset generate</code> Command</a></h2>
 <p>Generate assets using AI providers:</p>

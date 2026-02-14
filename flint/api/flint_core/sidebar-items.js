@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["FlintError"],"struct":["Color","ContentHash","EntityId","Transform","Vec3"],"type":["Result"]};
+window.SIDEBAR_ITEMS = {"enum":["FlintError"],"mod":["spline"],"struct":["Color","ContentHash","EntityId","Transform","Vec3"],"type":["Result"]};

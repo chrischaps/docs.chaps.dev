@@ -36,7 +36,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-9b411e96.js";
+            window.path_to_searchindex_js = "../searchindex-ce485dde.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-5a4e14e8.js"></script>
@@ -263,35 +263,116 @@ body_type = "static"
 <p>The function resolves Rapier collider handles back to Flint <code>EntityId</code>s through the collider-to-entity map maintained by <code>PhysicsSync</code>. An optional <code>exclude_entity</code> parameter lets callers exclude a specific entity (typically the shooter) from the results.</p>
 <p>Raycasting is exposed to scripts via the <code>raycast()</code> function — see <a href="scripting.html#physics-api">Scripting: Physics API</a> for the script-level interface and examples.</p>
 <h2 id="input-system"><a class="header" href="#input-system">Input System</a></h2>
-<p>The <code>InputState</code> struct tracks keyboard and mouse state each frame:</p>
+<p>The <code>InputState</code> struct provides a config-driven, device-agnostic input layer. It tracks keyboard, mouse, and gamepad state each frame and evaluates logical <strong>actions</strong> from physical bindings.</p>
+<h3 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h3>
+<p>All input flows through a unified <code>Binding</code> model:</p>
 <ul>
-<li>Keyboard keys are tracked as pressed/released</li>
-<li><strong>Mouse buttons</strong> are tracked alongside keyboard keys, with their own action binding map</li>
-<li>Mouse provides raw delta movement (via <code>DeviceEvent::MouseMotion</code>) for smooth camera look</li>
-<li>Action bindings map keys and mouse buttons to game actions</li>
+<li><strong>Keyboard keys</strong> (<code>Key { code }</code>) — any winit <code>KeyCode</code> name (e.g., <code>"KeyW"</code>, <code>"Space"</code>, <code>"ShiftLeft"</code>)</li>
+<li><strong>Mouse buttons</strong> (<code>MouseButton { button }</code>) — <code>"Left"</code>, <code>"Right"</code>, <code>"Middle"</code>, <code>"Back"</code>, <code>"Forward"</code></li>
+<li><strong>Mouse delta</strong> (<code>MouseDelta { axis, scale }</code>) — raw mouse movement for camera look</li>
+<li><strong>Mouse wheel</strong> (<code>MouseWheel { axis, scale }</code>) — scroll wheel input</li>
+<li><strong>Gamepad buttons</strong> (<code>GamepadButton { button, gamepad }</code>) — any gilrs button name (e.g., <code>"South"</code>, <code>"RightTrigger"</code>)</li>
+<li><strong>Gamepad axes</strong> (<code>GamepadAxis { axis, gamepad, deadzone, scale, invert, threshold, direction }</code>) — analog sticks and triggers with full processing pipeline</li>
 </ul>
+<p>Actions have two kinds:</p>
+<ul>
+<li><strong>Button</strong> — discrete on/off (pressed/released). Any binding value &gt;= 0.5 counts as pressed.</li>
+<li><strong>Axis1d</strong> — continuous analog value. All binding values are summed.</li>
+</ul>
+<h3 id="input-configuration-files"><a class="header" href="#input-configuration-files">Input Configuration Files</a></h3>
+<p>Bindings are defined in TOML files with a layered loading model:</p>
+<pre><code class="language-toml">version = 1
+game_id = "doom_fps"
+
+[actions.move_forward]
+kind = "button"
+[[actions.move_forward.bindings]]
+type = "key"
+code = "KeyW"
+[[actions.move_forward.bindings]]
+type = "gamepad_axis"
+axis = "LeftStickY"
+direction = "negative"
+threshold = 0.35
+gamepad = "any"
+
+[actions.fire]
+kind = "button"
+[[actions.fire.bindings]]
+type = "mouse_button"
+button = "Left"
+[[actions.fire.bindings]]
+type = "gamepad_button"
+button = "RightTrigger"
+gamepad = "any"
+
+[actions.look_x]
+kind = "axis1d"
+[[actions.look_x.bindings]]
+type = "mouse_delta"
+axis = "x"
+scale = 2.0
+[[actions.look_x.bindings]]
+type = "gamepad_axis"
+axis = "RightStickX"
+deadzone = 0.15
+scale = 1.0
+gamepad = "any"
+</code></pre>
+<h3 id="config-layering"><a class="header" href="#config-layering">Config Layering</a></h3>
+<p>Configs are loaded with deterministic precedence (later layers override earlier):</p>
+<ol>
+<li><strong>Engine built-in defaults</strong> — hardcoded WASD + mouse baseline (always present)</li>
+<li><strong>Game default config</strong> — <code>&lt;game_root&gt;/config/input.toml</code> (checked into the repo)</li>
+<li><strong>User overrides</strong> — <code>~/.flint/input_{game_id}.toml</code> (per-player remapping, written at runtime)</li>
+<li><strong>CLI override</strong> — <code>--input-config &lt;path&gt;</code> flag (one-off testing/debugging)</li>
+</ol>
+<p>Scenes can also reference an input config via the <code>input_config</code> field in the <code>[scene]</code> table.</p>
 <h3 id="default-action-bindings"><a class="header" href="#default-action-bindings">Default Action Bindings</a></h3>
+<p>When no config files are present, the built-in defaults provide:</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Action</th><th>Key / Button</th><th>Description</th></tr>
+<tr><th>Action</th><th>Default Binding</th><th>Kind</th></tr>
 </thead>
 <tbody>
-<tr><td><code>move_forward</code></td><td>W</td><td>Move forward</td></tr>
-<tr><td><code>move_backward</code></td><td>S</td><td>Move backward</td></tr>
-<tr><td><code>move_left</code></td><td>A</td><td>Strafe left</td></tr>
-<tr><td><code>move_right</code></td><td>D</td><td>Strafe right</td></tr>
-<tr><td><code>jump</code></td><td>Space</td><td>Jump</td></tr>
-<tr><td><code>interact</code></td><td>E</td><td>Interact with nearby object</td></tr>
-<tr><td><code>sprint</code></td><td>Left Shift</td><td>Sprint (hold)</td></tr>
-<tr><td><code>weapon_1</code></td><td>1</td><td>Select weapon slot 1</td></tr>
-<tr><td><code>weapon_2</code></td><td>2</td><td>Select weapon slot 2</td></tr>
-<tr><td><code>reload</code></td><td>R</td><td>Reload weapon</td></tr>
-<tr><td><code>fire</code></td><td>Left Mouse Button</td><td>Fire weapon</td></tr>
+<tr><td><code>move_forward</code></td><td>W</td><td>Button</td></tr>
+<tr><td><code>move_backward</code></td><td>S</td><td>Button</td></tr>
+<tr><td><code>move_left</code></td><td>A</td><td>Button</td></tr>
+<tr><td><code>move_right</code></td><td>D</td><td>Button</td></tr>
+<tr><td><code>jump</code></td><td>Space</td><td>Button</td></tr>
+<tr><td><code>interact</code></td><td>E</td><td>Button</td></tr>
+<tr><td><code>sprint</code></td><td>Left Shift</td><td>Button</td></tr>
+<tr><td><code>weapon_1</code></td><td>1</td><td>Button</td></tr>
+<tr><td><code>weapon_2</code></td><td>2</td><td>Button</td></tr>
+<tr><td><code>reload</code></td><td>R</td><td>Button</td></tr>
+<tr><td><code>fire</code></td><td>Left Mouse Button</td><td>Button</td></tr>
 </tbody>
 </table>
 </div>
-<p>Mouse button bindings are stored in a separate <code>mouse_button_map</code> alongside the keyboard <code>action_map</code>. Both maps feed into the same <code>is_action_pressed()</code> / <code>is_action_just_pressed()</code> interface, so scripts don’t need to distinguish between key-triggered and mouse-triggered actions.</p>
+<p>Games can define any number of custom actions in their config files. Scripts access them with <code>is_action_pressed("custom_action")</code>.</p>
+<h3 id="gamepad-support"><a class="header" href="#gamepad-support">Gamepad Support</a></h3>
+<p>Gamepad input is handled via the <a href="https://gitlab.com/gilrs-project/gilrs">gilrs</a> crate. The player polls gamepad events each frame and routes them through the same binding system as keyboard/mouse:</p>
+<ul>
+<li><strong>Buttons</strong> are matched by gilrs <code>Debug</code> names: <code>South</code>, <code>East</code>, <code>North</code>, <code>West</code>, <code>LeftTrigger</code>, <code>RightTrigger</code>, <code>DPadUp</code>, etc.</li>
+<li><strong>Axes</strong> support deadzone filtering, scale, invert, and optional threshold for button-like behavior</li>
+<li><strong>Multi-gamepad</strong> is supported via <code>GamepadSelector::Any</code> (first match) or <code>GamepadSelector::Index(n)</code> (specific controller)</li>
+<li>Disconnected gamepads are automatically cleaned up</li>
+</ul>
+<h3 id="runtime-rebinding"><a class="header" href="#runtime-rebinding">Runtime Rebinding</a></h3>
+<p>Bindings can be remapped at runtime through the <code>rebind_action()</code> API:</p>
+<ol>
+<li>Call <code>begin_rebind_capture(action, mode)</code> to enter capture mode</li>
+<li>The next physical input (key press, mouse click, or gamepad button/axis) becomes the new binding</li>
+<li>The mode determines conflict resolution:
+<ul>
+<li><strong>Replace</strong> — clear all existing bindings, set the new one</li>
+<li><strong>Add</strong> — append to the binding list (allows multiple inputs for one action)</li>
+<li><strong>Swap</strong> — remove this binding from any other action, assign to target</li>
+</ul>
+</li>
+<li>User overrides are automatically saved to <code>~/.flint/input_{game_id}.toml</code></li>
+</ol>
 <h2 id="runtime-physics-updates"><a class="header" href="#runtime-physics-updates">Runtime Physics Updates</a></h2>
 <p>The physics system handles several runtime updates beyond the core simulation:</p>
 <ul>
