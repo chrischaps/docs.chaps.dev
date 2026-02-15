@@ -81,7 +81,7 @@
 <a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>flint_constraint::{ConstraintEvaluator, ConstraintRegistry};
 <a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span>flint_ecs::FlintWorld;
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>flint_import::import_gltf;
-<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>flint_render::{Camera, RenderContext, SceneRenderer};
+<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>flint_render::{Camera, RenderContext, RendererConfig, SceneRenderer};
 <a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span>flint_scene::load_scene;
 <a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span>flint_schema::SchemaRegistry;
 <a href=#11 id=11 data-nosnippet>11</a><span class="kw">use </span>notify_debouncer_mini::{new_debouncer, notify::RecursiveMode};
@@ -284,7 +284,7 @@
 <a href=#208 id=208 data-nosnippet>208</a>            <span class="bool-val">false</span>,
 <a href=#209 id=209 data-nosnippet>209</a>        );
 <a href=#210 id=210 data-nosnippet>210</a>
-<a href=#211 id=211 data-nosnippet>211</a>        <span class="kw">let </span><span class="kw-2">mut </span>scene_renderer = SceneRenderer::new(<span class="kw-2">&amp;</span>render_context);
+<a href=#211 id=211 data-nosnippet>211</a>        <span class="kw">let </span><span class="kw-2">mut </span>scene_renderer = SceneRenderer::new(<span class="kw-2">&amp;</span>render_context, RendererConfig { show_grid: <span class="bool-val">true </span>});
 <a href=#212 id=212 data-nosnippet>212</a>
 <a href=#213 id=213 data-nosnippet>213</a>        <span class="comment">// Load models and update meshes from world
 <a href=#214 id=214 data-nosnippet>214</a>        </span>{

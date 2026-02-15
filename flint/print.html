@@ -37,10 +37,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-ce485dde.js";
+            window.path_to_searchindex_js = "searchindex-f1c4bd62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-5a4e14e8.js"></script>
+        <script src="toc-af488a06.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -186,6 +186,9 @@
 <p>Current game engines are built around visual editors, drag-and-drop workflows, and GUI-heavy tooling. These become friction points when AI agents attempt to make changes programmatically — the agent ends up fighting against abstractions designed for human spatial reasoning and visual feedback loops.</p>
 <p>Flint inverts this: <strong>the primary interface is CLI and code</strong>, with visual tools focused on <em>validating</em> results rather than <em>creating</em> them.</p>
 <p>Every scene is a TOML file you can read, diff, and version. Every operation is a composable CLI command. Every piece of engine state is queryable as structured data. The viewer exists to answer one question: <em>“Did the agent do what I asked?”</em></p>
+<h2 id="built-with-flint"><a class="header" href="#built-with-flint">Built with Flint</a></h2>
+<p><img src="images/flintkart.png" alt="FlintKart — a low-poly kart racer built with Flint"></p>
+<p><em>FlintKart: a kart racing game built as a standalone project using Flint’s game project architecture — custom schemas, scripts, and assets layered on top of the engine via git subtree.</em></p>
 <h2 id="what-it-looks-like"><a class="header" href="#what-it-looks-like">What It Looks Like</a></h2>
 <p>Create a scene, add entities, query them, and view the result — all from the command line:</p>
 <pre><code class="language-bash"># Initialize a project
@@ -231,6 +234,10 @@ flint play levels/tavern.scene.toml
 <li><strong>Rhai scripting</strong> with entity/input/audio/animation APIs, event callbacks, and hot-reload</li>
 <li><strong>Interactable entities</strong> with HUD prompts, proximity detection, and scripted behaviors</li>
 <li><strong>AI asset generation</strong> with pluggable providers (Flux textures, Meshy 3D models, ElevenLabs audio), style guides, batch scene resolution, model validation, and build manifests</li>
+<li><strong>Billboard sprites</strong> with camera-facing quads and sprite sheet animation</li>
+<li><strong>GPU particle system</strong> with instanced rendering, per-emitter pooling, alpha/additive blending, and configurable emission shapes</li>
+<li><strong>Extensible input system</strong> with config-driven bindings for keyboard, mouse, and gamepad with runtime rebinding</li>
+<li><strong>Game project architecture</strong> for standalone games that include the engine as a git subtree</li>
 </ul>
 <p>See the <a href="#roadmap">Roadmap</a> for the full development history.</p>
 <h2 id="who-is-this-for"><a class="header" href="#who-is-this-for">Who Is This For?</a></h2>
@@ -2270,6 +2277,230 @@ fn on_init() {
 <li><a href="#file-formats">File Formats</a> — <code>.anim.toml</code> format reference</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="particles"><a class="header" href="#particles">Particles</a></h1>
+<p>Flint’s particle system provides GPU-instanced visual effects through the <code>flint-particles</code> crate. Fire, smoke, sparks, dust motes, magic effects — any volumetric visual that needs hundreds or thousands of small, short-lived elements.</p>
+<h2 id="how-it-works-1"><a class="header" href="#how-it-works-1">How It Works</a></h2>
+<p>Each entity with a <code>particle_emitter</code> component owns a <strong>pool</strong> of particles simulated on the CPU and rendered as camera-facing quads via GPU instancing. The pipeline is:</p>
+<pre><code>TOML component                CPU simulation              GPU rendering
+particle_emitter   ──►  ParticleSync reads config  ──►  ParticlePipeline
+  emission_rate         spawn/integrate/kill             instanced draw
+  gravity               pack into instance buffer        storage buffer
+  color_start/end       (swap-remove pool)               alpha or additive
+</code></pre>
+<p>Unlike billboard sprites (which are individual ECS entities), particles are <strong>pooled per-emitter</strong> — a single entity can own thousands of particles without overwhelming the ECS.</p>
+<h2 id="adding-particles-to-a-scene"><a class="header" href="#adding-particles-to-a-scene">Adding Particles to a Scene</a></h2>
+<p>Add a <code>particle_emitter</code> component to any entity:</p>
+<pre><code class="language-toml">[entities.campfire]
+[entities.campfire.transform]
+position = [0, 0.2, 0]
+
+[entities.campfire.particle_emitter]
+emission_rate = 40.0
+max_particles = 200
+lifetime_min = 0.3
+lifetime_max = 0.8
+speed_min = 1.5
+speed_max = 3.0
+direction = [0, 1, 0]
+spread = 20.0
+gravity = [0, 2.0, 0]
+size_start = 0.15
+size_end = 0.02
+color_start = [1.0, 0.7, 0.1, 0.9]
+color_end = [1.0, 0.1, 0.0, 0.0]
+blend_mode = "additive"
+shape = "sphere"
+shape_radius = 0.15
+autoplay = true
+</code></pre>
+<h2 id="emission-shapes"><a class="header" href="#emission-shapes">Emission Shapes</a></h2>
+<p>The <code>shape</code> field controls where new particles spawn relative to the emitter:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Shape</th><th>Fields</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>point</code></td><td>(none)</td><td>All particles spawn at the emitter origin</td></tr>
+<tr><td><code>sphere</code></td><td><code>shape_radius</code></td><td>Random position within a sphere</td></tr>
+<tr><td><code>cone</code></td><td><code>shape_angle</code>, <code>shape_radius</code></td><td>Particles emit in a cone around <code>direction</code></td></tr>
+<tr><td><code>box</code></td><td><code>shape_extents</code></td><td>Random position within an axis-aligned box</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="blend-modes"><a class="header" href="#blend-modes">Blend Modes</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Use Case</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>alpha</code></td><td>Smoke, dust, fog</td><td>Standard alpha blending — particles fade naturally</td></tr>
+<tr><td><code>additive</code></td><td>Fire, sparks, magic</td><td>Colors add together — bright, glowing effects</td></tr>
+</tbody>
+</table>
+</div>
+<p>Additive blending is order-independent, making it ideal for dense effects. Alpha blending looks best for soft, diffuse effects.</p>
+<h2 id="value-over-lifetime"><a class="header" href="#value-over-lifetime">Value Over Lifetime</a></h2>
+<p>Particles interpolate linearly between start and end values over their lifetime:</p>
+<ul>
+<li><strong><code>size_start</code> / <code>size_end</code></strong> — particles can grow (smoke expanding) or shrink (sparks dying)</li>
+<li><strong><code>color_start</code> / <code>color_end</code></strong> — RGBA transition. Set <code>color_end</code> alpha to 0 for fade-out</li>
+</ul>
+<h2 id="sprite-sheet-animation"><a class="header" href="#sprite-sheet-animation">Sprite Sheet Animation</a></h2>
+<p>For textured particles (flame sprites, explosion frames), use sprite sheets:</p>
+<pre><code class="language-toml">[entities.explosion.particle_emitter]
+texture = "explosion_sheet.png"
+frames_x = 4
+frames_y = 4
+animate_frames = true   # Auto-advance frames over particle lifetime
+</code></pre>
+<p>With <code>animate_frames = true</code>, each particle plays through the sprite sheet from birth to death.</p>
+<h2 id="bursts-and-duration"><a class="header" href="#bursts-and-duration">Bursts and Duration</a></h2>
+<p>For one-shot effects (explosions, impacts), combine bursts with limited duration:</p>
+<pre><code class="language-toml">[entities.explosion.particle_emitter]
+emission_rate = 0.0      # No continuous emission
+burst_count = 50         # 50 particles on each burst
+duration = 0.5           # Emitter runs for 0.5 seconds
+looping = false          # Don't repeat
+autoplay = true          # Fire immediately
+</code></pre>
+<p>For periodic bursts (fountain, heartbeat), set <code>looping = true</code> with a <code>duration</code>.</p>
+<h2 id="component-schema"><a class="header" href="#component-schema">Component Schema</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>emission_rate</code></td><td>f32</td><td>10.0</td><td>Particles per second (0 = burst-only)</td></tr>
+<tr><td><code>burst_count</code></td><td>i32</td><td>0</td><td>Particles fired on each burst/loop start</td></tr>
+<tr><td><code>max_particles</code></td><td>i32</td><td>256</td><td>Pool capacity (max 10,000)</td></tr>
+<tr><td><code>lifetime_min</code></td><td>f32</td><td>1.0</td><td>Minimum particle lifetime in seconds</td></tr>
+<tr><td><code>lifetime_max</code></td><td>f32</td><td>2.0</td><td>Maximum particle lifetime in seconds</td></tr>
+<tr><td><code>speed_min</code></td><td>f32</td><td>1.0</td><td>Minimum initial speed</td></tr>
+<tr><td><code>speed_max</code></td><td>f32</td><td>3.0</td><td>Maximum initial speed</td></tr>
+<tr><td><code>direction</code></td><td>vec3</td><td>[0,1,0]</td><td>Base emission direction (local space)</td></tr>
+<tr><td><code>spread</code></td><td>f32</td><td>15.0</td><td>Random deviation angle in degrees</td></tr>
+<tr><td><code>gravity</code></td><td>vec3</td><td>[0,-9.81,0]</td><td>Acceleration applied per frame (world space)</td></tr>
+<tr><td><code>damping</code></td><td>f32</td><td>0.0</td><td>Velocity decay per second</td></tr>
+<tr><td><code>size_start</code></td><td>f32</td><td>0.1</td><td>Particle size at birth</td></tr>
+<tr><td><code>size_end</code></td><td>f32</td><td>0.0</td><td>Particle size at death</td></tr>
+<tr><td><code>color_start</code></td><td>vec4</td><td>[1,1,1,1]</td><td>RGBA color at birth</td></tr>
+<tr><td><code>color_end</code></td><td>vec4</td><td>[1,1,1,0]</td><td>RGBA color at death</td></tr>
+<tr><td><code>texture</code></td><td>string</td><td>“”</td><td>Sprite texture (empty = white dot)</td></tr>
+<tr><td><code>frames_x</code></td><td>i32</td><td>1</td><td>Sprite sheet columns</td></tr>
+<tr><td><code>frames_y</code></td><td>i32</td><td>1</td><td>Sprite sheet rows</td></tr>
+<tr><td><code>animate_frames</code></td><td>bool</td><td>false</td><td>Auto-advance frames over lifetime</td></tr>
+<tr><td><code>blend_mode</code></td><td>string</td><td>“alpha”</td><td><code>"alpha"</code> or <code>"additive"</code></td></tr>
+<tr><td><code>shape</code></td><td>string</td><td>“point”</td><td><code>"point"</code>, <code>"sphere"</code>, <code>"cone"</code>, <code>"box"</code></td></tr>
+<tr><td><code>shape_radius</code></td><td>f32</td><td>0.5</td><td>Radius for sphere/cone shapes</td></tr>
+<tr><td><code>shape_angle</code></td><td>f32</td><td>30.0</td><td>Half-angle for cone shape (degrees)</td></tr>
+<tr><td><code>shape_extents</code></td><td>vec3</td><td>[0.5,0.5,0.5]</td><td>Half-extents for box shape</td></tr>
+<tr><td><code>world_space</code></td><td>bool</td><td>true</td><td>Particles detach from emitter transform</td></tr>
+<tr><td><code>duration</code></td><td>f32</td><td>0.0</td><td>Emitter duration (0 = infinite)</td></tr>
+<tr><td><code>looping</code></td><td>bool</td><td>true</td><td>Loop when duration expires</td></tr>
+<tr><td><code>playing</code></td><td>bool</td><td>false</td><td>Current playback state</td></tr>
+<tr><td><code>autoplay</code></td><td>bool</td><td>true</td><td>Start emitting on scene load</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="scripting-integration-2"><a class="header" href="#scripting-integration-2">Scripting Integration</a></h2>
+<p>Particles can be controlled from <a href="#scripting">Rhai scripts</a>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>emit_burst(entity_id, count)</code></td><td>Fire N particles immediately</td></tr>
+<tr><td><code>start_emitter(entity_id)</code></td><td>Start continuous emission</td></tr>
+<tr><td><code>stop_emitter(entity_id)</code></td><td>Stop emission (existing particles finish)</td></tr>
+<tr><td><code>set_emission_rate(entity_id, rate)</code></td><td>Change emission rate dynamically</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Rhai script: burst of sparks on impact
+fn on_collision() {
+    let me = self_entity();
+    emit_burst(me, 30);
+}
+
+// Rhai script: toggle emitter with interaction
+fn on_interact() {
+    let me = self_entity();
+    let playing = get_field(me, "particle_emitter", "playing");
+    if playing {
+        stop_emitter(me);
+    } else {
+        start_emitter(me);
+    }
+}
+<span class="boring">}</span></code></pre>
+<h2 id="architecture-2"><a class="header" href="#architecture-2">Architecture</a></h2>
+<ul>
+<li><strong>ParticlePool</strong> — swap-remove array for O(1) particle death, contiguous alive iteration</li>
+<li><strong>ParticleSync</strong> — bridges ECS <code>particle_emitter</code> components to the simulation, auto-discovers new emitters each frame</li>
+<li><strong>ParticleSystem</strong> — top-level <code>RuntimeSystem</code> that ticks simulation in <code>update()</code> (variable-rate, not fixed-step)</li>
+<li><strong>ParticlePipeline</strong> — wgpu render pipeline with alpha and additive variants, storage buffer for instances</li>
+</ul>
+<p>The particle system runs after animation (emitter transforms may be animated) and before the renderer refresh. Instance data is packed contiguously and uploaded to a GPU storage buffer for efficient instanced drawing.</p>
+<h2 id="recipes"><a class="header" href="#recipes">Recipes</a></h2>
+<h3 id="fire"><a class="header" href="#fire">Fire</a></h3>
+<pre><code class="language-toml">emission_rate = 40.0
+gravity = [0, 2.0, 0]
+color_start = [1.0, 0.7, 0.1, 0.9]
+color_end = [1.0, 0.1, 0.0, 0.0]
+blend_mode = "additive"
+shape = "sphere"
+shape_radius = 0.15
+</code></pre>
+<h3 id="smoke"><a class="header" href="#smoke">Smoke</a></h3>
+<pre><code class="language-toml">emission_rate = 8.0
+gravity = [0, 0.5, 0]
+damping = 0.3
+size_start = 0.1
+size_end = 0.6
+color_start = [0.4, 0.4, 0.4, 0.3]
+color_end = [0.6, 0.6, 0.6, 0.0]
+blend_mode = "alpha"
+</code></pre>
+<h3 id="sparks"><a class="header" href="#sparks">Sparks</a></h3>
+<pre><code class="language-toml">emission_rate = 15.0
+speed_min = 3.0
+speed_max = 6.0
+spread = 45.0
+gravity = [0, -9.81, 0]
+size_start = 0.03
+size_end = 0.01
+color_start = [1.0, 0.9, 0.3, 1.0]
+color_end = [1.0, 0.3, 0.0, 0.0]
+blend_mode = "additive"
+</code></pre>
+<h3 id="dust-motes"><a class="header" href="#dust-motes">Dust Motes</a></h3>
+<pre><code class="language-toml">emission_rate = 5.0
+speed_min = 0.05
+speed_max = 0.2
+spread = 180.0
+gravity = [0, 0.02, 0]
+damping = 0.5
+size_start = 0.02
+size_end = 0.02
+color_start = [1.0, 1.0, 0.9, 0.5]
+color_end = [1.0, 1.0, 0.9, 0.0]
+shape = "box"
+shape_extents = [2.0, 1.0, 2.0]
+</code></pre>
+<h2 id="further-reading-12"><a class="header" href="#further-reading-12">Further Reading</a></h2>
+<ul>
+<li><a href="#scripting">Scripting</a> — full scripting API including particle functions</li>
+<li><a href="#animation">Animation</a> — animate emitter transforms with property tweens</li>
+<li><a href="#rendering">Rendering</a> — the GPU pipeline that draws particles</li>
+<li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop that drives particle simulation</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="physics-and-runtime"><a class="header" href="#physics-and-runtime">Physics and Runtime</a></h1>
 <p>Flint’s runtime layer transforms static scenes into interactive, playable experiences. The <code>flint-runtime</code> crate provides the game loop infrastructure, and <code>flint-physics</code> integrates the Rapier 3D physics engine for collision detection and character movement.</p>
 <h2 id="the-game-loop"><a class="header" href="#the-game-loop">The Game Loop</a></h2>
@@ -2356,7 +2587,7 @@ body_type = "static"
 <p>Raycasting is exposed to scripts via the <code>raycast()</code> function — see <a href="#physics-api">Scripting: Physics API</a> for the script-level interface and examples.</p>
 <h2 id="input-system"><a class="header" href="#input-system">Input System</a></h2>
 <p>The <code>InputState</code> struct provides a config-driven, device-agnostic input layer. It tracks keyboard, mouse, and gamepad state each frame and evaluates logical <strong>actions</strong> from physical bindings.</p>
-<h3 id="how-it-works-1"><a class="header" href="#how-it-works-1">How It Works</a></h3>
+<h3 id="how-it-works-2"><a class="header" href="#how-it-works-2">How It Works</a></h3>
 <p>All input flows through a unified <code>Binding</code> model:</p>
 <ul>
 <li><strong>Keyboard keys</strong> (<code>Key { code }</code>) — any winit <code>KeyCode</code> name (e.g., <code>"KeyW"</code>, <code>"Space"</code>, <code>"ShiftLeft"</code>)</li>
@@ -2472,7 +2703,7 @@ gamepad = "any"
 <li><strong>Kinematic body sync</strong> — script-controlled position changes are written back to Rapier kinematic bodies each frame</li>
 <li><strong>Collision event drain</strong> — the <code>ChannelEventCollector</code> collects collision and contact events each physics step; these are drained and dispatched as script callbacks (<code>on_collision</code>, <code>on_trigger_enter</code>, <code>on_trigger_exit</code>)</li>
 </ul>
-<h2 id="further-reading-12"><a class="header" href="#further-reading-12">Further Reading</a></h2>
+<h2 id="further-reading-13"><a class="header" href="#further-reading-13">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — Rhai scripting system for game logic</li>
 <li><a href="#audio">Audio</a> — spatial audio with Kira</li>
@@ -2881,7 +3112,7 @@ fn on_interact() {
     log("Bartender waves at you");
 }
 <span class="boring">}</span></code></pre>
-<h2 id="architecture-2"><a class="header" href="#architecture-2">Architecture</a></h2>
+<h2 id="architecture-3"><a class="header" href="#architecture-3">Architecture</a></h2>
 <pre><code>on_init ──► ScriptEngine.call_inits()
                 │
                 ▼
@@ -2952,7 +3183,7 @@ fn on_draw_ui() {
 }
 <span class="boring">}</span></code></pre>
 <p>This pattern keeps all game-specific HUD logic in scripts rather than engine code. The engine provides only the generic draw primitives.</p>
-<h2 id="further-reading-13"><a class="header" href="#further-reading-13">Further Reading</a></h2>
+<h2 id="further-reading-14"><a class="header" href="#further-reading-14">Further Reading</a></h2>
 <ul>
 <li><a href="#audio">Audio</a> — sound system that scripts can control</li>
 <li><a href="#animation">Animation</a> — animation system driven by script commands</li>
@@ -3154,7 +3385,7 @@ default_style = "medieval_tavern"
 <li>Fall back to file-based loading if not in the catalog</li>
 </ol>
 <p>This means scenes can seamlessly reference both pre-imported and AI-generated assets by name, without hardcoding file paths.</p>
-<h2 id="further-reading-14"><a class="header" href="#further-reading-14">Further Reading</a></h2>
+<h2 id="further-reading-15"><a class="header" href="#further-reading-15">Further Reading</a></h2>
 <ul>
 <li><a href="#assets">Assets</a> — content-addressed storage and catalog system</li>
 <li><a href="#file-formats">File Formats</a> — <code>.style.toml</code> and <code>asset_def.toml</code> format reference</li>
@@ -3384,7 +3615,7 @@ flint play levels/tavern.scene.toml
 <pre><code class="language-bash"># Try the finished demo
 cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 </code></pre>
-<h2 id="further-reading-15"><a class="header" href="#further-reading-15">Further Reading</a></h2>
+<h2 id="further-reading-16"><a class="header" href="#further-reading-16">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — full Rhai API reference</li>
 <li><a href="#audio">Audio</a> — spatial audio system</li>
@@ -3533,7 +3764,7 @@ flint validate levels/tavern.scene.toml --fix
 <p>All <code>.toml</code> files in <code>schemas/constraints/</code> are loaded automatically.</p>
 <h2 id="cascade-detection"><a class="header" href="#cascade-detection">Cascade Detection</a></h2>
 <p>When auto-fix modifies one entity, it might cause a different constraint to fail. Flint handles this by running fix-validate cycles. If a cycle is detected (the same violation keeps appearing), the fixer stops and reports the issue.</p>
-<h2 id="further-reading-16"><a class="header" href="#further-reading-16">Further Reading</a></h2>
+<h2 id="further-reading-17"><a class="header" href="#further-reading-17">Further Reading</a></h2>
 <ul>
 <li><a href="#constraints">Constraints</a> — constraint system reference</li>
 <li><a href="#queries">Queries</a> — query syntax used in constraint selectors</li>
@@ -3641,7 +3872,7 @@ flint asset resolve levels/tavern.scene.toml --strategy ai_generate --style medi
 </tbody>
 </table>
 </div>
-<h2 id="further-reading-17"><a class="header" href="#further-reading-17">Further Reading</a></h2>
+<h2 id="further-reading-18"><a class="header" href="#further-reading-18">Further Reading</a></h2>
 <ul>
 <li><a href="#assets">Assets</a> — content-addressed storage concept</li>
 <li><a href="#ai-asset-generation-1">AI Asset Generation</a> — generating assets with AI providers</li>
@@ -3736,7 +3967,7 @@ done
 <li><strong>Skinned mesh rendering</strong> with bone matrix upload (for skeletal meshes)</li>
 </ul>
 <p>The only difference from interactive rendering is that the output goes to a texture-to-buffer copy instead of a swapchain surface.</p>
-<h2 id="further-reading-18"><a class="header" href="#further-reading-18">Further Reading</a></h2>
+<h2 id="further-reading-19"><a class="header" href="#further-reading-19">Further Reading</a></h2>
 <ul>
 <li><a href="#rendering">Rendering</a> — the PBR rendering pipeline</li>
 <li><a href="#ai-agent-workflow">AI Agent Workflow</a> — using headless renders for agent verification</li>
@@ -3939,7 +4170,7 @@ echo "Scene built successfully. Preview: preview.png"
 <li><strong>Use semantic asset definitions</strong> — let batch resolution handle asset generation</li>
 <li><strong>Render previews</strong> — visual verification catches issues that validation can’t</li>
 </ul>
-<h2 id="further-reading-19"><a class="header" href="#further-reading-19">Further Reading</a></h2>
+<h2 id="further-reading-20"><a class="header" href="#further-reading-20">Further Reading</a></h2>
 <ul>
 <li><a href="#ai-agent-interface">AI Agent Interface</a> — the design philosophy</li>
 <li><a href="#cli-first-workflow">CLI-First Workflow</a> — composable commands</li>
@@ -4138,7 +4369,7 @@ git subtree pull --prefix=engine flint-engine main --squash
 git subtree push --prefix=engine flint-engine main
 </code></pre>
 <p>Engine edits are normal commits in your game repo. The subtree commands handle splitting and merging the <code>engine/</code> prefix.</p>
-<h2 id="further-reading-20"><a class="header" href="#further-reading-20">Further Reading</a></h2>
+<h2 id="further-reading-21"><a class="header" href="#further-reading-21">Further Reading</a></h2>
 <ul>
 <li><a href="#schemas">Schemas</a> — component and archetype schema system</li>
 <li><a href="#scripting">Scripting</a> — full Rhai scripting API</li>
@@ -4495,7 +4726,7 @@ default_style = "medieval_tavern"
 <p>Environment variable overrides: <code>FLINT_FLUX_API_KEY</code>, <code>FLINT_MESHY_API_KEY</code>, <code>FLINT_ELEVENLABS_API_KEY</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="architecture-overview"><a class="header" href="#architecture-overview">Architecture Overview</a></h1>
-<p>Flint is structured as an eighteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
+<p>Flint is structured as a nineteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
 <h2 id="workspace-structure"><a class="header" href="#workspace-structure">Workspace Structure</a></h2>
 <pre><code>flint/
 ├── crates/
@@ -4504,6 +4735,7 @@ default_style = "medieval_tavern"
 │   ├── flint-player/       # Standalone player binary with game loop, physics, audio, animation, scripting
 │   ├── flint-script/       # Rhai scripting: ScriptEngine, ScriptSync, hot-reload
 │   ├── flint-viewer/       # egui-based GUI inspector with hot-reload
+│   ├── flint-particles/    # GPU-instanced particle system with pooling and emission shapes
 │   ├── flint-animation/    # Two-tier animation: property tweens + skeletal/glTF
 │   ├── flint-audio/        # Kira spatial audio: 3D sounds, ambient loops, triggers
 │   ├── flint-runtime/      # Game loop infrastructure (GameClock, InputState, EventBus)
@@ -4574,15 +4806,16 @@ default_style = "medieval_tavern"
       ├──► flint-query     (queries)     ├──► flint-physics   (Rapier 3D)
       ├──► flint-scene     (load/save)   ├──► flint-audio     (Kira spatial audio)
       ├──► flint-render    (renderer)    ├──► flint-animation (tweens + skeletal)
-      ├──► flint-constraint(validation)  ├──► flint-script    (Rhai scripting)
-      ├──► flint-asset     (catalog)     └──► flint-render    (PBR + skinned mesh)
-      ├──► flint-asset-gen (AI gen)              │
-      └──► flint-import    (glTF import)         ▼
-              │                              flint-import  (glTF meshes + skins)
-              ▼                                  │
-          flint-ecs                              ▼
-          flint-schema                       flint-ecs
-          flint-core                         flint-schema
+      ├──► flint-constraint(validation)  ├──► flint-particles (GPU particles)
+      ├──► flint-asset     (catalog)     ├──► flint-script    (Rhai scripting)
+      ├──► flint-asset-gen (AI gen)      └──► flint-render    (PBR + skinned mesh)
+      └──► flint-import    (glTF import)         │
+              │                                  ▼
+              ▼                              flint-import  (glTF meshes + skins)
+          flint-ecs                              │
+          flint-schema                           ▼
+          flint-core                         flint-ecs
+                                             flint-schema
                                              flint-core
 </code></pre>
 <h2 id="crate-details"><a class="header" href="#crate-details">Crate Details</a></h2>
@@ -4666,6 +4899,15 @@ default_style = "medieval_tavern"
 <li><code>AnimationSync</code> bridges ECS <code>animator</code> components to property playback</li>
 <li><code>SkeletalSync</code> bridges ECS to skeletal playback with bone matrix computation</li>
 </ul>
+<h3 id="flint-particles"><a class="header" href="#flint-particles">flint-particles</a></h3>
+<p>GPU-instanced particle system for visual effects:</p>
+<ul>
+<li><strong>ParticlePool</strong> — swap-remove array for O(1) particle death, contiguous alive iteration</li>
+<li><strong>ParticleSync</strong> — bridges ECS <code>particle_emitter</code> components to the simulation, auto-discovers new emitters each frame</li>
+<li><strong>ParticleSystem</strong> — top-level <code>RuntimeSystem</code> that ticks simulation in <code>update()</code> (variable-rate, not fixed-step)</li>
+<li><strong>ParticlePipeline</strong> — wgpu render pipeline with alpha and additive variants, storage buffer for instances</li>
+<li>Emission shapes: point, sphere, cone, box. Value-over-lifetime interpolation for size and color.</li>
+</ul>
 <h3 id="flint-script"><a class="header" href="#flint-script">flint-script</a></h3>
 <p>Rhai scripting engine for runtime game logic:</p>
 <ul>
@@ -4691,7 +4933,7 @@ default_style = "medieval_tavern"
 <li><code>JobStore</code> — persistent tracking of async generation jobs (for long-running 3D model generation)</li>
 </ul>
 <h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
-<p>Standalone player binary that wires together runtime, physics, audio, animation, scripting, and rendering:</p>
+<p>Standalone player binary that wires together runtime, physics, audio, animation, particles, scripting, and rendering:</p>
 <ul>
 <li>Full game loop: clock tick, fixed-step physics, audio sync, animation advance, script update, first-person rendering</li>
 <li>Scene loading with physics body creation from TOML collider/rigidbody components</li>
@@ -4705,14 +4947,14 @@ default_style = "medieval_tavern"
 </ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>
 <p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>serve</code>, <code>play</code>, <code>validate</code>, <code>asset</code>, <code>render</code>.</p>
-<h2 id="further-reading-21"><a class="header" href="#further-reading-21">Further Reading</a></h2>
+<h2 id="further-reading-22"><a class="header" href="#further-reading-22">Further Reading</a></h2>
 <ul>
 <li><a href="#crate-dependency-graph">Crate Dependency Graph</a> — visual dependency diagram</li>
 <li><a href="#design-principles">Design Principles</a> — the principles behind these decisions</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="crate-dependency-graph"><a class="header" href="#crate-dependency-graph">Crate Dependency Graph</a></h1>
-<p>This page shows how Flint’s eighteen crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
+<p>This page shows how Flint’s nineteen crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
 <h2 id="dependency-diagram"><a class="header" href="#dependency-diagram">Dependency Diagram</a></h2>
 <pre><code>          ┌─────────────┐                ┌──────────────┐
           │  flint-cli  │                │ flint-player │
@@ -4777,10 +5019,11 @@ default_style = "medieval_tavern"
 <tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>script, player</td></tr>
 <tr><td><code>flint-audio</code></td><td>core, ecs, runtime</td><td>player</td></tr>
 <tr><td><code>flint-animation</code></td><td>core, ecs, import, runtime</td><td>player</td></tr>
+<tr><td><code>flint-particles</code></td><td>core, ecs, runtime</td><td>player</td></tr>
 <tr><td><code>flint-script</code></td><td>core, ecs, runtime, physics</td><td>player</td></tr>
 <tr><td><code>flint-asset-gen</code></td><td>core, asset, import</td><td>cli</td></tr>
 <tr><td><code>flint-viewer</code></td><td>core, ecs, scene, schema, render, import, constraint</td><td>cli</td></tr>
-<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, script, import, asset</td><td><em>(binary entry point)</em></td></tr>
+<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, particles, script, import, asset</td><td><em>(binary entry point)</em></td></tr>
 <tr><td><code>flint-cli</code></td><td>all crates</td><td><em>(binary entry point)</em></td></tr>
 </tbody>
 </table>
@@ -4793,12 +5036,12 @@ default_style = "medieval_tavern"
 <li><strong>Schema</strong> — data definitions (<code>flint-schema</code>)</li>
 <li><strong>Storage</strong> — entity and asset management (<code>flint-ecs</code>, <code>flint-asset</code>)</li>
 <li><strong>Logic</strong> — query, scene, constraint, import, asset-gen</li>
-<li><strong>Systems</strong> — render, runtime, physics, audio, animation, script</li>
+<li><strong>Systems</strong> — render, runtime, physics, audio, animation, particles, script</li>
 <li><strong>Applications</strong> — viewer, player</li>
 <li><strong>Interface</strong> — CLI binary (<code>flint-cli</code>), player binary (<code>flint-player</code>)</li>
 </ol>
 <p><strong>Two entry points.</strong> The CLI binary (<code>flint-cli</code>) serves scene authoring and validation workflows. The player binary (<code>flint-player</code>) serves interactive gameplay. Both share the same underlying crate hierarchy.</p>
-<p><strong>Mostly independent subsystems.</strong> The constraint, asset, physics, audio, animation, asset generation, and render systems don’t depend on each other. The one exception is <code>flint-script</code>, which depends on <code>flint-physics</code> for raycasting and camera direction access. This means most subsystems can be built and tested in isolation.</p>
+<p><strong>Mostly independent subsystems.</strong> The constraint, asset, physics, audio, animation, particles, asset generation, and render systems don’t depend on each other. The one exception is <code>flint-script</code>, which depends on <code>flint-physics</code> for raycasting and camera direction access. This means most subsystems can be built and tested in isolation.</p>
 <h2 id="external-dependencies"><a class="header" href="#external-dependencies">External Dependencies</a></h2>
 <p>Key third-party crates used across the workspace:</p>
 <div class="table-wrapper">
@@ -5013,7 +5256,7 @@ cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 <li>Tests live alongside the code they test (<code>#[cfg(test)]</code> modules)</li>
 <li>Prefer explicit over clever; readability over brevity</li>
 </ul>
-<h2 id="architecture-3"><a class="header" href="#architecture-3">Architecture</a></h2>
+<h2 id="architecture-4"><a class="header" href="#architecture-4">Architecture</a></h2>
 <p>The project is an 18-crate Cargo workspace. See the <a href="#architecture-overview">Architecture Overview</a> and <a href="#crate-dependency-graph">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
 <ul>
 <li>Dependencies flow in one direction (binary crates at the top, <code>flint-core</code> at the bottom)</li>

@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-ce485dde.js";
+            window.path_to_searchindex_js = "searchindex-f1c4bd62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-5a4e14e8.js"></script>
+        <script src="toc-af488a06.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -185,6 +185,9 @@
 <p>Current game engines are built around visual editors, drag-and-drop workflows, and GUI-heavy tooling. These become friction points when AI agents attempt to make changes programmatically — the agent ends up fighting against abstractions designed for human spatial reasoning and visual feedback loops.</p>
 <p>Flint inverts this: <strong>the primary interface is CLI and code</strong>, with visual tools focused on <em>validating</em> results rather than <em>creating</em> them.</p>
 <p>Every scene is a TOML file you can read, diff, and version. Every operation is a composable CLI command. Every piece of engine state is queryable as structured data. The viewer exists to answer one question: <em>“Did the agent do what I asked?”</em></p>
+<h2 id="built-with-flint"><a class="header" href="#built-with-flint">Built with Flint</a></h2>
+<p><img src="images/flintkart.png" alt="FlintKart — a low-poly kart racer built with Flint"></p>
+<p><em>FlintKart: a kart racing game built as a standalone project using Flint’s game project architecture — custom schemas, scripts, and assets layered on top of the engine via git subtree.</em></p>
 <h2 id="what-it-looks-like"><a class="header" href="#what-it-looks-like">What It Looks Like</a></h2>
 <p>Create a scene, add entities, query them, and view the result — all from the command line:</p>
 <pre><code class="language-bash"># Initialize a project
@@ -230,6 +233,10 @@ flint play levels/tavern.scene.toml
 <li><strong>Rhai scripting</strong> with entity/input/audio/animation APIs, event callbacks, and hot-reload</li>
 <li><strong>Interactable entities</strong> with HUD prompts, proximity detection, and scripted behaviors</li>
 <li><strong>AI asset generation</strong> with pluggable providers (Flux textures, Meshy 3D models, ElevenLabs audio), style guides, batch scene resolution, model validation, and build manifests</li>
+<li><strong>Billboard sprites</strong> with camera-facing quads and sprite sheet animation</li>
+<li><strong>GPU particle system</strong> with instanced rendering, per-emitter pooling, alpha/additive blending, and configurable emission shapes</li>
+<li><strong>Extensible input system</strong> with config-driven bindings for keyboard, mouse, and gamepad with runtime rebinding</li>
+<li><strong>Game project architecture</strong> for standalone games that include the engine as a git subtree</li>
 </ul>
 <p>See the <a href="roadmap.html">Roadmap</a> for the full development history.</p>
 <h2 id="who-is-this-for"><a class="header" href="#who-is-this-for">Who Is This For?</a></h2>

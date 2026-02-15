@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EmissionShape","ParticleBlendMode"],"struct":["EmitterConfig","EmitterState"]};

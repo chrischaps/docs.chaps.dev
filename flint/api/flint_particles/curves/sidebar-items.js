@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["lerp_color","lerp_f32"]};

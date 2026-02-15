@@ -453,7 +453,7 @@
 <a href=#377 id=377 data-nosnippet>377</a>    scene_path: <span class="kw-2">&amp;</span>str,
 <a href=#378 id=378 data-nosnippet>378</a>    world: <span class="kw-2">&amp;mut </span>FlintWorld,
 <a href=#379 id=379 data-nosnippet>379</a>    renderer: <span class="kw-2">&amp;mut </span>SceneRenderer,
-<a href=#380 id=380 data-nosnippet>380</a>    physics: <span class="kw-2">&amp;mut </span>PhysicsSystem,
+<a href=#380 id=380 data-nosnippet>380</a>    <span class="kw-2">mut </span>physics: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>PhysicsSystem&gt;,
 <a href=#381 id=381 data-nosnippet>381</a>    device: <span class="kw-2">&amp;</span>wgpu::Device,
 <a href=#382 id=382 data-nosnippet>382</a>) {
 <a href=#383 id=383 data-nosnippet>383</a>    <span class="kw">let </span>scene_dir = Path::new(scene_path)
@@ -616,25 +616,27 @@
 <a href=#540 id=540 data-nosnippet>540</a>        };
 <a href=#541 id=541 data-nosnippet>541</a>        renderer.load_procedural_mesh(device, <span class="kw-2">&amp;</span>job.entity_name, <span class="kw-2">&amp;</span>verts, <span class="kw-2">&amp;</span>indices, material);
 <a href=#542 id=542 data-nosnippet>542</a>
-<a href=#543 id=543 data-nosnippet>543</a>        <span class="comment">// Register trimesh collider
-<a href=#544 id=544 data-nosnippet>544</a>        </span>physics.sync.register_static_trimesh(
-<a href=#545 id=545 data-nosnippet>545</a>            job.entity_id,
-<a href=#546 id=546 data-nosnippet>546</a>            <span class="kw-2">&amp;mut </span>physics.physics_world,
-<a href=#547 id=547 data-nosnippet>547</a>            phys_verts,
-<a href=#548 id=548 data-nosnippet>548</a>            phys_tris,
-<a href=#549 id=549 data-nosnippet>549</a>            job.def.friction,
-<a href=#550 id=550 data-nosnippet>550</a>            job.def.restitution,
-<a href=#551 id=551 data-nosnippet>551</a>        );
-<a href=#552 id=552 data-nosnippet>552</a>
-<a href=#553 id=553 data-nosnippet>553</a>        <span class="comment">// Set model.asset so renderer draws it
-<a href=#554 id=554 data-nosnippet>554</a>        </span>set_model_asset(world, job.entity_id, <span class="kw-2">&amp;</span>job.entity_name);
-<a href=#555 id=555 data-nosnippet>555</a>    }
-<a href=#556 id=556 data-nosnippet>556</a>
-<a href=#557 id=557 data-nosnippet>557</a>    <span class="kw">if </span>!spline_infos.is_empty() || !mesh_jobs.is_empty() {
-<a href=#558 id=558 data-nosnippet>558</a>        <span class="macro">println!</span>(
-<a href=#559 id=559 data-nosnippet>559</a>            <span class="string">"Spline generation complete: {} splines, {} meshes."</span>,
-<a href=#560 id=560 data-nosnippet>560</a>            spline_infos.len(),
-<a href=#561 id=561 data-nosnippet>561</a>            mesh_jobs.len(),
-<a href=#562 id=562 data-nosnippet>562</a>        );
-<a href=#563 id=563 data-nosnippet>563</a>    }
-<a href=#564 id=564 data-nosnippet>564</a>}</code></pre></div></section></main></body></html>
+<a href=#543 id=543 data-nosnippet>543</a>        <span class="comment">// Register trimesh collider (when physics is available)
+<a href=#544 id=544 data-nosnippet>544</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>phys) = physics {
+<a href=#545 id=545 data-nosnippet>545</a>            phys.sync.register_static_trimesh(
+<a href=#546 id=546 data-nosnippet>546</a>                job.entity_id,
+<a href=#547 id=547 data-nosnippet>547</a>                <span class="kw-2">&amp;mut </span>phys.physics_world,
+<a href=#548 id=548 data-nosnippet>548</a>                phys_verts,
+<a href=#549 id=549 data-nosnippet>549</a>                phys_tris,
+<a href=#550 id=550 data-nosnippet>550</a>                job.def.friction,
+<a href=#551 id=551 data-nosnippet>551</a>                job.def.restitution,
+<a href=#552 id=552 data-nosnippet>552</a>            );
+<a href=#553 id=553 data-nosnippet>553</a>        }
+<a href=#554 id=554 data-nosnippet>554</a>
+<a href=#555 id=555 data-nosnippet>555</a>        <span class="comment">// Set model.asset so renderer draws it
+<a href=#556 id=556 data-nosnippet>556</a>        </span>set_model_asset(world, job.entity_id, <span class="kw-2">&amp;</span>job.entity_name);
+<a href=#557 id=557 data-nosnippet>557</a>    }
+<a href=#558 id=558 data-nosnippet>558</a>
+<a href=#559 id=559 data-nosnippet>559</a>    <span class="kw">if </span>!spline_infos.is_empty() || !mesh_jobs.is_empty() {
+<a href=#560 id=560 data-nosnippet>560</a>        <span class="macro">println!</span>(
+<a href=#561 id=561 data-nosnippet>561</a>            <span class="string">"Spline generation complete: {} splines, {} meshes."</span>,
+<a href=#562 id=562 data-nosnippet>562</a>            spline_infos.len(),
+<a href=#563 id=563 data-nosnippet>563</a>            mesh_jobs.len(),
+<a href=#564 id=564 data-nosnippet>564</a>        );
+<a href=#565 id=565 data-nosnippet>565</a>    }
+<a href=#566 id=566 data-nosnippet>566</a>}</code></pre></div></section></main></body></html>
