@@ -86,135 +86,175 @@
 <a href=#10 id=10 data-nosnippet>10</a>    <span class="attr">#[serde(default)]
 <a href=#11 id=11 data-nosnippet>11</a>    </span><span class="kw">pub </span>environment: <span class="prelude-ty">Option</span>&lt;EnvironmentDef&gt;,
 <a href=#12 id=12 data-nosnippet>12</a>    <span class="attr">#[serde(default)]
-<a href=#13 id=13 data-nosnippet>13</a>    </span><span class="kw">pub </span>entities: HashMap&lt;String, EntityDef&gt;,
-<a href=#14 id=14 data-nosnippet>14</a>}
-<a href=#15 id=15 data-nosnippet>15</a>
-<a href=#16 id=16 data-nosnippet>16</a><span class="doccomment">/// Environment settings for the scene (skybox, etc.)
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
-<a href=#18 id=18 data-nosnippet>18</a></span><span class="kw">pub struct </span>EnvironmentDef {
-<a href=#19 id=19 data-nosnippet>19</a>    <span class="doccomment">/// Path to equirectangular panorama image for the skybox
-<a href=#20 id=20 data-nosnippet>20</a>    </span><span class="attr">#[serde(default)]
-<a href=#21 id=21 data-nosnippet>21</a>    </span><span class="kw">pub </span>skybox: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#22 id=22 data-nosnippet>22</a>}
-<a href=#23 id=23 data-nosnippet>23</a>
-<a href=#24 id=24 data-nosnippet>24</a><span class="doccomment">/// Scene metadata
-<a href=#25 id=25 data-nosnippet>25</a></span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
-<a href=#26 id=26 data-nosnippet>26</a></span><span class="kw">pub struct </span>SceneMetadata {
-<a href=#27 id=27 data-nosnippet>27</a>    <span class="kw">pub </span>name: String,
-<a href=#28 id=28 data-nosnippet>28</a>    <span class="attr">#[serde(default = <span class="string">"default_version"</span>)]
-<a href=#29 id=29 data-nosnippet>29</a>    </span><span class="kw">pub </span>version: String,
-<a href=#30 id=30 data-nosnippet>30</a>    <span class="attr">#[serde(default)]
-<a href=#31 id=31 data-nosnippet>31</a>    </span><span class="kw">pub </span>description: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#32 id=32 data-nosnippet>32</a>    <span class="attr">#[serde(default)]
-<a href=#33 id=33 data-nosnippet>33</a>    </span><span class="kw">pub </span>input_config: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#34 id=34 data-nosnippet>34</a>}
-<a href=#35 id=35 data-nosnippet>35</a>
-<a href=#36 id=36 data-nosnippet>36</a><span class="kw">fn </span>default_version() -&gt; String {
-<a href=#37 id=37 data-nosnippet>37</a>    <span class="string">"1.0"</span>.to_string()
-<a href=#38 id=38 data-nosnippet>38</a>}
-<a href=#39 id=39 data-nosnippet>39</a>
-<a href=#40 id=40 data-nosnippet>40</a><span class="doccomment">/// Definition of an entity in a scene file
-<a href=#41 id=41 data-nosnippet>41</a></span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
-<a href=#42 id=42 data-nosnippet>42</a></span><span class="kw">pub struct </span>EntityDef {
-<a href=#43 id=43 data-nosnippet>43</a>    <span class="doccomment">/// Optional archetype name
-<a href=#44 id=44 data-nosnippet>44</a>    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
-<a href=#45 id=45 data-nosnippet>45</a>    </span><span class="kw">pub </span>archetype: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#46 id=46 data-nosnippet>46</a>    <span class="doccomment">/// Optional parent entity name
-<a href=#47 id=47 data-nosnippet>47</a>    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
-<a href=#48 id=48 data-nosnippet>48</a>    </span><span class="kw">pub </span>parent: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#49 id=49 data-nosnippet>49</a>    <span class="doccomment">/// Component data - all other fields are treated as components
-<a href=#50 id=50 data-nosnippet>50</a>    </span><span class="attr">#[serde(flatten)]
-<a href=#51 id=51 data-nosnippet>51</a>    </span><span class="kw">pub </span>components: HashMap&lt;String, toml::Value&gt;,
-<a href=#52 id=52 data-nosnippet>52</a>}
-<a href=#53 id=53 data-nosnippet>53</a>
-<a href=#54 id=54 data-nosnippet>54</a><span class="kw">impl </span>EntityDef {
-<a href=#55 id=55 data-nosnippet>55</a>    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-<a href=#56 id=56 data-nosnippet>56</a>        <span class="self">Self </span>{
-<a href=#57 id=57 data-nosnippet>57</a>            archetype: <span class="prelude-val">None</span>,
-<a href=#58 id=58 data-nosnippet>58</a>            parent: <span class="prelude-val">None</span>,
-<a href=#59 id=59 data-nosnippet>59</a>            components: HashMap::new(),
-<a href=#60 id=60 data-nosnippet>60</a>        }
-<a href=#61 id=61 data-nosnippet>61</a>    }
+<a href=#13 id=13 data-nosnippet>13</a>    </span><span class="kw">pub </span>post_process: <span class="prelude-ty">Option</span>&lt;PostProcessDef&gt;,
+<a href=#14 id=14 data-nosnippet>14</a>    <span class="attr">#[serde(default)]
+<a href=#15 id=15 data-nosnippet>15</a>    </span><span class="kw">pub </span>entities: HashMap&lt;String, EntityDef&gt;,
+<a href=#16 id=16 data-nosnippet>16</a>}
+<a href=#17 id=17 data-nosnippet>17</a>
+<a href=#18 id=18 data-nosnippet>18</a><span class="doccomment">/// Post-processing settings for the scene
+<a href=#19 id=19 data-nosnippet>19</a></span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="kw">pub struct </span>PostProcessDef {
+<a href=#21 id=21 data-nosnippet>21</a>    <span class="attr">#[serde(default = <span class="string">"default_true"</span>)]
+<a href=#22 id=22 data-nosnippet>22</a>    </span><span class="kw">pub </span>bloom_enabled: bool,
+<a href=#23 id=23 data-nosnippet>23</a>    <span class="attr">#[serde(default = <span class="string">"default_bloom_intensity"</span>)]
+<a href=#24 id=24 data-nosnippet>24</a>    </span><span class="kw">pub </span>bloom_intensity: f32,
+<a href=#25 id=25 data-nosnippet>25</a>    <span class="attr">#[serde(default = <span class="string">"default_bloom_threshold"</span>)]
+<a href=#26 id=26 data-nosnippet>26</a>    </span><span class="kw">pub </span>bloom_threshold: f32,
+<a href=#27 id=27 data-nosnippet>27</a>    <span class="attr">#[serde(default)]
+<a href=#28 id=28 data-nosnippet>28</a>    </span><span class="kw">pub </span>vignette_enabled: bool,
+<a href=#29 id=29 data-nosnippet>29</a>    <span class="attr">#[serde(default = <span class="string">"default_vignette_intensity"</span>)]
+<a href=#30 id=30 data-nosnippet>30</a>    </span><span class="kw">pub </span>vignette_intensity: f32,
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="attr">#[serde(default = <span class="string">"default_exposure"</span>)]
+<a href=#32 id=32 data-nosnippet>32</a>    </span><span class="kw">pub </span>exposure: f32,
+<a href=#33 id=33 data-nosnippet>33</a>}
+<a href=#34 id=34 data-nosnippet>34</a>
+<a href=#35 id=35 data-nosnippet>35</a><span class="kw">fn </span>default_true() -&gt; bool {
+<a href=#36 id=36 data-nosnippet>36</a>    <span class="bool-val">true
+<a href=#37 id=37 data-nosnippet>37</a></span>}
+<a href=#38 id=38 data-nosnippet>38</a>
+<a href=#39 id=39 data-nosnippet>39</a><span class="kw">fn </span>default_bloom_intensity() -&gt; f32 {
+<a href=#40 id=40 data-nosnippet>40</a>    <span class="number">0.04
+<a href=#41 id=41 data-nosnippet>41</a></span>}
+<a href=#42 id=42 data-nosnippet>42</a>
+<a href=#43 id=43 data-nosnippet>43</a><span class="kw">fn </span>default_bloom_threshold() -&gt; f32 {
+<a href=#44 id=44 data-nosnippet>44</a>    <span class="number">1.0
+<a href=#45 id=45 data-nosnippet>45</a></span>}
+<a href=#46 id=46 data-nosnippet>46</a>
+<a href=#47 id=47 data-nosnippet>47</a><span class="kw">fn </span>default_vignette_intensity() -&gt; f32 {
+<a href=#48 id=48 data-nosnippet>48</a>    <span class="number">0.3
+<a href=#49 id=49 data-nosnippet>49</a></span>}
+<a href=#50 id=50 data-nosnippet>50</a>
+<a href=#51 id=51 data-nosnippet>51</a><span class="kw">fn </span>default_exposure() -&gt; f32 {
+<a href=#52 id=52 data-nosnippet>52</a>    <span class="number">1.0
+<a href=#53 id=53 data-nosnippet>53</a></span>}
+<a href=#54 id=54 data-nosnippet>54</a>
+<a href=#55 id=55 data-nosnippet>55</a><span class="doccomment">/// Environment settings for the scene (skybox, etc.)
+<a href=#56 id=56 data-nosnippet>56</a></span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
+<a href=#57 id=57 data-nosnippet>57</a></span><span class="kw">pub struct </span>EnvironmentDef {
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// Path to equirectangular panorama image for the skybox
+<a href=#59 id=59 data-nosnippet>59</a>    </span><span class="attr">#[serde(default)]
+<a href=#60 id=60 data-nosnippet>60</a>    </span><span class="kw">pub </span>skybox: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#61 id=61 data-nosnippet>61</a>}
 <a href=#62 id=62 data-nosnippet>62</a>
-<a href=#63 id=63 data-nosnippet>63</a>    <span class="kw">pub fn </span>with_archetype(<span class="kw-2">mut </span><span class="self">self</span>, archetype: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
-<a href=#64 id=64 data-nosnippet>64</a>        <span class="self">self</span>.archetype = <span class="prelude-val">Some</span>(archetype.into());
-<a href=#65 id=65 data-nosnippet>65</a>        <span class="self">self
-<a href=#66 id=66 data-nosnippet>66</a>    </span>}
-<a href=#67 id=67 data-nosnippet>67</a>
-<a href=#68 id=68 data-nosnippet>68</a>    <span class="kw">pub fn </span>with_parent(<span class="kw-2">mut </span><span class="self">self</span>, parent: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
-<a href=#69 id=69 data-nosnippet>69</a>        <span class="self">self</span>.parent = <span class="prelude-val">Some</span>(parent.into());
-<a href=#70 id=70 data-nosnippet>70</a>        <span class="self">self
-<a href=#71 id=71 data-nosnippet>71</a>    </span>}
-<a href=#72 id=72 data-nosnippet>72</a>
-<a href=#73 id=73 data-nosnippet>73</a>    <span class="kw">pub fn </span>with_component(<span class="kw-2">mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;String&gt;, data: toml::Value) -&gt; <span class="self">Self </span>{
-<a href=#74 id=74 data-nosnippet>74</a>        <span class="self">self</span>.components.insert(name.into(), data);
-<a href=#75 id=75 data-nosnippet>75</a>        <span class="self">self
-<a href=#76 id=76 data-nosnippet>76</a>    </span>}
+<a href=#63 id=63 data-nosnippet>63</a><span class="doccomment">/// Scene metadata
+<a href=#64 id=64 data-nosnippet>64</a></span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
+<a href=#65 id=65 data-nosnippet>65</a></span><span class="kw">pub struct </span>SceneMetadata {
+<a href=#66 id=66 data-nosnippet>66</a>    <span class="kw">pub </span>name: String,
+<a href=#67 id=67 data-nosnippet>67</a>    <span class="attr">#[serde(default = <span class="string">"default_version"</span>)]
+<a href=#68 id=68 data-nosnippet>68</a>    </span><span class="kw">pub </span>version: String,
+<a href=#69 id=69 data-nosnippet>69</a>    <span class="attr">#[serde(default)]
+<a href=#70 id=70 data-nosnippet>70</a>    </span><span class="kw">pub </span>description: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#71 id=71 data-nosnippet>71</a>    <span class="attr">#[serde(default)]
+<a href=#72 id=72 data-nosnippet>72</a>    </span><span class="kw">pub </span>input_config: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#73 id=73 data-nosnippet>73</a>}
+<a href=#74 id=74 data-nosnippet>74</a>
+<a href=#75 id=75 data-nosnippet>75</a><span class="kw">fn </span>default_version() -&gt; String {
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="string">"1.0"</span>.to_string()
 <a href=#77 id=77 data-nosnippet>77</a>}
 <a href=#78 id=78 data-nosnippet>78</a>
-<a href=#79 id=79 data-nosnippet>79</a><span class="kw">impl </span>Default <span class="kw">for </span>EntityDef {
-<a href=#80 id=80 data-nosnippet>80</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-<a href=#81 id=81 data-nosnippet>81</a>        <span class="self">Self</span>::new()
-<a href=#82 id=82 data-nosnippet>82</a>    }
-<a href=#83 id=83 data-nosnippet>83</a>}
-<a href=#84 id=84 data-nosnippet>84</a>
-<a href=#85 id=85 data-nosnippet>85</a><span class="kw">impl </span>SceneFile {
-<a href=#86 id=86 data-nosnippet>86</a>    <span class="doccomment">/// Create a new scene file
-<a href=#87 id=87 data-nosnippet>87</a>    </span><span class="kw">pub fn </span>new(name: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
-<a href=#88 id=88 data-nosnippet>88</a>        <span class="self">Self </span>{
-<a href=#89 id=89 data-nosnippet>89</a>            scene: SceneMetadata {
-<a href=#90 id=90 data-nosnippet>90</a>                name: name.into(),
-<a href=#91 id=91 data-nosnippet>91</a>                version: default_version(),
-<a href=#92 id=92 data-nosnippet>92</a>                description: <span class="prelude-val">None</span>,
-<a href=#93 id=93 data-nosnippet>93</a>                input_config: <span class="prelude-val">None</span>,
-<a href=#94 id=94 data-nosnippet>94</a>            },
-<a href=#95 id=95 data-nosnippet>95</a>            environment: <span class="prelude-val">None</span>,
-<a href=#96 id=96 data-nosnippet>96</a>            entities: HashMap::new(),
-<a href=#97 id=97 data-nosnippet>97</a>        }
-<a href=#98 id=98 data-nosnippet>98</a>    }
-<a href=#99 id=99 data-nosnippet>99</a>
-<a href=#100 id=100 data-nosnippet>100</a>    <span class="doccomment">/// Add an entity to the scene
-<a href=#101 id=101 data-nosnippet>101</a>    </span><span class="kw">pub fn </span>add_entity(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;String&gt;, entity: EntityDef) {
-<a href=#102 id=102 data-nosnippet>102</a>        <span class="self">self</span>.entities.insert(name.into(), entity);
-<a href=#103 id=103 data-nosnippet>103</a>    }
-<a href=#104 id=104 data-nosnippet>104</a>}
-<a href=#105 id=105 data-nosnippet>105</a>
-<a href=#106 id=106 data-nosnippet>106</a><span class="attr">#[cfg(test)]
-<a href=#107 id=107 data-nosnippet>107</a></span><span class="kw">mod </span>tests {
-<a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#109 id=109 data-nosnippet>109</a>
-<a href=#110 id=110 data-nosnippet>110</a>    <span class="attr">#[test]
-<a href=#111 id=111 data-nosnippet>111</a>    </span><span class="kw">fn </span>test_scene_file_serialization() {
-<a href=#112 id=112 data-nosnippet>112</a>        <span class="kw">let </span><span class="kw-2">mut </span>scene = SceneFile::new(<span class="string">"Test Scene"</span>);
-<a href=#113 id=113 data-nosnippet>113</a>        scene.add_entity(
-<a href=#114 id=114 data-nosnippet>114</a>            <span class="string">"door1"</span>,
-<a href=#115 id=115 data-nosnippet>115</a>            EntityDef::new()
-<a href=#116 id=116 data-nosnippet>116</a>                .with_archetype(<span class="string">"door"</span>)
-<a href=#117 id=117 data-nosnippet>117</a>                .with_component(<span class="string">"door"</span>, <span class="macro">toml::toml!</span> { locked = <span class="bool-val">false </span>}.into()),
-<a href=#118 id=118 data-nosnippet>118</a>        );
-<a href=#119 id=119 data-nosnippet>119</a>
-<a href=#120 id=120 data-nosnippet>120</a>        <span class="kw">let </span>toml_str = toml::to_string_pretty(<span class="kw-2">&amp;</span>scene).unwrap();
-<a href=#121 id=121 data-nosnippet>121</a>        <span class="macro">assert!</span>(toml_str.contains(<span class="string">"Test Scene"</span>));
-<a href=#122 id=122 data-nosnippet>122</a>        <span class="macro">assert!</span>(toml_str.contains(<span class="string">"door1"</span>));
-<a href=#123 id=123 data-nosnippet>123</a>    }
-<a href=#124 id=124 data-nosnippet>124</a>
-<a href=#125 id=125 data-nosnippet>125</a>    <span class="attr">#[test]
-<a href=#126 id=126 data-nosnippet>126</a>    </span><span class="kw">fn </span>test_scene_file_deserialization() {
-<a href=#127 id=127 data-nosnippet>127</a>        <span class="kw">let </span>toml_str = <span class="string">r#"
-<a href=#128 id=128 data-nosnippet>128</a>[scene]
-<a href=#129 id=129 data-nosnippet>129</a>name = "Test Scene"
-<a href=#130 id=130 data-nosnippet>130</a>version = "1.0"
-<a href=#131 id=131 data-nosnippet>131</a>
-<a href=#132 id=132 data-nosnippet>132</a>[entities.room1]
-<a href=#133 id=133 data-nosnippet>133</a>archetype = "room"
-<a href=#134 id=134 data-nosnippet>134</a>
-<a href=#135 id=135 data-nosnippet>135</a>[entities.room1.bounds]
-<a href=#136 id=136 data-nosnippet>136</a>min = [0, 0, 0]
-<a href=#137 id=137 data-nosnippet>137</a>max = [10, 4, 8]
-<a href=#138 id=138 data-nosnippet>138</a>"#</span>;
+<a href=#79 id=79 data-nosnippet>79</a><span class="doccomment">/// Definition of an entity in a scene file
+<a href=#80 id=80 data-nosnippet>80</a></span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
+<a href=#81 id=81 data-nosnippet>81</a></span><span class="kw">pub struct </span>EntityDef {
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="doccomment">/// Optional archetype name
+<a href=#83 id=83 data-nosnippet>83</a>    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
+<a href=#84 id=84 data-nosnippet>84</a>    </span><span class="kw">pub </span>archetype: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#85 id=85 data-nosnippet>85</a>    <span class="doccomment">/// Optional parent entity name
+<a href=#86 id=86 data-nosnippet>86</a>    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
+<a href=#87 id=87 data-nosnippet>87</a>    </span><span class="kw">pub </span>parent: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#88 id=88 data-nosnippet>88</a>    <span class="doccomment">/// Component data - all other fields are treated as components
+<a href=#89 id=89 data-nosnippet>89</a>    </span><span class="attr">#[serde(flatten)]
+<a href=#90 id=90 data-nosnippet>90</a>    </span><span class="kw">pub </span>components: HashMap&lt;String, toml::Value&gt;,
+<a href=#91 id=91 data-nosnippet>91</a>}
+<a href=#92 id=92 data-nosnippet>92</a>
+<a href=#93 id=93 data-nosnippet>93</a><span class="kw">impl </span>EntityDef {
+<a href=#94 id=94 data-nosnippet>94</a>    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+<a href=#95 id=95 data-nosnippet>95</a>        <span class="self">Self </span>{
+<a href=#96 id=96 data-nosnippet>96</a>            archetype: <span class="prelude-val">None</span>,
+<a href=#97 id=97 data-nosnippet>97</a>            parent: <span class="prelude-val">None</span>,
+<a href=#98 id=98 data-nosnippet>98</a>            components: HashMap::new(),
+<a href=#99 id=99 data-nosnippet>99</a>        }
+<a href=#100 id=100 data-nosnippet>100</a>    }
+<a href=#101 id=101 data-nosnippet>101</a>
+<a href=#102 id=102 data-nosnippet>102</a>    <span class="kw">pub fn </span>with_archetype(<span class="kw-2">mut </span><span class="self">self</span>, archetype: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
+<a href=#103 id=103 data-nosnippet>103</a>        <span class="self">self</span>.archetype = <span class="prelude-val">Some</span>(archetype.into());
+<a href=#104 id=104 data-nosnippet>104</a>        <span class="self">self
+<a href=#105 id=105 data-nosnippet>105</a>    </span>}
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a>    <span class="kw">pub fn </span>with_parent(<span class="kw-2">mut </span><span class="self">self</span>, parent: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
+<a href=#108 id=108 data-nosnippet>108</a>        <span class="self">self</span>.parent = <span class="prelude-val">Some</span>(parent.into());
+<a href=#109 id=109 data-nosnippet>109</a>        <span class="self">self
+<a href=#110 id=110 data-nosnippet>110</a>    </span>}
+<a href=#111 id=111 data-nosnippet>111</a>
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">pub fn </span>with_component(<span class="kw-2">mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;String&gt;, data: toml::Value) -&gt; <span class="self">Self </span>{
+<a href=#113 id=113 data-nosnippet>113</a>        <span class="self">self</span>.components.insert(name.into(), data);
+<a href=#114 id=114 data-nosnippet>114</a>        <span class="self">self
+<a href=#115 id=115 data-nosnippet>115</a>    </span>}
+<a href=#116 id=116 data-nosnippet>116</a>}
+<a href=#117 id=117 data-nosnippet>117</a>
+<a href=#118 id=118 data-nosnippet>118</a><span class="kw">impl </span>Default <span class="kw">for </span>EntityDef {
+<a href=#119 id=119 data-nosnippet>119</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#120 id=120 data-nosnippet>120</a>        <span class="self">Self</span>::new()
+<a href=#121 id=121 data-nosnippet>121</a>    }
+<a href=#122 id=122 data-nosnippet>122</a>}
+<a href=#123 id=123 data-nosnippet>123</a>
+<a href=#124 id=124 data-nosnippet>124</a><span class="kw">impl </span>SceneFile {
+<a href=#125 id=125 data-nosnippet>125</a>    <span class="doccomment">/// Create a new scene file
+<a href=#126 id=126 data-nosnippet>126</a>    </span><span class="kw">pub fn </span>new(name: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
+<a href=#127 id=127 data-nosnippet>127</a>        <span class="self">Self </span>{
+<a href=#128 id=128 data-nosnippet>128</a>            scene: SceneMetadata {
+<a href=#129 id=129 data-nosnippet>129</a>                name: name.into(),
+<a href=#130 id=130 data-nosnippet>130</a>                version: default_version(),
+<a href=#131 id=131 data-nosnippet>131</a>                description: <span class="prelude-val">None</span>,
+<a href=#132 id=132 data-nosnippet>132</a>                input_config: <span class="prelude-val">None</span>,
+<a href=#133 id=133 data-nosnippet>133</a>            },
+<a href=#134 id=134 data-nosnippet>134</a>            environment: <span class="prelude-val">None</span>,
+<a href=#135 id=135 data-nosnippet>135</a>            post_process: <span class="prelude-val">None</span>,
+<a href=#136 id=136 data-nosnippet>136</a>            entities: HashMap::new(),
+<a href=#137 id=137 data-nosnippet>137</a>        }
+<a href=#138 id=138 data-nosnippet>138</a>    }
 <a href=#139 id=139 data-nosnippet>139</a>
-<a href=#140 id=140 data-nosnippet>140</a>        <span class="kw">let </span>scene: SceneFile = toml::from_str(toml_str).unwrap();
-<a href=#141 id=141 data-nosnippet>141</a>        <span class="macro">assert_eq!</span>(scene.scene.name, <span class="string">"Test Scene"</span>);
-<a href=#142 id=142 data-nosnippet>142</a>        <span class="macro">assert!</span>(scene.entities.contains_key(<span class="string">"room1"</span>));
+<a href=#140 id=140 data-nosnippet>140</a>    <span class="doccomment">/// Add an entity to the scene
+<a href=#141 id=141 data-nosnippet>141</a>    </span><span class="kw">pub fn </span>add_entity(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;String&gt;, entity: EntityDef) {
+<a href=#142 id=142 data-nosnippet>142</a>        <span class="self">self</span>.entities.insert(name.into(), entity);
 <a href=#143 id=143 data-nosnippet>143</a>    }
-<a href=#144 id=144 data-nosnippet>144</a>}</code></pre></div></section></main></body></html>
+<a href=#144 id=144 data-nosnippet>144</a>}
+<a href=#145 id=145 data-nosnippet>145</a>
+<a href=#146 id=146 data-nosnippet>146</a><span class="attr">#[cfg(test)]
+<a href=#147 id=147 data-nosnippet>147</a></span><span class="kw">mod </span>tests {
+<a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#149 id=149 data-nosnippet>149</a>
+<a href=#150 id=150 data-nosnippet>150</a>    <span class="attr">#[test]
+<a href=#151 id=151 data-nosnippet>151</a>    </span><span class="kw">fn </span>test_scene_file_serialization() {
+<a href=#152 id=152 data-nosnippet>152</a>        <span class="kw">let </span><span class="kw-2">mut </span>scene = SceneFile::new(<span class="string">"Test Scene"</span>);
+<a href=#153 id=153 data-nosnippet>153</a>        scene.add_entity(
+<a href=#154 id=154 data-nosnippet>154</a>            <span class="string">"door1"</span>,
+<a href=#155 id=155 data-nosnippet>155</a>            EntityDef::new()
+<a href=#156 id=156 data-nosnippet>156</a>                .with_archetype(<span class="string">"door"</span>)
+<a href=#157 id=157 data-nosnippet>157</a>                .with_component(<span class="string">"door"</span>, <span class="macro">toml::toml!</span> { locked = <span class="bool-val">false </span>}.into()),
+<a href=#158 id=158 data-nosnippet>158</a>        );
+<a href=#159 id=159 data-nosnippet>159</a>
+<a href=#160 id=160 data-nosnippet>160</a>        <span class="kw">let </span>toml_str = toml::to_string_pretty(<span class="kw-2">&amp;</span>scene).unwrap();
+<a href=#161 id=161 data-nosnippet>161</a>        <span class="macro">assert!</span>(toml_str.contains(<span class="string">"Test Scene"</span>));
+<a href=#162 id=162 data-nosnippet>162</a>        <span class="macro">assert!</span>(toml_str.contains(<span class="string">"door1"</span>));
+<a href=#163 id=163 data-nosnippet>163</a>    }
+<a href=#164 id=164 data-nosnippet>164</a>
+<a href=#165 id=165 data-nosnippet>165</a>    <span class="attr">#[test]
+<a href=#166 id=166 data-nosnippet>166</a>    </span><span class="kw">fn </span>test_scene_file_deserialization() {
+<a href=#167 id=167 data-nosnippet>167</a>        <span class="kw">let </span>toml_str = <span class="string">r#"
+<a href=#168 id=168 data-nosnippet>168</a>[scene]
+<a href=#169 id=169 data-nosnippet>169</a>name = "Test Scene"
+<a href=#170 id=170 data-nosnippet>170</a>version = "1.0"
+<a href=#171 id=171 data-nosnippet>171</a>
+<a href=#172 id=172 data-nosnippet>172</a>[entities.room1]
+<a href=#173 id=173 data-nosnippet>173</a>archetype = "room"
+<a href=#174 id=174 data-nosnippet>174</a>
+<a href=#175 id=175 data-nosnippet>175</a>[entities.room1.bounds]
+<a href=#176 id=176 data-nosnippet>176</a>min = [0, 0, 0]
+<a href=#177 id=177 data-nosnippet>177</a>max = [10, 4, 8]
+<a href=#178 id=178 data-nosnippet>178</a>"#</span>;
+<a href=#179 id=179 data-nosnippet>179</a>
+<a href=#180 id=180 data-nosnippet>180</a>        <span class="kw">let </span>scene: SceneFile = toml::from_str(toml_str).unwrap();
+<a href=#181 id=181 data-nosnippet>181</a>        <span class="macro">assert_eq!</span>(scene.scene.name, <span class="string">"Test Scene"</span>);
+<a href=#182 id=182 data-nosnippet>182</a>        <span class="macro">assert!</span>(scene.entities.contains_key(<span class="string">"room1"</span>));
+<a href=#183 id=183 data-nosnippet>183</a>    }
+<a href=#184 id=184 data-nosnippet>184</a>}</code></pre></div></section></main></body></html>

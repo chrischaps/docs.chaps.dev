@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-f1c4bd62.js";
+            window.path_to_searchindex_js = "../searchindex-0e5fce39.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-af488a06.js"></script>
+        <script src="../toc-aa7c91fd.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -271,6 +271,40 @@ fullbright = true
 </div>
 <h3 id="design-decisions"><a class="header" href="#design-decisions">Design Decisions</a></h3>
 <p>Billboard sprites use a <strong>separate pipeline</strong> rather than extending the PBR pipeline. This keeps the PBR shaders clean and allows sprites to opt out of lighting entirely (<code>fullbright = true</code>). The <code>discard</code>-based alpha approach is simple and avoids the significant complexity of order-independent transparency, at the cost of no partial transparency (pixels are either fully opaque or fully transparent).</p>
+<h2 id="post-processing"><a class="header" href="#post-processing">Post-Processing</a></h2>
+<p>The renderer includes an HDR post-processing pipeline that applies bloom, tonemapping, and vignette as a final pass. See <a href="post-processing.html">Post-Processing</a> for full details.</p>
+<p>When post-processing is active, all scene pipelines (PBR, skinned, billboard, particle, skybox) render to an <code>Rgba16Float</code> HDR intermediate buffer. A composite fullscreen pass then applies exposure, ACES tonemapping, gamma correction, and optional vignette to produce the final sRGB output.</p>
+<p>Configure post-processing per-scene via the <code>[post_process]</code> TOML block, or override with CLI flags (<code>--no-postprocess</code>, <code>--bloom-intensity</code>, <code>--bloom-threshold</code>, <code>--exposure</code>).</p>
+<h2 id="pbr-materials"><a class="header" href="#pbr-materials">PBR Materials</a></h2>
+<p><img src="../images/pbr-materials.png" alt="PBR material showcase — varying roughness and metallic values"></p>
+<p><em>PBR materials with varying roughness and metallic values. Left to right: rough dielectric, smooth dielectric, rough metal, polished metal.</em></p>
+<h2 id="debug-visualization"><a class="header" href="#debug-visualization">Debug Visualization</a></h2>
+<p>The renderer provides six debug visualization modes, cycled with <strong>F1</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>PBR</strong></td><td>Standard Cook-Torrance shading (default)</td></tr>
+<tr><td><strong>Wireframe</strong></td><td>Edge lines only, no fill</td></tr>
+<tr><td><strong>Normals</strong></td><td>World-space surface normals mapped to RGB</td></tr>
+<tr><td><strong>Depth</strong></td><td>Linearized depth as grayscale</td></tr>
+<tr><td><strong>UV Checker</strong></td><td>UV coordinates as a procedural checkerboard</td></tr>
+<tr><td><strong>Unlit</strong></td><td>Albedo color only, no lighting</td></tr>
+<tr><td><strong>Metal/Rough</strong></td><td>Metallic (red channel) and roughness (green channel)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Additional debug overlays:</p>
+<ul>
+<li><strong>Wireframe overlay</strong> (F2 in viewer, <code>--wireframe-overlay</code> in render) — draws edges on top of solid shading</li>
+<li><strong>Normal arrows</strong> (F3 in viewer, <code>--show-normals</code> in render) — draws face-normal direction arrows</li>
+</ul>
+<p><img src="../images/debug-wireframe.png" alt="Wireframe debug mode"></p>
+<p><em>Wireframe debug mode showing mesh topology.</em></p>
+<p><img src="../images/debug-normals.png" alt="Normal visualization"></p>
+<p><em>Normal debug mode mapping world-space normals to RGB channels.</em></p>
 <h2 id="viewer-vs-headless"><a class="header" href="#viewer-vs-headless">Viewer vs Headless</a></h2>
 <p>The renderer operates in two modes:</p>
 <p><strong>Viewer mode</strong> (<code>flint serve --watch</code>) opens an interactive window with:</p>
@@ -303,7 +337,7 @@ fullbright = true
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../concepts/audio.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../concepts/post-processing.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -317,7 +351,7 @@ fullbright = true
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../concepts/audio.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../concepts/post-processing.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-f1c4bd62.js";
+            window.path_to_searchindex_js = "../searchindex-0e5fce39.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-af488a06.js"></script>
+        <script src="../toc-aa7c91fd.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -200,12 +200,74 @@
 </thead>
 <tbody>
 <tr><td><code>--output &lt;path&gt;</code></td><td><code>render.png</code></td><td>Output file path</td></tr>
-<tr><td><code>--width &lt;px&gt;</code></td><td>800</td><td>Image width in pixels</td></tr>
-<tr><td><code>--height &lt;px&gt;</code></td><td>600</td><td>Image height in pixels</td></tr>
-<tr><td><code>--distance &lt;units&gt;</code></td><td>20.0</td><td>Camera distance from origin</td></tr>
-<tr><td><code>--yaw &lt;degrees&gt;</code></td><td>0.0</td><td>Horizontal camera angle</td></tr>
-<tr><td><code>--pitch &lt;degrees&gt;</code></td><td>30.0</td><td>Vertical camera angle</td></tr>
-<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Path to schemas directory</td></tr>
+<tr><td><code>--width &lt;px&gt;</code></td><td>1920</td><td>Image width in pixels</td></tr>
+<tr><td><code>--height &lt;px&gt;</code></td><td>1080</td><td>Image height in pixels</td></tr>
+<tr><td><code>--distance &lt;units&gt;</code></td><td>(auto)</td><td>Camera distance from origin</td></tr>
+<tr><td><code>--yaw &lt;degrees&gt;</code></td><td>(auto)</td><td>Horizontal camera angle</td></tr>
+<tr><td><code>--pitch &lt;degrees&gt;</code></td><td>(auto)</td><td>Vertical camera angle</td></tr>
+<tr><td><code>--target &lt;x,y,z&gt;</code></td><td>(auto)</td><td>Camera look-at point (comma-separated)</td></tr>
+<tr><td><code>--fov &lt;degrees&gt;</code></td><td>(auto)</td><td>Field of view in degrees</td></tr>
+<tr><td><code>--no-grid</code></td><td><code>false</code></td><td>Disable ground grid</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Path to schemas directory (repeatable)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="post-processing-flags"><a class="header" href="#post-processing-flags">Post-Processing Flags</a></h2>
+<p>Control post-processing from the command line:</p>
+<pre><code class="language-bash"># Disable all post-processing (raw shader output)
+flint render scene.toml --no-postprocess --output raw.png
+
+# Custom bloom settings
+flint render scene.toml --bloom-intensity 0.08 --bloom-threshold 0.8
+
+# Adjust exposure
+flint render scene.toml --exposure 1.5
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--no-postprocess</code></td><td><code>false</code></td><td>Disable entire post-processing pipeline</td></tr>
+<tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td><code>0.04</code></td><td>Bloom mix strength</td></tr>
+<tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Minimum brightness for bloom</td></tr>
+<tr><td><code>--exposure &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Exposure multiplier</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="debug-rendering-flags"><a class="header" href="#debug-rendering-flags">Debug Rendering Flags</a></h2>
+<p>Render debug visualizations for diagnostics:</p>
+<pre><code class="language-bash"># Wireframe view
+flint render scene.toml --debug-mode wireframe --output wireframe.png
+
+# Surface normals
+flint render scene.toml --debug-mode normals --output normals.png
+
+# Other modes: depth, uv, unlit, metalrough
+flint render scene.toml --debug-mode depth --output depth.png
+
+# Wireframe overlay on solid geometry
+flint render scene.toml --wireframe-overlay --output overlay.png
+
+# Normal arrows
+flint render scene.toml --show-normals --output arrows.png
+
+# Raw linear output (no tonemapping)
+flint render scene.toml --no-tonemapping --output linear.png
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--debug-mode &lt;mode&gt;</code></td><td>(none)</td><td><code>wireframe</code>, <code>normals</code>, <code>depth</code>, <code>uv</code>, <code>unlit</code>, <code>metalrough</code></td></tr>
+<tr><td><code>--wireframe-overlay</code></td><td><code>false</code></td><td>Draw wireframe edges over solid shading</td></tr>
+<tr><td><code>--show-normals</code></td><td><code>false</code></td><td>Draw face-normal direction arrows</td></tr>
+<tr><td><code>--no-tonemapping</code></td><td><code>false</code></td><td>Disable tonemapping for raw linear output</td></tr>
+<tr><td><code>--no-shadows</code></td><td><code>false</code></td><td>Disable shadow mapping</td></tr>
+<tr><td><code>--shadow-resolution &lt;px&gt;</code></td><td><code>1024</code></td><td>Shadow map resolution per cascade</td></tr>
 </tbody>
 </table>
 </div>

@@ -265,109 +265,133 @@
 <a href=#189 id=189 data-nosnippet>189</a>        <span class="doccomment">/// Shadow map resolution per cascade (default: 1024)
 <a href=#190 id=190 data-nosnippet>190</a>        </span><span class="attr">#[arg(long, default_value = <span class="string">"1024"</span>)]
 <a href=#191 id=191 data-nosnippet>191</a>        </span>shadow_resolution: u32,
-<a href=#192 id=192 data-nosnippet>192</a>    },
-<a href=#193 id=193 data-nosnippet>193</a>}
-<a href=#194 id=194 data-nosnippet>194</a>
-<a href=#195 id=195 data-nosnippet>195</a><span class="kw">fn </span>parse_debug_mode(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String, String&gt; {
-<a href=#196 id=196 data-nosnippet>196</a>    <span class="kw">match </span>s {
-<a href=#197 id=197 data-nosnippet>197</a>        <span class="string">"wireframe" </span>| <span class="string">"normals" </span>| <span class="string">"depth" </span>| <span class="string">"uv" </span>| <span class="string">"unlit" </span>| <span class="string">"metalrough" </span>=&gt; <span class="prelude-val">Ok</span>(s.to_string()),
-<a href=#198 id=198 data-nosnippet>198</a>        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-<a href=#199 id=199 data-nosnippet>199</a>            <span class="string">"unknown debug mode '{}'; valid values: wireframe, normals, depth, uv, unlit, metalrough"</span>,
-<a href=#200 id=200 data-nosnippet>200</a>            s
-<a href=#201 id=201 data-nosnippet>201</a>        )),
-<a href=#202 id=202 data-nosnippet>202</a>    }
-<a href=#203 id=203 data-nosnippet>203</a>}
+<a href=#192 id=192 data-nosnippet>192</a>
+<a href=#193 id=193 data-nosnippet>193</a>        <span class="doccomment">/// Disable post-processing (bloom, vignette, tonemapping in composite pass)
+<a href=#194 id=194 data-nosnippet>194</a>        </span><span class="attr">#[arg(long)]
+<a href=#195 id=195 data-nosnippet>195</a>        </span>no_postprocess: bool,
+<a href=#196 id=196 data-nosnippet>196</a>
+<a href=#197 id=197 data-nosnippet>197</a>        <span class="doccomment">/// Bloom intensity (enables bloom; default: 0.04)
+<a href=#198 id=198 data-nosnippet>198</a>        </span><span class="attr">#[arg(long)]
+<a href=#199 id=199 data-nosnippet>199</a>        </span>bloom_intensity: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#200 id=200 data-nosnippet>200</a>
+<a href=#201 id=201 data-nosnippet>201</a>        <span class="doccomment">/// Bloom brightness threshold (default: 1.0)
+<a href=#202 id=202 data-nosnippet>202</a>        </span><span class="attr">#[arg(long)]
+<a href=#203 id=203 data-nosnippet>203</a>        </span>bloom_threshold: <span class="prelude-ty">Option</span>&lt;f32&gt;,
 <a href=#204 id=204 data-nosnippet>204</a>
-<a href=#205 id=205 data-nosnippet>205</a><span class="kw">fn </span>parse_vec3(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;[f32; <span class="number">3</span>], String&gt; {
-<a href=#206 id=206 data-nosnippet>206</a>    <span class="kw">let </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = s.split(<span class="string">','</span>).collect();
-<a href=#207 id=207 data-nosnippet>207</a>    <span class="kw">if </span>parts.len() != <span class="number">3 </span>{
-<a href=#208 id=208 data-nosnippet>208</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"expected 3 comma-separated values, got {}"</span>, parts.len()));
-<a href=#209 id=209 data-nosnippet>209</a>    }
-<a href=#210 id=210 data-nosnippet>210</a>    <span class="kw">let </span>x: f32 = parts[<span class="number">0</span>].trim().parse().map_err(|e| <span class="macro">format!</span>(<span class="string">"invalid x: {}"</span>, e))<span class="question-mark">?</span>;
-<a href=#211 id=211 data-nosnippet>211</a>    <span class="kw">let </span>y: f32 = parts[<span class="number">1</span>].trim().parse().map_err(|e| <span class="macro">format!</span>(<span class="string">"invalid y: {}"</span>, e))<span class="question-mark">?</span>;
-<a href=#212 id=212 data-nosnippet>212</a>    <span class="kw">let </span>z: f32 = parts[<span class="number">2</span>].trim().parse().map_err(|e| <span class="macro">format!</span>(<span class="string">"invalid z: {}"</span>, e))<span class="question-mark">?</span>;
-<a href=#213 id=213 data-nosnippet>213</a>    <span class="prelude-val">Ok</span>([x, y, z])
-<a href=#214 id=214 data-nosnippet>214</a>}
-<a href=#215 id=215 data-nosnippet>215</a>
-<a href=#216 id=216 data-nosnippet>216</a><span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#217 id=217 data-nosnippet>217</a>    <span class="kw">let </span>cli = Cli::parse();
-<a href=#218 id=218 data-nosnippet>218</a>
-<a href=#219 id=219 data-nosnippet>219</a>    <span class="kw">match </span>cli.command {
-<a href=#220 id=220 data-nosnippet>220</a>        Commands::Init { name } =&gt; init::run(<span class="kw-2">&amp;</span>name),
-<a href=#221 id=221 data-nosnippet>221</a>        Commands::Entity(cmd) =&gt; entity::run(cmd),
-<a href=#222 id=222 data-nosnippet>222</a>        Commands::Scene(cmd) =&gt; scene::run(cmd),
-<a href=#223 id=223 data-nosnippet>223</a>        Commands::Query { query, scene, format } =&gt; {
-<a href=#224 id=224 data-nosnippet>224</a>            query::run(<span class="kw-2">&amp;</span>query, scene.as_deref(), <span class="kw-2">&amp;</span>format)
-<a href=#225 id=225 data-nosnippet>225</a>        }
-<a href=#226 id=226 data-nosnippet>226</a>        Commands::Schema { name, schemas } =&gt; schema::run(<span class="kw-2">&amp;</span>name, <span class="kw-2">&amp;</span>schemas.iter().map(|s| s.as_str()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()),
-<a href=#227 id=227 data-nosnippet>227</a>        Commands::Validate {
-<a href=#228 id=228 data-nosnippet>228</a>            scene,
-<a href=#229 id=229 data-nosnippet>229</a>            fix,
-<a href=#230 id=230 data-nosnippet>230</a>            dry_run,
-<a href=#231 id=231 data-nosnippet>231</a>            output_diff,
-<a href=#232 id=232 data-nosnippet>232</a>            schemas,
-<a href=#233 id=233 data-nosnippet>233</a>            format,
-<a href=#234 id=234 data-nosnippet>234</a>        } =&gt; validate::run(validate::ValidateArgs {
-<a href=#235 id=235 data-nosnippet>235</a>            scene,
-<a href=#236 id=236 data-nosnippet>236</a>            fix,
-<a href=#237 id=237 data-nosnippet>237</a>            dry_run,
-<a href=#238 id=238 data-nosnippet>238</a>            output_diff,
-<a href=#239 id=239 data-nosnippet>239</a>            schemas,
-<a href=#240 id=240 data-nosnippet>240</a>            format,
-<a href=#241 id=241 data-nosnippet>241</a>        }),
-<a href=#242 id=242 data-nosnippet>242</a>        Commands::Play {
-<a href=#243 id=243 data-nosnippet>243</a>            scene,
-<a href=#244 id=244 data-nosnippet>244</a>            schemas,
-<a href=#245 id=245 data-nosnippet>245</a>            fullscreen,
-<a href=#246 id=246 data-nosnippet>246</a>            input_config,
-<a href=#247 id=247 data-nosnippet>247</a>        } =&gt; play::run(play::PlayArgs {
-<a href=#248 id=248 data-nosnippet>248</a>            scene,
-<a href=#249 id=249 data-nosnippet>249</a>            schemas,
-<a href=#250 id=250 data-nosnippet>250</a>            fullscreen,
-<a href=#251 id=251 data-nosnippet>251</a>            input_config,
-<a href=#252 id=252 data-nosnippet>252</a>        }),
-<a href=#253 id=253 data-nosnippet>253</a>        Commands::Asset(cmd) =&gt; asset::run(cmd),
-<a href=#254 id=254 data-nosnippet>254</a>        Commands::Serve { scene, watch, schemas, no_inspector } =&gt; {
-<a href=#255 id=255 data-nosnippet>255</a>            <span class="comment">// Serve uses first schemas path (viewer doesn't need multi-dir yet)
-<a href=#256 id=256 data-nosnippet>256</a>            </span><span class="kw">let </span>schemas_path = schemas.first().map(|s| s.as_str()).unwrap_or(<span class="string">"schemas"</span>);
-<a href=#257 id=257 data-nosnippet>257</a>            flint_viewer::app::run(<span class="kw-2">&amp;</span>scene, watch, schemas_path, !no_inspector)
-<a href=#258 id=258 data-nosnippet>258</a>        }
-<a href=#259 id=259 data-nosnippet>259</a>        Commands::Render {
-<a href=#260 id=260 data-nosnippet>260</a>            scene,
-<a href=#261 id=261 data-nosnippet>261</a>            output,
-<a href=#262 id=262 data-nosnippet>262</a>            width,
-<a href=#263 id=263 data-nosnippet>263</a>            height,
-<a href=#264 id=264 data-nosnippet>264</a>            schemas,
-<a href=#265 id=265 data-nosnippet>265</a>            distance,
-<a href=#266 id=266 data-nosnippet>266</a>            yaw,
-<a href=#267 id=267 data-nosnippet>267</a>            pitch,
-<a href=#268 id=268 data-nosnippet>268</a>            target,
-<a href=#269 id=269 data-nosnippet>269</a>            fov,
-<a href=#270 id=270 data-nosnippet>270</a>            no_grid,
-<a href=#271 id=271 data-nosnippet>271</a>            debug_mode,
-<a href=#272 id=272 data-nosnippet>272</a>            wireframe_overlay,
-<a href=#273 id=273 data-nosnippet>273</a>            show_normals,
-<a href=#274 id=274 data-nosnippet>274</a>            no_tonemapping,
-<a href=#275 id=275 data-nosnippet>275</a>            no_shadows,
-<a href=#276 id=276 data-nosnippet>276</a>            shadow_resolution,
-<a href=#277 id=277 data-nosnippet>277</a>        } =&gt; render::run(render::RenderArgs {
-<a href=#278 id=278 data-nosnippet>278</a>            scene,
-<a href=#279 id=279 data-nosnippet>279</a>            output,
-<a href=#280 id=280 data-nosnippet>280</a>            width,
-<a href=#281 id=281 data-nosnippet>281</a>            height,
-<a href=#282 id=282 data-nosnippet>282</a>            schemas,
-<a href=#283 id=283 data-nosnippet>283</a>            distance,
-<a href=#284 id=284 data-nosnippet>284</a>            yaw,
-<a href=#285 id=285 data-nosnippet>285</a>            pitch,
-<a href=#286 id=286 data-nosnippet>286</a>            target,
-<a href=#287 id=287 data-nosnippet>287</a>            fov,
-<a href=#288 id=288 data-nosnippet>288</a>            no_grid,
-<a href=#289 id=289 data-nosnippet>289</a>            debug_mode,
-<a href=#290 id=290 data-nosnippet>290</a>            wireframe_overlay,
-<a href=#291 id=291 data-nosnippet>291</a>            show_normals,
-<a href=#292 id=292 data-nosnippet>292</a>            no_tonemapping,
-<a href=#293 id=293 data-nosnippet>293</a>            no_shadows,
-<a href=#294 id=294 data-nosnippet>294</a>            shadow_resolution,
-<a href=#295 id=295 data-nosnippet>295</a>        }),
-<a href=#296 id=296 data-nosnippet>296</a>    }
-<a href=#297 id=297 data-nosnippet>297</a>}</code></pre></div></section></main></body></html>
+<a href=#205 id=205 data-nosnippet>205</a>        <span class="doccomment">/// Exposure multiplier (default: 1.0)
+<a href=#206 id=206 data-nosnippet>206</a>        </span><span class="attr">#[arg(long)]
+<a href=#207 id=207 data-nosnippet>207</a>        </span>exposure: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#208 id=208 data-nosnippet>208</a>    },
+<a href=#209 id=209 data-nosnippet>209</a>}
+<a href=#210 id=210 data-nosnippet>210</a>
+<a href=#211 id=211 data-nosnippet>211</a><span class="kw">fn </span>parse_debug_mode(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String, String&gt; {
+<a href=#212 id=212 data-nosnippet>212</a>    <span class="kw">match </span>s {
+<a href=#213 id=213 data-nosnippet>213</a>        <span class="string">"wireframe" </span>| <span class="string">"normals" </span>| <span class="string">"depth" </span>| <span class="string">"uv" </span>| <span class="string">"unlit" </span>| <span class="string">"metalrough" </span>=&gt; <span class="prelude-val">Ok</span>(s.to_string()),
+<a href=#214 id=214 data-nosnippet>214</a>        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
+<a href=#215 id=215 data-nosnippet>215</a>            <span class="string">"unknown debug mode '{}'; valid values: wireframe, normals, depth, uv, unlit, metalrough"</span>,
+<a href=#216 id=216 data-nosnippet>216</a>            s
+<a href=#217 id=217 data-nosnippet>217</a>        )),
+<a href=#218 id=218 data-nosnippet>218</a>    }
+<a href=#219 id=219 data-nosnippet>219</a>}
+<a href=#220 id=220 data-nosnippet>220</a>
+<a href=#221 id=221 data-nosnippet>221</a><span class="kw">fn </span>parse_vec3(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;[f32; <span class="number">3</span>], String&gt; {
+<a href=#222 id=222 data-nosnippet>222</a>    <span class="kw">let </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = s.split(<span class="string">','</span>).collect();
+<a href=#223 id=223 data-nosnippet>223</a>    <span class="kw">if </span>parts.len() != <span class="number">3 </span>{
+<a href=#224 id=224 data-nosnippet>224</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"expected 3 comma-separated values, got {}"</span>, parts.len()));
+<a href=#225 id=225 data-nosnippet>225</a>    }
+<a href=#226 id=226 data-nosnippet>226</a>    <span class="kw">let </span>x: f32 = parts[<span class="number">0</span>].trim().parse().map_err(|e| <span class="macro">format!</span>(<span class="string">"invalid x: {}"</span>, e))<span class="question-mark">?</span>;
+<a href=#227 id=227 data-nosnippet>227</a>    <span class="kw">let </span>y: f32 = parts[<span class="number">1</span>].trim().parse().map_err(|e| <span class="macro">format!</span>(<span class="string">"invalid y: {}"</span>, e))<span class="question-mark">?</span>;
+<a href=#228 id=228 data-nosnippet>228</a>    <span class="kw">let </span>z: f32 = parts[<span class="number">2</span>].trim().parse().map_err(|e| <span class="macro">format!</span>(<span class="string">"invalid z: {}"</span>, e))<span class="question-mark">?</span>;
+<a href=#229 id=229 data-nosnippet>229</a>    <span class="prelude-val">Ok</span>([x, y, z])
+<a href=#230 id=230 data-nosnippet>230</a>}
+<a href=#231 id=231 data-nosnippet>231</a>
+<a href=#232 id=232 data-nosnippet>232</a><span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#233 id=233 data-nosnippet>233</a>    <span class="kw">let </span>cli = Cli::parse();
+<a href=#234 id=234 data-nosnippet>234</a>
+<a href=#235 id=235 data-nosnippet>235</a>    <span class="kw">match </span>cli.command {
+<a href=#236 id=236 data-nosnippet>236</a>        Commands::Init { name } =&gt; init::run(<span class="kw-2">&amp;</span>name),
+<a href=#237 id=237 data-nosnippet>237</a>        Commands::Entity(cmd) =&gt; entity::run(cmd),
+<a href=#238 id=238 data-nosnippet>238</a>        Commands::Scene(cmd) =&gt; scene::run(cmd),
+<a href=#239 id=239 data-nosnippet>239</a>        Commands::Query { query, scene, format } =&gt; {
+<a href=#240 id=240 data-nosnippet>240</a>            query::run(<span class="kw-2">&amp;</span>query, scene.as_deref(), <span class="kw-2">&amp;</span>format)
+<a href=#241 id=241 data-nosnippet>241</a>        }
+<a href=#242 id=242 data-nosnippet>242</a>        Commands::Schema { name, schemas } =&gt; schema::run(<span class="kw-2">&amp;</span>name, <span class="kw-2">&amp;</span>schemas.iter().map(|s| s.as_str()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()),
+<a href=#243 id=243 data-nosnippet>243</a>        Commands::Validate {
+<a href=#244 id=244 data-nosnippet>244</a>            scene,
+<a href=#245 id=245 data-nosnippet>245</a>            fix,
+<a href=#246 id=246 data-nosnippet>246</a>            dry_run,
+<a href=#247 id=247 data-nosnippet>247</a>            output_diff,
+<a href=#248 id=248 data-nosnippet>248</a>            schemas,
+<a href=#249 id=249 data-nosnippet>249</a>            format,
+<a href=#250 id=250 data-nosnippet>250</a>        } =&gt; validate::run(validate::ValidateArgs {
+<a href=#251 id=251 data-nosnippet>251</a>            scene,
+<a href=#252 id=252 data-nosnippet>252</a>            fix,
+<a href=#253 id=253 data-nosnippet>253</a>            dry_run,
+<a href=#254 id=254 data-nosnippet>254</a>            output_diff,
+<a href=#255 id=255 data-nosnippet>255</a>            schemas,
+<a href=#256 id=256 data-nosnippet>256</a>            format,
+<a href=#257 id=257 data-nosnippet>257</a>        }),
+<a href=#258 id=258 data-nosnippet>258</a>        Commands::Play {
+<a href=#259 id=259 data-nosnippet>259</a>            scene,
+<a href=#260 id=260 data-nosnippet>260</a>            schemas,
+<a href=#261 id=261 data-nosnippet>261</a>            fullscreen,
+<a href=#262 id=262 data-nosnippet>262</a>            input_config,
+<a href=#263 id=263 data-nosnippet>263</a>        } =&gt; play::run(play::PlayArgs {
+<a href=#264 id=264 data-nosnippet>264</a>            scene,
+<a href=#265 id=265 data-nosnippet>265</a>            schemas,
+<a href=#266 id=266 data-nosnippet>266</a>            fullscreen,
+<a href=#267 id=267 data-nosnippet>267</a>            input_config,
+<a href=#268 id=268 data-nosnippet>268</a>        }),
+<a href=#269 id=269 data-nosnippet>269</a>        Commands::Asset(cmd) =&gt; asset::run(cmd),
+<a href=#270 id=270 data-nosnippet>270</a>        Commands::Serve { scene, watch, schemas, no_inspector } =&gt; {
+<a href=#271 id=271 data-nosnippet>271</a>            <span class="comment">// Serve uses first schemas path (viewer doesn't need multi-dir yet)
+<a href=#272 id=272 data-nosnippet>272</a>            </span><span class="kw">let </span>schemas_path = schemas.first().map(|s| s.as_str()).unwrap_or(<span class="string">"schemas"</span>);
+<a href=#273 id=273 data-nosnippet>273</a>            flint_viewer::app::run(<span class="kw-2">&amp;</span>scene, watch, schemas_path, !no_inspector)
+<a href=#274 id=274 data-nosnippet>274</a>        }
+<a href=#275 id=275 data-nosnippet>275</a>        Commands::Render {
+<a href=#276 id=276 data-nosnippet>276</a>            scene,
+<a href=#277 id=277 data-nosnippet>277</a>            output,
+<a href=#278 id=278 data-nosnippet>278</a>            width,
+<a href=#279 id=279 data-nosnippet>279</a>            height,
+<a href=#280 id=280 data-nosnippet>280</a>            schemas,
+<a href=#281 id=281 data-nosnippet>281</a>            distance,
+<a href=#282 id=282 data-nosnippet>282</a>            yaw,
+<a href=#283 id=283 data-nosnippet>283</a>            pitch,
+<a href=#284 id=284 data-nosnippet>284</a>            target,
+<a href=#285 id=285 data-nosnippet>285</a>            fov,
+<a href=#286 id=286 data-nosnippet>286</a>            no_grid,
+<a href=#287 id=287 data-nosnippet>287</a>            debug_mode,
+<a href=#288 id=288 data-nosnippet>288</a>            wireframe_overlay,
+<a href=#289 id=289 data-nosnippet>289</a>            show_normals,
+<a href=#290 id=290 data-nosnippet>290</a>            no_tonemapping,
+<a href=#291 id=291 data-nosnippet>291</a>            no_shadows,
+<a href=#292 id=292 data-nosnippet>292</a>            shadow_resolution,
+<a href=#293 id=293 data-nosnippet>293</a>            no_postprocess,
+<a href=#294 id=294 data-nosnippet>294</a>            bloom_intensity,
+<a href=#295 id=295 data-nosnippet>295</a>            bloom_threshold,
+<a href=#296 id=296 data-nosnippet>296</a>            exposure,
+<a href=#297 id=297 data-nosnippet>297</a>        } =&gt; render::run(render::RenderArgs {
+<a href=#298 id=298 data-nosnippet>298</a>            scene,
+<a href=#299 id=299 data-nosnippet>299</a>            output,
+<a href=#300 id=300 data-nosnippet>300</a>            width,
+<a href=#301 id=301 data-nosnippet>301</a>            height,
+<a href=#302 id=302 data-nosnippet>302</a>            schemas,
+<a href=#303 id=303 data-nosnippet>303</a>            distance,
+<a href=#304 id=304 data-nosnippet>304</a>            yaw,
+<a href=#305 id=305 data-nosnippet>305</a>            pitch,
+<a href=#306 id=306 data-nosnippet>306</a>            target,
+<a href=#307 id=307 data-nosnippet>307</a>            fov,
+<a href=#308 id=308 data-nosnippet>308</a>            no_grid,
+<a href=#309 id=309 data-nosnippet>309</a>            debug_mode,
+<a href=#310 id=310 data-nosnippet>310</a>            wireframe_overlay,
+<a href=#311 id=311 data-nosnippet>311</a>            show_normals,
+<a href=#312 id=312 data-nosnippet>312</a>            no_tonemapping,
+<a href=#313 id=313 data-nosnippet>313</a>            no_shadows,
+<a href=#314 id=314 data-nosnippet>314</a>            shadow_resolution,
+<a href=#315 id=315 data-nosnippet>315</a>            no_postprocess,
+<a href=#316 id=316 data-nosnippet>316</a>            bloom_intensity,
+<a href=#317 id=317 data-nosnippet>317</a>            bloom_threshold,
+<a href=#318 id=318 data-nosnippet>318</a>            exposure,
+<a href=#319 id=319 data-nosnippet>319</a>        }),
+<a href=#320 id=320 data-nosnippet>320</a>    }
+<a href=#321 id=321 data-nosnippet>321</a>}</code></pre></div></section></main></body></html>

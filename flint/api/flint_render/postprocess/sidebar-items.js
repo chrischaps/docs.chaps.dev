@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["HDR_FORMAT","MAX_BLOOM_MIPS"],"struct":["BloomMip","BloomUniforms","PostProcessConfig","PostProcessPipeline","PostProcessResources","PostProcessUniforms"]};

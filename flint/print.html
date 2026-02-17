@@ -37,10 +37,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-f1c4bd62.js";
+            window.path_to_searchindex_js = "searchindex-0e5fce39.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-af488a06.js"></script>
+        <script src="toc-aa7c91fd.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -189,6 +189,11 @@
 <h2 id="built-with-flint"><a class="header" href="#built-with-flint">Built with Flint</a></h2>
 <p><img src="images/flintkart.png" alt="FlintKart — a low-poly kart racer built with Flint"></p>
 <p><em>FlintKart: a kart racing game built as a standalone project using Flint’s game project architecture — custom schemas, scripts, and assets layered on top of the engine via git subtree.</em></p>
+<h2 id="visual-showcase"><a class="header" href="#visual-showcase">Visual Showcase</a></h2>
+<p><img src="images/pbr-showcase.png" alt="PBR rendering with shadows, materials, and models"></p>
+<p><em>The Luminarium showcase scene: Cook-Torrance PBR shading with cascaded shadows, textured walls and floors, glTF models, and emissive materials.</em></p>
+<p><img src="images/debug-wireframe.png" alt="Wireframe debug visualization"></p>
+<p><em>Wireframe debug mode (F1) reveals mesh topology — one of seven built-in debug visualizations for inspecting geometry, normals, depth, UVs, and material properties.</em></p>
 <h2 id="what-it-looks-like"><a class="header" href="#what-it-looks-like">What It Looks Like</a></h2>
 <p>Create a scene, add entities, query them, and view the result — all from the command line:</p>
 <pre><code class="language-bash"># Initialize a project
@@ -255,6 +260,189 @@ flint play levels/tavern.scene.toml
 <li>Check the <a href="#architecture-overview">Architecture</a> section if you want to understand the codebase</li>
 <li>Browse the <a href="/flint/api/flint_core">API Reference</a> for per-crate Rust documentation</li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="quick-reference"><a class="header" href="#quick-reference">Quick Reference</a></h1>
+<p>A scannable cheat sheet for daily Flint development.</p>
+<h2 id="cli-commands"><a class="header" href="#cli-commands">CLI Commands</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Command</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>flint init &lt;name&gt;</code></td><td>Initialize a new project</td></tr>
+<tr><td><code>flint scene create &lt;path&gt;</code></td><td>Create a new scene file</td></tr>
+<tr><td><code>flint scene list</code></td><td>List scene files</td></tr>
+<tr><td><code>flint scene info</code></td><td>Show scene metadata</td></tr>
+<tr><td><code>flint entity create</code></td><td>Create an entity in a scene</td></tr>
+<tr><td><code>flint entity delete</code></td><td>Delete an entity from a scene</td></tr>
+<tr><td><code>flint query "&lt;expr&gt;"</code></td><td>Query entities (e.g., <code>"entities where archetype == 'door'"</code>)</td></tr>
+<tr><td><code>flint schema &lt;name&gt;</code></td><td>Inspect a component or archetype schema</td></tr>
+<tr><td><code>flint validate &lt;scene&gt;</code></td><td>Validate scene against constraints (<code>--fix</code> to auto-fix)</td></tr>
+<tr><td><code>flint serve &lt;scene&gt; --watch</code></td><td>Interactive viewer with hot-reload</td></tr>
+<tr><td><code>flint play &lt;scene&gt;</code></td><td>First-person gameplay with physics + scripting</td></tr>
+<tr><td><code>flint render &lt;scene&gt; -o out.png</code></td><td>Headless render to PNG</td></tr>
+<tr><td><code>flint asset generate &lt;type&gt;</code></td><td>AI asset generation (texture, model, audio)</td></tr>
+<tr><td><code>flint asset import &lt;file&gt;</code></td><td>Import file into asset catalog</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="keyboard-shortcuts"><a class="header" href="#keyboard-shortcuts">Keyboard Shortcuts</a></h2>
+<h3 id="player-flint-play"><a class="header" href="#player-flint-play">Player (<code>flint play</code>)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Action</th></tr>
+</thead>
+<tbody>
+<tr><td>WASD</td><td>Move</td></tr>
+<tr><td>Mouse</td><td>Look around</td></tr>
+<tr><td>Space</td><td>Jump</td></tr>
+<tr><td>Shift</td><td>Sprint</td></tr>
+<tr><td>E</td><td>Interact</td></tr>
+<tr><td>Left Click</td><td>Fire</td></tr>
+<tr><td>R</td><td>Reload</td></tr>
+<tr><td>1 / 2</td><td>Weapon slots</td></tr>
+<tr><td>F1</td><td>Cycle debug mode (PBR → Wireframe → Normals → Depth → UV → Unlit → Metal/Rough)</td></tr>
+<tr><td>F4</td><td>Toggle shadows</td></tr>
+<tr><td>F5</td><td>Toggle bloom</td></tr>
+<tr><td>F6</td><td>Toggle post-processing pipeline</td></tr>
+<tr><td>F11</td><td>Toggle fullscreen</td></tr>
+<tr><td>Escape</td><td>Release cursor / Exit</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="viewer-flint-serve"><a class="header" href="#viewer-flint-serve">Viewer (<code>flint serve</code>)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Action</th></tr>
+</thead>
+<tbody>
+<tr><td>Left-drag</td><td>Orbit camera</td></tr>
+<tr><td>Right-drag</td><td>Pan camera</td></tr>
+<tr><td>Scroll</td><td>Zoom</td></tr>
+<tr><td>F1</td><td>Cycle debug mode</td></tr>
+<tr><td>F2</td><td>Toggle wireframe overlay</td></tr>
+<tr><td>F3</td><td>Toggle normal arrows</td></tr>
+<tr><td>F4</td><td>Toggle shadows</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="common-toml-snippets"><a class="header" href="#common-toml-snippets">Common TOML Snippets</a></h2>
+<h3 id="minimal-entity"><a class="header" href="#minimal-entity">Minimal Entity</a></h3>
+<pre><code class="language-toml">[entities.my_thing]
+archetype = "furniture"
+
+[entities.my_thing.transform]
+position = [0, 1, 0]
+rotation = [0, 45, 0]
+scale = [1, 1, 1]
+</code></pre>
+<h3 id="pbr-material"><a class="header" href="#pbr-material">PBR Material</a></h3>
+<pre><code class="language-toml">[entities.my_thing.material]
+base_color = [0.8, 0.2, 0.1]
+roughness = 0.6
+metallic = 0.0
+emissive = [1.0, 0.4, 0.1]
+emissive_strength = 2.0
+</code></pre>
+<h3 id="physics-body"><a class="header" href="#physics-body">Physics Body</a></h3>
+<pre><code class="language-toml">[entities.wall.collider]
+shape = "box"
+size = [10.0, 4.0, 0.5]
+
+[entities.wall.rigidbody]
+body_type = "static"
+</code></pre>
+<h3 id="particle-emitter-fire"><a class="header" href="#particle-emitter-fire">Particle Emitter (Fire)</a></h3>
+<pre><code class="language-toml">[entities.fire.particle_emitter]
+emission_rate = 40.0
+max_particles = 200
+lifetime_min = 0.3
+lifetime_max = 0.8
+speed_min = 1.5
+speed_max = 3.0
+direction = [0, 1, 0]
+gravity = [0, 2.0, 0]
+size_start = 0.15
+size_end = 0.02
+color_start = [1.0, 0.7, 0.1, 0.9]
+color_end = [1.0, 0.1, 0.0, 0.0]
+blend_mode = "additive"
+shape = "sphere"
+shape_radius = 0.15
+autoplay = true
+</code></pre>
+<h3 id="post-processing"><a class="header" href="#post-processing">Post-Processing</a></h3>
+<pre><code class="language-toml">[post_process]
+bloom_enabled = true
+bloom_intensity = 0.04
+bloom_threshold = 1.0
+vignette_enabled = true
+vignette_intensity = 0.3
+exposure = 1.0
+</code></pre>
+<h3 id="script-attachment"><a class="header" href="#script-attachment">Script Attachment</a></h3>
+<pre><code class="language-toml">[entities.npc.script]
+source = "npc_behavior.rhai"
+enabled = true
+
+[entities.npc.interactable]
+prompt_text = "Talk"
+range = 3.0
+interaction_type = "talk"
+</code></pre>
+<h3 id="audio-source"><a class="header" href="#audio-source">Audio Source</a></h3>
+<pre><code class="language-toml">[entities.campfire.audio_source]
+file = "audio/fire_crackle.ogg"
+volume = 0.8
+loop = true
+spatial = true
+min_distance = 1.0
+max_distance = 15.0
+</code></pre>
+<h2 id="top-scripting-functions"><a class="header" href="#top-scripting-functions">Top Scripting Functions</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>self_entity()</code></td><td><code>i64</code></td><td>ID of the entity this script is attached to</td></tr>
+<tr><td><code>get_entity(name)</code></td><td><code>i64</code></td><td>Look up entity by name (<code>-1</code> if not found)</td></tr>
+<tr><td><code>get_field(id, comp, field)</code></td><td><code>Dynamic</code></td><td>Read a component field</td></tr>
+<tr><td><code>set_field(id, comp, field, val)</code></td><td>—</td><td>Write a component field</td></tr>
+<tr><td><code>get_position(id)</code></td><td><code>#{x,y,z}</code></td><td>Entity position</td></tr>
+<tr><td><code>set_position(id, x, y, z)</code></td><td>—</td><td>Set entity position</td></tr>
+<tr><td><code>distance(a, b)</code></td><td><code>f64</code></td><td>Distance between two entities</td></tr>
+<tr><td><code>is_action_pressed(action)</code></td><td><code>bool</code></td><td>Check if action is held</td></tr>
+<tr><td><code>is_action_just_pressed(action)</code></td><td><code>bool</code></td><td>Check if action pressed this frame</td></tr>
+<tr><td><code>delta_time()</code></td><td><code>f64</code></td><td>Seconds since last frame</td></tr>
+<tr><td><code>play_sound(name)</code></td><td>—</td><td>Play a sound effect</td></tr>
+<tr><td><code>play_clip(id, clip)</code></td><td>—</td><td>Play an animation clip</td></tr>
+<tr><td><code>raycast(ox,oy,oz, dx,dy,dz, dist)</code></td><td><code>Map</code>/<code>()</code></td><td>Cast a ray, get hit info</td></tr>
+<tr><td><code>move_character(id, dx, dy, dz)</code></td><td><code>#{x,y,z,grounded}</code></td><td>Collision-corrected movement</td></tr>
+<tr><td><code>spawn_entity(name)</code></td><td><code>i64</code></td><td>Create a new entity</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="render-command-quick-examples"><a class="header" href="#render-command-quick-examples">Render Command Quick Examples</a></h2>
+<pre><code class="language-bash"># Basic screenshot
+flint render scene.toml -o shot.png --schemas schemas
+
+# Framed hero shot
+flint render scene.toml -o hero.png --distance 20 --pitch 30 --yaw 45 --target 0,1,0 --no-grid
+
+# Debug views
+flint render scene.toml -o wireframe.png --debug-mode wireframe
+flint render scene.toml -o normals.png --debug-mode normals
+flint render scene.toml -o depth.png --debug-mode depth
+
+# Post-processing control
+flint render scene.toml -o bloom.png --bloom-intensity 0.08
+flint render scene.toml -o raw.png --no-postprocess
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="why-flint"><a class="header" href="#why-flint">Why Flint?</a></h1>
 <h2 id="the-problem"><a class="header" href="#the-problem">The Problem</a></h2>
@@ -1932,6 +2120,40 @@ fullbright = true
 </div>
 <h3 id="design-decisions"><a class="header" href="#design-decisions">Design Decisions</a></h3>
 <p>Billboard sprites use a <strong>separate pipeline</strong> rather than extending the PBR pipeline. This keeps the PBR shaders clean and allows sprites to opt out of lighting entirely (<code>fullbright = true</code>). The <code>discard</code>-based alpha approach is simple and avoids the significant complexity of order-independent transparency, at the cost of no partial transparency (pixels are either fully opaque or fully transparent).</p>
+<h2 id="post-processing-1"><a class="header" href="#post-processing-1">Post-Processing</a></h2>
+<p>The renderer includes an HDR post-processing pipeline that applies bloom, tonemapping, and vignette as a final pass. See <a href="#post-processing-2">Post-Processing</a> for full details.</p>
+<p>When post-processing is active, all scene pipelines (PBR, skinned, billboard, particle, skybox) render to an <code>Rgba16Float</code> HDR intermediate buffer. A composite fullscreen pass then applies exposure, ACES tonemapping, gamma correction, and optional vignette to produce the final sRGB output.</p>
+<p>Configure post-processing per-scene via the <code>[post_process]</code> TOML block, or override with CLI flags (<code>--no-postprocess</code>, <code>--bloom-intensity</code>, <code>--bloom-threshold</code>, <code>--exposure</code>).</p>
+<h2 id="pbr-materials"><a class="header" href="#pbr-materials">PBR Materials</a></h2>
+<p><img src="images/pbr-materials.png" alt="PBR material showcase — varying roughness and metallic values"></p>
+<p><em>PBR materials with varying roughness and metallic values. Left to right: rough dielectric, smooth dielectric, rough metal, polished metal.</em></p>
+<h2 id="debug-visualization"><a class="header" href="#debug-visualization">Debug Visualization</a></h2>
+<p>The renderer provides six debug visualization modes, cycled with <strong>F1</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>PBR</strong></td><td>Standard Cook-Torrance shading (default)</td></tr>
+<tr><td><strong>Wireframe</strong></td><td>Edge lines only, no fill</td></tr>
+<tr><td><strong>Normals</strong></td><td>World-space surface normals mapped to RGB</td></tr>
+<tr><td><strong>Depth</strong></td><td>Linearized depth as grayscale</td></tr>
+<tr><td><strong>UV Checker</strong></td><td>UV coordinates as a procedural checkerboard</td></tr>
+<tr><td><strong>Unlit</strong></td><td>Albedo color only, no lighting</td></tr>
+<tr><td><strong>Metal/Rough</strong></td><td>Metallic (red channel) and roughness (green channel)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Additional debug overlays:</p>
+<ul>
+<li><strong>Wireframe overlay</strong> (F2 in viewer, <code>--wireframe-overlay</code> in render) — draws edges on top of solid shading</li>
+<li><strong>Normal arrows</strong> (F3 in viewer, <code>--show-normals</code> in render) — draws face-normal direction arrows</li>
+</ul>
+<p><img src="images/debug-wireframe.png" alt="Wireframe debug mode"></p>
+<p><em>Wireframe debug mode showing mesh topology.</em></p>
+<p><img src="images/debug-normals.png" alt="Normal visualization"></p>
+<p><em>Normal debug mode mapping world-space normals to RGB channels.</em></p>
 <h2 id="viewer-vs-headless"><a class="header" href="#viewer-vs-headless">Viewer vs Headless</a></h2>
 <p>The renderer operates in two modes:</p>
 <p><strong>Viewer mode</strong> (<code>flint serve --watch</code>) opens an interactive window with:</p>
@@ -1954,6 +2176,124 @@ fullbright = true
 <li><a href="#animation">Animation</a> — the animation system that drives skinned meshes</li>
 <li><a href="#physics-and-runtime">Physics and Runtime</a> — the game loop and first-person gameplay</li>
 <li><a href="#headless-rendering-2">Headless Rendering</a> — CI integration guide</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="post-processing-2"><a class="header" href="#post-processing-2">Post-Processing</a></h1>
+<p>Flint includes an HDR post-processing pipeline that transforms the raw scene render into polished final output with bloom, tonemapping, and vignette effects.</p>
+<h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
+<p>Instead of rendering directly to the screen, the scene is drawn to an intermediate <strong>HDR buffer</strong> (<code>Rgba16Float</code> format) that can store values brighter than 1.0. A series of fullscreen passes then process this buffer:</p>
+<pre><code>Scene render         Bloom chain              Composite pass
+(PBR, skinned,   →  downsample (5 mips)  →   exposure
+ billboard,         upsample (additive)       ACES tonemapping
+ particles,                                   gamma correction
+ skybox)                                      vignette
+     ↓                    ↓                       ↓
+ Rgba16Float          bloom texture           sRGB surface
+ HDR buffer           (bright halos)          (final output)
+</code></pre>
+<p>All scene pipelines — PBR, skinned mesh, billboard sprite, particle, and skybox — render to the HDR buffer when post-processing is active. The PBR shader’s built-in tonemapping is automatically disabled so it outputs linear HDR values for the composite pass to process.</p>
+<h2 id="bloom"><a class="header" href="#bloom">Bloom</a></h2>
+<p>Bloom creates the soft glow around bright light sources — emissive materials, fire particles, bright specular highlights. The implementation uses the technique from Call of Duty: Advanced Warfare:</p>
+<ol>
+<li><strong>Threshold</strong> — pixels brighter than <code>bloom_threshold</code> are extracted</li>
+<li><strong>Downsample</strong> — a 5-level mip chain progressively halves the resolution using a 13-tap filter</li>
+<li><strong>Upsample</strong> — each mip level is upsampled with a 9-tap tent filter and additively blended back up the chain</li>
+<li><strong>Composite</strong> — the final bloom texture is mixed into the scene at <code>bloom_intensity</code> strength</li>
+</ol>
+<p><img src="images/bloom-on.png" alt="Bloom enabled — bright sources produce soft halos"></p>
+<p><em>Post-processing enabled: bloom creates halos around emissive surfaces and bright lights.</em></p>
+<p><img src="images/bloom-off.png" alt="Bloom disabled — same scene with raw PBR output"></p>
+<p><em>Post-processing disabled: the same scene rendered with shader-level tonemapping only.</em></p>
+<p>The mip chain depth is calculated as <code>floor(log2(min(width, height))) - 3</code>, capped at 5 levels, ensuring the smallest mip is at least 8x8 pixels.</p>
+<h2 id="scene-configuration"><a class="header" href="#scene-configuration">Scene Configuration</a></h2>
+<p>Add a <code>[post_process]</code> block to your scene TOML to configure per-scene settings:</p>
+<pre><code class="language-toml">[post_process]
+bloom_enabled = true
+bloom_intensity = 0.04
+bloom_threshold = 1.0
+vignette_enabled = true
+vignette_intensity = 0.3
+exposure = 1.0
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>bloom_enabled</code></td><td>bool</td><td><code>true</code></td><td>Enable bloom effect</td></tr>
+<tr><td><code>bloom_intensity</code></td><td>f32</td><td><code>0.04</code></td><td>Bloom mix strength (0.0 = none, higher = more glow)</td></tr>
+<tr><td><code>bloom_threshold</code></td><td>f32</td><td><code>1.0</code></td><td>Minimum brightness for bloom extraction</td></tr>
+<tr><td><code>vignette_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable screen-edge darkening</td></tr>
+<tr><td><code>vignette_intensity</code></td><td>f32</td><td><code>0.3</code></td><td>Vignette darkness (0.0 = none, 1.0 = strong)</td></tr>
+<tr><td><code>exposure</code></td><td>f32</td><td><code>1.0</code></td><td>Exposure multiplier (higher = brighter overall image)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="cli-flags"><a class="header" href="#cli-flags">CLI Flags</a></h2>
+<p>Override post-processing settings from the command line:</p>
+<pre><code class="language-bash"># Disable all post-processing
+flint render scene.toml --no-postprocess
+
+# Adjust bloom
+flint render scene.toml --bloom-intensity 0.08 --bloom-threshold 0.8
+
+# Adjust exposure
+flint render scene.toml --exposure 1.5
+
+# Combine flags
+flint play scene.toml --bloom-intensity 0.1 --exposure 1.2
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--no-postprocess</code></td><td>Disable the entire post-processing pipeline</td></tr>
+<tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td>Override bloom intensity</td></tr>
+<tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td>Override bloom brightness threshold</td></tr>
+<tr><td><code>--exposure &lt;f32&gt;</code></td><td>Override exposure multiplier</td></tr>
+</tbody>
+</table>
+</div>
+<p>CLI flags take precedence over scene TOML settings.</p>
+<h2 id="runtime-toggles"><a class="header" href="#runtime-toggles">Runtime Toggles</a></h2>
+<p>During gameplay (<code>flint play</code>), toggle post-processing effects with keyboard shortcuts:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Action</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>F5</strong></td><td>Toggle bloom on/off</td></tr>
+<tr><td><strong>F6</strong></td><td>Toggle entire post-processing pipeline on/off</td></tr>
+</tbody>
+</table>
+</div>
+<p>When post-processing is toggled off at runtime, the PBR shader’s built-in ACES tonemapping and gamma correction are automatically restored as a fallback path. This means the scene always looks correct regardless of the pipeline state.</p>
+<h2 id="shader-integration"><a class="header" href="#shader-integration">Shader Integration</a></h2>
+<p>When the post-processing pipeline is active, the engine sets <code>enable_tonemapping = 0</code> in the PBR uniform buffer, forcing shaders to output raw linear HDR values. The composite pass then applies:</p>
+<ol>
+<li><strong>Exposure</strong> — multiplies all color values by the exposure setting</li>
+<li><strong>ACES tonemapping</strong> — maps HDR values to displayable range using the ACES filmic curve</li>
+<li><strong>Gamma correction</strong> — converts linear light to sRGB</li>
+<li><strong>Vignette</strong> — darkens screen edges for a cinematic look</li>
+</ol>
+<p>When post-processing is disabled (via <code>--no-postprocess</code> or F6), the shader handles tonemapping and gamma internally. This dual-path design ensures backward compatibility with scenes that don’t use post-processing.</p>
+<h2 id="design-decisions-1"><a class="header" href="#design-decisions-1">Design Decisions</a></h2>
+<ul>
+<li><strong>Rgba16Float</strong> for the HDR buffer provides sufficient precision for bloom extraction without the memory cost of Rgba32Float</li>
+<li><strong>Progressive downsample/upsample</strong> (rather than a single Gaussian blur) produces wide, natural-looking bloom cheaply</li>
+<li><strong>1x1 black fallback texture</strong> when bloom is disabled avoids conditional bind group creation</li>
+<li><strong>Resize handling</strong> — <code>PostProcessResources</code> are recreated on window resize since the HDR texture and bloom mip chain are resolution-dependent</li>
+</ul>
+<h2 id="further-reading-10"><a class="header" href="#further-reading-10">Further Reading</a></h2>
+<ul>
+<li><a href="#rendering">Rendering</a> — the PBR pipeline that feeds into post-processing</li>
+<li><a href="#headless-rendering-2">Headless Rendering</a> — using post-processing flags in CI</li>
+<li><a href="#cli-reference">CLI Reference</a> — full command options</li>
+<li><a href="#file-formats">File Formats</a> — the <code>[post_process]</code> scene block</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="audio"><a class="header" href="#audio">Audio</a></h1>
@@ -2073,7 +2413,7 @@ fn on_interact() {
 }
 <span class="boring">}</span></code></pre>
 <p>Sound names match files in the <code>audio/</code> directory. All <code>.ogg</code>, <code>.wav</code>, <code>.mp3</code>, and <code>.flac</code> files are automatically loaded at startup.</p>
-<h2 id="further-reading-10"><a class="header" href="#further-reading-10">Further Reading</a></h2>
+<h2 id="further-reading-11"><a class="header" href="#further-reading-11">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — full scripting API including audio functions</li>
 <li><a href="#animation">Animation</a> — animation system that can trigger audio events</li>
@@ -2175,7 +2515,7 @@ speed = 1.0
   │   flint-render        │  Upload bone matrices → vertex shader skinning
   └──────────────────────┘
 </code></pre>
-<h3 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h3>
+<h3 id="how-it-works-1"><a class="header" href="#how-it-works-1">How It Works</a></h3>
 <ol>
 <li><strong>Import</strong> — <code>flint-import</code> extracts the skeleton (joint hierarchy, inverse bind matrices) and animation clips (per-joint keyframe channels) from glTF files</li>
 <li><strong>Evaluate</strong> — each frame, <code>flint-animation</code> samples the current clip time to produce local joint poses, walks the bone hierarchy to compute global transforms, and multiplies by inverse bind matrices to get final bone matrices</li>
@@ -2268,7 +2608,7 @@ fn on_init() {
     blend_to(me, "idle", 0.3);  // Smooth transition to idle
 }
 <span class="boring">}</span></code></pre>
-<h2 id="further-reading-11"><a class="header" href="#further-reading-11">Further Reading</a></h2>
+<h2 id="further-reading-12"><a class="header" href="#further-reading-12">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — full scripting API including animation functions</li>
 <li><a href="#audio">Audio</a> — audio system that responds to animation events</li>
@@ -2279,7 +2619,10 @@ fn on_init() {
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="particles"><a class="header" href="#particles">Particles</a></h1>
 <p>Flint’s particle system provides GPU-instanced visual effects through the <code>flint-particles</code> crate. Fire, smoke, sparks, dust motes, magic effects — any volumetric visual that needs hundreds or thousands of small, short-lived elements.</p>
-<h2 id="how-it-works-1"><a class="header" href="#how-it-works-1">How It Works</a></h2>
+<blockquote>
+<p><strong>Note:</strong> Particle effects are dynamic simulations that accumulate over time. Use <code>flint play</code> to see them in action — headless <code>flint render</code> captures a single frame and won’t show accumulated particles.</p>
+</blockquote>
+<h2 id="how-it-works-2"><a class="header" href="#how-it-works-2">How It Works</a></h2>
 <p>Each entity with a <code>particle_emitter</code> component owns a <strong>pool</strong> of particles simulated on the CPU and rendered as camera-facing quads via GPU instancing. The pipeline is:</p>
 <pre><code>TOML component                CPU simulation              GPU rendering
 particle_emitter   ──►  ParticleSync reads config  ──►  ParticlePipeline
@@ -2493,7 +2836,7 @@ color_end = [1.0, 1.0, 0.9, 0.0]
 shape = "box"
 shape_extents = [2.0, 1.0, 2.0]
 </code></pre>
-<h2 id="further-reading-12"><a class="header" href="#further-reading-12">Further Reading</a></h2>
+<h2 id="further-reading-13"><a class="header" href="#further-reading-13">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — full scripting API including particle functions</li>
 <li><a href="#animation">Animation</a> — animate emitter transforms with property tweens</li>
@@ -2587,7 +2930,7 @@ body_type = "static"
 <p>Raycasting is exposed to scripts via the <code>raycast()</code> function — see <a href="#physics-api">Scripting: Physics API</a> for the script-level interface and examples.</p>
 <h2 id="input-system"><a class="header" href="#input-system">Input System</a></h2>
 <p>The <code>InputState</code> struct provides a config-driven, device-agnostic input layer. It tracks keyboard, mouse, and gamepad state each frame and evaluates logical <strong>actions</strong> from physical bindings.</p>
-<h3 id="how-it-works-2"><a class="header" href="#how-it-works-2">How It Works</a></h3>
+<h3 id="how-it-works-3"><a class="header" href="#how-it-works-3">How It Works</a></h3>
 <p>All input flows through a unified <code>Binding</code> model:</p>
 <ul>
 <li><strong>Keyboard keys</strong> (<code>Key { code }</code>) — any winit <code>KeyCode</code> name (e.g., <code>"KeyW"</code>, <code>"Space"</code>, <code>"ShiftLeft"</code>)</li>
@@ -2703,7 +3046,7 @@ gamepad = "any"
 <li><strong>Kinematic body sync</strong> — script-controlled position changes are written back to Rapier kinematic bodies each frame</li>
 <li><strong>Collision event drain</strong> — the <code>ChannelEventCollector</code> collects collision and contact events each physics step; these are drained and dispatched as script callbacks (<code>on_collision</code>, <code>on_trigger_enter</code>, <code>on_trigger_exit</code>)</li>
 </ul>
-<h2 id="further-reading-13"><a class="header" href="#further-reading-13">Further Reading</a></h2>
+<h2 id="further-reading-14"><a class="header" href="#further-reading-14">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — Rhai scripting system for game logic</li>
 <li><a href="#audio">Audio</a> — spatial audio with Kira</li>
@@ -2787,6 +3130,13 @@ enabled = true
 <tr><td><code>get_rotation(id)</code></td><td><code>Map</code></td><td>Get entity rotation (euler degrees) as <code>#{x, y, z}</code></td></tr>
 <tr><td><code>set_rotation(id, x, y, z)</code></td><td>—</td><td>Set entity rotation (euler degrees)</td></tr>
 <tr><td><code>distance(a, b)</code></td><td><code>f64</code></td><td>Euclidean distance between two entities</td></tr>
+<tr><td><code>set_parent(child_id, parent_id)</code></td><td>—</td><td>Set an entity’s parent in the hierarchy</td></tr>
+<tr><td><code>get_parent(id)</code></td><td><code>i64</code></td><td>Get the parent entity ID (<code>-1</code> if none)</td></tr>
+<tr><td><code>get_children(id)</code></td><td><code>Array</code></td><td>Get child entity IDs as an array</td></tr>
+<tr><td><code>get_world_position(id)</code></td><td><code>Map</code></td><td>World-space position as <code>#{x, y, z}</code> (accounts for parent transforms)</td></tr>
+<tr><td><code>set_material_color(id, r, g, b, a)</code></td><td>—</td><td>Set the material base color (RGBA, 0.0–1.0)</td></tr>
+<tr><td><code>find_entities_with(component)</code></td><td><code>Array</code></td><td>All entity IDs that have the given component</td></tr>
+<tr><td><code>entity_count_with(component)</code></td><td><code>i64</code></td><td>Count of entities with the given component</td></tr>
 <tr><td><code>spawn_entity(name)</code></td><td><code>i64</code></td><td>Create a new entity. Returns its ID or <code>-1</code> on failure</td></tr>
 <tr><td><code>despawn_entity(id)</code></td><td>—</td><td>Remove an entity from the world</td></tr>
 </tbody>
@@ -2802,7 +3152,7 @@ enabled = true
 <tr><td><code>is_action_pressed(action)</code></td><td><code>bool</code></td><td>Whether an action is currently held</td></tr>
 <tr><td><code>is_action_just_pressed(action)</code></td><td><code>bool</code></td><td>Whether an action was pressed this frame</td></tr>
 <tr><td><code>is_action_just_released(action)</code></td><td><code>bool</code></td><td>Whether an action was released this frame</td></tr>
-<tr><td><code>get_action_value(action)</code></td><td><code>f64</code></td><td>Analog value for Axis1d actions (0.0 if not bound)</td></tr>
+<tr><td><code>action_value(action)</code></td><td><code>f64</code></td><td>Analog value for Axis1d actions (0.0 if not bound)</td></tr>
 <tr><td><code>mouse_delta_x()</code></td><td><code>f64</code></td><td>Horizontal mouse movement this frame</td></tr>
 <tr><td><code>mouse_delta_y()</code></td><td><code>f64</code></td><td>Vertical mouse movement this frame</td></tr>
 </tbody>
@@ -2927,8 +3277,12 @@ enabled = true
 </thead>
 <tbody>
 <tr><td><code>raycast(ox, oy, oz, dx, dy, dz, max_dist)</code></td><td><code>Map</code> or <code>()</code></td><td>Cast a ray from origin in direction. Returns hit info or <code>()</code> if nothing hit</td></tr>
-<tr><td><code>get_camera_direction()</code></td><td><code>Map</code></td><td>Camera forward vector as <code>#{x, y, z}</code></td></tr>
+<tr><td><code>move_character(id, dx, dy, dz)</code></td><td><code>Map</code> or <code>()</code></td><td>Collision-corrected kinematic movement. Returns <code>#{x, y, z, grounded}</code></td></tr>
+<tr><td><code>get_collider_extents(id)</code></td><td><code>Map</code> or <code>()</code></td><td>Collider shape dimensions (see below)</td></tr>
 <tr><td><code>get_camera_position()</code></td><td><code>Map</code></td><td>Camera world position as <code>#{x, y, z}</code></td></tr>
+<tr><td><code>get_camera_direction()</code></td><td><code>Map</code></td><td>Camera forward vector as <code>#{x, y, z}</code></td></tr>
+<tr><td><code>set_camera_position(x, y, z)</code></td><td>—</td><td>Override camera position from script</td></tr>
+<tr><td><code>set_camera_target(x, y, z)</code></td><td>—</td><td>Override camera look-at target from script</td></tr>
 </tbody>
 </table>
 </div>
@@ -2946,6 +3300,28 @@ enabled = true
 </tbody>
 </table>
 </div>
+<p><strong><code>move_character</code></strong> performs collision-corrected kinematic movement using Rapier’s shape-sweep. The entity must have <code>rigidbody</code> and <code>collider</code> components. The returned map contains the corrected position and a <code>grounded</code> flag:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn on_update() {
+    let me = self_entity();
+    let dt = delta_time();
+    let result = move_character(me, 0.0, -9.81 * dt, 5.0 * dt);
+    if result != () {
+        set_position(me, result.x, result.y, result.z);
+        if result.grounded {
+            // Can jump
+        }
+    }
+}
+<span class="boring">}</span></code></pre>
+<p><strong><code>get_collider_extents</code></strong> returns the collider shape dimensions. The returned map varies by shape:</p>
+<ul>
+<li>Box: <code>#{shape: "box", half_x, half_y, half_z}</code></li>
+<li>Capsule: <code>#{shape: "capsule", radius, half_height}</code></li>
+<li>Sphere: <code>#{shape: "sphere", radius}</code></li>
+</ul>
+<p>Returns <code>()</code> if the entity has no collider.</p>
 <p><strong>Example: Hitscan weapon</strong></p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -2963,6 +3339,35 @@ enabled = true
     }
 }
 <span class="boring">}</span></code></pre>
+<h3 id="spline-api"><a class="header" href="#spline-api">Spline API</a></h3>
+<p>Query spline entities for path-following, track layouts, and procedural placement:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>spline_closest_point(spline_id, x, z)</code></td><td><code>Map</code> or <code>()</code></td><td>Nearest point on spline to query position. Returns <code>#{t, x, y, z, dist_sq}</code></td></tr>
+<tr><td><code>spline_sample_at(spline_id, t)</code></td><td><code>Map</code> or <code>()</code></td><td>Sample spline at parameter <code>t</code> (0.0–1.0). Returns <code>#{x, y, z, fwd_x, fwd_y, fwd_z, right_x, right_y, right_z}</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The <code>t</code> parameter wraps for closed splines. The returned forward and right vectors are normalized and can be used for orientation.</p>
+<h3 id="particle-api"><a class="header" href="#particle-api">Particle API</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>emit_burst(entity_id, count)</code></td><td>Fire N particles immediately</td></tr>
+<tr><td><code>start_emitter(entity_id)</code></td><td>Start continuous emission</td></tr>
+<tr><td><code>stop_emitter(entity_id)</code></td><td>Stop emission (existing particles finish their lifetime)</td></tr>
+<tr><td><code>set_emission_rate(entity_id, rate)</code></td><td>Change emission rate dynamically</td></tr>
+</tbody>
+</table>
+</div>
+<p>See <a href="#particles">Particles</a> for full component schema and recipes.</p>
 <h3 id="ui-draw-api"><a class="header" href="#ui-draw-api">UI Draw API</a></h3>
 <p>The draw API lets scripts render 2D overlays each frame via the <code>on_draw_ui()</code> callback. Draw commands are issued in screen-space coordinates (logical points, not physical pixels) and rendered by the engine through egui.</p>
 <h4 id="draw-primitives"><a class="header" href="#draw-primitives">Draw Primitives</a></h4>
@@ -3183,7 +3588,7 @@ fn on_draw_ui() {
 }
 <span class="boring">}</span></code></pre>
 <p>This pattern keeps all game-specific HUD logic in scripts rather than engine code. The engine provides only the generic draw primitives.</p>
-<h2 id="further-reading-14"><a class="header" href="#further-reading-14">Further Reading</a></h2>
+<h2 id="further-reading-15"><a class="header" href="#further-reading-15">Further Reading</a></h2>
 <ul>
 <li><a href="#audio">Audio</a> — sound system that scripts can control</li>
 <li><a href="#animation">Animation</a> — animation system driven by script commands</li>
@@ -3357,7 +3762,7 @@ default_style = "medieval_tavern"
 <li><code>FLINT_ELEVENLABS_API_KEY</code></li>
 </ul>
 <p>The layering order is: global config &lt; project config &lt; environment variables.</p>
-<h2 id="cli-commands"><a class="header" href="#cli-commands">CLI Commands</a></h2>
+<h2 id="cli-commands-1"><a class="header" href="#cli-commands-1">CLI Commands</a></h2>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -3385,7 +3790,7 @@ default_style = "medieval_tavern"
 <li>Fall back to file-based loading if not in the catalog</li>
 </ol>
 <p>This means scenes can seamlessly reference both pre-imported and AI-generated assets by name, without hardcoding file paths.</p>
-<h2 id="further-reading-15"><a class="header" href="#further-reading-15">Further Reading</a></h2>
+<h2 id="further-reading-16"><a class="header" href="#further-reading-16">Further Reading</a></h2>
 <ul>
 <li><a href="#assets">Assets</a> — content-addressed storage and catalog system</li>
 <li><a href="#file-formats">File Formats</a> — <code>.style.toml</code> and <code>asset_def.toml</code> format reference</li>
@@ -3394,6 +3799,7 @@ default_style = "medieval_tavern"
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="building-a-tavern"><a class="header" href="#building-a-tavern">Building a Tavern</a></h1>
+<p><img src="images/tavern-interior.png" alt="The finished tavern — atmospheric interior with NPCs, fireplace, and furniture"></p>
 <p>This tutorial walks through building a complete tavern scene from scratch using Flint’s CLI. By the end, you’ll have a walkable tavern with physics, audio, animation, scripted NPCs, and interactive objects.</p>
 <h2 id="1-initialize-the-project"><a class="header" href="#1-initialize-the-project">1. Initialize the Project</a></h2>
 <pre><code class="language-bash">flint init tavern-game
@@ -3615,7 +4021,7 @@ flint play levels/tavern.scene.toml
 <pre><code class="language-bash"># Try the finished demo
 cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 </code></pre>
-<h2 id="further-reading-16"><a class="header" href="#further-reading-16">Further Reading</a></h2>
+<h2 id="further-reading-17"><a class="header" href="#further-reading-17">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — full Rhai API reference</li>
 <li><a href="#audio">Audio</a> — spatial audio system</li>
@@ -3764,7 +4170,7 @@ flint validate levels/tavern.scene.toml --fix
 <p>All <code>.toml</code> files in <code>schemas/constraints/</code> are loaded automatically.</p>
 <h2 id="cascade-detection"><a class="header" href="#cascade-detection">Cascade Detection</a></h2>
 <p>When auto-fix modifies one entity, it might cause a different constraint to fail. Flint handles this by running fix-validate cycles. If a cycle is detected (the same violation keeps appearing), the fixer stops and reports the issue.</p>
-<h2 id="further-reading-17"><a class="header" href="#further-reading-17">Further Reading</a></h2>
+<h2 id="further-reading-18"><a class="header" href="#further-reading-18">Further Reading</a></h2>
 <ul>
 <li><a href="#constraints">Constraints</a> — constraint system reference</li>
 <li><a href="#queries">Queries</a> — query syntax used in constraint selectors</li>
@@ -3872,7 +4278,7 @@ flint asset resolve levels/tavern.scene.toml --strategy ai_generate --style medi
 </tbody>
 </table>
 </div>
-<h2 id="further-reading-18"><a class="header" href="#further-reading-18">Further Reading</a></h2>
+<h2 id="further-reading-19"><a class="header" href="#further-reading-19">Further Reading</a></h2>
 <ul>
 <li><a href="#assets">Assets</a> — content-addressed storage concept</li>
 <li><a href="#ai-asset-generation-1">AI Asset Generation</a> — generating assets with AI providers</li>
@@ -3901,12 +4307,74 @@ flint asset resolve levels/tavern.scene.toml --strategy ai_generate --style medi
 </thead>
 <tbody>
 <tr><td><code>--output &lt;path&gt;</code></td><td><code>render.png</code></td><td>Output file path</td></tr>
-<tr><td><code>--width &lt;px&gt;</code></td><td>800</td><td>Image width in pixels</td></tr>
-<tr><td><code>--height &lt;px&gt;</code></td><td>600</td><td>Image height in pixels</td></tr>
-<tr><td><code>--distance &lt;units&gt;</code></td><td>20.0</td><td>Camera distance from origin</td></tr>
-<tr><td><code>--yaw &lt;degrees&gt;</code></td><td>0.0</td><td>Horizontal camera angle</td></tr>
-<tr><td><code>--pitch &lt;degrees&gt;</code></td><td>30.0</td><td>Vertical camera angle</td></tr>
-<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Path to schemas directory</td></tr>
+<tr><td><code>--width &lt;px&gt;</code></td><td>1920</td><td>Image width in pixels</td></tr>
+<tr><td><code>--height &lt;px&gt;</code></td><td>1080</td><td>Image height in pixels</td></tr>
+<tr><td><code>--distance &lt;units&gt;</code></td><td>(auto)</td><td>Camera distance from origin</td></tr>
+<tr><td><code>--yaw &lt;degrees&gt;</code></td><td>(auto)</td><td>Horizontal camera angle</td></tr>
+<tr><td><code>--pitch &lt;degrees&gt;</code></td><td>(auto)</td><td>Vertical camera angle</td></tr>
+<tr><td><code>--target &lt;x,y,z&gt;</code></td><td>(auto)</td><td>Camera look-at point (comma-separated)</td></tr>
+<tr><td><code>--fov &lt;degrees&gt;</code></td><td>(auto)</td><td>Field of view in degrees</td></tr>
+<tr><td><code>--no-grid</code></td><td><code>false</code></td><td>Disable ground grid</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Path to schemas directory (repeatable)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="post-processing-flags"><a class="header" href="#post-processing-flags">Post-Processing Flags</a></h2>
+<p>Control post-processing from the command line:</p>
+<pre><code class="language-bash"># Disable all post-processing (raw shader output)
+flint render scene.toml --no-postprocess --output raw.png
+
+# Custom bloom settings
+flint render scene.toml --bloom-intensity 0.08 --bloom-threshold 0.8
+
+# Adjust exposure
+flint render scene.toml --exposure 1.5
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--no-postprocess</code></td><td><code>false</code></td><td>Disable entire post-processing pipeline</td></tr>
+<tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td><code>0.04</code></td><td>Bloom mix strength</td></tr>
+<tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Minimum brightness for bloom</td></tr>
+<tr><td><code>--exposure &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Exposure multiplier</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="debug-rendering-flags"><a class="header" href="#debug-rendering-flags">Debug Rendering Flags</a></h2>
+<p>Render debug visualizations for diagnostics:</p>
+<pre><code class="language-bash"># Wireframe view
+flint render scene.toml --debug-mode wireframe --output wireframe.png
+
+# Surface normals
+flint render scene.toml --debug-mode normals --output normals.png
+
+# Other modes: depth, uv, unlit, metalrough
+flint render scene.toml --debug-mode depth --output depth.png
+
+# Wireframe overlay on solid geometry
+flint render scene.toml --wireframe-overlay --output overlay.png
+
+# Normal arrows
+flint render scene.toml --show-normals --output arrows.png
+
+# Raw linear output (no tonemapping)
+flint render scene.toml --no-tonemapping --output linear.png
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--debug-mode &lt;mode&gt;</code></td><td>(none)</td><td><code>wireframe</code>, <code>normals</code>, <code>depth</code>, <code>uv</code>, <code>unlit</code>, <code>metalrough</code></td></tr>
+<tr><td><code>--wireframe-overlay</code></td><td><code>false</code></td><td>Draw wireframe edges over solid shading</td></tr>
+<tr><td><code>--show-normals</code></td><td><code>false</code></td><td>Draw face-normal direction arrows</td></tr>
+<tr><td><code>--no-tonemapping</code></td><td><code>false</code></td><td>Disable tonemapping for raw linear output</td></tr>
+<tr><td><code>--no-shadows</code></td><td><code>false</code></td><td>Disable shadow mapping</td></tr>
+<tr><td><code>--shadow-resolution &lt;px&gt;</code></td><td><code>1024</code></td><td>Shadow map resolution per cascade</td></tr>
 </tbody>
 </table>
 </div>
@@ -3967,7 +4435,7 @@ done
 <li><strong>Skinned mesh rendering</strong> with bone matrix upload (for skeletal meshes)</li>
 </ul>
 <p>The only difference from interactive rendering is that the output goes to a texture-to-buffer copy instead of a swapchain surface.</p>
-<h2 id="further-reading-19"><a class="header" href="#further-reading-19">Further Reading</a></h2>
+<h2 id="further-reading-20"><a class="header" href="#further-reading-20">Further Reading</a></h2>
 <ul>
 <li><a href="#rendering">Rendering</a> — the PBR rendering pipeline</li>
 <li><a href="#ai-agent-workflow">AI Agent Workflow</a> — using headless renders for agent verification</li>
@@ -4170,7 +4638,7 @@ echo "Scene built successfully. Preview: preview.png"
 <li><strong>Use semantic asset definitions</strong> — let batch resolution handle asset generation</li>
 <li><strong>Render previews</strong> — visual verification catches issues that validation can’t</li>
 </ul>
-<h2 id="further-reading-20"><a class="header" href="#further-reading-20">Further Reading</a></h2>
+<h2 id="further-reading-21"><a class="header" href="#further-reading-21">Further Reading</a></h2>
 <ul>
 <li><a href="#ai-agent-interface">AI Agent Interface</a> — the design philosophy</li>
 <li><a href="#cli-first-workflow">CLI-First Workflow</a> — composable commands</li>
@@ -4369,7 +4837,7 @@ git subtree pull --prefix=engine flint-engine main --squash
 git subtree push --prefix=engine flint-engine main
 </code></pre>
 <p>Engine edits are normal commits in your game repo. The subtree commands handle splitting and merging the <code>engine/</code> prefix.</p>
-<h2 id="further-reading-21"><a class="header" href="#further-reading-21">Further Reading</a></h2>
+<h2 id="further-reading-22"><a class="header" href="#further-reading-22">Further Reading</a></h2>
 <ul>
 <li><a href="#schemas">Schemas</a> — component and archetype schema system</li>
 <li><a href="#scripting">Scripting</a> — full Rhai scripting API</li>
@@ -4445,8 +4913,10 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><td>R</td><td>Reload</td></tr>
 <tr><td>1 / 2</td><td>Select weapon slot</td></tr>
 <tr><td>Escape</td><td>Release cursor / Exit</td></tr>
-<tr><td>F1</td><td>Cycle debug rendering mode</td></tr>
+<tr><td>F1</td><td>Cycle debug rendering mode (PBR → Wireframe → Normals → Depth → UV → Unlit → Metal/Rough)</td></tr>
 <tr><td>F4</td><td>Toggle shadows</td></tr>
+<tr><td>F5</td><td>Toggle bloom</td></tr>
+<tr><td>F6</td><td>Toggle post-processing pipeline</td></tr>
 <tr><td>F11</td><td>Toggle fullscreen</td></tr>
 </tbody>
 </table>
@@ -4470,6 +4940,74 @@ cargo run --manifest-path engine/Cargo.toml --bin flint-player -- \
 cargo run --manifest-path engine/Cargo.toml --bin flint-player -- \
   scenes/level_1.scene.toml --schemas engine/schemas --schemas schemas
 </code></pre>
+<h2 id="the-render-command"><a class="header" href="#the-render-command">The <code>render</code> Command</a></h2>
+<p>Render a scene to a PNG image without opening a window:</p>
+<pre><code class="language-bash">flint render demo/phase3_showcase.scene.toml --output hero.png --schemas schemas
+flint render scene.toml -o shot.png --distance 20 --pitch 30 --yaw 45 --target 0,1,0 --no-grid
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--output &lt;path&gt;</code> / <code>-o</code></td><td><code>render.png</code></td><td>Output file path</td></tr>
+<tr><td><code>--width &lt;px&gt;</code></td><td><code>1920</code></td><td>Image width</td></tr>
+<tr><td><code>--height &lt;px&gt;</code></td><td><code>1080</code></td><td>Image height</td></tr>
+<tr><td><code>--distance &lt;f32&gt;</code></td><td>(auto)</td><td>Camera distance from target</td></tr>
+<tr><td><code>--yaw &lt;deg&gt;</code></td><td>(auto)</td><td>Horizontal camera angle</td></tr>
+<tr><td><code>--pitch &lt;deg&gt;</code></td><td>(auto)</td><td>Vertical camera angle</td></tr>
+<tr><td><code>--target &lt;x,y,z&gt;</code></td><td>(auto)</td><td>Camera look-at point</td></tr>
+<tr><td><code>--fov &lt;deg&gt;</code></td><td>(auto)</td><td>Field of view</td></tr>
+<tr><td><code>--no-grid</code></td><td><code>false</code></td><td>Disable ground grid</td></tr>
+<tr><td><code>--debug-mode &lt;mode&gt;</code></td><td>(none)</td><td><code>wireframe</code>, <code>normals</code>, <code>depth</code>, <code>uv</code>, <code>unlit</code>, <code>metalrough</code></td></tr>
+<tr><td><code>--wireframe-overlay</code></td><td><code>false</code></td><td>Wireframe edges on solid geometry</td></tr>
+<tr><td><code>--show-normals</code></td><td><code>false</code></td><td>Normal direction arrows</td></tr>
+<tr><td><code>--no-tonemapping</code></td><td><code>false</code></td><td>Raw linear output</td></tr>
+<tr><td><code>--no-shadows</code></td><td><code>false</code></td><td>Disable shadow mapping</td></tr>
+<tr><td><code>--shadow-resolution &lt;px&gt;</code></td><td><code>1024</code></td><td>Shadow map resolution per cascade</td></tr>
+<tr><td><code>--no-postprocess</code></td><td><code>false</code></td><td>Disable post-processing</td></tr>
+<tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td><code>0.04</code></td><td>Bloom strength</td></tr>
+<tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Bloom brightness threshold</td></tr>
+<tr><td><code>--exposure &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Exposure multiplier</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Schemas directory (repeatable)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="the-serve-command"><a class="header" href="#the-serve-command">The <code>serve</code> Command</a></h2>
+<p>Launch the interactive scene viewer with hot-reload:</p>
+<pre><code class="language-bash">flint serve demo/phase3_showcase.scene.toml --watch --schemas schemas
+flint serve scene.toml --no-inspector
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--watch</code></td><td><code>false</code></td><td>Watch for file changes and auto-reload</td></tr>
+<tr><td><code>--no-inspector</code></td><td><code>false</code></td><td>Hide egui inspector panels</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Schemas directory (repeatable)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="viewer-controls"><a class="header" href="#viewer-controls">Viewer Controls</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Input</th><th>Action</th></tr>
+</thead>
+<tbody>
+<tr><td>Left-drag</td><td>Orbit camera</td></tr>
+<tr><td>Right-drag</td><td>Pan camera</td></tr>
+<tr><td>Scroll</td><td>Zoom</td></tr>
+<tr><td>F1</td><td>Cycle debug mode</td></tr>
+<tr><td>F2</td><td>Toggle wireframe overlay</td></tr>
+<tr><td>F3</td><td>Toggle normal arrows</td></tr>
+<tr><td>F4</td><td>Toggle shadows</td></tr>
+</tbody>
+</table>
+</div>
 <h2 id="the-asset-generate-command"><a class="header" href="#the-asset-generate-command">The <code>asset generate</code> Command</a></h2>
 <p>Generate assets using AI providers:</p>
 <pre><code class="language-bash">flint asset generate texture -d "rough stone wall" --style medieval_tavern
@@ -4539,6 +5077,23 @@ parent = "&lt;parent_name&gt;"          # Optional parent entity
 [entities.&lt;name&gt;.&lt;component&gt;]
 field = value
 </code></pre>
+<p>Scenes may also include optional top-level blocks for post-processing and environment settings:</p>
+<pre><code class="language-toml">[post_process]
+bloom_enabled = true
+bloom_intensity = 0.04
+bloom_threshold = 1.0
+vignette_enabled = true
+vignette_intensity = 0.3
+exposure = 1.0
+
+[environment]
+ambient_color = [0.1, 0.1, 0.15]
+ambient_intensity = 0.3
+fog_enabled = false
+fog_color = [0.5, 0.5, 0.6]
+fog_density = 0.02
+</code></pre>
+<p>The <code>[post_process]</code> block configures the HDR post-processing pipeline (see <a href="#post-processing-2">Post-Processing</a>). The <code>[environment]</code> block sets ambient lighting and fog parameters.</p>
 <p>Scenes are loaded by <code>flint-scene</code> and can be edited with <code>flint entity create</code>, <code>flint entity delete</code>, or by hand. The <code>serve --watch</code> viewer reloads automatically when the file changes.</p>
 <h2 id="component-schemas-schemascomponentstoml"><a class="header" href="#component-schemas-schemascomponentstoml">Component Schemas (<code>schemas/components/*.toml</code>)</a></h2>
 <p>Define the fields, types, and defaults for each component kind. Components are dynamic — they exist as schema TOML, not compiled Rust types.</p>
@@ -4753,7 +5308,7 @@ default_style = "medieval_tavern"
 ├── demo/                   # Showcase scenes and build scripts
 └── docs/                   # This documentation (mdBook)
 </code></pre>
-<h2 id="design-decisions-1"><a class="header" href="#design-decisions-1">Design Decisions</a></h2>
+<h2 id="design-decisions-2"><a class="header" href="#design-decisions-2">Design Decisions</a></h2>
 <h3 id="dynamic-components"><a class="header" href="#dynamic-components">Dynamic Components</a></h3>
 <p>The most significant architectural choice: components are stored as <code>toml::Value</code> rather than Rust types. This means:</p>
 <ul>
@@ -4947,7 +5502,7 @@ default_style = "medieval_tavern"
 </ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>
 <p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>serve</code>, <code>play</code>, <code>validate</code>, <code>asset</code>, <code>render</code>.</p>
-<h2 id="further-reading-22"><a class="header" href="#further-reading-22">Further Reading</a></h2>
+<h2 id="further-reading-23"><a class="header" href="#further-reading-23">Further Reading</a></h2>
 <ul>
 <li><a href="#crate-dependency-graph">Crate Dependency Graph</a> — visual dependency diagram</li>
 <li><a href="#design-principles">Design Principles</a> — the principles behind these decisions</li>

@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-f1c4bd62.js";
+            window.path_to_searchindex_js = "../searchindex-0e5fce39.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-af488a06.js"></script>
+        <script src="../toc-aa7c91fd.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -194,6 +194,23 @@ parent = "&lt;parent_name&gt;"          # Optional parent entity
 [entities.&lt;name&gt;.&lt;component&gt;]
 field = value
 </code></pre>
+<p>Scenes may also include optional top-level blocks for post-processing and environment settings:</p>
+<pre><code class="language-toml">[post_process]
+bloom_enabled = true
+bloom_intensity = 0.04
+bloom_threshold = 1.0
+vignette_enabled = true
+vignette_intensity = 0.3
+exposure = 1.0
+
+[environment]
+ambient_color = [0.1, 0.1, 0.15]
+ambient_intensity = 0.3
+fog_enabled = false
+fog_color = [0.5, 0.5, 0.6]
+fog_density = 0.02
+</code></pre>
+<p>The <code>[post_process]</code> block configures the HDR post-processing pipeline (see <a href="../concepts/post-processing.html">Post-Processing</a>). The <code>[environment]</code> block sets ambient lighting and fog parameters.</p>
 <p>Scenes are loaded by <code>flint-scene</code> and can be edited with <code>flint entity create</code>, <code>flint entity delete</code>, or by hand. The <code>serve --watch</code> viewer reloads automatically when the file changes.</p>
 <h2 id="component-schemas-schemascomponentstoml"><a class="header" href="#component-schemas-schemascomponentstoml">Component Schemas (<code>schemas/components/*.toml</code>)</a></h2>
 <p>Define the fields, types, and defaults for each component kind. Components are dynamic — they exist as schema TOML, not compiled Rust types.</p>

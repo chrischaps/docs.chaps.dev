@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-f1c4bd62.js";
+            window.path_to_searchindex_js = "../searchindex-0e5fce39.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-af488a06.js"></script>
+        <script src="../toc-aa7c91fd.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -246,8 +246,10 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><td>R</td><td>Reload</td></tr>
 <tr><td>1 / 2</td><td>Select weapon slot</td></tr>
 <tr><td>Escape</td><td>Release cursor / Exit</td></tr>
-<tr><td>F1</td><td>Cycle debug rendering mode</td></tr>
+<tr><td>F1</td><td>Cycle debug rendering mode (PBR → Wireframe → Normals → Depth → UV → Unlit → Metal/Rough)</td></tr>
 <tr><td>F4</td><td>Toggle shadows</td></tr>
+<tr><td>F5</td><td>Toggle bloom</td></tr>
+<tr><td>F6</td><td>Toggle post-processing pipeline</td></tr>
 <tr><td>F11</td><td>Toggle fullscreen</td></tr>
 </tbody>
 </table>
@@ -271,6 +273,74 @@ cargo run --manifest-path engine/Cargo.toml --bin flint-player -- \
 cargo run --manifest-path engine/Cargo.toml --bin flint-player -- \
   scenes/level_1.scene.toml --schemas engine/schemas --schemas schemas
 </code></pre>
+<h2 id="the-render-command"><a class="header" href="#the-render-command">The <code>render</code> Command</a></h2>
+<p>Render a scene to a PNG image without opening a window:</p>
+<pre><code class="language-bash">flint render demo/phase3_showcase.scene.toml --output hero.png --schemas schemas
+flint render scene.toml -o shot.png --distance 20 --pitch 30 --yaw 45 --target 0,1,0 --no-grid
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--output &lt;path&gt;</code> / <code>-o</code></td><td><code>render.png</code></td><td>Output file path</td></tr>
+<tr><td><code>--width &lt;px&gt;</code></td><td><code>1920</code></td><td>Image width</td></tr>
+<tr><td><code>--height &lt;px&gt;</code></td><td><code>1080</code></td><td>Image height</td></tr>
+<tr><td><code>--distance &lt;f32&gt;</code></td><td>(auto)</td><td>Camera distance from target</td></tr>
+<tr><td><code>--yaw &lt;deg&gt;</code></td><td>(auto)</td><td>Horizontal camera angle</td></tr>
+<tr><td><code>--pitch &lt;deg&gt;</code></td><td>(auto)</td><td>Vertical camera angle</td></tr>
+<tr><td><code>--target &lt;x,y,z&gt;</code></td><td>(auto)</td><td>Camera look-at point</td></tr>
+<tr><td><code>--fov &lt;deg&gt;</code></td><td>(auto)</td><td>Field of view</td></tr>
+<tr><td><code>--no-grid</code></td><td><code>false</code></td><td>Disable ground grid</td></tr>
+<tr><td><code>--debug-mode &lt;mode&gt;</code></td><td>(none)</td><td><code>wireframe</code>, <code>normals</code>, <code>depth</code>, <code>uv</code>, <code>unlit</code>, <code>metalrough</code></td></tr>
+<tr><td><code>--wireframe-overlay</code></td><td><code>false</code></td><td>Wireframe edges on solid geometry</td></tr>
+<tr><td><code>--show-normals</code></td><td><code>false</code></td><td>Normal direction arrows</td></tr>
+<tr><td><code>--no-tonemapping</code></td><td><code>false</code></td><td>Raw linear output</td></tr>
+<tr><td><code>--no-shadows</code></td><td><code>false</code></td><td>Disable shadow mapping</td></tr>
+<tr><td><code>--shadow-resolution &lt;px&gt;</code></td><td><code>1024</code></td><td>Shadow map resolution per cascade</td></tr>
+<tr><td><code>--no-postprocess</code></td><td><code>false</code></td><td>Disable post-processing</td></tr>
+<tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td><code>0.04</code></td><td>Bloom strength</td></tr>
+<tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Bloom brightness threshold</td></tr>
+<tr><td><code>--exposure &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Exposure multiplier</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Schemas directory (repeatable)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="the-serve-command"><a class="header" href="#the-serve-command">The <code>serve</code> Command</a></h2>
+<p>Launch the interactive scene viewer with hot-reload:</p>
+<pre><code class="language-bash">flint serve demo/phase3_showcase.scene.toml --watch --schemas schemas
+flint serve scene.toml --no-inspector
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--watch</code></td><td><code>false</code></td><td>Watch for file changes and auto-reload</td></tr>
+<tr><td><code>--no-inspector</code></td><td><code>false</code></td><td>Hide egui inspector panels</td></tr>
+<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Schemas directory (repeatable)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="viewer-controls"><a class="header" href="#viewer-controls">Viewer Controls</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Input</th><th>Action</th></tr>
+</thead>
+<tbody>
+<tr><td>Left-drag</td><td>Orbit camera</td></tr>
+<tr><td>Right-drag</td><td>Pan camera</td></tr>
+<tr><td>Scroll</td><td>Zoom</td></tr>
+<tr><td>F1</td><td>Cycle debug mode</td></tr>
+<tr><td>F2</td><td>Toggle wireframe overlay</td></tr>
+<tr><td>F3</td><td>Toggle normal arrows</td></tr>
+<tr><td>F4</td><td>Toggle shadows</td></tr>
+</tbody>
+</table>
+</div>
 <h2 id="the-asset-generate-command"><a class="header" href="#the-asset-generate-command">The <code>asset generate</code> Command</a></h2>
 <p>Generate assets using AI providers:</p>
 <pre><code class="language-bash">flint asset generate texture -d "rough stone wall" --style medieval_tavern

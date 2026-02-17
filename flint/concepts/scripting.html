@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-f1c4bd62.js";
+            window.path_to_searchindex_js = "../searchindex-0e5fce39.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-af488a06.js"></script>
+        <script src="../toc-aa7c91fd.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -252,6 +252,13 @@ enabled = true
 <tr><td><code>get_rotation(id)</code></td><td><code>Map</code></td><td>Get entity rotation (euler degrees) as <code>#{x, y, z}</code></td></tr>
 <tr><td><code>set_rotation(id, x, y, z)</code></td><td>—</td><td>Set entity rotation (euler degrees)</td></tr>
 <tr><td><code>distance(a, b)</code></td><td><code>f64</code></td><td>Euclidean distance between two entities</td></tr>
+<tr><td><code>set_parent(child_id, parent_id)</code></td><td>—</td><td>Set an entity’s parent in the hierarchy</td></tr>
+<tr><td><code>get_parent(id)</code></td><td><code>i64</code></td><td>Get the parent entity ID (<code>-1</code> if none)</td></tr>
+<tr><td><code>get_children(id)</code></td><td><code>Array</code></td><td>Get child entity IDs as an array</td></tr>
+<tr><td><code>get_world_position(id)</code></td><td><code>Map</code></td><td>World-space position as <code>#{x, y, z}</code> (accounts for parent transforms)</td></tr>
+<tr><td><code>set_material_color(id, r, g, b, a)</code></td><td>—</td><td>Set the material base color (RGBA, 0.0–1.0)</td></tr>
+<tr><td><code>find_entities_with(component)</code></td><td><code>Array</code></td><td>All entity IDs that have the given component</td></tr>
+<tr><td><code>entity_count_with(component)</code></td><td><code>i64</code></td><td>Count of entities with the given component</td></tr>
 <tr><td><code>spawn_entity(name)</code></td><td><code>i64</code></td><td>Create a new entity. Returns its ID or <code>-1</code> on failure</td></tr>
 <tr><td><code>despawn_entity(id)</code></td><td>—</td><td>Remove an entity from the world</td></tr>
 </tbody>
@@ -267,7 +274,7 @@ enabled = true
 <tr><td><code>is_action_pressed(action)</code></td><td><code>bool</code></td><td>Whether an action is currently held</td></tr>
 <tr><td><code>is_action_just_pressed(action)</code></td><td><code>bool</code></td><td>Whether an action was pressed this frame</td></tr>
 <tr><td><code>is_action_just_released(action)</code></td><td><code>bool</code></td><td>Whether an action was released this frame</td></tr>
-<tr><td><code>get_action_value(action)</code></td><td><code>f64</code></td><td>Analog value for Axis1d actions (0.0 if not bound)</td></tr>
+<tr><td><code>action_value(action)</code></td><td><code>f64</code></td><td>Analog value for Axis1d actions (0.0 if not bound)</td></tr>
 <tr><td><code>mouse_delta_x()</code></td><td><code>f64</code></td><td>Horizontal mouse movement this frame</td></tr>
 <tr><td><code>mouse_delta_y()</code></td><td><code>f64</code></td><td>Vertical mouse movement this frame</td></tr>
 </tbody>
@@ -392,8 +399,12 @@ enabled = true
 </thead>
 <tbody>
 <tr><td><code>raycast(ox, oy, oz, dx, dy, dz, max_dist)</code></td><td><code>Map</code> or <code>()</code></td><td>Cast a ray from origin in direction. Returns hit info or <code>()</code> if nothing hit</td></tr>
-<tr><td><code>get_camera_direction()</code></td><td><code>Map</code></td><td>Camera forward vector as <code>#{x, y, z}</code></td></tr>
+<tr><td><code>move_character(id, dx, dy, dz)</code></td><td><code>Map</code> or <code>()</code></td><td>Collision-corrected kinematic movement. Returns <code>#{x, y, z, grounded}</code></td></tr>
+<tr><td><code>get_collider_extents(id)</code></td><td><code>Map</code> or <code>()</code></td><td>Collider shape dimensions (see below)</td></tr>
 <tr><td><code>get_camera_position()</code></td><td><code>Map</code></td><td>Camera world position as <code>#{x, y, z}</code></td></tr>
+<tr><td><code>get_camera_direction()</code></td><td><code>Map</code></td><td>Camera forward vector as <code>#{x, y, z}</code></td></tr>
+<tr><td><code>set_camera_position(x, y, z)</code></td><td>—</td><td>Override camera position from script</td></tr>
+<tr><td><code>set_camera_target(x, y, z)</code></td><td>—</td><td>Override camera look-at target from script</td></tr>
 </tbody>
 </table>
 </div>
@@ -411,6 +422,28 @@ enabled = true
 </tbody>
 </table>
 </div>
+<p><strong><code>move_character</code></strong> performs collision-corrected kinematic movement using Rapier’s shape-sweep. The entity must have <code>rigidbody</code> and <code>collider</code> components. The returned map contains the corrected position and a <code>grounded</code> flag:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn on_update() {
+    let me = self_entity();
+    let dt = delta_time();
+    let result = move_character(me, 0.0, -9.81 * dt, 5.0 * dt);
+    if result != () {
+        set_position(me, result.x, result.y, result.z);
+        if result.grounded {
+            // Can jump
+        }
+    }
+}
+<span class="boring">}</span></code></pre>
+<p><strong><code>get_collider_extents</code></strong> returns the collider shape dimensions. The returned map varies by shape:</p>
+<ul>
+<li>Box: <code>#{shape: "box", half_x, half_y, half_z}</code></li>
+<li>Capsule: <code>#{shape: "capsule", radius, half_height}</code></li>
+<li>Sphere: <code>#{shape: "sphere", radius}</code></li>
+</ul>
+<p>Returns <code>()</code> if the entity has no collider.</p>
 <p><strong>Example: Hitscan weapon</strong></p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -428,6 +461,35 @@ enabled = true
     }
 }
 <span class="boring">}</span></code></pre>
+<h3 id="spline-api"><a class="header" href="#spline-api">Spline API</a></h3>
+<p>Query spline entities for path-following, track layouts, and procedural placement:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>spline_closest_point(spline_id, x, z)</code></td><td><code>Map</code> or <code>()</code></td><td>Nearest point on spline to query position. Returns <code>#{t, x, y, z, dist_sq}</code></td></tr>
+<tr><td><code>spline_sample_at(spline_id, t)</code></td><td><code>Map</code> or <code>()</code></td><td>Sample spline at parameter <code>t</code> (0.0–1.0). Returns <code>#{x, y, z, fwd_x, fwd_y, fwd_z, right_x, right_y, right_z}</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The <code>t</code> parameter wraps for closed splines. The returned forward and right vectors are normalized and can be used for orientation.</p>
+<h3 id="particle-api"><a class="header" href="#particle-api">Particle API</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>emit_burst(entity_id, count)</code></td><td>Fire N particles immediately</td></tr>
+<tr><td><code>start_emitter(entity_id)</code></td><td>Start continuous emission</td></tr>
+<tr><td><code>stop_emitter(entity_id)</code></td><td>Stop emission (existing particles finish their lifetime)</td></tr>
+<tr><td><code>set_emission_rate(entity_id, rate)</code></td><td>Change emission rate dynamically</td></tr>
+</tbody>
+</table>
+</div>
+<p>See <a href="particles.html">Particles</a> for full component schema and recipes.</p>
 <h3 id="ui-draw-api"><a class="header" href="#ui-draw-api">UI Draw API</a></h3>
 <p>The draw API lets scripts render 2D overlays each frame via the <code>on_draw_ui()</code> callback. Draw commands are issued in screen-space coordinates (logical points, not physical pixels) and rendered by the engine through egui.</p>
 <h4 id="draw-primitives"><a class="header" href="#draw-primitives">Draw Primitives</a></h4>

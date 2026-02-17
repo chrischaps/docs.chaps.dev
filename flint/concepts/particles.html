@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-f1c4bd62.js";
+            window.path_to_searchindex_js = "../searchindex-0e5fce39.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-af488a06.js"></script>
+        <script src="../toc-aa7c91fd.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -180,6 +180,9 @@
                     <main>
                         <h1 id="particles"><a class="header" href="#particles">Particles</a></h1>
 <p>Flint’s particle system provides GPU-instanced visual effects through the <code>flint-particles</code> crate. Fire, smoke, sparks, dust motes, magic effects — any volumetric visual that needs hundreds or thousands of small, short-lived elements.</p>
+<blockquote>
+<p><strong>Note:</strong> Particle effects are dynamic simulations that accumulate over time. Use <code>flint play</code> to see them in action — headless <code>flint render</code> captures a single frame and won’t show accumulated particles.</p>
+</blockquote>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
 <p>Each entity with a <code>particle_emitter</code> component owns a <strong>pool</strong> of particles simulated on the CPU and rendered as camera-facing quads via GPU instancing. The pipeline is:</p>
 <pre><code>TOML component                CPU simulation              GPU rendering
