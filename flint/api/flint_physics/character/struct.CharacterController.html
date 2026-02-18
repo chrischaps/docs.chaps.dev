@@ -87,7 +87,7 @@
 </div></details><details class="toggle method-toggle" open><summary><section id="method.player_entity" class="method"><a class="src rightside" href="../../src/flint_physics/character.rs.html#71-73">Source</a><h4 class="code-header">pub fn <a href="#method.player_entity" class="fn">player_entity</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.92.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../flint_core/id/struct.EntityId.html" title="struct flint_core::id::EntityId">EntityId</a>&gt;</h4></section></summary><div class="docblock"><p>Get the player entity</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.update" class="method"><a class="src rightside" href="../../src/flint_physics/character.rs.html#76-245">Source</a><h4 class="code-header">pub fn <a href="#method.update" class="fn">update</a>(
     &amp;mut self,
-    input: &amp;<a class="struct" href="../../flint_runtime/input/struct.InputState.html" title="struct flint_runtime::input::InputState">InputState</a>,
+    input: &amp;InputState,
     world: &amp;mut <a class="struct" href="../../flint_ecs/world/struct.FlintWorld.html" title="struct flint_ecs::world::FlintWorld">FlintWorld</a>,
     physics: &amp;mut <a class="struct" href="../world/struct.PhysicsWorld.html" title="struct flint_physics::world::PhysicsWorld">PhysicsWorld</a>,
     body_map: &amp;<a class="struct" href="https://doc.rust-lang.org/1.92.0/std/collections/hash/map/struct.HashMap.html" title="struct std::collections::hash::map::HashMap">HashMap</a>&lt;<a class="struct" href="../../flint_core/id/struct.EntityId.html" title="struct flint_core::id::EntityId">EntityId</a>, RigidBodyHandle&gt;,

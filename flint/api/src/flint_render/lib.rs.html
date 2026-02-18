@@ -175,4 +175,16 @@
 <a href=#99 id=99 data-nosnippet>99</a>        <span class="kw">let </span>source = <span class="macro">include_str!</span>(<span class="string">"bloom_shader.wgsl"</span>);
 <a href=#100 id=100 data-nosnippet>100</a>        naga::front::wgsl::parse_str(source).expect(<span class="string">"bloom_shader.wgsl failed to parse"</span>);
 <a href=#101 id=101 data-nosnippet>101</a>    }
-<a href=#102 id=102 data-nosnippet>102</a>}</code></pre></div></section></main></body></html>
+<a href=#102 id=102 data-nosnippet>102</a>
+<a href=#103 id=103 data-nosnippet>103</a>    <span class="attr">#[test]
+<a href=#104 id=104 data-nosnippet>104</a>    </span><span class="kw">fn </span>ssao_shader_wgsl_parses() {
+<a href=#105 id=105 data-nosnippet>105</a>        <span class="kw">let </span>source = <span class="macro">include_str!</span>(<span class="string">"ssao_shader.wgsl"</span>);
+<a href=#106 id=106 data-nosnippet>106</a>        naga::front::wgsl::parse_str(source).expect(<span class="string">"ssao_shader.wgsl failed to parse"</span>);
+<a href=#107 id=107 data-nosnippet>107</a>    }
+<a href=#108 id=108 data-nosnippet>108</a>
+<a href=#109 id=109 data-nosnippet>109</a>    <span class="attr">#[test]
+<a href=#110 id=110 data-nosnippet>110</a>    </span><span class="kw">fn </span>ssao_blur_shader_wgsl_parses() {
+<a href=#111 id=111 data-nosnippet>111</a>        <span class="kw">let </span>source = <span class="macro">include_str!</span>(<span class="string">"ssao_blur_shader.wgsl"</span>);
+<a href=#112 id=112 data-nosnippet>112</a>        naga::front::wgsl::parse_str(source).expect(<span class="string">"ssao_blur_shader.wgsl failed to parse"</span>);
+<a href=#113 id=113 data-nosnippet>113</a>    }
+<a href=#114 id=114 data-nosnippet>114</a>}</code></pre></div></section></main></body></html>

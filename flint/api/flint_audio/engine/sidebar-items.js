@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["AudioEngine"]};
+window.SIDEBAR_ITEMS = {"fn":["amplitude_to_db"],"struct":["AudioEngine"]};
