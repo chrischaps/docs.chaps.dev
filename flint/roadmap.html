@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-3f2a9b56.js";
+            window.path_to_searchindex_js = "searchindex-43ff4c1e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-aa7c91fd.js"></script>
@@ -215,6 +215,25 @@
 <li>Coroutine scheduling integrated with the game loop</li>
 <li>Cleaner cutscene, tutorial, and event-chain authoring</li>
 </ul>
+<h2 id="transparent-material-rendering"><a class="header" href="#transparent-material-rendering">Transparent Material Rendering</a></h2>
+<p><strong>Priority: High</strong></p>
+<p>The renderer currently uses binary alpha only — pixels are either fully opaque or discarded. There’s no way to render glass, water surfaces, energy shields, smoke, or any translucent material. This is a core rendering capability that gates visual variety across every genre.</p>
+<ul>
+<li>Sorted alpha blending pass (back-to-front) for translucent materials</li>
+<li><code>opacity</code> field on material component (0.0–1.0)</li>
+<li>Blend modes: alpha, additive, multiply</li>
+<li>Refraction for glass and water (screen-space distortion)</li>
+<li>Depth peeling or weighted-blended OIT for overlapping transparencies</li>
+</ul>
+<h2 id="script-modules--shared-code"><a class="header" href="#script-modules--shared-code">Script Modules &amp; Shared Code</a></h2>
+<p><strong>Priority: High</strong></p>
+<p>As games grow beyond a handful of scripts, there’s no way to share utility functions. Every <code>.rhai</code> file is isolated — common code (damage formulas, inventory helpers, math utilities) gets copy-pasted across scripts. This is the biggest developer-productivity bottleneck for larger projects.</p>
+<ul>
+<li><code>import "utils"</code> mechanism to load shared <code>.rhai</code> modules</li>
+<li>Module search path: <code>scripts/lib/</code> for shared code, game-level overrides</li>
+<li>Pre-compiled module caching (avoid re-parsing shared code per entity)</li>
+<li>Hot-reload awareness (recompile dependents when a module changes)</li>
+</ul>
 <h2 id="ui-layout-system-done"><a class="header" href="#ui-layout-system-done"><del>UI Layout System</del> Done</a></h2>
 <p>Data-driven UI with layout/style/logic separation. Structure defined in <code>.ui.toml</code>, visuals in <code>.style.toml</code>, logic in Rhai scripts. The procedural <code>draw_*</code> API continues to work alongside the layout system.</p>
 <ul>
@@ -226,6 +245,26 @@
 <li>Element types: Panel, Text, Rect, Circle, Image</li>
 <li>Multi-document support with handle-based load/unload</li>
 <li>Layout caching with automatic invalidation on screen resize</li>
+</ul>
+<h2 id="terrain-system"><a class="header" href="#terrain-system">Terrain System</a></h2>
+<p><strong>Priority: Medium-High</strong></p>
+<p>The engine excels at interior scenes — taverns, dungeons, arenas — but has no solution for outdoor environments. Height-field terrain is the single biggest genre-unlocking feature missing: open-world, exploration, RTS, and large-scale games all depend on it.</p>
+<ul>
+<li>Height-field terrain with chunk-based rendering</li>
+<li>Material splatting (blend grass, dirt, rock, snow by painted weight maps)</li>
+<li>Chunk LOD for draw-distance scaling</li>
+<li>Collision mesh generation for physics and character controller</li>
+<li>Script API: <code>get_terrain_height(x, z)</code> for grounding NPCs and objects</li>
+</ul>
+<h2 id="audio-environment-zones"><a class="header" href="#audio-environment-zones">Audio Environment Zones</a></h2>
+<p><strong>Priority: Medium-High</strong></p>
+<p>Walking from a stone cathedral into an open field should <em>sound</em> different. The spatial audio system handles positioning well, but there’s no environmental modeling. This is the audio equivalent of reflection probes — a massive immersion jump for minimal complexity.</p>
+<ul>
+<li>Reverb zones defined as trigger volumes in scenes</li>
+<li>Preset environments (cathedral, cave, forest, small room, underwater)</li>
+<li>Smooth crossfade when transitioning between zones</li>
+<li>Occlusion: sounds behind walls are muffled (raycast-based)</li>
+<li>Script API: <code>set_reverb_zone(entity_id, preset)</code>, <code>set_reverb_mix(wet, dry)</code></li>
 </ul>
 <h2 id="decal-system"><a class="header" href="#decal-system">Decal System</a></h2>
 <p><strong>Priority: Medium</strong></p>
@@ -259,6 +298,16 @@
 <li>Restore from snapshot with entity ID remapping</li>
 <li>Checkpoint and quicksave support</li>
 <li>Script API: <code>save_game(slot)</code>, <code>load_game(slot)</code></li>
+</ul>
+<h2 id="3d-debug-drawing"><a class="header" href="#3d-debug-drawing">3D Debug Drawing</a></h2>
+<p><strong>Priority: Medium</strong></p>
+<p>The 2D overlay draws in screen-space, but there’s no way to visualize 3D information — physics colliders, AI sight cones, pathfinding routes, trigger volumes, raycast results. This is the single most impactful developer tool for iterating on gameplay.</p>
+<ul>
+<li>Script API: <code>debug_line(from, to, color)</code>, <code>debug_box(center, size, color)</code>, <code>debug_sphere(center, radius, color)</code>, <code>debug_ray(origin, dir, length, color)</code></li>
+<li>Wireframe overlay rendered after scene, before HUD</li>
+<li>Auto-clear each frame (immediate-mode, like the 2D draw API)</li>
+<li>Toggle with a debug key (e.g. F10) — zero overhead when disabled</li>
+<li>Optional built-in modes: visualize physics colliders, trigger volumes, nav meshes</li>
 </ul>
 <h2 id="performance-profiler-overlay"><a class="header" href="#performance-profiler-overlay">Performance Profiler Overlay</a></h2>
 <p><strong>Priority: Medium</strong></p>
