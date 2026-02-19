@@ -36,7 +36,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-edb0ac34.js";
+            window.path_to_searchindex_js = "../searchindex-3f2a9b56.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-aa7c91fd.js"></script>
@@ -318,6 +318,42 @@ wear_level = 0.7
 size_class = "large"
 tags = ["wall", "interior"]
 </code></pre>
+<h2 id="ui-layouts-uiuitoml"><a class="header" href="#ui-layouts-uiuitoml">UI Layouts (<code>ui/*.ui.toml</code>)</a></h2>
+<p>Data-driven UI element trees. Loaded by scripts via <code>load_ui()</code>. Each layout file references a companion style file.</p>
+<pre><code class="language-toml">[ui]
+name = "Race HUD"
+style = "ui/race_hud.style.toml"
+
+[elements.&lt;id&gt;]
+type = "panel"                     # panel, text, rect, circle, image
+anchor = "bottom-center"           # Screen anchor (root elements only)
+class = "hud-panel"                # Style class from .style.toml
+parent = "parent_id"               # Optional parent element
+text = "Default text"              # For text elements
+src = "logo.png"                   # For image elements
+visible = true
+</code></pre>
+<p>Element types: <code>panel</code> (container with background), <code>text</code> (styled text), <code>rect</code> (filled or outlined rectangle), <code>circle</code> (filled circle), <code>image</code> (sprite).</p>
+<p>Anchor points: <code>top-left</code>, <code>top-center</code>, <code>top-right</code>, <code>center-left</code>, <code>center</code>, <code>center-right</code>, <code>bottom-left</code>, <code>bottom-center</code>, <code>bottom-right</code>.</p>
+<p>See <a href="../concepts/scripting.html#data-driven-ui-system">Scripting: Data-Driven UI</a> for the full layout/style/API reference.</p>
+<h2 id="ui-styles-uistyletoml"><a class="header" href="#ui-styles-uistyletoml">UI Styles (<code>ui/*.style.toml</code>)</a></h2>
+<p>Named style classes for UI elements. Referenced by <code>.ui.toml</code> layout files.</p>
+<pre><code class="language-toml">[styles.&lt;class-name&gt;]
+width = 200
+height = 60
+color = [1.0, 1.0, 1.0, 1.0]     # Primary color (RGBA)
+bg_color = [0.0, 0.0, 0.0, 0.6]  # Background color
+font_size = 24
+text_align = "center"              # left, center, right
+rounding = 8
+opacity = 1.0
+padding = [12, 8, 12, 8]          # [left, top, right, bottom]
+layout = "stack"                   # stack (vertical) or horizontal
+layer = 0                          # Render depth ordering
+width_pct = 100                    # Percentage of parent width
+margin_bottom = 4                  # Spacing in flow layout
+</code></pre>
+<p>Style properties support float, color (<code>[r,g,b,a]</code>), string, and boolean values. See <a href="../concepts/scripting.html#file-format-styletoml">Scripting: Style Properties</a> for the complete property table.</p>
 <h2 id="rhai-scripts-scriptsrhai"><a class="header" href="#rhai-scripts-scriptsrhai">Rhai Scripts (<code>scripts/*.rhai</code>)</a></h2>
 <p>Game logic scripts written in <a href="https://rhai.rs/">Rhai</a>. Attached to entities via the <code>script</code> component. See <a href="../concepts/scripting.html">Scripting</a> for the full API reference.</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]

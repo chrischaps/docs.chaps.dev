@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-edb0ac34.js";
+            window.path_to_searchindex_js = "searchindex-3f2a9b56.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-aa7c91fd.js"></script>
@@ -300,6 +300,40 @@ vignette_enabled = true
 vignette_intensity = 0.3
 exposure = 1.0
 </code></pre>
+<h3 id="ui-layout"><a class="header" href="#ui-layout">UI Layout</a></h3>
+<pre><code class="language-toml"># ui/hud.ui.toml
+[ui]
+name = "HUD"
+style = "ui/hud.style.toml"
+
+[elements.score_panel]
+type = "panel"
+anchor = "top-right"
+class = "hud-panel"
+
+[elements.score_text]
+type = "text"
+parent = "score_panel"
+class = "score-value"
+text = "0"
+</code></pre>
+<h3 id="ui-style"><a class="header" href="#ui-style">UI Style</a></h3>
+<pre><code class="language-toml"># ui/hud.style.toml
+[styles.hud-panel]
+width = 160
+height = 50
+bg_color = [0.0, 0.0, 0.0, 0.6]
+rounding = 6
+padding = [10, 8, 10, 8]
+x = -10
+y = 10
+
+[styles.score-value]
+font_size = 28
+color = [1.0, 1.0, 1.0, 1.0]
+text_align = "center"
+width_pct = 100
+</code></pre>
 <h3 id="script-attachment"><a class="header" href="#script-attachment">Script Attachment</a></h3>
 <pre><code class="language-toml">[entities.npc.script]
 source = "npc_behavior.rhai"
@@ -341,6 +375,10 @@ max_distance = 15.0
 <tr><td><code>raycast(ox,oy,oz, dx,dy,dz, dist)</code></td><td><code>Map</code>/<code>()</code></td><td>Cast a ray, get hit info</td></tr>
 <tr><td><code>move_character(id, dx, dy, dz)</code></td><td><code>#{x,y,z,grounded}</code></td><td>Collision-corrected movement</td></tr>
 <tr><td><code>spawn_entity(name)</code></td><td><code>i64</code></td><td>Create a new entity</td></tr>
+<tr><td><code>load_ui(path)</code></td><td><code>i64</code></td><td>Load a <code>.ui.toml</code> document (returns handle)</td></tr>
+<tr><td><code>ui_set_text(id, text)</code></td><td>—</td><td>Set element text content</td></tr>
+<tr><td><code>ui_show(id)</code> / <code>ui_hide(id)</code></td><td>—</td><td>Toggle element visibility</td></tr>
+<tr><td><code>ui_set_style(id, prop, val)</code></td><td>—</td><td>Override a style property at runtime</td></tr>
 </tbody>
 </table>
 </div>

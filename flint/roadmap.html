@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-edb0ac34.js";
+            window.path_to_searchindex_js = "searchindex-3f2a9b56.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-aa7c91fd.js"></script>
@@ -215,14 +215,17 @@
 <li>Coroutine scheduling integrated with the game loop</li>
 <li>Cleaner cutscene, tutorial, and event-chain authoring</li>
 </ul>
-<h2 id="ui-layout-system"><a class="header" href="#ui-layout-system">UI Layout System</a></h2>
-<p><strong>Priority: Medium</strong></p>
-<p>The script-driven draw commands work, but all positioning is manual pixel math. A layout system would make menus, inventories, and dialog systems practical to build.</p>
+<h2 id="ui-layout-system-done"><a class="header" href="#ui-layout-system-done"><del>UI Layout System</del> Done</a></h2>
+<p>Data-driven UI with layout/style/logic separation. Structure defined in <code>.ui.toml</code>, visuals in <code>.style.toml</code>, logic in Rhai scripts. The procedural <code>draw_*</code> API continues to work alongside the layout system.</p>
 <ul>
-<li>Anchoring (top-left, center, bottom-right, stretch)</li>
-<li>Flex / flow containers for automatic arrangement</li>
-<li>Small widget library (button, slider, text input, list)</li>
-<li>Theme support for consistent styling</li>
+<li>Anchor-based positioning (9 anchor points: top-left through bottom-right)</li>
+<li>Flow layouts: vertical stacking (default) and horizontal</li>
+<li>Percentage-based sizing, auto-height containers, padding and margin</li>
+<li>Named style classes with runtime overrides from scripts</li>
+<li>Rhai API: <code>load_ui</code>, <code>unload_ui</code>, <code>ui_set_text</code>, <code>ui_show</code>/<code>ui_hide</code>, <code>ui_set_style</code>, <code>ui_set_class</code>, <code>ui_get_rect</code></li>
+<li>Element types: Panel, Text, Rect, Circle, Image</li>
+<li>Multi-document support with handle-based load/unload</li>
+<li>Layout caching with automatic invalidation on screen resize</li>
 </ul>
 <h2 id="decal-system"><a class="header" href="#decal-system">Decal System</a></h2>
 <p><strong>Priority: Medium</strong></p>
