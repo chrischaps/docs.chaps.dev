@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["SplinePanelAction"],"fn":["spline_editor_panel"]};

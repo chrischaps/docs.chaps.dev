@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["load_models_from_world","load_textures_from_world","quat_to_euler_xyz"],"struct":["LoadedModel","ModelLoadConfig","ModelLoadResult"]};

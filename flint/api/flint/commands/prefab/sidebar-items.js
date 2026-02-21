@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PrefabCommands"],"fn":["run","run_view","substitute_in_value"]};

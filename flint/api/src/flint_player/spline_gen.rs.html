@@ -650,30 +650,32 @@
 <a href=#574 id=574 data-nosnippet>574</a>            normal_texture: <span class="prelude-val">None</span>,
 <a href=#575 id=575 data-nosnippet>575</a>            metallic_roughness_texture: <span class="prelude-val">None</span>,
 <a href=#576 id=576 data-nosnippet>576</a>            use_vertex_color: job.def.stripe_color.is_some(),
-<a href=#577 id=577 data-nosnippet>577</a>        };
-<a href=#578 id=578 data-nosnippet>578</a>        renderer.load_procedural_mesh(device, <span class="kw-2">&amp;</span>job.entity_name, <span class="kw-2">&amp;</span>verts, <span class="kw-2">&amp;</span>indices, material);
-<a href=#579 id=579 data-nosnippet>579</a>
-<a href=#580 id=580 data-nosnippet>580</a>        <span class="comment">// Register trimesh collider (when physics is available)
-<a href=#581 id=581 data-nosnippet>581</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>phys) = physics {
-<a href=#582 id=582 data-nosnippet>582</a>            phys.sync.register_static_trimesh(
-<a href=#583 id=583 data-nosnippet>583</a>                job.entity_id,
-<a href=#584 id=584 data-nosnippet>584</a>                <span class="kw-2">&amp;mut </span>phys.physics_world,
-<a href=#585 id=585 data-nosnippet>585</a>                phys_verts,
-<a href=#586 id=586 data-nosnippet>586</a>                phys_tris,
-<a href=#587 id=587 data-nosnippet>587</a>                job.def.friction,
-<a href=#588 id=588 data-nosnippet>588</a>                job.def.restitution,
-<a href=#589 id=589 data-nosnippet>589</a>            );
-<a href=#590 id=590 data-nosnippet>590</a>        }
-<a href=#591 id=591 data-nosnippet>591</a>
-<a href=#592 id=592 data-nosnippet>592</a>        <span class="comment">// Set model.asset so renderer draws it
-<a href=#593 id=593 data-nosnippet>593</a>        </span>set_model_asset(world, job.entity_id, <span class="kw-2">&amp;</span>job.entity_name);
-<a href=#594 id=594 data-nosnippet>594</a>    }
-<a href=#595 id=595 data-nosnippet>595</a>
-<a href=#596 id=596 data-nosnippet>596</a>    <span class="kw">if </span>!spline_infos.is_empty() || !mesh_jobs.is_empty() {
-<a href=#597 id=597 data-nosnippet>597</a>        <span class="macro">println!</span>(
-<a href=#598 id=598 data-nosnippet>598</a>            <span class="string">"Spline generation complete: {} splines, {} meshes."</span>,
-<a href=#599 id=599 data-nosnippet>599</a>            spline_infos.len(),
-<a href=#600 id=600 data-nosnippet>600</a>            mesh_jobs.len(),
-<a href=#601 id=601 data-nosnippet>601</a>        );
-<a href=#602 id=602 data-nosnippet>602</a>    }
-<a href=#603 id=603 data-nosnippet>603</a>}</code></pre></div></section></main></body></html>
+<a href=#577 id=577 data-nosnippet>577</a>            alpha_mode: flint_import::AlphaMode::Opaque,
+<a href=#578 id=578 data-nosnippet>578</a>            alpha_cutoff: <span class="number">0.5</span>,
+<a href=#579 id=579 data-nosnippet>579</a>        };
+<a href=#580 id=580 data-nosnippet>580</a>        renderer.load_procedural_mesh(device, <span class="kw-2">&amp;</span>job.entity_name, <span class="kw-2">&amp;</span>verts, <span class="kw-2">&amp;</span>indices, material);
+<a href=#581 id=581 data-nosnippet>581</a>
+<a href=#582 id=582 data-nosnippet>582</a>        <span class="comment">// Register trimesh collider (when physics is available)
+<a href=#583 id=583 data-nosnippet>583</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>phys) = physics {
+<a href=#584 id=584 data-nosnippet>584</a>            phys.sync.register_static_trimesh(
+<a href=#585 id=585 data-nosnippet>585</a>                job.entity_id,
+<a href=#586 id=586 data-nosnippet>586</a>                <span class="kw-2">&amp;mut </span>phys.physics_world,
+<a href=#587 id=587 data-nosnippet>587</a>                phys_verts,
+<a href=#588 id=588 data-nosnippet>588</a>                phys_tris,
+<a href=#589 id=589 data-nosnippet>589</a>                job.def.friction,
+<a href=#590 id=590 data-nosnippet>590</a>                job.def.restitution,
+<a href=#591 id=591 data-nosnippet>591</a>            );
+<a href=#592 id=592 data-nosnippet>592</a>        }
+<a href=#593 id=593 data-nosnippet>593</a>
+<a href=#594 id=594 data-nosnippet>594</a>        <span class="comment">// Set model.asset so renderer draws it
+<a href=#595 id=595 data-nosnippet>595</a>        </span>set_model_asset(world, job.entity_id, <span class="kw-2">&amp;</span>job.entity_name);
+<a href=#596 id=596 data-nosnippet>596</a>    }
+<a href=#597 id=597 data-nosnippet>597</a>
+<a href=#598 id=598 data-nosnippet>598</a>    <span class="kw">if </span>!spline_infos.is_empty() || !mesh_jobs.is_empty() {
+<a href=#599 id=599 data-nosnippet>599</a>        <span class="macro">println!</span>(
+<a href=#600 id=600 data-nosnippet>600</a>            <span class="string">"Spline generation complete: {} splines, {} meshes."</span>,
+<a href=#601 id=601 data-nosnippet>601</a>            spline_infos.len(),
+<a href=#602 id=602 data-nosnippet>602</a>            mesh_jobs.len(),
+<a href=#603 id=603 data-nosnippet>603</a>        );
+<a href=#604 id=604 data-nosnippet>604</a>    }
+<a href=#605 id=605 data-nosnippet>605</a>}</code></pre></div></section></main></body></html>

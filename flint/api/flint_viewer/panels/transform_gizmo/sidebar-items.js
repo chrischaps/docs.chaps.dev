@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["GizmoMode"],"fn":["apply_gizmo_delta"],"struct":["GizmoDelta","TransformGizmo"]};

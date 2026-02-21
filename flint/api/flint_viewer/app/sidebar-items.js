@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["run"],"struct":["ViewerApp"]};
+window.SIDEBAR_ITEMS = {"fn":["run","run_editor","run_with_world"],"struct":["ViewerApp"]};

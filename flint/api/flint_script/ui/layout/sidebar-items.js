@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["align_text_x","approximate_text_width","resolve_layout"],"struct":["ResolvedRect"]};

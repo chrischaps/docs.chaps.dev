@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["GizmoAction"],"struct":["CameraView","EntityInspector","RenderStats","SceneTree","ViewGizmo"]};
+window.SIDEBAR_ITEMS = {"enum":["GizmoAction"],"mod":["spline_panel","transform_gizmo"],"struct":["CameraView","EntityInspector","RenderStats","SceneTree","ViewGizmo"]};

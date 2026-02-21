@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["load_scene","reload_scene","save_scene","save_scene_string"],"struct":["EntityDef","PostProcessDef","SceneFile","SceneMetadata"]};
+window.SIDEBAR_ITEMS = {"fn":["load_scene","load_scene_string","reload_scene","reload_scene_string","save_scene","save_scene_string","update_scene_file"],"mod":["patcher"],"struct":["EntityDef","PostProcessDef","PrefabFile","PrefabInstance","SceneFile","SceneMetadata"]};

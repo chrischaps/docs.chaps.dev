@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["app","panels"]};
+window.SIDEBAR_ITEMS = {"mod":["app","panels","picking","projection","spline_editor","undo"]};
