@@ -37,10 +37,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-9c0c3343.js";
+            window.path_to_searchindex_js = "searchindex-0eb5c321.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-aa7c91fd.js"></script>
+        <script src="toc-8651cbf2.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -2817,12 +2817,199 @@ fn on_init() {
 <li><a href="#file-formats">File Formats</a> — <code>.anim.toml</code> format reference</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="terrain"><a class="header" href="#terrain">Terrain</a></h1>
+<p>Flint’s terrain system provides heightmap-based outdoor environments via the <code>flint-terrain</code> crate. Rolling hills, mountains, valleys, and open landscapes are defined by a grayscale heightmap image and textured with up to four blended surface layers controlled by an RGBA splat map.</p>
+<h2 id="how-it-works-2"><a class="header" href="#how-it-works-2">How It Works</a></h2>
+<p>A single <code>terrain</code> component on an entity defines the entire terrain surface:</p>
+<pre><code>Heightmap PNG          flint-terrain              flint-render
+  grayscale    ──►  Chunked mesh generation  ──►  TerrainPipeline
+  257x257           positions/normals/UVs          PBR lighting
+                    triangle indices               splat-map blending
+                                                   cascaded shadows
+
+Splat Map PNG                                    flint-physics
+  RGBA channels  ──►  4-layer texture blend      Rapier trimesh
+  R=grass G=dirt       tiled from world pos       collision collider
+  B=rock  A=sand
+</code></pre>
+<p>The heightmap is a grayscale PNG (8-bit or 16-bit) where black is the lowest point and white is the highest. The terrain is divided into chunks for efficient rendering — each chunk is an independent draw call with its own vertex and index buffers.</p>
+<h2 id="adding-terrain-to-a-scene"><a class="header" href="#adding-terrain-to-a-scene">Adding Terrain to a Scene</a></h2>
+<p>Create an entity with the <code>terrain</code> archetype:</p>
+<pre><code class="language-toml">[entities.ground]
+archetype = "terrain"
+
+[entities.ground.transform]
+position = [-128, 0, -128]
+
+[entities.ground.terrain]
+heightmap = "terrain/heightmap.png"
+splat_map = "terrain/splatmap.png"
+layer0_texture = "terrain/grass.png"
+layer1_texture = "terrain/dirt.png"
+layer2_texture = "terrain/rock.png"
+layer3_texture = "terrain/sand.png"
+width = 256.0
+depth = 256.0
+height_scale = 50.0
+texture_tile = 16.0
+</code></pre>
+<p>The <code>transform.position</code> sets the world-space origin of the terrain. The heightmap is placed starting at that position, extending <code>width</code> units along X and <code>depth</code> units along Z. Heights range from 0 to <code>height_scale</code> units along Y.</p>
+<h2 id="heightmap"><a class="header" href="#heightmap">Heightmap</a></h2>
+<p>The heightmap is a grayscale PNG image. Each pixel encodes a height value:</p>
+<ul>
+<li><strong>8-bit</strong> grayscale — 256 height levels</li>
+<li><strong>16-bit</strong> grayscale — 65,536 height levels (recommended for large terrains)</li>
+</ul>
+<p>The heightmap resolution determines mesh detail. A 257x257 image with <code>chunk_resolution = 64</code> produces a 4x4 grid of chunks, each with 65x65 vertices (16,641 vertices per chunk, 24,576 triangles per chunk).</p>
+<p>Heights are sampled with <strong>bilinear interpolation</strong> for smooth surfaces, even with lower-resolution heightmaps.</p>
+<h3 id="creating-heightmaps"><a class="header" href="#creating-heightmaps">Creating Heightmaps</a></h3>
+<p>Any image editor that outputs grayscale PNGs works. Common approaches:</p>
+<ul>
+<li><strong>Photoshop/GIMP</strong> — paint or use noise filters, export as grayscale PNG</li>
+<li><strong>World Machine / Gaea</strong> — procedural terrain generation tools</li>
+<li><strong>Python + Pillow</strong> — generate programmatically with noise functions</li>
+<li><strong>Real-world data</strong> — USGS elevation data converted to grayscale</li>
+</ul>
+<p>The dimensions should ideally be <code>(N * chunk_resolution) + 1</code> for clean chunk boundaries (e.g., 257, 513, 1025).</p>
+<h2 id="splat-map"><a class="header" href="#splat-map">Splat Map</a></h2>
+<p>The splat map is an RGBA PNG that controls how four texture layers blend across the terrain surface:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Channel</th><th>Layer</th><th>Typical Use</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>R</strong> (red)</td><td>Layer 0</td><td>Grass</td></tr>
+<tr><td><strong>G</strong> (green)</td><td>Layer 1</td><td>Dirt</td></tr>
+<tr><td><strong>B</strong> (blue)</td><td>Layer 2</td><td>Rock</td></tr>
+<tr><td><strong>A</strong> (alpha)</td><td>Layer 3</td><td>Sand</td></tr>
+</tbody>
+</table>
+</div>
+<p>At each pixel, the RGBA weights are normalized so they always sum to 1.0. A pixel with <code>(255, 0, 0, 0)</code> shows pure grass; <code>(128, 128, 0, 0)</code> shows a 50/50 grass-dirt blend.</p>
+<p>If no splat map is provided, the terrain uses the default white texture uniformly.</p>
+<h3 id="creating-splat-maps"><a class="header" href="#creating-splat-maps">Creating Splat Maps</a></h3>
+<p>Splat maps can be painted manually in any image editor that supports RGBA channels, or generated algorithmically based on height and slope:</p>
+<ul>
+<li><strong>Low flat areas</strong> — grass (red channel)</li>
+<li><strong>Mid elevations</strong> — dirt (green channel)</li>
+<li><strong>Steep slopes / high peaks</strong> — rock (blue channel)</li>
+<li><strong>Very low areas</strong> — sand (alpha channel)</li>
+</ul>
+<h2 id="texture-tiling"><a class="header" href="#texture-tiling">Texture Tiling</a></h2>
+<p>Layer textures are <strong>tiled</strong> across the terrain surface based on world position, not the terrain UV. The <code>texture_tile</code> field controls how many times the texture repeats per 100 world units:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th><code>texture_tile</code></th><th>Repetitions per 100 units</th><th>Good for</th></tr>
+</thead>
+<tbody>
+<tr><td>4.0</td><td>4x</td><td>Large rock formations</td></tr>
+<tr><td>12.0</td><td>12x</td><td>General ground cover</td></tr>
+<tr><td>24.0</td><td>24x</td><td>Fine detail (grass blades)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Higher values produce finer detail but may show visible tiling at a distance. Future updates will add detail textures and triplanar mapping to mitigate this.</p>
+<h2 id="component-schema"><a class="header" href="#component-schema">Component Schema</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>heightmap</code></td><td>string</td><td></td><td>Path to grayscale PNG (relative to scene directory)</td></tr>
+<tr><td><code>width</code></td><td>f32</td><td>256.0</td><td>World-space extent along X axis</td></tr>
+<tr><td><code>depth</code></td><td>f32</td><td>256.0</td><td>World-space extent along Z axis</td></tr>
+<tr><td><code>height_scale</code></td><td>f32</td><td>50.0</td><td>Maximum height in world units</td></tr>
+<tr><td><code>chunk_resolution</code></td><td>i32</td><td>64</td><td>Vertices per chunk edge (higher = more detail)</td></tr>
+<tr><td><code>texture_tile</code></td><td>f32</td><td>16.0</td><td>Texture tiling factor per 100 world units</td></tr>
+<tr><td><code>splat_map</code></td><td>string</td><td>“”</td><td>Path to RGBA splat map PNG</td></tr>
+<tr><td><code>layer0_texture</code></td><td>string</td><td>“”</td><td>Layer 0 texture (splat R channel)</td></tr>
+<tr><td><code>layer1_texture</code></td><td>string</td><td>“”</td><td>Layer 1 texture (splat G channel)</td></tr>
+<tr><td><code>layer2_texture</code></td><td>string</td><td>“”</td><td>Layer 2 texture (splat B channel)</td></tr>
+<tr><td><code>layer3_texture</code></td><td>string</td><td>“”</td><td>Layer 3 texture (splat A channel)</td></tr>
+<tr><td><code>metallic</code></td><td>f32</td><td>0.0</td><td>PBR metallic value for terrain surface</td></tr>
+<tr><td><code>roughness</code></td><td>f32</td><td>0.85</td><td>PBR roughness value for terrain surface</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="physics-collision"><a class="header" href="#physics-collision">Physics Collision</a></h2>
+<p>Terrain automatically gets a <strong>trimesh physics collider</strong> via Rapier. The mesh geometry is exported as vertices and triangle indices, then registered as a fixed (immovable) rigid body. This means:</p>
+<ul>
+<li>Characters walk on the terrain surface naturally</li>
+<li>Objects collide with the terrain</li>
+<li>Raycasts hit the terrain for line-of-sight checks</li>
+</ul>
+<p>The collider shape exactly matches the rendered mesh, so what you see is what you collide with.</p>
+<h2 id="height-sampling-from-scripts"><a class="header" href="#height-sampling-from-scripts">Height Sampling from Scripts</a></h2>
+<p>The <code>terrain_height(x, z)</code> function is available in <a href="#scripting">Rhai scripts</a> to query the terrain height at any world position:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn on_update() {
+    let me = self_entity();
+    let pos = get_position(me);
+
+    // Get terrain height at entity's XZ position
+    let ground_y = terrain_height(pos.x, pos.z);
+
+    // Snap entity to terrain surface
+    set_position(me, pos.x, ground_y + 0.5, pos.z);
+}
+<span class="boring">}</span></code></pre>
+<p>This is useful for:</p>
+<ul>
+<li><strong>NPC placement</strong> — keep characters on the ground</li>
+<li><strong>Projectile impact</strong> — detect when a projectile hits terrain</li>
+<li><strong>Camera clamping</strong> — prevent the camera from going below ground</li>
+<li><strong>Vegetation scattering</strong> — place objects at correct heights</li>
+</ul>
+<p>The function uses bilinear interpolation on the heightmap data, matching the rendered surface exactly. It returns 0.0 if no terrain is loaded.</p>
+<h2 id="rendering-1"><a class="header" href="#rendering-1">Rendering</a></h2>
+<p>Terrain uses its own <code>TerrainPipeline</code> with full PBR lighting — the same Cook-Torrance BRDF, cascaded shadow maps, point lights, and spot lights as regular scene geometry. Terrain both <strong>casts</strong> and <strong>receives</strong> shadows.</p>
+<p>The rendering order places terrain early in the pass (after the skybox, before entity geometry) to fill the depth buffer for efficient occlusion culling of objects behind hills.</p>
+<p>When <a href="#post-processing-2">post-processing</a> is active, the terrain outputs linear HDR values like all other scene geometry. The composite pass handles tonemapping, bloom, fog, and other effects.</p>
+<h2 id="scene-transitions"><a class="header" href="#scene-transitions">Scene Transitions</a></h2>
+<p>Terrain is fully cleared and reloaded during <a href="#scripting">scene transitions</a>. When <code>load_scene()</code> is called:</p>
+<ol>
+<li>Current terrain draw calls and physics collider are removed</li>
+<li>New scene is loaded</li>
+<li>New terrain (if any) is generated, uploaded to GPU, and registered with physics</li>
+<li>The <code>terrain_height()</code> callback is updated to use the new heightmap</li>
+</ol>
+<h2 id="architecture-2"><a class="header" href="#architecture-2">Architecture</a></h2>
+<p>The terrain system is split across crates to maintain clean dependency boundaries:</p>
+<ul>
+<li><strong><code>flint-terrain</code></strong> — pure data crate (no GPU dependency). Generates chunked mesh geometry from heightmap data. Outputs raw positions, normals, UVs, and indices.</li>
+<li><strong><code>flint-render</code></strong> — <code>TerrainPipeline</code> and <code>terrain_shader.wgsl</code>. Assembles GPU vertex buffers from terrain data, handles splat-map texture blending and PBR lighting.</li>
+<li><strong><code>flint-physics</code></strong> — reuses existing <code>register_static_trimesh()</code> for collision. No terrain-specific physics code needed.</li>
+<li><strong><code>flint-script</code></strong> — <code>terrain_height(x, z)</code> Rhai function via callback pattern.</li>
+</ul>
+<p>This separation means <code>flint-terrain</code> can be used independently for tools, CLI commands, or headless processing without pulling in the GPU stack.</p>
+<h2 id="limitations-1"><a class="header" href="#limitations-1">Limitations</a></h2>
+<ul>
+<li><strong>One terrain per scene</strong> — currently only the first terrain entity is loaded</li>
+<li><strong>No LOD</strong> — all chunks render at full resolution regardless of distance</li>
+<li><strong>No runtime deformation</strong> — terrain is static after loading</li>
+<li><strong>CPU-side simulation</strong> — no GPU compute for terrain generation</li>
+<li><strong>Fixed PBR parameters</strong> — metallic and roughness are uniform across the entire terrain surface</li>
+</ul>
+<p>See the <a href="../TERRAIN_ROADMAP.html">Terrain Roadmap</a> for planned features including LOD, sculpting, auto-splatting, triplanar mapping, and more.</p>
+<h2 id="further-reading-13"><a class="header" href="#further-reading-13">Further Reading</a></h2>
+<ul>
+<li><a href="#rendering">Rendering</a> — the PBR pipeline that terrain builds on</li>
+<li><a href="#post-processing-2">Post-Processing</a> — bloom, fog, and SSAO that apply to terrain</li>
+<li><a href="#physics-and-runtime">Physics and Runtime</a> — the collision system terrain integrates with</li>
+<li><a href="#scripting">Scripting</a> — <code>terrain_height()</code> and other script APIs</li>
+<li><a href="#schemas">Schemas</a> — component and archetype definitions</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="particles"><a class="header" href="#particles">Particles</a></h1>
 <p>Flint’s particle system provides GPU-instanced visual effects through the <code>flint-particles</code> crate. Fire, smoke, sparks, dust motes, magic effects — any volumetric visual that needs hundreds or thousands of small, short-lived elements.</p>
 <blockquote>
 <p><strong>Note:</strong> Particle effects are dynamic simulations that accumulate over time. Use <code>flint play</code> to see them in action — headless <code>flint render</code> captures a single frame and won’t show accumulated particles.</p>
 </blockquote>
-<h2 id="how-it-works-2"><a class="header" href="#how-it-works-2">How It Works</a></h2>
+<h2 id="how-it-works-3"><a class="header" href="#how-it-works-3">How It Works</a></h2>
 <p>Each entity with a <code>particle_emitter</code> component owns a <strong>pool</strong> of particles simulated on the CPU and rendered as camera-facing quads via GPU instancing. The pipeline is:</p>
 <pre><code>TOML component                CPU simulation              GPU rendering
 particle_emitter   ──►  ParticleSync reads config  ──►  ParticlePipeline
@@ -2909,7 +3096,7 @@ looping = false          # Don't repeat
 autoplay = true          # Fire immediately
 </code></pre>
 <p>For periodic bursts (fountain, heartbeat), set <code>looping = true</code> with a <code>duration</code>.</p>
-<h2 id="component-schema"><a class="header" href="#component-schema">Component Schema</a></h2>
+<h2 id="component-schema-1"><a class="header" href="#component-schema-1">Component Schema</a></h2>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -2982,7 +3169,7 @@ fn on_interact() {
     }
 }
 <span class="boring">}</span></code></pre>
-<h2 id="architecture-2"><a class="header" href="#architecture-2">Architecture</a></h2>
+<h2 id="architecture-3"><a class="header" href="#architecture-3">Architecture</a></h2>
 <ul>
 <li><strong>ParticlePool</strong> — swap-remove array for O(1) particle death, contiguous alive iteration</li>
 <li><strong>ParticleSync</strong> — bridges ECS <code>particle_emitter</code> components to the simulation, auto-discovers new emitters each frame</li>
@@ -3036,7 +3223,7 @@ color_end = [1.0, 1.0, 0.9, 0.0]
 shape = "box"
 shape_extents = [2.0, 1.0, 2.0]
 </code></pre>
-<h2 id="further-reading-13"><a class="header" href="#further-reading-13">Further Reading</a></h2>
+<h2 id="further-reading-14"><a class="header" href="#further-reading-14">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — full scripting API including particle functions</li>
 <li><a href="#animation">Animation</a> — animate emitter transforms with property tweens</li>
@@ -3130,7 +3317,7 @@ body_type = "static"
 <p>Raycasting is exposed to scripts via the <code>raycast()</code> function — see <a href="#physics-api">Scripting: Physics API</a> for the script-level interface and examples.</p>
 <h2 id="input-system"><a class="header" href="#input-system">Input System</a></h2>
 <p>The <code>InputState</code> struct provides a config-driven, device-agnostic input layer. It tracks keyboard, mouse, and gamepad state each frame and evaluates logical <strong>actions</strong> from physical bindings.</p>
-<h3 id="how-it-works-3"><a class="header" href="#how-it-works-3">How It Works</a></h3>
+<h3 id="how-it-works-4"><a class="header" href="#how-it-works-4">How It Works</a></h3>
 <p>All input flows through a unified <code>Binding</code> model:</p>
 <ul>
 <li><strong>Keyboard keys</strong> (<code>Key { code }</code>) — any winit <code>KeyCode</code> name (e.g., <code>"KeyW"</code>, <code>"Space"</code>, <code>"ShiftLeft"</code>)</li>
@@ -3246,7 +3433,7 @@ gamepad = "any"
 <li><strong>Kinematic body sync</strong> — script-controlled position changes are written back to Rapier kinematic bodies each frame</li>
 <li><strong>Collision event drain</strong> — the <code>ChannelEventCollector</code> collects collision and contact events each physics step; these are drained and dispatched as script callbacks (<code>on_collision</code>, <code>on_trigger_enter</code>, <code>on_trigger_exit</code>)</li>
 </ul>
-<h2 id="further-reading-14"><a class="header" href="#further-reading-14">Further Reading</a></h2>
+<h2 id="further-reading-15"><a class="header" href="#further-reading-15">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — Rhai scripting system for game logic</li>
 <li><a href="#audio">Audio</a> — spatial audio with Kira</li>
@@ -4033,7 +4220,7 @@ fn on_interact() {
     log("Bartender waves at you");
 }
 <span class="boring">}</span></code></pre>
-<h2 id="architecture-3"><a class="header" href="#architecture-3">Architecture</a></h2>
+<h2 id="architecture-4"><a class="header" href="#architecture-4">Architecture</a></h2>
 <pre><code>on_init ──► ScriptEngine.call_inits()
                 │
                 ▼
@@ -4104,7 +4291,7 @@ fn on_draw_ui() {
 }
 <span class="boring">}</span></code></pre>
 <p>This pattern keeps all game-specific HUD logic in scripts rather than engine code. The engine provides only the generic draw primitives.</p>
-<h2 id="further-reading-15"><a class="header" href="#further-reading-15">Further Reading</a></h2>
+<h2 id="further-reading-16"><a class="header" href="#further-reading-16">Further Reading</a></h2>
 <ul>
 <li><a href="#audio">Audio</a> — sound system that scripts can control</li>
 <li><a href="#animation">Animation</a> — animation system driven by script commands</li>
@@ -4306,7 +4493,7 @@ default_style = "medieval_tavern"
 <li>Fall back to file-based loading if not in the catalog</li>
 </ol>
 <p>This means scenes can seamlessly reference both pre-imported and AI-generated assets by name, without hardcoding file paths.</p>
-<h2 id="further-reading-16"><a class="header" href="#further-reading-16">Further Reading</a></h2>
+<h2 id="further-reading-17"><a class="header" href="#further-reading-17">Further Reading</a></h2>
 <ul>
 <li><a href="#assets">Assets</a> — content-addressed storage and catalog system</li>
 <li><a href="#file-formats">File Formats</a> — <code>.style.toml</code> and <code>asset_def.toml</code> format reference</li>
@@ -4537,7 +4724,7 @@ flint play levels/tavern.scene.toml
 <pre><code class="language-bash"># Try the finished demo
 cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 </code></pre>
-<h2 id="further-reading-17"><a class="header" href="#further-reading-17">Further Reading</a></h2>
+<h2 id="further-reading-18"><a class="header" href="#further-reading-18">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — full Rhai API reference</li>
 <li><a href="#audio">Audio</a> — spatial audio system</li>
@@ -4686,7 +4873,7 @@ flint validate levels/tavern.scene.toml --fix
 <p>All <code>.toml</code> files in <code>schemas/constraints/</code> are loaded automatically.</p>
 <h2 id="cascade-detection"><a class="header" href="#cascade-detection">Cascade Detection</a></h2>
 <p>When auto-fix modifies one entity, it might cause a different constraint to fail. Flint handles this by running fix-validate cycles. If a cycle is detected (the same violation keeps appearing), the fixer stops and reports the issue.</p>
-<h2 id="further-reading-18"><a class="header" href="#further-reading-18">Further Reading</a></h2>
+<h2 id="further-reading-19"><a class="header" href="#further-reading-19">Further Reading</a></h2>
 <ul>
 <li><a href="#constraints">Constraints</a> — constraint system reference</li>
 <li><a href="#queries">Queries</a> — query syntax used in constraint selectors</li>
@@ -4794,7 +4981,7 @@ flint asset resolve levels/tavern.scene.toml --strategy ai_generate --style medi
 </tbody>
 </table>
 </div>
-<h2 id="further-reading-19"><a class="header" href="#further-reading-19">Further Reading</a></h2>
+<h2 id="further-reading-20"><a class="header" href="#further-reading-20">Further Reading</a></h2>
 <ul>
 <li><a href="#assets">Assets</a> — content-addressed storage concept</li>
 <li><a href="#ai-asset-generation-1">AI Asset Generation</a> — generating assets with AI providers</li>
@@ -4951,7 +5138,7 @@ done
 <li><strong>Skinned mesh rendering</strong> with bone matrix upload (for skeletal meshes)</li>
 </ul>
 <p>The only difference from interactive rendering is that the output goes to a texture-to-buffer copy instead of a swapchain surface.</p>
-<h2 id="further-reading-20"><a class="header" href="#further-reading-20">Further Reading</a></h2>
+<h2 id="further-reading-21"><a class="header" href="#further-reading-21">Further Reading</a></h2>
 <ul>
 <li><a href="#rendering">Rendering</a> — the PBR rendering pipeline</li>
 <li><a href="#ai-agent-workflow">AI Agent Workflow</a> — using headless renders for agent verification</li>
@@ -5154,7 +5341,7 @@ echo "Scene built successfully. Preview: preview.png"
 <li><strong>Use semantic asset definitions</strong> — let batch resolution handle asset generation</li>
 <li><strong>Render previews</strong> — visual verification catches issues that validation can’t</li>
 </ul>
-<h2 id="further-reading-21"><a class="header" href="#further-reading-21">Further Reading</a></h2>
+<h2 id="further-reading-22"><a class="header" href="#further-reading-22">Further Reading</a></h2>
 <ul>
 <li><a href="#ai-agent-interface">AI Agent Interface</a> — the design philosophy</li>
 <li><a href="#cli-first-workflow">CLI-First Workflow</a> — composable commands</li>
@@ -5353,7 +5540,7 @@ git subtree pull --prefix=engine flint-engine main --squash
 git subtree push --prefix=engine flint-engine main
 </code></pre>
 <p>Engine edits are normal commits in your game repo. The subtree commands handle splitting and merging the <code>engine/</code> prefix.</p>
-<h2 id="further-reading-22"><a class="header" href="#further-reading-22">Further Reading</a></h2>
+<h2 id="further-reading-23"><a class="header" href="#further-reading-23">Further Reading</a></h2>
 <ul>
 <li><a href="#schemas">Schemas</a> — component and archetype schema system</li>
 <li><a href="#scripting">Scripting</a> — full Rhai scripting API</li>
@@ -6190,7 +6377,7 @@ default_style = "medieval_tavern"
 </ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>
 <p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>serve</code>, <code>play</code>, <code>validate</code>, <code>asset</code>, <code>render</code>.</p>
-<h2 id="further-reading-23"><a class="header" href="#further-reading-23">Further Reading</a></h2>
+<h2 id="further-reading-24"><a class="header" href="#further-reading-24">Further Reading</a></h2>
 <ul>
 <li><a href="#crate-dependency-graph">Crate Dependency Graph</a> — visual dependency diagram</li>
 <li><a href="#design-principles">Design Principles</a> — the principles behind these decisions</li>
@@ -6505,7 +6692,7 @@ cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 <li>Tests live alongside the code they test (<code>#[cfg(test)]</code> modules)</li>
 <li>Prefer explicit over clever; readability over brevity</li>
 </ul>
-<h2 id="architecture-4"><a class="header" href="#architecture-4">Architecture</a></h2>
+<h2 id="architecture-5"><a class="header" href="#architecture-5">Architecture</a></h2>
 <p>The project is an 18-crate Cargo workspace. See the <a href="#architecture-overview">Architecture Overview</a> and <a href="#crate-dependency-graph">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
 <ul>
 <li>Dependencies flow in one direction (binary crates at the top, <code>flint-core</code> at the bottom)</li>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["run"],"struct":["RenderArgs"]};
+window.SIDEBAR_ITEMS = {"fn":["load_terrain_for_render","run"],"struct":["RenderArgs"]};
