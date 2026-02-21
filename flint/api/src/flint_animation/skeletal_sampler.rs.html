@@ -81,7 +81,7 @@
 <a href=#5 id=5 data-nosnippet>5</a>
 <a href=#6 id=6 data-nosnippet>6</a><span class="doccomment">/// Sample a joint track at a given time.
 <a href=#7 id=7 data-nosnippet>7</a>///
-<a href=#8 id=8 data-nosnippet>8</a>/// Returns the interpolated value as a Vec&lt;f32&gt; (3 for translation/scale, 4 for rotation).
+<a href=#8 id=8 data-nosnippet>8</a>/// Returns the interpolated value as a `Vec&lt;f32&gt;` (3 for translation/scale, 4 for rotation).
 <a href=#9 id=9 data-nosnippet>9</a></span><span class="kw">pub fn </span>sample_joint_track(track: <span class="kw-2">&amp;</span>JointTrack, time: f64) -&gt; Vec&lt;f32&gt; {
 <a href=#10 id=10 data-nosnippet>10</a>    <span class="kw">let </span>keyframes = <span class="kw-2">&amp;</span>track.keyframes;
 <a href=#11 id=11 data-nosnippet>11</a>    <span class="kw">let </span>is_rotation = track.property == JointProperty::Rotation;
