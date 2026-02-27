@@ -83,599 +83,908 @@
 <a href=#7 id=7 data-nosnippet>7</a>//!    cross-section along the referenced spline and upload the resulting
 <a href=#8 id=8 data-nosnippet>8</a>//!    mesh + trimesh collider.
 <a href=#9 id=9 data-nosnippet>9</a>
-<a href=#10 id=10 data-nosnippet>10</a></span><span class="kw">use </span>flint_core::spline::{
-<a href=#11 id=11 data-nosnippet>11</a>    <span class="self">self</span>, SplineControlPoint, SplineSample,
-<a href=#12 id=12 data-nosnippet>12</a>};
-<a href=#13 id=13 data-nosnippet>13</a><span class="kw">use </span>flint_core::Vec3;
-<a href=#14 id=14 data-nosnippet>14</a><span class="kw">use </span>flint_ecs::FlintWorld;
-<a href=#15 id=15 data-nosnippet>15</a><span class="kw">use </span>flint_import::ImportedMaterial;
-<a href=#16 id=16 data-nosnippet>16</a><span class="kw">use </span>flint_physics::PhysicsSystem;
-<a href=#17 id=17 data-nosnippet>17</a><span class="kw">use </span>flint_render::{SceneRenderer, Vertex};
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>std::collections::HashMap;
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>std::path::Path;
+<a href=#10 id=10 data-nosnippet>10</a></span><span class="kw">use </span>flint_core::spline::{<span class="self">self</span>, SplineControlPoint, SplineSample};
+<a href=#11 id=11 data-nosnippet>11</a><span class="kw">use </span>flint_core::Vec3;
+<a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span>flint_ecs::FlintWorld;
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">use </span>flint_import::ImportedMaterial;
+<a href=#14 id=14 data-nosnippet>14</a><span class="kw">use </span>flint_physics::PhysicsSystem;
+<a href=#15 id=15 data-nosnippet>15</a><span class="kw">use </span>flint_render::{SceneRenderer, Vertex};
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">use </span>std::collections::HashMap;
+<a href=#17 id=17 data-nosnippet>17</a><span class="kw">use </span>std::path::Path;
+<a href=#18 id=18 data-nosnippet>18</a>
+<a href=#19 id=19 data-nosnippet>19</a><span class="comment">// ─── TOML parsing helpers ────────────────────────────────
 <a href=#20 id=20 data-nosnippet>20</a>
-<a href=#21 id=21 data-nosnippet>21</a><span class="comment">// ─── TOML parsing helpers ────────────────────────────────
-<a href=#22 id=22 data-nosnippet>22</a>
-<a href=#23 id=23 data-nosnippet>23</a></span><span class="kw">fn </span>toml_f32(v: <span class="kw-2">&amp;</span>toml::Value) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt; {
-<a href=#24 id=24 data-nosnippet>24</a>    v.as_float()
-<a href=#25 id=25 data-nosnippet>25</a>        .map(|f| f <span class="kw">as </span>f32)
-<a href=#26 id=26 data-nosnippet>26</a>        .or_else(|| v.as_integer().map(|i| i <span class="kw">as </span>f32))
-<a href=#27 id=27 data-nosnippet>27</a>}
-<a href=#28 id=28 data-nosnippet>28</a>
-<a href=#29 id=29 data-nosnippet>29</a><span class="kw">fn </span>toml_f32_array(arr: <span class="kw-2">&amp;</span>[toml::Value]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;f32&gt;&gt; {
-<a href=#30 id=30 data-nosnippet>30</a>    arr.iter().map(toml_f32).collect()
-<a href=#31 id=31 data-nosnippet>31</a>}
+<a href=#21 id=21 data-nosnippet>21</a></span><span class="kw">fn </span>toml_f32(v: <span class="kw-2">&amp;</span>toml::Value) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt; {
+<a href=#22 id=22 data-nosnippet>22</a>    v.as_float()
+<a href=#23 id=23 data-nosnippet>23</a>        .map(|f| f <span class="kw">as </span>f32)
+<a href=#24 id=24 data-nosnippet>24</a>        .or_else(|| v.as_integer().map(|i| i <span class="kw">as </span>f32))
+<a href=#25 id=25 data-nosnippet>25</a>}
+<a href=#26 id=26 data-nosnippet>26</a>
+<a href=#27 id=27 data-nosnippet>27</a><span class="kw">fn </span>toml_f32_array(arr: <span class="kw-2">&amp;</span>[toml::Value]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;f32&gt;&gt; {
+<a href=#28 id=28 data-nosnippet>28</a>    arr.iter().map(toml_f32).collect()
+<a href=#29 id=29 data-nosnippet>29</a>}
+<a href=#30 id=30 data-nosnippet>30</a>
+<a href=#31 id=31 data-nosnippet>31</a><span class="comment">// ─── Pass 1: load spline data ────────────────────────────
 <a href=#32 id=32 data-nosnippet>32</a>
-<a href=#33 id=33 data-nosnippet>33</a><span class="comment">// ─── Pass 1: load spline data ────────────────────────────
-<a href=#34 id=34 data-nosnippet>34</a>
-<a href=#35 id=35 data-nosnippet>35</a></span><span class="kw">struct </span>SplineDef {
-<a href=#36 id=36 data-nosnippet>36</a>    closed: bool,
-<a href=#37 id=37 data-nosnippet>37</a>    spacing: f32,
-<a href=#38 id=38 data-nosnippet>38</a>    control_points: Vec&lt;SplineControlPoint&gt;,
-<a href=#39 id=39 data-nosnippet>39</a>}
-<a href=#40 id=40 data-nosnippet>40</a>
-<a href=#41 id=41 data-nosnippet>41</a><span class="kw">fn </span>parse_spline_file(path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Option</span>&lt;SplineDef&gt; {
-<a href=#42 id=42 data-nosnippet>42</a>    <span class="kw">let </span>content = std::fs::read_to_string(path).ok()<span class="question-mark">?</span>;
-<a href=#43 id=43 data-nosnippet>43</a>    <span class="kw">let </span>value: toml::Value = toml::from_str(<span class="kw-2">&amp;</span>content).ok()<span class="question-mark">?</span>;
-<a href=#44 id=44 data-nosnippet>44</a>
-<a href=#45 id=45 data-nosnippet>45</a>    <span class="kw">let </span>spline_section = value.get(<span class="string">"spline"</span>)<span class="question-mark">?</span>;
-<a href=#46 id=46 data-nosnippet>46</a>    <span class="kw">let </span>closed = spline_section
-<a href=#47 id=47 data-nosnippet>47</a>        .get(<span class="string">"closed"</span>)
-<a href=#48 id=48 data-nosnippet>48</a>        .and_then(|v| v.as_bool())
-<a href=#49 id=49 data-nosnippet>49</a>        .unwrap_or(<span class="bool-val">true</span>);
-<a href=#50 id=50 data-nosnippet>50</a>
-<a href=#51 id=51 data-nosnippet>51</a>    <span class="kw">let </span>spacing = value
-<a href=#52 id=52 data-nosnippet>52</a>        .get(<span class="string">"sampling"</span>)
-<a href=#53 id=53 data-nosnippet>53</a>        .and_then(|s| s.get(<span class="string">"spacing"</span>))
-<a href=#54 id=54 data-nosnippet>54</a>        .and_then(toml_f32)
-<a href=#55 id=55 data-nosnippet>55</a>        .unwrap_or(<span class="number">2.0</span>);
-<a href=#56 id=56 data-nosnippet>56</a>
-<a href=#57 id=57 data-nosnippet>57</a>    <span class="kw">let </span>points_arr = value.get(<span class="string">"control_points"</span>)<span class="question-mark">?</span>.as_array()<span class="question-mark">?</span>;
-<a href=#58 id=58 data-nosnippet>58</a>    <span class="kw">let </span><span class="kw-2">mut </span>control_points = Vec::new();
-<a href=#59 id=59 data-nosnippet>59</a>
-<a href=#60 id=60 data-nosnippet>60</a>    <span class="kw">for </span>pt <span class="kw">in </span>points_arr {
-<a href=#61 id=61 data-nosnippet>61</a>        <span class="kw">let </span>pos = pt.get(<span class="string">"position"</span>)<span class="question-mark">?</span>.as_array()<span class="question-mark">?</span>;
-<a href=#62 id=62 data-nosnippet>62</a>        <span class="kw">if </span>pos.len() &lt; <span class="number">3 </span>{
-<a href=#63 id=63 data-nosnippet>63</a>            <span class="kw">continue</span>;
-<a href=#64 id=64 data-nosnippet>64</a>        }
-<a href=#65 id=65 data-nosnippet>65</a>        <span class="kw">let </span>vals = toml_f32_array(pos)<span class="question-mark">?</span>;
-<a href=#66 id=66 data-nosnippet>66</a>        <span class="kw">let </span>twist = pt.get(<span class="string">"twist"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.0</span>);
-<a href=#67 id=67 data-nosnippet>67</a>
-<a href=#68 id=68 data-nosnippet>68</a>        control_points.push(SplineControlPoint {
-<a href=#69 id=69 data-nosnippet>69</a>            position: Vec3::new(vals[<span class="number">0</span>], vals[<span class="number">1</span>], vals[<span class="number">2</span>]),
-<a href=#70 id=70 data-nosnippet>70</a>            twist,
-<a href=#71 id=71 data-nosnippet>71</a>        });
-<a href=#72 id=72 data-nosnippet>72</a>    }
-<a href=#73 id=73 data-nosnippet>73</a>
-<a href=#74 id=74 data-nosnippet>74</a>    <span class="kw">if </span>control_points.len() &lt; <span class="number">2 </span>{
-<a href=#75 id=75 data-nosnippet>75</a>        <span class="macro">eprintln!</span>(
-<a href=#76 id=76 data-nosnippet>76</a>            <span class="string">"Spline needs at least 2 control points, got {}"</span>,
-<a href=#77 id=77 data-nosnippet>77</a>            control_points.len()
-<a href=#78 id=78 data-nosnippet>78</a>        );
-<a href=#79 id=79 data-nosnippet>79</a>        <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#80 id=80 data-nosnippet>80</a>    }
-<a href=#81 id=81 data-nosnippet>81</a>
-<a href=#82 id=82 data-nosnippet>82</a>    <span class="prelude-val">Some</span>(SplineDef {
-<a href=#83 id=83 data-nosnippet>83</a>        closed,
-<a href=#84 id=84 data-nosnippet>84</a>        spacing,
-<a href=#85 id=85 data-nosnippet>85</a>        control_points,
-<a href=#86 id=86 data-nosnippet>86</a>    })
-<a href=#87 id=87 data-nosnippet>87</a>}
-<a href=#88 id=88 data-nosnippet>88</a>
-<a href=#89 id=89 data-nosnippet>89</a><span class="doccomment">/// Store sampled spline data as flat arrays in a `spline_data` ECS component.
-<a href=#90 id=90 data-nosnippet>90</a></span><span class="kw">fn </span>store_spline_data(
-<a href=#91 id=91 data-nosnippet>91</a>    world: <span class="kw-2">&amp;mut </span>FlintWorld,
-<a href=#92 id=92 data-nosnippet>92</a>    entity_id: flint_core::EntityId,
-<a href=#93 id=93 data-nosnippet>93</a>    samples: <span class="kw-2">&amp;</span>[SplineSample],
-<a href=#94 id=94 data-nosnippet>94</a>    closed: bool,
-<a href=#95 id=95 data-nosnippet>95</a>) {
-<a href=#96 id=96 data-nosnippet>96</a>    <span class="kw">let </span>to_val = |f: f32| toml::Value::Float(f <span class="kw">as </span>f64);
-<a href=#97 id=97 data-nosnippet>97</a>
-<a href=#98 id=98 data-nosnippet>98</a>    <span class="kw">let </span>positions_x: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.position.x)).collect();
-<a href=#99 id=99 data-nosnippet>99</a>    <span class="kw">let </span>positions_y: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.position.y)).collect();
-<a href=#100 id=100 data-nosnippet>100</a>    <span class="kw">let </span>positions_z: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.position.z)).collect();
-<a href=#101 id=101 data-nosnippet>101</a>    <span class="kw">let </span>forwards_x: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.forward.x)).collect();
-<a href=#102 id=102 data-nosnippet>102</a>    <span class="kw">let </span>forwards_y: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.forward.y)).collect();
-<a href=#103 id=103 data-nosnippet>103</a>    <span class="kw">let </span>forwards_z: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.forward.z)).collect();
-<a href=#104 id=104 data-nosnippet>104</a>    <span class="kw">let </span>rights_x: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.right.x)).collect();
-<a href=#105 id=105 data-nosnippet>105</a>    <span class="kw">let </span>rights_y: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.right.y)).collect();
-<a href=#106 id=106 data-nosnippet>106</a>    <span class="kw">let </span>rights_z: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.right.z)).collect();
-<a href=#107 id=107 data-nosnippet>107</a>    <span class="kw">let </span>ups_x: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.up.x)).collect();
-<a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">let </span>ups_y: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.up.y)).collect();
-<a href=#109 id=109 data-nosnippet>109</a>    <span class="kw">let </span>ups_z: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.up.z)).collect();
-<a href=#110 id=110 data-nosnippet>110</a>    <span class="kw">let </span>twists: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.twist)).collect();
-<a href=#111 id=111 data-nosnippet>111</a>    <span class="kw">let </span>t_values: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.t)).collect();
-<a href=#112 id=112 data-nosnippet>112</a>
-<a href=#113 id=113 data-nosnippet>113</a>    <span class="kw">let </span><span class="kw-2">mut </span>table = toml::map::Map::new();
-<a href=#114 id=114 data-nosnippet>114</a>    table.insert(<span class="string">"positions_x"</span>.into(), toml::Value::Array(positions_x));
-<a href=#115 id=115 data-nosnippet>115</a>    table.insert(<span class="string">"positions_y"</span>.into(), toml::Value::Array(positions_y));
-<a href=#116 id=116 data-nosnippet>116</a>    table.insert(<span class="string">"positions_z"</span>.into(), toml::Value::Array(positions_z));
-<a href=#117 id=117 data-nosnippet>117</a>    table.insert(<span class="string">"forwards_x"</span>.into(), toml::Value::Array(forwards_x));
-<a href=#118 id=118 data-nosnippet>118</a>    table.insert(<span class="string">"forwards_y"</span>.into(), toml::Value::Array(forwards_y));
-<a href=#119 id=119 data-nosnippet>119</a>    table.insert(<span class="string">"forwards_z"</span>.into(), toml::Value::Array(forwards_z));
-<a href=#120 id=120 data-nosnippet>120</a>    table.insert(<span class="string">"rights_x"</span>.into(), toml::Value::Array(rights_x));
-<a href=#121 id=121 data-nosnippet>121</a>    table.insert(<span class="string">"rights_y"</span>.into(), toml::Value::Array(rights_y));
-<a href=#122 id=122 data-nosnippet>122</a>    table.insert(<span class="string">"rights_z"</span>.into(), toml::Value::Array(rights_z));
-<a href=#123 id=123 data-nosnippet>123</a>    table.insert(<span class="string">"ups_x"</span>.into(), toml::Value::Array(ups_x));
-<a href=#124 id=124 data-nosnippet>124</a>    table.insert(<span class="string">"ups_y"</span>.into(), toml::Value::Array(ups_y));
-<a href=#125 id=125 data-nosnippet>125</a>    table.insert(<span class="string">"ups_z"</span>.into(), toml::Value::Array(ups_z));
-<a href=#126 id=126 data-nosnippet>126</a>    table.insert(<span class="string">"twists"</span>.into(), toml::Value::Array(twists));
-<a href=#127 id=127 data-nosnippet>127</a>    table.insert(<span class="string">"t_values"</span>.into(), toml::Value::Array(t_values));
-<a href=#128 id=128 data-nosnippet>128</a>    table.insert(
-<a href=#129 id=129 data-nosnippet>129</a>        <span class="string">"sample_count"</span>.into(),
-<a href=#130 id=130 data-nosnippet>130</a>        toml::Value::Integer(samples.len() <span class="kw">as </span>i64),
-<a href=#131 id=131 data-nosnippet>131</a>    );
-<a href=#132 id=132 data-nosnippet>132</a>    table.insert(<span class="string">"closed"</span>.into(), toml::Value::Boolean(closed));
-<a href=#133 id=133 data-nosnippet>133</a>
-<a href=#134 id=134 data-nosnippet>134</a>    <span class="kw">let _ </span>= world.set_component(entity_id, <span class="string">"spline_data"</span>, toml::Value::Table(table));
-<a href=#135 id=135 data-nosnippet>135</a>}
-<a href=#136 id=136 data-nosnippet>136</a>
-<a href=#137 id=137 data-nosnippet>137</a><span class="comment">// ─── Pass 2: generate cross-section meshes ───────────────
-<a href=#138 id=138 data-nosnippet>138</a>
-<a href=#139 id=139 data-nosnippet>139</a></span><span class="kw">struct </span>SplineMeshDef {
-<a href=#140 id=140 data-nosnippet>140</a>    spline_entity: String,
-<a href=#141 id=141 data-nosnippet>141</a>    width: f32,
-<a href=#142 id=142 data-nosnippet>142</a>    height: f32,
-<a href=#143 id=143 data-nosnippet>143</a>    offset: [f32; <span class="number">2</span>], <span class="comment">// [right, up]
-<a href=#144 id=144 data-nosnippet>144</a>    </span>color: [f32; <span class="number">4</span>],
-<a href=#145 id=145 data-nosnippet>145</a>    stripe_color: <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">4</span>]&gt;,
-<a href=#146 id=146 data-nosnippet>146</a>    stripe_width: f32,
-<a href=#147 id=147 data-nosnippet>147</a>    friction: f32,
-<a href=#148 id=148 data-nosnippet>148</a>    restitution: f32,
-<a href=#149 id=149 data-nosnippet>149</a>    metallic: f32,
-<a href=#150 id=150 data-nosnippet>150</a>    roughness: f32,
+<a href=#33 id=33 data-nosnippet>33</a></span><span class="kw">struct </span>SplineDef {
+<a href=#34 id=34 data-nosnippet>34</a>    closed: bool,
+<a href=#35 id=35 data-nosnippet>35</a>    spacing: f32,
+<a href=#36 id=36 data-nosnippet>36</a>    control_points: Vec&lt;SplineControlPoint&gt;,
+<a href=#37 id=37 data-nosnippet>37</a>    gap_ranges: Vec&lt;(f32, f32)&gt;,
+<a href=#38 id=38 data-nosnippet>38</a>}
+<a href=#39 id=39 data-nosnippet>39</a>
+<a href=#40 id=40 data-nosnippet>40</a><span class="kw">fn </span>parse_spline_file(path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Option</span>&lt;SplineDef&gt; {
+<a href=#41 id=41 data-nosnippet>41</a>    <span class="kw">let </span>content = std::fs::read_to_string(path).ok()<span class="question-mark">?</span>;
+<a href=#42 id=42 data-nosnippet>42</a>    <span class="kw">let </span>value: toml::Value = toml::from_str(<span class="kw-2">&amp;</span>content).ok()<span class="question-mark">?</span>;
+<a href=#43 id=43 data-nosnippet>43</a>
+<a href=#44 id=44 data-nosnippet>44</a>    <span class="kw">let </span>spline_section = value.get(<span class="string">"spline"</span>)<span class="question-mark">?</span>;
+<a href=#45 id=45 data-nosnippet>45</a>    <span class="kw">let </span>closed = spline_section
+<a href=#46 id=46 data-nosnippet>46</a>        .get(<span class="string">"closed"</span>)
+<a href=#47 id=47 data-nosnippet>47</a>        .and_then(|v| v.as_bool())
+<a href=#48 id=48 data-nosnippet>48</a>        .unwrap_or(<span class="bool-val">true</span>);
+<a href=#49 id=49 data-nosnippet>49</a>
+<a href=#50 id=50 data-nosnippet>50</a>    <span class="kw">let </span>spacing = value
+<a href=#51 id=51 data-nosnippet>51</a>        .get(<span class="string">"sampling"</span>)
+<a href=#52 id=52 data-nosnippet>52</a>        .and_then(|s| s.get(<span class="string">"spacing"</span>))
+<a href=#53 id=53 data-nosnippet>53</a>        .and_then(toml_f32)
+<a href=#54 id=54 data-nosnippet>54</a>        .unwrap_or(<span class="number">2.0</span>);
+<a href=#55 id=55 data-nosnippet>55</a>
+<a href=#56 id=56 data-nosnippet>56</a>    <span class="kw">let </span>points_arr = value.get(<span class="string">"control_points"</span>)<span class="question-mark">?</span>.as_array()<span class="question-mark">?</span>;
+<a href=#57 id=57 data-nosnippet>57</a>    <span class="kw">let </span><span class="kw-2">mut </span>control_points = Vec::new();
+<a href=#58 id=58 data-nosnippet>58</a>
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">for </span>pt <span class="kw">in </span>points_arr {
+<a href=#60 id=60 data-nosnippet>60</a>        <span class="kw">let </span>pos = pt.get(<span class="string">"position"</span>)<span class="question-mark">?</span>.as_array()<span class="question-mark">?</span>;
+<a href=#61 id=61 data-nosnippet>61</a>        <span class="kw">if </span>pos.len() &lt; <span class="number">3 </span>{
+<a href=#62 id=62 data-nosnippet>62</a>            <span class="kw">continue</span>;
+<a href=#63 id=63 data-nosnippet>63</a>        }
+<a href=#64 id=64 data-nosnippet>64</a>        <span class="kw">let </span>vals = toml_f32_array(pos)<span class="question-mark">?</span>;
+<a href=#65 id=65 data-nosnippet>65</a>        <span class="kw">let </span>twist = pt.get(<span class="string">"twist"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.0</span>);
+<a href=#66 id=66 data-nosnippet>66</a>
+<a href=#67 id=67 data-nosnippet>67</a>        <span class="kw">let </span>gap_after = pt.get(<span class="string">"gap_after"</span>).and_then(|v| v.as_bool()).unwrap_or(<span class="bool-val">false</span>);
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a>        control_points.push(SplineControlPoint {
+<a href=#70 id=70 data-nosnippet>70</a>            position: Vec3::new(vals[<span class="number">0</span>], vals[<span class="number">1</span>], vals[<span class="number">2</span>]),
+<a href=#71 id=71 data-nosnippet>71</a>            twist,
+<a href=#72 id=72 data-nosnippet>72</a>            gap_after,
+<a href=#73 id=73 data-nosnippet>73</a>        });
+<a href=#74 id=74 data-nosnippet>74</a>    }
+<a href=#75 id=75 data-nosnippet>75</a>
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="kw">if </span>control_points.len() &lt; <span class="number">2 </span>{
+<a href=#77 id=77 data-nosnippet>77</a>        <span class="macro">eprintln!</span>(
+<a href=#78 id=78 data-nosnippet>78</a>            <span class="string">"Spline needs at least 2 control points, got {}"</span>,
+<a href=#79 id=79 data-nosnippet>79</a>            control_points.len()
+<a href=#80 id=80 data-nosnippet>80</a>        );
+<a href=#81 id=81 data-nosnippet>81</a>        <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#82 id=82 data-nosnippet>82</a>    }
+<a href=#83 id=83 data-nosnippet>83</a>
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="kw">let </span>gap_ranges = spline::compute_gap_ranges(<span class="kw-2">&amp;</span>control_points, closed);
+<a href=#85 id=85 data-nosnippet>85</a>
+<a href=#86 id=86 data-nosnippet>86</a>    <span class="prelude-val">Some</span>(SplineDef {
+<a href=#87 id=87 data-nosnippet>87</a>        closed,
+<a href=#88 id=88 data-nosnippet>88</a>        spacing,
+<a href=#89 id=89 data-nosnippet>89</a>        control_points,
+<a href=#90 id=90 data-nosnippet>90</a>        gap_ranges,
+<a href=#91 id=91 data-nosnippet>91</a>    })
+<a href=#92 id=92 data-nosnippet>92</a>}
+<a href=#93 id=93 data-nosnippet>93</a>
+<a href=#94 id=94 data-nosnippet>94</a><span class="doccomment">/// Store sampled spline data as flat arrays in a `spline_data` ECS component.
+<a href=#95 id=95 data-nosnippet>95</a></span><span class="kw">fn </span>store_spline_data(
+<a href=#96 id=96 data-nosnippet>96</a>    world: <span class="kw-2">&amp;mut </span>FlintWorld,
+<a href=#97 id=97 data-nosnippet>97</a>    entity_id: flint_core::EntityId,
+<a href=#98 id=98 data-nosnippet>98</a>    samples: <span class="kw-2">&amp;</span>[SplineSample],
+<a href=#99 id=99 data-nosnippet>99</a>    closed: bool,
+<a href=#100 id=100 data-nosnippet>100</a>    gap_ranges: <span class="kw-2">&amp;</span>[(f32, f32)],
+<a href=#101 id=101 data-nosnippet>101</a>) {
+<a href=#102 id=102 data-nosnippet>102</a>    <span class="kw">let </span>to_val = |f: f32| toml::Value::Float(f <span class="kw">as </span>f64);
+<a href=#103 id=103 data-nosnippet>103</a>
+<a href=#104 id=104 data-nosnippet>104</a>    <span class="kw">let </span>positions_x: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.position.x)).collect();
+<a href=#105 id=105 data-nosnippet>105</a>    <span class="kw">let </span>positions_y: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.position.y)).collect();
+<a href=#106 id=106 data-nosnippet>106</a>    <span class="kw">let </span>positions_z: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.position.z)).collect();
+<a href=#107 id=107 data-nosnippet>107</a>    <span class="kw">let </span>forwards_x: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.forward.x)).collect();
+<a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">let </span>forwards_y: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.forward.y)).collect();
+<a href=#109 id=109 data-nosnippet>109</a>    <span class="kw">let </span>forwards_z: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.forward.z)).collect();
+<a href=#110 id=110 data-nosnippet>110</a>    <span class="kw">let </span>rights_x: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.right.x)).collect();
+<a href=#111 id=111 data-nosnippet>111</a>    <span class="kw">let </span>rights_y: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.right.y)).collect();
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">let </span>rights_z: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.right.z)).collect();
+<a href=#113 id=113 data-nosnippet>113</a>    <span class="kw">let </span>ups_x: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.up.x)).collect();
+<a href=#114 id=114 data-nosnippet>114</a>    <span class="kw">let </span>ups_y: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.up.y)).collect();
+<a href=#115 id=115 data-nosnippet>115</a>    <span class="kw">let </span>ups_z: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.up.z)).collect();
+<a href=#116 id=116 data-nosnippet>116</a>    <span class="kw">let </span>twists: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.twist)).collect();
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="kw">let </span>t_values: Vec&lt;toml::Value&gt; = samples.iter().map(|s| to_val(s.t)).collect();
+<a href=#118 id=118 data-nosnippet>118</a>
+<a href=#119 id=119 data-nosnippet>119</a>    <span class="kw">let </span><span class="kw-2">mut </span>table = toml::map::Map::new();
+<a href=#120 id=120 data-nosnippet>120</a>    table.insert(<span class="string">"positions_x"</span>.into(), toml::Value::Array(positions_x));
+<a href=#121 id=121 data-nosnippet>121</a>    table.insert(<span class="string">"positions_y"</span>.into(), toml::Value::Array(positions_y));
+<a href=#122 id=122 data-nosnippet>122</a>    table.insert(<span class="string">"positions_z"</span>.into(), toml::Value::Array(positions_z));
+<a href=#123 id=123 data-nosnippet>123</a>    table.insert(<span class="string">"forwards_x"</span>.into(), toml::Value::Array(forwards_x));
+<a href=#124 id=124 data-nosnippet>124</a>    table.insert(<span class="string">"forwards_y"</span>.into(), toml::Value::Array(forwards_y));
+<a href=#125 id=125 data-nosnippet>125</a>    table.insert(<span class="string">"forwards_z"</span>.into(), toml::Value::Array(forwards_z));
+<a href=#126 id=126 data-nosnippet>126</a>    table.insert(<span class="string">"rights_x"</span>.into(), toml::Value::Array(rights_x));
+<a href=#127 id=127 data-nosnippet>127</a>    table.insert(<span class="string">"rights_y"</span>.into(), toml::Value::Array(rights_y));
+<a href=#128 id=128 data-nosnippet>128</a>    table.insert(<span class="string">"rights_z"</span>.into(), toml::Value::Array(rights_z));
+<a href=#129 id=129 data-nosnippet>129</a>    table.insert(<span class="string">"ups_x"</span>.into(), toml::Value::Array(ups_x));
+<a href=#130 id=130 data-nosnippet>130</a>    table.insert(<span class="string">"ups_y"</span>.into(), toml::Value::Array(ups_y));
+<a href=#131 id=131 data-nosnippet>131</a>    table.insert(<span class="string">"ups_z"</span>.into(), toml::Value::Array(ups_z));
+<a href=#132 id=132 data-nosnippet>132</a>    table.insert(<span class="string">"twists"</span>.into(), toml::Value::Array(twists));
+<a href=#133 id=133 data-nosnippet>133</a>    table.insert(<span class="string">"t_values"</span>.into(), toml::Value::Array(t_values));
+<a href=#134 id=134 data-nosnippet>134</a>    table.insert(
+<a href=#135 id=135 data-nosnippet>135</a>        <span class="string">"sample_count"</span>.into(),
+<a href=#136 id=136 data-nosnippet>136</a>        toml::Value::Integer(samples.len() <span class="kw">as </span>i64),
+<a href=#137 id=137 data-nosnippet>137</a>    );
+<a href=#138 id=138 data-nosnippet>138</a>    table.insert(<span class="string">"closed"</span>.into(), toml::Value::Boolean(closed));
+<a href=#139 id=139 data-nosnippet>139</a>
+<a href=#140 id=140 data-nosnippet>140</a>    <span class="comment">// Gap ranges
+<a href=#141 id=141 data-nosnippet>141</a>    </span><span class="kw">let </span>gap_starts: Vec&lt;toml::Value&gt; = gap_ranges.iter().map(|(s, <span class="kw">_</span>)| to_val(<span class="kw-2">*</span>s)).collect();
+<a href=#142 id=142 data-nosnippet>142</a>    <span class="kw">let </span>gap_ends: Vec&lt;toml::Value&gt; = gap_ranges.iter().map(|(<span class="kw">_</span>, e)| to_val(<span class="kw-2">*</span>e)).collect();
+<a href=#143 id=143 data-nosnippet>143</a>    table.insert(<span class="string">"gap_starts"</span>.into(), toml::Value::Array(gap_starts));
+<a href=#144 id=144 data-nosnippet>144</a>    table.insert(<span class="string">"gap_ends"</span>.into(), toml::Value::Array(gap_ends));
+<a href=#145 id=145 data-nosnippet>145</a>    table.insert(
+<a href=#146 id=146 data-nosnippet>146</a>        <span class="string">"gap_count"</span>.into(),
+<a href=#147 id=147 data-nosnippet>147</a>        toml::Value::Integer(gap_ranges.len() <span class="kw">as </span>i64),
+<a href=#148 id=148 data-nosnippet>148</a>    );
+<a href=#149 id=149 data-nosnippet>149</a>
+<a href=#150 id=150 data-nosnippet>150</a>    <span class="kw">let _ </span>= world.set_component(entity_id, <span class="string">"spline_data"</span>, toml::Value::Table(table));
 <a href=#151 id=151 data-nosnippet>151</a>}
 <a href=#152 id=152 data-nosnippet>152</a>
-<a href=#153 id=153 data-nosnippet>153</a><span class="kw">fn </span>parse_spline_mesh_component(comp: <span class="kw-2">&amp;</span>toml::Value) -&gt; <span class="prelude-ty">Option</span>&lt;SplineMeshDef&gt; {
-<a href=#154 id=154 data-nosnippet>154</a>    <span class="kw">let </span>spline_entity = comp.get(<span class="string">"spline"</span>)<span class="question-mark">?</span>.as_str()<span class="question-mark">?</span>.to_string();
-<a href=#155 id=155 data-nosnippet>155</a>    <span class="kw">let </span>width = comp.get(<span class="string">"width"</span>).and_then(toml_f32)<span class="question-mark">?</span>;
-<a href=#156 id=156 data-nosnippet>156</a>    <span class="kw">let </span>height = comp.get(<span class="string">"height"</span>).and_then(toml_f32)<span class="question-mark">?</span>;
-<a href=#157 id=157 data-nosnippet>157</a>
-<a href=#158 id=158 data-nosnippet>158</a>    <span class="kw">let </span>offset = <span class="kw">if let </span><span class="prelude-val">Some</span>(arr) = comp.get(<span class="string">"offset"</span>).and_then(|v| v.as_array()) {
-<a href=#159 id=159 data-nosnippet>159</a>        <span class="kw">let </span>vals = toml_f32_array(arr)<span class="question-mark">?</span>;
-<a href=#160 id=160 data-nosnippet>160</a>        <span class="kw">if </span>vals.len() &gt;= <span class="number">2 </span>{
-<a href=#161 id=161 data-nosnippet>161</a>            [vals[<span class="number">0</span>], vals[<span class="number">1</span>]]
-<a href=#162 id=162 data-nosnippet>162</a>        } <span class="kw">else </span>{
-<a href=#163 id=163 data-nosnippet>163</a>            [<span class="number">0.0</span>, <span class="number">0.0</span>]
-<a href=#164 id=164 data-nosnippet>164</a>        }
-<a href=#165 id=165 data-nosnippet>165</a>    } <span class="kw">else </span>{
-<a href=#166 id=166 data-nosnippet>166</a>        [<span class="number">0.0</span>, <span class="number">0.0</span>]
-<a href=#167 id=167 data-nosnippet>167</a>    };
-<a href=#168 id=168 data-nosnippet>168</a>
-<a href=#169 id=169 data-nosnippet>169</a>    <span class="kw">let </span>color = <span class="kw">if let </span><span class="prelude-val">Some</span>(arr) = comp.get(<span class="string">"color"</span>).and_then(|v| v.as_array()) {
-<a href=#170 id=170 data-nosnippet>170</a>        <span class="kw">let </span>vals = toml_f32_array(arr)<span class="question-mark">?</span>;
-<a href=#171 id=171 data-nosnippet>171</a>        <span class="kw">if </span>vals.len() &gt;= <span class="number">4 </span>{
-<a href=#172 id=172 data-nosnippet>172</a>            [vals[<span class="number">0</span>], vals[<span class="number">1</span>], vals[<span class="number">2</span>], vals[<span class="number">3</span>]]
-<a href=#173 id=173 data-nosnippet>173</a>        } <span class="kw">else if </span>vals.len() &gt;= <span class="number">3 </span>{
-<a href=#174 id=174 data-nosnippet>174</a>            [vals[<span class="number">0</span>], vals[<span class="number">1</span>], vals[<span class="number">2</span>], <span class="number">1.0</span>]
-<a href=#175 id=175 data-nosnippet>175</a>        } <span class="kw">else </span>{
-<a href=#176 id=176 data-nosnippet>176</a>            [<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">1.0</span>]
-<a href=#177 id=177 data-nosnippet>177</a>        }
-<a href=#178 id=178 data-nosnippet>178</a>    } <span class="kw">else </span>{
-<a href=#179 id=179 data-nosnippet>179</a>        [<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">1.0</span>]
-<a href=#180 id=180 data-nosnippet>180</a>    };
-<a href=#181 id=181 data-nosnippet>181</a>
-<a href=#182 id=182 data-nosnippet>182</a>    <span class="kw">let </span>stripe_color = <span class="kw">if let </span><span class="prelude-val">Some</span>(arr) = comp.get(<span class="string">"stripe_color"</span>).and_then(|v| v.as_array()) {
-<a href=#183 id=183 data-nosnippet>183</a>        <span class="kw">let </span>vals = toml_f32_array(arr)<span class="question-mark">?</span>;
-<a href=#184 id=184 data-nosnippet>184</a>        <span class="kw">if </span>vals.len() &gt;= <span class="number">4 </span>{
-<a href=#185 id=185 data-nosnippet>185</a>            <span class="prelude-val">Some</span>([vals[<span class="number">0</span>], vals[<span class="number">1</span>], vals[<span class="number">2</span>], vals[<span class="number">3</span>]])
-<a href=#186 id=186 data-nosnippet>186</a>        } <span class="kw">else if </span>vals.len() &gt;= <span class="number">3 </span>{
-<a href=#187 id=187 data-nosnippet>187</a>            <span class="prelude-val">Some</span>([vals[<span class="number">0</span>], vals[<span class="number">1</span>], vals[<span class="number">2</span>], <span class="number">1.0</span>])
-<a href=#188 id=188 data-nosnippet>188</a>        } <span class="kw">else </span>{
-<a href=#189 id=189 data-nosnippet>189</a>            <span class="prelude-val">None
-<a href=#190 id=190 data-nosnippet>190</a>        </span>}
-<a href=#191 id=191 data-nosnippet>191</a>    } <span class="kw">else </span>{
-<a href=#192 id=192 data-nosnippet>192</a>        <span class="prelude-val">None
-<a href=#193 id=193 data-nosnippet>193</a>    </span>};
-<a href=#194 id=194 data-nosnippet>194</a>
-<a href=#195 id=195 data-nosnippet>195</a>    <span class="kw">let </span>stripe_width = comp.get(<span class="string">"stripe_width"</span>).and_then(toml_f32).unwrap_or(<span class="number">2.0</span>);
-<a href=#196 id=196 data-nosnippet>196</a>
-<a href=#197 id=197 data-nosnippet>197</a>    <span class="kw">let </span>friction = comp.get(<span class="string">"friction"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.5</span>);
-<a href=#198 id=198 data-nosnippet>198</a>    <span class="kw">let </span>restitution = comp.get(<span class="string">"restitution"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.1</span>);
-<a href=#199 id=199 data-nosnippet>199</a>    <span class="kw">let </span>metallic = comp.get(<span class="string">"metallic"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.0</span>);
-<a href=#200 id=200 data-nosnippet>200</a>    <span class="kw">let </span>roughness = comp.get(<span class="string">"roughness"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.5</span>);
-<a href=#201 id=201 data-nosnippet>201</a>
-<a href=#202 id=202 data-nosnippet>202</a>    <span class="prelude-val">Some</span>(SplineMeshDef {
-<a href=#203 id=203 data-nosnippet>203</a>        spline_entity,
-<a href=#204 id=204 data-nosnippet>204</a>        width,
-<a href=#205 id=205 data-nosnippet>205</a>        height,
-<a href=#206 id=206 data-nosnippet>206</a>        offset,
-<a href=#207 id=207 data-nosnippet>207</a>        color,
-<a href=#208 id=208 data-nosnippet>208</a>        stripe_color,
-<a href=#209 id=209 data-nosnippet>209</a>        stripe_width,
-<a href=#210 id=210 data-nosnippet>210</a>        friction,
-<a href=#211 id=211 data-nosnippet>211</a>        restitution,
-<a href=#212 id=212 data-nosnippet>212</a>        metallic,
-<a href=#213 id=213 data-nosnippet>213</a>        roughness,
-<a href=#214 id=214 data-nosnippet>214</a>    })
-<a href=#215 id=215 data-nosnippet>215</a>}
-<a href=#216 id=216 data-nosnippet>216</a>
-<a href=#217 id=217 data-nosnippet>217</a><span class="doccomment">/// Generate a rectangular cross-section mesh swept along spline samples.
-<a href=#218 id=218 data-nosnippet>218</a>///
-<a href=#219 id=219 data-nosnippet>219</a>/// At each sample, 4 corners are computed:
-<a href=#220 id=220 data-nosnippet>220</a>///   TL ──── TR
-<a href=#221 id=221 data-nosnippet>221</a>///   │        │
-<a href=#222 id=222 data-nosnippet>222</a>///   BL ──── BR
-<a href=#223 id=223 data-nosnippet>223</a>///
-<a href=#224 id=224 data-nosnippet>224</a>/// Between consecutive samples, 4 quad faces are generated
-<a href=#225 id=225 data-nosnippet>225</a>/// (top, bottom, left-side, right-side). For open splines,
-<a href=#226 id=226 data-nosnippet>226</a>/// 2 end-cap quads are added.
-<a href=#227 id=227 data-nosnippet>227</a></span><span class="kw">fn </span>generate_cross_section_mesh(
-<a href=#228 id=228 data-nosnippet>228</a>    samples: <span class="kw-2">&amp;</span>[SplineSample],
-<a href=#229 id=229 data-nosnippet>229</a>    closed: bool,
-<a href=#230 id=230 data-nosnippet>230</a>    width: f32,
-<a href=#231 id=231 data-nosnippet>231</a>    height: f32,
-<a href=#232 id=232 data-nosnippet>232</a>    offset: [f32; <span class="number">2</span>],
-<a href=#233 id=233 data-nosnippet>233</a>    color: [f32; <span class="number">4</span>],
-<a href=#234 id=234 data-nosnippet>234</a>    stripe_color: <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">4</span>]&gt;,
-<a href=#235 id=235 data-nosnippet>235</a>    stripe_width: f32,
-<a href=#236 id=236 data-nosnippet>236</a>    spacing: f32,
-<a href=#237 id=237 data-nosnippet>237</a>) -&gt; (Vec&lt;Vertex&gt;, Vec&lt;u32&gt;, Vec&lt;[f32; <span class="number">3</span>]&gt;, Vec&lt;[u32; <span class="number">3</span>]&gt;) {
-<a href=#238 id=238 data-nosnippet>238</a>    <span class="kw">let </span>n = samples.len();
-<a href=#239 id=239 data-nosnippet>239</a>    <span class="kw">if </span>n &lt; <span class="number">2 </span>{
-<a href=#240 id=240 data-nosnippet>240</a>        <span class="kw">return </span>(Vec::new(), Vec::new(), Vec::new(), Vec::new());
-<a href=#241 id=241 data-nosnippet>241</a>    }
-<a href=#242 id=242 data-nosnippet>242</a>
-<a href=#243 id=243 data-nosnippet>243</a>    <span class="kw">let </span>hw = width / <span class="number">2.0</span>;
-<a href=#244 id=244 data-nosnippet>244</a>    <span class="kw">let </span>hh = height / <span class="number">2.0</span>;
-<a href=#245 id=245 data-nosnippet>245</a>
-<a href=#246 id=246 data-nosnippet>246</a>    <span class="comment">// Pre-compute 4 corners at each sample in world space
-<a href=#247 id=247 data-nosnippet>247</a>    // Order: BL, BR, TR, TL (bottom-left, bottom-right, top-right, top-left)
-<a href=#248 id=248 data-nosnippet>248</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>corners: Vec&lt;[Vec3; <span class="number">4</span>]&gt; = Vec::with_capacity(n);
-<a href=#249 id=249 data-nosnippet>249</a>    <span class="kw">for </span>s <span class="kw">in </span>samples {
-<a href=#250 id=250 data-nosnippet>250</a>        <span class="kw">let </span>center = s.position + s.right * offset[<span class="number">0</span>] + s.up * offset[<span class="number">1</span>];
-<a href=#251 id=251 data-nosnippet>251</a>        <span class="kw">let </span>bl = center + s.right * (-hw) + s.up * (-hh);
-<a href=#252 id=252 data-nosnippet>252</a>        <span class="kw">let </span>br = center + s.right * hw + s.up * (-hh);
-<a href=#253 id=253 data-nosnippet>253</a>        <span class="kw">let </span>tr = center + s.right * hw + s.up * hh;
-<a href=#254 id=254 data-nosnippet>254</a>        <span class="kw">let </span>tl = center + s.right * (-hw) + s.up * hh;
-<a href=#255 id=255 data-nosnippet>255</a>        corners.push([bl, br, tr, tl]);
-<a href=#256 id=256 data-nosnippet>256</a>    }
-<a href=#257 id=257 data-nosnippet>257</a>
-<a href=#258 id=258 data-nosnippet>258</a>    <span class="comment">// Each longitudinal segment contributes 4 quads (8 triangles, 8 vertices unique per face)
-<a href=#259 id=259 data-nosnippet>259</a>    // We use per-face vertices for correct normals.
-<a href=#260 id=260 data-nosnippet>260</a>    </span><span class="kw">let </span>num_segs = <span class="kw">if </span>closed { n } <span class="kw">else </span>{ n - <span class="number">1 </span>};
-<a href=#261 id=261 data-nosnippet>261</a>    <span class="comment">// 4 faces * 4 verts each = 16 verts per segment
-<a href=#262 id=262 data-nosnippet>262</a>    </span><span class="kw">let </span>vert_cap = num_segs * <span class="number">16 </span>+ <span class="kw">if </span>!closed { <span class="number">8 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
-<a href=#263 id=263 data-nosnippet>263</a>    <span class="kw">let </span>tri_cap = num_segs * <span class="number">8 </span>+ <span class="kw">if </span>!closed { <span class="number">4 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
-<a href=#264 id=264 data-nosnippet>264</a>
-<a href=#265 id=265 data-nosnippet>265</a>    <span class="kw">let </span><span class="kw-2">mut </span>vertices = Vec::with_capacity(vert_cap);
-<a href=#266 id=266 data-nosnippet>266</a>    <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::with_capacity(tri_cap * <span class="number">3</span>);
-<a href=#267 id=267 data-nosnippet>267</a>    <span class="kw">let </span><span class="kw-2">mut </span>phys_verts = Vec::with_capacity(vert_cap);
-<a href=#268 id=268 data-nosnippet>268</a>    <span class="kw">let </span><span class="kw-2">mut </span>phys_tris = Vec::with_capacity(tri_cap);
-<a href=#269 id=269 data-nosnippet>269</a>
-<a href=#270 id=270 data-nosnippet>270</a>    <span class="kw">for </span>seg <span class="kw">in </span><span class="number">0</span>..num_segs {
-<a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">let </span>next = <span class="kw">if </span>closed { (seg + <span class="number">1</span>) % n } <span class="kw">else </span>{ seg + <span class="number">1 </span>};
-<a href=#272 id=272 data-nosnippet>272</a>        <span class="kw">let </span>[c_bl, c_br, c_tr, c_tl] = corners[seg];
-<a href=#273 id=273 data-nosnippet>273</a>        <span class="kw">let </span>[n_bl, n_br, n_tr, n_tl] = corners[next];
-<a href=#274 id=274 data-nosnippet>274</a>
-<a href=#275 id=275 data-nosnippet>275</a>        <span class="kw">let </span>u0 = seg <span class="kw">as </span>f32 / num_segs <span class="kw">as </span>f32;
-<a href=#276 id=276 data-nosnippet>276</a>        <span class="kw">let </span>u1 = (seg + <span class="number">1</span>) <span class="kw">as </span>f32 / num_segs <span class="kw">as </span>f32;
+<a href=#153 id=153 data-nosnippet>153</a><span class="comment">// ─── Pass 2: generate cross-section meshes ───────────────
+<a href=#154 id=154 data-nosnippet>154</a>
+<a href=#155 id=155 data-nosnippet>155</a></span><span class="kw">struct </span>SplineMeshDef {
+<a href=#156 id=156 data-nosnippet>156</a>    spline_entity: String,
+<a href=#157 id=157 data-nosnippet>157</a>    width: f32,
+<a href=#158 id=158 data-nosnippet>158</a>    height: f32,
+<a href=#159 id=159 data-nosnippet>159</a>    offset: [f32; <span class="number">2</span>], <span class="comment">// [right, up]
+<a href=#160 id=160 data-nosnippet>160</a>    </span>color: [f32; <span class="number">4</span>],
+<a href=#161 id=161 data-nosnippet>161</a>    stripe_color: <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">4</span>]&gt;,
+<a href=#162 id=162 data-nosnippet>162</a>    stripe_width: f32,
+<a href=#163 id=163 data-nosnippet>163</a>    friction: f32,
+<a href=#164 id=164 data-nosnippet>164</a>    restitution: f32,
+<a href=#165 id=165 data-nosnippet>165</a>    metallic: f32,
+<a href=#166 id=166 data-nosnippet>166</a>    roughness: f32,
+<a href=#167 id=167 data-nosnippet>167</a>    chunk_size: u32, <span class="comment">// 0 = no chunking (single mesh), &gt;0 = segments per chunk
+<a href=#168 id=168 data-nosnippet>168</a></span>}
+<a href=#169 id=169 data-nosnippet>169</a>
+<a href=#170 id=170 data-nosnippet>170</a><span class="kw">fn </span>parse_spline_mesh_component(comp: <span class="kw-2">&amp;</span>toml::Value) -&gt; <span class="prelude-ty">Option</span>&lt;SplineMeshDef&gt; {
+<a href=#171 id=171 data-nosnippet>171</a>    <span class="kw">let </span>spline_entity = comp.get(<span class="string">"spline"</span>)<span class="question-mark">?</span>.as_str()<span class="question-mark">?</span>.to_string();
+<a href=#172 id=172 data-nosnippet>172</a>    <span class="kw">let </span>width = comp.get(<span class="string">"width"</span>).and_then(toml_f32)<span class="question-mark">?</span>;
+<a href=#173 id=173 data-nosnippet>173</a>    <span class="kw">let </span>height = comp.get(<span class="string">"height"</span>).and_then(toml_f32)<span class="question-mark">?</span>;
+<a href=#174 id=174 data-nosnippet>174</a>
+<a href=#175 id=175 data-nosnippet>175</a>    <span class="kw">let </span>offset = <span class="kw">if let </span><span class="prelude-val">Some</span>(arr) = comp.get(<span class="string">"offset"</span>).and_then(|v| v.as_array()) {
+<a href=#176 id=176 data-nosnippet>176</a>        <span class="kw">let </span>vals = toml_f32_array(arr)<span class="question-mark">?</span>;
+<a href=#177 id=177 data-nosnippet>177</a>        <span class="kw">if </span>vals.len() &gt;= <span class="number">2 </span>{
+<a href=#178 id=178 data-nosnippet>178</a>            [vals[<span class="number">0</span>], vals[<span class="number">1</span>]]
+<a href=#179 id=179 data-nosnippet>179</a>        } <span class="kw">else </span>{
+<a href=#180 id=180 data-nosnippet>180</a>            [<span class="number">0.0</span>, <span class="number">0.0</span>]
+<a href=#181 id=181 data-nosnippet>181</a>        }
+<a href=#182 id=182 data-nosnippet>182</a>    } <span class="kw">else </span>{
+<a href=#183 id=183 data-nosnippet>183</a>        [<span class="number">0.0</span>, <span class="number">0.0</span>]
+<a href=#184 id=184 data-nosnippet>184</a>    };
+<a href=#185 id=185 data-nosnippet>185</a>
+<a href=#186 id=186 data-nosnippet>186</a>    <span class="kw">let </span>color = <span class="kw">if let </span><span class="prelude-val">Some</span>(arr) = comp.get(<span class="string">"color"</span>).and_then(|v| v.as_array()) {
+<a href=#187 id=187 data-nosnippet>187</a>        <span class="kw">let </span>vals = toml_f32_array(arr)<span class="question-mark">?</span>;
+<a href=#188 id=188 data-nosnippet>188</a>        <span class="kw">if </span>vals.len() &gt;= <span class="number">4 </span>{
+<a href=#189 id=189 data-nosnippet>189</a>            [vals[<span class="number">0</span>], vals[<span class="number">1</span>], vals[<span class="number">2</span>], vals[<span class="number">3</span>]]
+<a href=#190 id=190 data-nosnippet>190</a>        } <span class="kw">else if </span>vals.len() &gt;= <span class="number">3 </span>{
+<a href=#191 id=191 data-nosnippet>191</a>            [vals[<span class="number">0</span>], vals[<span class="number">1</span>], vals[<span class="number">2</span>], <span class="number">1.0</span>]
+<a href=#192 id=192 data-nosnippet>192</a>        } <span class="kw">else </span>{
+<a href=#193 id=193 data-nosnippet>193</a>            [<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">1.0</span>]
+<a href=#194 id=194 data-nosnippet>194</a>        }
+<a href=#195 id=195 data-nosnippet>195</a>    } <span class="kw">else </span>{
+<a href=#196 id=196 data-nosnippet>196</a>        [<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">1.0</span>]
+<a href=#197 id=197 data-nosnippet>197</a>    };
+<a href=#198 id=198 data-nosnippet>198</a>
+<a href=#199 id=199 data-nosnippet>199</a>    <span class="kw">let </span>stripe_color = <span class="kw">if let </span><span class="prelude-val">Some</span>(arr) = comp.get(<span class="string">"stripe_color"</span>).and_then(|v| v.as_array()) {
+<a href=#200 id=200 data-nosnippet>200</a>        <span class="kw">let </span>vals = toml_f32_array(arr)<span class="question-mark">?</span>;
+<a href=#201 id=201 data-nosnippet>201</a>        <span class="kw">if </span>vals.len() &gt;= <span class="number">4 </span>{
+<a href=#202 id=202 data-nosnippet>202</a>            <span class="prelude-val">Some</span>([vals[<span class="number">0</span>], vals[<span class="number">1</span>], vals[<span class="number">2</span>], vals[<span class="number">3</span>]])
+<a href=#203 id=203 data-nosnippet>203</a>        } <span class="kw">else if </span>vals.len() &gt;= <span class="number">3 </span>{
+<a href=#204 id=204 data-nosnippet>204</a>            <span class="prelude-val">Some</span>([vals[<span class="number">0</span>], vals[<span class="number">1</span>], vals[<span class="number">2</span>], <span class="number">1.0</span>])
+<a href=#205 id=205 data-nosnippet>205</a>        } <span class="kw">else </span>{
+<a href=#206 id=206 data-nosnippet>206</a>            <span class="prelude-val">None
+<a href=#207 id=207 data-nosnippet>207</a>        </span>}
+<a href=#208 id=208 data-nosnippet>208</a>    } <span class="kw">else </span>{
+<a href=#209 id=209 data-nosnippet>209</a>        <span class="prelude-val">None
+<a href=#210 id=210 data-nosnippet>210</a>    </span>};
+<a href=#211 id=211 data-nosnippet>211</a>
+<a href=#212 id=212 data-nosnippet>212</a>    <span class="kw">let </span>stripe_width = comp.get(<span class="string">"stripe_width"</span>).and_then(toml_f32).unwrap_or(<span class="number">2.0</span>);
+<a href=#213 id=213 data-nosnippet>213</a>
+<a href=#214 id=214 data-nosnippet>214</a>    <span class="kw">let </span>friction = comp.get(<span class="string">"friction"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.5</span>);
+<a href=#215 id=215 data-nosnippet>215</a>    <span class="kw">let </span>restitution = comp.get(<span class="string">"restitution"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.1</span>);
+<a href=#216 id=216 data-nosnippet>216</a>    <span class="kw">let </span>metallic = comp.get(<span class="string">"metallic"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.0</span>);
+<a href=#217 id=217 data-nosnippet>217</a>    <span class="kw">let </span>roughness = comp.get(<span class="string">"roughness"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.5</span>);
+<a href=#218 id=218 data-nosnippet>218</a>    <span class="kw">let </span>chunk_size = comp.get(<span class="string">"chunk_size"</span>).and_then(|v| v.as_integer()).unwrap_or(<span class="number">0</span>) <span class="kw">as </span>u32;
+<a href=#219 id=219 data-nosnippet>219</a>
+<a href=#220 id=220 data-nosnippet>220</a>    <span class="prelude-val">Some</span>(SplineMeshDef {
+<a href=#221 id=221 data-nosnippet>221</a>        spline_entity,
+<a href=#222 id=222 data-nosnippet>222</a>        width,
+<a href=#223 id=223 data-nosnippet>223</a>        height,
+<a href=#224 id=224 data-nosnippet>224</a>        offset,
+<a href=#225 id=225 data-nosnippet>225</a>        color,
+<a href=#226 id=226 data-nosnippet>226</a>        stripe_color,
+<a href=#227 id=227 data-nosnippet>227</a>        stripe_width,
+<a href=#228 id=228 data-nosnippet>228</a>        friction,
+<a href=#229 id=229 data-nosnippet>229</a>        restitution,
+<a href=#230 id=230 data-nosnippet>230</a>        metallic,
+<a href=#231 id=231 data-nosnippet>231</a>        roughness,
+<a href=#232 id=232 data-nosnippet>232</a>        chunk_size,
+<a href=#233 id=233 data-nosnippet>233</a>    })
+<a href=#234 id=234 data-nosnippet>234</a>}
+<a href=#235 id=235 data-nosnippet>235</a>
+<a href=#236 id=236 data-nosnippet>236</a><span class="doccomment">/// Generate a rectangular cross-section mesh swept along spline samples.
+<a href=#237 id=237 data-nosnippet>237</a>///
+<a href=#238 id=238 data-nosnippet>238</a>/// At each sample, 4 corners are computed:
+<a href=#239 id=239 data-nosnippet>239</a>///   TL ──── TR
+<a href=#240 id=240 data-nosnippet>240</a>///   │        │
+<a href=#241 id=241 data-nosnippet>241</a>///   BL ──── BR
+<a href=#242 id=242 data-nosnippet>242</a>///
+<a href=#243 id=243 data-nosnippet>243</a>/// Between consecutive samples, 4 quad faces are generated
+<a href=#244 id=244 data-nosnippet>244</a>/// (top, bottom, left-side, right-side). For open splines,
+<a href=#245 id=245 data-nosnippet>245</a>/// 2 end-cap quads are added.
+<a href=#246 id=246 data-nosnippet>246</a></span><span class="kw">fn </span>generate_cross_section_mesh(
+<a href=#247 id=247 data-nosnippet>247</a>    samples: <span class="kw-2">&amp;</span>[SplineSample],
+<a href=#248 id=248 data-nosnippet>248</a>    closed: bool,
+<a href=#249 id=249 data-nosnippet>249</a>    width: f32,
+<a href=#250 id=250 data-nosnippet>250</a>    height: f32,
+<a href=#251 id=251 data-nosnippet>251</a>    offset: [f32; <span class="number">2</span>],
+<a href=#252 id=252 data-nosnippet>252</a>    color: [f32; <span class="number">4</span>],
+<a href=#253 id=253 data-nosnippet>253</a>    stripe_color: <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">4</span>]&gt;,
+<a href=#254 id=254 data-nosnippet>254</a>    stripe_width: f32,
+<a href=#255 id=255 data-nosnippet>255</a>    spacing: f32,
+<a href=#256 id=256 data-nosnippet>256</a>    gap_ranges: <span class="kw-2">&amp;</span>[(f32, f32)],
+<a href=#257 id=257 data-nosnippet>257</a>) -&gt; (Vec&lt;Vertex&gt;, Vec&lt;u32&gt;, Vec&lt;[f32; <span class="number">3</span>]&gt;, Vec&lt;[u32; <span class="number">3</span>]&gt;) {
+<a href=#258 id=258 data-nosnippet>258</a>    <span class="kw">let </span>n = samples.len();
+<a href=#259 id=259 data-nosnippet>259</a>    <span class="kw">if </span>n &lt; <span class="number">2 </span>{
+<a href=#260 id=260 data-nosnippet>260</a>        <span class="kw">return </span>(Vec::new(), Vec::new(), Vec::new(), Vec::new());
+<a href=#261 id=261 data-nosnippet>261</a>    }
+<a href=#262 id=262 data-nosnippet>262</a>
+<a href=#263 id=263 data-nosnippet>263</a>    <span class="kw">let </span>hw = width / <span class="number">2.0</span>;
+<a href=#264 id=264 data-nosnippet>264</a>    <span class="kw">let </span>hh = height / <span class="number">2.0</span>;
+<a href=#265 id=265 data-nosnippet>265</a>
+<a href=#266 id=266 data-nosnippet>266</a>    <span class="comment">// Pre-compute 4 corners at each sample in world space
+<a href=#267 id=267 data-nosnippet>267</a>    // Order: BL, BR, TR, TL (bottom-left, bottom-right, top-right, top-left)
+<a href=#268 id=268 data-nosnippet>268</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>corners: Vec&lt;[Vec3; <span class="number">4</span>]&gt; = Vec::with_capacity(n);
+<a href=#269 id=269 data-nosnippet>269</a>    <span class="kw">for </span>s <span class="kw">in </span>samples {
+<a href=#270 id=270 data-nosnippet>270</a>        <span class="kw">let </span>center = s.position + s.right * offset[<span class="number">0</span>] + s.up * offset[<span class="number">1</span>];
+<a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">let </span>bl = center + s.right * (-hw) + s.up * (-hh);
+<a href=#272 id=272 data-nosnippet>272</a>        <span class="kw">let </span>br = center + s.right * hw + s.up * (-hh);
+<a href=#273 id=273 data-nosnippet>273</a>        <span class="kw">let </span>tr = center + s.right * hw + s.up * hh;
+<a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">let </span>tl = center + s.right * (-hw) + s.up * hh;
+<a href=#275 id=275 data-nosnippet>275</a>        corners.push([bl, br, tr, tl]);
+<a href=#276 id=276 data-nosnippet>276</a>    }
 <a href=#277 id=277 data-nosnippet>277</a>
-<a href=#278 id=278 data-nosnippet>278</a>        <span class="comment">// Per-segment color: alternate between primary and stripe color
-<a href=#279 id=279 data-nosnippet>279</a>        </span><span class="kw">let </span>seg_color = <span class="kw">if let </span><span class="prelude-val">Some</span>(sc) = stripe_color {
-<a href=#280 id=280 data-nosnippet>280</a>            <span class="kw">let </span>dist = seg <span class="kw">as </span>f32 * spacing;
-<a href=#281 id=281 data-nosnippet>281</a>            <span class="kw">let </span>stripe_index = (dist / stripe_width).floor() <span class="kw">as </span>i32;
-<a href=#282 id=282 data-nosnippet>282</a>            <span class="kw">if </span>stripe_index % <span class="number">2 </span>== <span class="number">0 </span>{ color } <span class="kw">else </span>{ sc }
-<a href=#283 id=283 data-nosnippet>283</a>        } <span class="kw">else </span>{
-<a href=#284 id=284 data-nosnippet>284</a>            color
-<a href=#285 id=285 data-nosnippet>285</a>        };
-<a href=#286 id=286 data-nosnippet>286</a>
-<a href=#287 id=287 data-nosnippet>287</a>        <span class="comment">// --- Top face (TL, TR → NTL, NTR) ---
-<a href=#288 id=288 data-nosnippet>288</a>        // Normal: average of up vectors
-<a href=#289 id=289 data-nosnippet>289</a>        </span><span class="kw">let </span>top_normal = ((samples[seg].up + samples[next].up) * <span class="number">0.5</span>).normalized();
-<a href=#290 id=290 data-nosnippet>290</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
-<a href=#291 id=291 data-nosnippet>291</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
-<a href=#292 id=292 data-nosnippet>292</a>            Vertex { position: c_tl.to_array(), normal: top_normal.to_array(), color: seg_color, uv: [<span class="number">0.0</span>, u0] },
-<a href=#293 id=293 data-nosnippet>293</a>            Vertex { position: c_tr.to_array(), normal: top_normal.to_array(), color: seg_color, uv: [<span class="number">1.0</span>, u0] },
-<a href=#294 id=294 data-nosnippet>294</a>            Vertex { position: n_tl.to_array(), normal: top_normal.to_array(), color: seg_color, uv: [<span class="number">0.0</span>, u1] },
-<a href=#295 id=295 data-nosnippet>295</a>            Vertex { position: n_tr.to_array(), normal: top_normal.to_array(), color: seg_color, uv: [<span class="number">1.0</span>, u1] },
-<a href=#296 id=296 data-nosnippet>296</a>        ]);
-<a href=#297 id=297 data-nosnippet>297</a>        indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">1</span>, base + <span class="number">2</span>, base + <span class="number">1</span>, base + <span class="number">3</span>, base + <span class="number">2</span>]);
-<a href=#298 id=298 data-nosnippet>298</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
-<a href=#299 id=299 data-nosnippet>299</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[c_tl.to_array(), c_tr.to_array(), n_tl.to_array(), n_tr.to_array()]);
-<a href=#300 id=300 data-nosnippet>300</a>        phys_tris.push([pb, pb + <span class="number">1</span>, pb + <span class="number">2</span>]);
-<a href=#301 id=301 data-nosnippet>301</a>        phys_tris.push([pb + <span class="number">1</span>, pb + <span class="number">3</span>, pb + <span class="number">2</span>]);
-<a href=#302 id=302 data-nosnippet>302</a>
-<a href=#303 id=303 data-nosnippet>303</a>        <span class="comment">// --- Bottom face (BL, BR → NBL, NBR) ---
-<a href=#304 id=304 data-nosnippet>304</a>        </span><span class="kw">let </span>bot_normal = ((samples[seg].up + samples[next].up) * -<span class="number">0.5</span>).normalized();
-<a href=#305 id=305 data-nosnippet>305</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
-<a href=#306 id=306 data-nosnippet>306</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
-<a href=#307 id=307 data-nosnippet>307</a>            Vertex { position: c_br.to_array(), normal: bot_normal.to_array(), color: seg_color, uv: [<span class="number">0.0</span>, u0] },
-<a href=#308 id=308 data-nosnippet>308</a>            Vertex { position: c_bl.to_array(), normal: bot_normal.to_array(), color: seg_color, uv: [<span class="number">1.0</span>, u0] },
-<a href=#309 id=309 data-nosnippet>309</a>            Vertex { position: n_br.to_array(), normal: bot_normal.to_array(), color: seg_color, uv: [<span class="number">0.0</span>, u1] },
-<a href=#310 id=310 data-nosnippet>310</a>            Vertex { position: n_bl.to_array(), normal: bot_normal.to_array(), color: seg_color, uv: [<span class="number">1.0</span>, u1] },
-<a href=#311 id=311 data-nosnippet>311</a>        ]);
-<a href=#312 id=312 data-nosnippet>312</a>        indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">1</span>, base + <span class="number">2</span>, base + <span class="number">1</span>, base + <span class="number">3</span>, base + <span class="number">2</span>]);
-<a href=#313 id=313 data-nosnippet>313</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
-<a href=#314 id=314 data-nosnippet>314</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[c_br.to_array(), c_bl.to_array(), n_br.to_array(), n_bl.to_array()]);
-<a href=#315 id=315 data-nosnippet>315</a>        phys_tris.push([pb, pb + <span class="number">1</span>, pb + <span class="number">2</span>]);
-<a href=#316 id=316 data-nosnippet>316</a>        phys_tris.push([pb + <span class="number">1</span>, pb + <span class="number">3</span>, pb + <span class="number">2</span>]);
-<a href=#317 id=317 data-nosnippet>317</a>
-<a href=#318 id=318 data-nosnippet>318</a>        <span class="comment">// --- Left side face (TL, BL → NTL, NBL) ---
-<a href=#319 id=319 data-nosnippet>319</a>        </span><span class="kw">let </span>left_normal = ((samples[seg].right + samples[next].right) * -<span class="number">0.5</span>).normalized();
-<a href=#320 id=320 data-nosnippet>320</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
-<a href=#321 id=321 data-nosnippet>321</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
-<a href=#322 id=322 data-nosnippet>322</a>            Vertex { position: c_bl.to_array(), normal: left_normal.to_array(), color: seg_color, uv: [<span class="number">0.0</span>, u0] },
-<a href=#323 id=323 data-nosnippet>323</a>            Vertex { position: c_tl.to_array(), normal: left_normal.to_array(), color: seg_color, uv: [<span class="number">1.0</span>, u0] },
-<a href=#324 id=324 data-nosnippet>324</a>            Vertex { position: n_bl.to_array(), normal: left_normal.to_array(), color: seg_color, uv: [<span class="number">0.0</span>, u1] },
-<a href=#325 id=325 data-nosnippet>325</a>            Vertex { position: n_tl.to_array(), normal: left_normal.to_array(), color: seg_color, uv: [<span class="number">1.0</span>, u1] },
-<a href=#326 id=326 data-nosnippet>326</a>        ]);
-<a href=#327 id=327 data-nosnippet>327</a>        indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">1</span>, base + <span class="number">2</span>, base + <span class="number">1</span>, base + <span class="number">3</span>, base + <span class="number">2</span>]);
-<a href=#328 id=328 data-nosnippet>328</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
-<a href=#329 id=329 data-nosnippet>329</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[c_bl.to_array(), c_tl.to_array(), n_bl.to_array(), n_tl.to_array()]);
-<a href=#330 id=330 data-nosnippet>330</a>        phys_tris.push([pb, pb + <span class="number">1</span>, pb + <span class="number">2</span>]);
-<a href=#331 id=331 data-nosnippet>331</a>        phys_tris.push([pb + <span class="number">1</span>, pb + <span class="number">3</span>, pb + <span class="number">2</span>]);
-<a href=#332 id=332 data-nosnippet>332</a>
-<a href=#333 id=333 data-nosnippet>333</a>        <span class="comment">// --- Right side face (BR, TR → NBR, NTR) ---
-<a href=#334 id=334 data-nosnippet>334</a>        </span><span class="kw">let </span>right_normal = ((samples[seg].right + samples[next].right) * <span class="number">0.5</span>).normalized();
-<a href=#335 id=335 data-nosnippet>335</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
-<a href=#336 id=336 data-nosnippet>336</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
-<a href=#337 id=337 data-nosnippet>337</a>            Vertex { position: c_tr.to_array(), normal: right_normal.to_array(), color: seg_color, uv: [<span class="number">0.0</span>, u0] },
-<a href=#338 id=338 data-nosnippet>338</a>            Vertex { position: c_br.to_array(), normal: right_normal.to_array(), color: seg_color, uv: [<span class="number">1.0</span>, u0] },
-<a href=#339 id=339 data-nosnippet>339</a>            Vertex { position: n_tr.to_array(), normal: right_normal.to_array(), color: seg_color, uv: [<span class="number">0.0</span>, u1] },
-<a href=#340 id=340 data-nosnippet>340</a>            Vertex { position: n_br.to_array(), normal: right_normal.to_array(), color: seg_color, uv: [<span class="number">1.0</span>, u1] },
-<a href=#341 id=341 data-nosnippet>341</a>        ]);
-<a href=#342 id=342 data-nosnippet>342</a>        indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">1</span>, base + <span class="number">2</span>, base + <span class="number">1</span>, base + <span class="number">3</span>, base + <span class="number">2</span>]);
-<a href=#343 id=343 data-nosnippet>343</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
-<a href=#344 id=344 data-nosnippet>344</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[c_tr.to_array(), c_br.to_array(), n_tr.to_array(), n_br.to_array()]);
-<a href=#345 id=345 data-nosnippet>345</a>        phys_tris.push([pb, pb + <span class="number">1</span>, pb + <span class="number">2</span>]);
-<a href=#346 id=346 data-nosnippet>346</a>        phys_tris.push([pb + <span class="number">1</span>, pb + <span class="number">3</span>, pb + <span class="number">2</span>]);
-<a href=#347 id=347 data-nosnippet>347</a>    }
-<a href=#348 id=348 data-nosnippet>348</a>
-<a href=#349 id=349 data-nosnippet>349</a>    <span class="comment">// End caps for open splines
-<a href=#350 id=350 data-nosnippet>350</a>    </span><span class="kw">if </span>!closed &amp;&amp; n &gt;= <span class="number">2 </span>{
-<a href=#351 id=351 data-nosnippet>351</a>        <span class="comment">// Front cap (at sample 0): BL, BR, TR, TL — normal = -forward
-<a href=#352 id=352 data-nosnippet>352</a>        </span><span class="kw">let </span>cap_normal = (samples[<span class="number">0</span>].forward * -<span class="number">1.0</span>).to_array();
-<a href=#353 id=353 data-nosnippet>353</a>        <span class="kw">let </span>[c_bl, c_br, c_tr, c_tl] = corners[<span class="number">0</span>];
-<a href=#354 id=354 data-nosnippet>354</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
-<a href=#355 id=355 data-nosnippet>355</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
-<a href=#356 id=356 data-nosnippet>356</a>            Vertex { position: c_bl.to_array(), normal: cap_normal, color, uv: [<span class="number">0.0</span>, <span class="number">0.0</span>] },
-<a href=#357 id=357 data-nosnippet>357</a>            Vertex { position: c_br.to_array(), normal: cap_normal, color, uv: [<span class="number">1.0</span>, <span class="number">0.0</span>] },
-<a href=#358 id=358 data-nosnippet>358</a>            Vertex { position: c_tr.to_array(), normal: cap_normal, color, uv: [<span class="number">1.0</span>, <span class="number">1.0</span>] },
-<a href=#359 id=359 data-nosnippet>359</a>            Vertex { position: c_tl.to_array(), normal: cap_normal, color, uv: [<span class="number">0.0</span>, <span class="number">1.0</span>] },
-<a href=#360 id=360 data-nosnippet>360</a>        ]);
-<a href=#361 id=361 data-nosnippet>361</a>        <span class="comment">// Wind CCW when viewed from outside (facing -forward)
-<a href=#362 id=362 data-nosnippet>362</a>        </span>indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">2</span>, base + <span class="number">1</span>, base, base + <span class="number">3</span>, base + <span class="number">2</span>]);
-<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
-<a href=#364 id=364 data-nosnippet>364</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[c_bl.to_array(), c_br.to_array(), c_tr.to_array(), c_tl.to_array()]);
-<a href=#365 id=365 data-nosnippet>365</a>        phys_tris.push([pb, pb + <span class="number">2</span>, pb + <span class="number">1</span>]);
-<a href=#366 id=366 data-nosnippet>366</a>        phys_tris.push([pb, pb + <span class="number">3</span>, pb + <span class="number">2</span>]);
-<a href=#367 id=367 data-nosnippet>367</a>
-<a href=#368 id=368 data-nosnippet>368</a>        <span class="comment">// Back cap (at last sample): normal = +forward
-<a href=#369 id=369 data-nosnippet>369</a>        </span><span class="kw">let </span>last = n - <span class="number">1</span>;
-<a href=#370 id=370 data-nosnippet>370</a>        <span class="kw">let </span>cap_normal = samples[last].forward.to_array();
-<a href=#371 id=371 data-nosnippet>371</a>        <span class="kw">let </span>[c_bl, c_br, c_tr, c_tl] = corners[last];
-<a href=#372 id=372 data-nosnippet>372</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
-<a href=#373 id=373 data-nosnippet>373</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
-<a href=#374 id=374 data-nosnippet>374</a>            Vertex { position: c_bl.to_array(), normal: cap_normal, color, uv: [<span class="number">0.0</span>, <span class="number">0.0</span>] },
-<a href=#375 id=375 data-nosnippet>375</a>            Vertex { position: c_br.to_array(), normal: cap_normal, color, uv: [<span class="number">1.0</span>, <span class="number">0.0</span>] },
-<a href=#376 id=376 data-nosnippet>376</a>            Vertex { position: c_tr.to_array(), normal: cap_normal, color, uv: [<span class="number">1.0</span>, <span class="number">1.0</span>] },
-<a href=#377 id=377 data-nosnippet>377</a>            Vertex { position: c_tl.to_array(), normal: cap_normal, color, uv: [<span class="number">0.0</span>, <span class="number">1.0</span>] },
-<a href=#378 id=378 data-nosnippet>378</a>        ]);
-<a href=#379 id=379 data-nosnippet>379</a>        indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">1</span>, base + <span class="number">2</span>, base, base + <span class="number">2</span>, base + <span class="number">3</span>]);
-<a href=#380 id=380 data-nosnippet>380</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
-<a href=#381 id=381 data-nosnippet>381</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[c_bl.to_array(), c_br.to_array(), c_tr.to_array(), c_tl.to_array()]);
-<a href=#382 id=382 data-nosnippet>382</a>        phys_tris.push([pb, pb + <span class="number">1</span>, pb + <span class="number">2</span>]);
-<a href=#383 id=383 data-nosnippet>383</a>        phys_tris.push([pb, pb + <span class="number">2</span>, pb + <span class="number">3</span>]);
-<a href=#384 id=384 data-nosnippet>384</a>    }
-<a href=#385 id=385 data-nosnippet>385</a>
-<a href=#386 id=386 data-nosnippet>386</a>    (vertices, indices, phys_verts, phys_tris)
-<a href=#387 id=387 data-nosnippet>387</a>}
-<a href=#388 id=388 data-nosnippet>388</a>
-<a href=#389 id=389 data-nosnippet>389</a><span class="doccomment">/// Helper to set model.asset on an entity so the renderer draws it.
-<a href=#390 id=390 data-nosnippet>390</a></span><span class="kw">fn </span>set_model_asset(world: <span class="kw-2">&amp;mut </span>FlintWorld, entity_id: flint_core::EntityId, asset_name: <span class="kw-2">&amp;</span>str) {
-<a href=#391 id=391 data-nosnippet>391</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(comps) = world.get_components_mut(entity_id) {
-<a href=#392 id=392 data-nosnippet>392</a>        comps.set_field(<span class="string">"model"</span>, <span class="string">"asset"</span>, toml::Value::String(asset_name.to_string()));
-<a href=#393 id=393 data-nosnippet>393</a>    } <span class="kw">else </span>{
-<a href=#394 id=394 data-nosnippet>394</a>        <span class="kw">let </span><span class="kw-2">mut </span>model_table = toml::map::Map::new();
-<a href=#395 id=395 data-nosnippet>395</a>        model_table.insert(<span class="string">"asset"</span>.into(), toml::Value::String(asset_name.to_string()));
-<a href=#396 id=396 data-nosnippet>396</a>        <span class="kw">let _ </span>= world.set_component(entity_id, <span class="string">"model"</span>, toml::Value::Table(model_table));
-<a href=#397 id=397 data-nosnippet>397</a>    }
-<a href=#398 id=398 data-nosnippet>398</a>}
-<a href=#399 id=399 data-nosnippet>399</a>
-<a href=#400 id=400 data-nosnippet>400</a><span class="comment">// ─── Main entry point ────────────────────────────────────
-<a href=#401 id=401 data-nosnippet>401</a>
-<a href=#402 id=402 data-nosnippet>402</a></span><span class="doccomment">/// Load all spline data and generate geometry for spline_mesh entities.
-<a href=#403 id=403 data-nosnippet>403</a>///
-<a href=#404 id=404 data-nosnippet>404</a>/// Called from `PlayerApp::initialize()`. Scans the world for:
-<a href=#405 id=405 data-nosnippet>405</a>/// - Entities with a `spline` component (Pass 1: load + sample)
-<a href=#406 id=406 data-nosnippet>406</a>/// - Entities with a `spline_mesh` component (Pass 2: geometry)
-<a href=#407 id=407 data-nosnippet>407</a></span><span class="kw">pub fn </span>load_splines(
-<a href=#408 id=408 data-nosnippet>408</a>    scene_path: <span class="kw-2">&amp;</span>str,
-<a href=#409 id=409 data-nosnippet>409</a>    world: <span class="kw-2">&amp;mut </span>FlintWorld,
-<a href=#410 id=410 data-nosnippet>410</a>    renderer: <span class="kw-2">&amp;mut </span>SceneRenderer,
-<a href=#411 id=411 data-nosnippet>411</a>    <span class="kw-2">mut </span>physics: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>PhysicsSystem&gt;,
-<a href=#412 id=412 data-nosnippet>412</a>    device: <span class="kw-2">&amp;</span>wgpu::Device,
-<a href=#413 id=413 data-nosnippet>413</a>) {
-<a href=#414 id=414 data-nosnippet>414</a>    <span class="kw">let </span>scene_dir = Path::new(scene_path)
-<a href=#415 id=415 data-nosnippet>415</a>        .parent()
-<a href=#416 id=416 data-nosnippet>416</a>        .unwrap_or_else(|| Path::new(<span class="string">"."</span>));
-<a href=#417 id=417 data-nosnippet>417</a>
-<a href=#418 id=418 data-nosnippet>418</a>    <span class="comment">// ── Pass 1: Load spline data ──
-<a href=#419 id=419 data-nosnippet>419</a>
-<a href=#420 id=420 data-nosnippet>420</a>    // Collect spline entity names and their sampled data
-<a href=#421 id=421 data-nosnippet>421</a>    // (we need to collect first to avoid borrowing world during iteration)
-<a href=#422 id=422 data-nosnippet>422</a>    </span><span class="kw">struct </span>SplineInfo {
-<a href=#423 id=423 data-nosnippet>423</a>        entity_id: flint_core::EntityId,
-<a href=#424 id=424 data-nosnippet>424</a>        entity_name: String,
-<a href=#425 id=425 data-nosnippet>425</a>        samples: Vec&lt;SplineSample&gt;,
-<a href=#426 id=426 data-nosnippet>426</a>        closed: bool,
-<a href=#427 id=427 data-nosnippet>427</a>        spacing: f32,
-<a href=#428 id=428 data-nosnippet>428</a>    }
-<a href=#429 id=429 data-nosnippet>429</a>    <span class="kw">let </span><span class="kw-2">mut </span>spline_infos: Vec&lt;SplineInfo&gt; = Vec::new();
-<a href=#430 id=430 data-nosnippet>430</a>
-<a href=#431 id=431 data-nosnippet>431</a>    <span class="kw">for </span>entity <span class="kw">in </span>world.all_entities() {
-<a href=#432 id=432 data-nosnippet>432</a>        <span class="kw">let </span>spline_file = world
-<a href=#433 id=433 data-nosnippet>433</a>            .get_components(entity.id)
-<a href=#434 id=434 data-nosnippet>434</a>            .and_then(|c| c.get(<span class="string">"spline"</span>).cloned())
-<a href=#435 id=435 data-nosnippet>435</a>            .and_then(|s| s.get(<span class="string">"file"</span>).and_then(|v| v.as_str().map(String::from)));
-<a href=#436 id=436 data-nosnippet>436</a>
-<a href=#437 id=437 data-nosnippet>437</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(file_rel) = spline_file {
-<a href=#438 id=438 data-nosnippet>438</a>            <span class="comment">// Resolve path: scene dir, then parent
-<a href=#439 id=439 data-nosnippet>439</a>            </span><span class="kw">let </span>spline_path = {
-<a href=#440 id=440 data-nosnippet>440</a>                <span class="kw">let </span>p = scene_dir.join(<span class="kw-2">&amp;</span>file_rel);
-<a href=#441 id=441 data-nosnippet>441</a>                <span class="kw">if </span>p.exists() {
-<a href=#442 id=442 data-nosnippet>442</a>                    p
-<a href=#443 id=443 data-nosnippet>443</a>                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = scene_dir.parent() {
-<a href=#444 id=444 data-nosnippet>444</a>                    parent.join(<span class="kw-2">&amp;</span>file_rel)
-<a href=#445 id=445 data-nosnippet>445</a>                } <span class="kw">else </span>{
-<a href=#446 id=446 data-nosnippet>446</a>                    p
-<a href=#447 id=447 data-nosnippet>447</a>                }
-<a href=#448 id=448 data-nosnippet>448</a>            };
-<a href=#449 id=449 data-nosnippet>449</a>
-<a href=#450 id=450 data-nosnippet>450</a>            <span class="kw">match </span>parse_spline_file(<span class="kw-2">&amp;</span>spline_path) {
-<a href=#451 id=451 data-nosnippet>451</a>                <span class="prelude-val">Some</span>(def) =&gt; {
-<a href=#452 id=452 data-nosnippet>452</a>                    <span class="kw">let </span>samples = <span class="kw">if </span>def.closed {
-<a href=#453 id=453 data-nosnippet>453</a>                        spline::sample_closed_spline(<span class="kw-2">&amp;</span>def.control_points, def.spacing)
-<a href=#454 id=454 data-nosnippet>454</a>                    } <span class="kw">else </span>{
-<a href=#455 id=455 data-nosnippet>455</a>                        spline::sample_open_spline(<span class="kw-2">&amp;</span>def.control_points, def.spacing)
-<a href=#456 id=456 data-nosnippet>456</a>                    };
-<a href=#457 id=457 data-nosnippet>457</a>
-<a href=#458 id=458 data-nosnippet>458</a>                    <span class="macro">println!</span>(
-<a href=#459 id=459 data-nosnippet>459</a>                        <span class="string">"Loaded spline '{}': {} control points → {} samples ({})"</span>,
-<a href=#460 id=460 data-nosnippet>460</a>                        entity.name,
-<a href=#461 id=461 data-nosnippet>461</a>                        def.control_points.len(),
-<a href=#462 id=462 data-nosnippet>462</a>                        samples.len(),
-<a href=#463 id=463 data-nosnippet>463</a>                        <span class="kw">if </span>def.closed { <span class="string">"closed" </span>} <span class="kw">else </span>{ <span class="string">"open" </span>},
-<a href=#464 id=464 data-nosnippet>464</a>                    );
-<a href=#465 id=465 data-nosnippet>465</a>
-<a href=#466 id=466 data-nosnippet>466</a>                    spline_infos.push(SplineInfo {
-<a href=#467 id=467 data-nosnippet>467</a>                        entity_id: entity.id,
-<a href=#468 id=468 data-nosnippet>468</a>                        entity_name: entity.name.clone(),
-<a href=#469 id=469 data-nosnippet>469</a>                        samples,
-<a href=#470 id=470 data-nosnippet>470</a>                        closed: def.closed,
-<a href=#471 id=471 data-nosnippet>471</a>                        spacing: def.spacing,
-<a href=#472 id=472 data-nosnippet>472</a>                    });
-<a href=#473 id=473 data-nosnippet>473</a>                }
-<a href=#474 id=474 data-nosnippet>474</a>                <span class="prelude-val">None </span>=&gt; {
-<a href=#475 id=475 data-nosnippet>475</a>                    <span class="macro">eprintln!</span>(<span class="string">"Failed to parse spline file: {}"</span>, spline_path.display());
-<a href=#476 id=476 data-nosnippet>476</a>                }
-<a href=#477 id=477 data-nosnippet>477</a>            }
-<a href=#478 id=478 data-nosnippet>478</a>        }
-<a href=#479 id=479 data-nosnippet>479</a>    }
-<a href=#480 id=480 data-nosnippet>480</a>
-<a href=#481 id=481 data-nosnippet>481</a>    <span class="comment">// Store spline data on entities
-<a href=#482 id=482 data-nosnippet>482</a>    </span><span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;</span>spline_infos {
-<a href=#483 id=483 data-nosnippet>483</a>        store_spline_data(world, info.entity_id, <span class="kw-2">&amp;</span>info.samples, info.closed);
-<a href=#484 id=484 data-nosnippet>484</a>    }
-<a href=#485 id=485 data-nosnippet>485</a>
-<a href=#486 id=486 data-nosnippet>486</a>    <span class="comment">// Build lookup: entity name → index into spline_infos
-<a href=#487 id=487 data-nosnippet>487</a>    </span><span class="kw">let </span>spline_lookup: HashMap&lt;<span class="kw-2">&amp;</span>str, usize&gt; = spline_infos
-<a href=#488 id=488 data-nosnippet>488</a>        .iter()
-<a href=#489 id=489 data-nosnippet>489</a>        .enumerate()
-<a href=#490 id=490 data-nosnippet>490</a>        .map(|(i, info)| (info.entity_name.as_str(), i))
-<a href=#491 id=491 data-nosnippet>491</a>        .collect();
-<a href=#492 id=492 data-nosnippet>492</a>
-<a href=#493 id=493 data-nosnippet>493</a>    <span class="comment">// ── Pass 2: Generate spline_mesh geometry ──
-<a href=#494 id=494 data-nosnippet>494</a>
-<a href=#495 id=495 data-nosnippet>495</a>    // Collect mesh entities first
-<a href=#496 id=496 data-nosnippet>496</a>    </span><span class="kw">struct </span>MeshJob {
-<a href=#497 id=497 data-nosnippet>497</a>        entity_id: flint_core::EntityId,
-<a href=#498 id=498 data-nosnippet>498</a>        entity_name: String,
-<a href=#499 id=499 data-nosnippet>499</a>        def: SplineMeshDef,
-<a href=#500 id=500 data-nosnippet>500</a>    }
-<a href=#501 id=501 data-nosnippet>501</a>    <span class="kw">let </span><span class="kw-2">mut </span>mesh_jobs: Vec&lt;MeshJob&gt; = Vec::new();
-<a href=#502 id=502 data-nosnippet>502</a>
-<a href=#503 id=503 data-nosnippet>503</a>    <span class="kw">for </span>entity <span class="kw">in </span>world.all_entities() {
-<a href=#504 id=504 data-nosnippet>504</a>        <span class="kw">let </span>mesh_comp = world
-<a href=#505 id=505 data-nosnippet>505</a>            .get_components(entity.id)
-<a href=#506 id=506 data-nosnippet>506</a>            .and_then(|c| c.get(<span class="string">"spline_mesh"</span>).cloned());
-<a href=#507 id=507 data-nosnippet>507</a>
-<a href=#508 id=508 data-nosnippet>508</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(comp) = mesh_comp {
-<a href=#509 id=509 data-nosnippet>509</a>            <span class="kw">match </span>parse_spline_mesh_component(<span class="kw-2">&amp;</span>comp) {
-<a href=#510 id=510 data-nosnippet>510</a>                <span class="prelude-val">Some</span>(def) =&gt; {
-<a href=#511 id=511 data-nosnippet>511</a>                    mesh_jobs.push(MeshJob {
-<a href=#512 id=512 data-nosnippet>512</a>                        entity_id: entity.id,
-<a href=#513 id=513 data-nosnippet>513</a>                        entity_name: entity.name.clone(),
-<a href=#514 id=514 data-nosnippet>514</a>                        def,
-<a href=#515 id=515 data-nosnippet>515</a>                    });
-<a href=#516 id=516 data-nosnippet>516</a>                }
-<a href=#517 id=517 data-nosnippet>517</a>                <span class="prelude-val">None </span>=&gt; {
-<a href=#518 id=518 data-nosnippet>518</a>                    <span class="macro">eprintln!</span>(
-<a href=#519 id=519 data-nosnippet>519</a>                        <span class="string">"Failed to parse spline_mesh on entity '{}'"</span>,
-<a href=#520 id=520 data-nosnippet>520</a>                        entity.name
-<a href=#521 id=521 data-nosnippet>521</a>                    );
-<a href=#522 id=522 data-nosnippet>522</a>                }
-<a href=#523 id=523 data-nosnippet>523</a>            }
-<a href=#524 id=524 data-nosnippet>524</a>        }
-<a href=#525 id=525 data-nosnippet>525</a>    }
-<a href=#526 id=526 data-nosnippet>526</a>
-<a href=#527 id=527 data-nosnippet>527</a>    <span class="kw">for </span>job <span class="kw">in </span><span class="kw-2">&amp;</span>mesh_jobs {
-<a href=#528 id=528 data-nosnippet>528</a>        <span class="kw">let </span>spline_idx = <span class="kw">match </span>spline_lookup.get(job.def.spline_entity.as_str()) {
-<a href=#529 id=529 data-nosnippet>529</a>            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>idx) =&gt; idx,
-<a href=#530 id=530 data-nosnippet>530</a>            <span class="prelude-val">None </span>=&gt; {
-<a href=#531 id=531 data-nosnippet>531</a>                <span class="macro">eprintln!</span>(
-<a href=#532 id=532 data-nosnippet>532</a>                    <span class="string">"spline_mesh '{}' references unknown spline entity '{}'"</span>,
-<a href=#533 id=533 data-nosnippet>533</a>                    job.entity_name, job.def.spline_entity
-<a href=#534 id=534 data-nosnippet>534</a>                );
-<a href=#535 id=535 data-nosnippet>535</a>                <span class="kw">continue</span>;
-<a href=#536 id=536 data-nosnippet>536</a>            }
-<a href=#537 id=537 data-nosnippet>537</a>        };
-<a href=#538 id=538 data-nosnippet>538</a>        <span class="kw">let </span>info = <span class="kw-2">&amp;</span>spline_infos[spline_idx];
+<a href=#278 id=278 data-nosnippet>278</a>    <span class="comment">// Each longitudinal segment contributes 4 quads (8 triangles, 8 vertices unique per face)
+<a href=#279 id=279 data-nosnippet>279</a>    // We use per-face vertices for correct normals.
+<a href=#280 id=280 data-nosnippet>280</a>    </span><span class="kw">let </span>num_segs = <span class="kw">if </span>closed { n } <span class="kw">else </span>{ n - <span class="number">1 </span>};
+<a href=#281 id=281 data-nosnippet>281</a>    <span class="comment">// 4 faces * 4 verts each = 16 verts per segment
+<a href=#282 id=282 data-nosnippet>282</a>    </span><span class="kw">let </span>vert_cap = num_segs * <span class="number">16 </span>+ <span class="kw">if </span>!closed { <span class="number">8 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+<a href=#283 id=283 data-nosnippet>283</a>    <span class="kw">let </span>tri_cap = num_segs * <span class="number">8 </span>+ <span class="kw">if </span>!closed { <span class="number">4 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+<a href=#284 id=284 data-nosnippet>284</a>
+<a href=#285 id=285 data-nosnippet>285</a>    <span class="kw">let </span><span class="kw-2">mut </span>vertices = Vec::with_capacity(vert_cap);
+<a href=#286 id=286 data-nosnippet>286</a>    <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::with_capacity(tri_cap * <span class="number">3</span>);
+<a href=#287 id=287 data-nosnippet>287</a>    <span class="kw">let </span><span class="kw-2">mut </span>phys_verts = Vec::with_capacity(vert_cap);
+<a href=#288 id=288 data-nosnippet>288</a>    <span class="kw">let </span><span class="kw-2">mut </span>phys_tris = Vec::with_capacity(tri_cap);
+<a href=#289 id=289 data-nosnippet>289</a>
+<a href=#290 id=290 data-nosnippet>290</a>    <span class="comment">// Helper closure to generate an end cap at a given sample index.
+<a href=#291 id=291 data-nosnippet>291</a>    // `facing_forward = true` → cap faces +forward (back cap / departure cap)
+<a href=#292 id=292 data-nosnippet>292</a>    // `facing_forward = false` → cap faces -forward (front cap / arrival cap)
+<a href=#293 id=293 data-nosnippet>293</a>    </span><span class="kw">let </span>generate_end_cap = |idx: usize,
+<a href=#294 id=294 data-nosnippet>294</a>                                 facing_forward: bool,
+<a href=#295 id=295 data-nosnippet>295</a>                                 vertices: <span class="kw-2">&amp;mut </span>Vec&lt;Vertex&gt;,
+<a href=#296 id=296 data-nosnippet>296</a>                                 indices: <span class="kw-2">&amp;mut </span>Vec&lt;u32&gt;,
+<a href=#297 id=297 data-nosnippet>297</a>                                 phys_verts: <span class="kw-2">&amp;mut </span>Vec&lt;[f32; <span class="number">3</span>]&gt;,
+<a href=#298 id=298 data-nosnippet>298</a>                                 phys_tris: <span class="kw-2">&amp;mut </span>Vec&lt;[u32; <span class="number">3</span>]&gt;| {
+<a href=#299 id=299 data-nosnippet>299</a>        <span class="kw">let </span>cap_fwd = <span class="kw">if </span>facing_forward {
+<a href=#300 id=300 data-nosnippet>300</a>            samples[idx].forward
+<a href=#301 id=301 data-nosnippet>301</a>        } <span class="kw">else </span>{
+<a href=#302 id=302 data-nosnippet>302</a>            samples[idx].forward * -<span class="number">1.0
+<a href=#303 id=303 data-nosnippet>303</a>        </span>};
+<a href=#304 id=304 data-nosnippet>304</a>        <span class="kw">let </span>cap_normal = cap_fwd.to_array();
+<a href=#305 id=305 data-nosnippet>305</a>        <span class="kw">let </span>[c_bl, c_br, c_tr, c_tl] = corners[idx];
+<a href=#306 id=306 data-nosnippet>306</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
+<a href=#307 id=307 data-nosnippet>307</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
+<a href=#308 id=308 data-nosnippet>308</a>            Vertex { position: c_bl.to_array(), normal: cap_normal, color, uv: [<span class="number">0.0</span>, <span class="number">0.0</span>] },
+<a href=#309 id=309 data-nosnippet>309</a>            Vertex { position: c_br.to_array(), normal: cap_normal, color, uv: [<span class="number">1.0</span>, <span class="number">0.0</span>] },
+<a href=#310 id=310 data-nosnippet>310</a>            Vertex { position: c_tr.to_array(), normal: cap_normal, color, uv: [<span class="number">1.0</span>, <span class="number">1.0</span>] },
+<a href=#311 id=311 data-nosnippet>311</a>            Vertex { position: c_tl.to_array(), normal: cap_normal, color, uv: [<span class="number">0.0</span>, <span class="number">1.0</span>] },
+<a href=#312 id=312 data-nosnippet>312</a>        ]);
+<a href=#313 id=313 data-nosnippet>313</a>        <span class="kw">if </span>facing_forward {
+<a href=#314 id=314 data-nosnippet>314</a>            <span class="comment">// Back cap winding
+<a href=#315 id=315 data-nosnippet>315</a>            </span>indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">1</span>, base + <span class="number">2</span>, base, base + <span class="number">2</span>, base + <span class="number">3</span>]);
+<a href=#316 id=316 data-nosnippet>316</a>        } <span class="kw">else </span>{
+<a href=#317 id=317 data-nosnippet>317</a>            <span class="comment">// Front cap winding (CCW viewed from outside)
+<a href=#318 id=318 data-nosnippet>318</a>            </span>indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">2</span>, base + <span class="number">1</span>, base, base + <span class="number">3</span>, base + <span class="number">2</span>]);
+<a href=#319 id=319 data-nosnippet>319</a>        }
+<a href=#320 id=320 data-nosnippet>320</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
+<a href=#321 id=321 data-nosnippet>321</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[c_bl.to_array(), c_br.to_array(), c_tr.to_array(), c_tl.to_array()]);
+<a href=#322 id=322 data-nosnippet>322</a>        <span class="kw">if </span>facing_forward {
+<a href=#323 id=323 data-nosnippet>323</a>            phys_tris.push([pb, pb + <span class="number">1</span>, pb + <span class="number">2</span>]);
+<a href=#324 id=324 data-nosnippet>324</a>            phys_tris.push([pb, pb + <span class="number">2</span>, pb + <span class="number">3</span>]);
+<a href=#325 id=325 data-nosnippet>325</a>        } <span class="kw">else </span>{
+<a href=#326 id=326 data-nosnippet>326</a>            phys_tris.push([pb, pb + <span class="number">2</span>, pb + <span class="number">1</span>]);
+<a href=#327 id=327 data-nosnippet>327</a>            phys_tris.push([pb, pb + <span class="number">3</span>, pb + <span class="number">2</span>]);
+<a href=#328 id=328 data-nosnippet>328</a>        }
+<a href=#329 id=329 data-nosnippet>329</a>    };
+<a href=#330 id=330 data-nosnippet>330</a>
+<a href=#331 id=331 data-nosnippet>331</a>    <span class="kw">for </span>seg <span class="kw">in </span><span class="number">0</span>..num_segs {
+<a href=#332 id=332 data-nosnippet>332</a>        <span class="kw">let </span>next = <span class="kw">if </span>closed { (seg + <span class="number">1</span>) % n } <span class="kw">else </span>{ seg + <span class="number">1 </span>};
+<a href=#333 id=333 data-nosnippet>333</a>
+<a href=#334 id=334 data-nosnippet>334</a>        <span class="kw">let </span>seg_in_gap = spline::is_in_gap(samples[seg].t, gap_ranges);
+<a href=#335 id=335 data-nosnippet>335</a>        <span class="kw">let </span>next_in_gap = spline::is_in_gap(samples[next].t, gap_ranges);
+<a href=#336 id=336 data-nosnippet>336</a>
+<a href=#337 id=337 data-nosnippet>337</a>        <span class="comment">// Generate departure cap when entering a gap
+<a href=#338 id=338 data-nosnippet>338</a>        </span><span class="kw">if </span>!seg_in_gap &amp;&amp; next_in_gap {
+<a href=#339 id=339 data-nosnippet>339</a>            generate_end_cap(seg, <span class="bool-val">true</span>, <span class="kw-2">&amp;mut </span>vertices, <span class="kw-2">&amp;mut </span>indices, <span class="kw-2">&amp;mut </span>phys_verts, <span class="kw-2">&amp;mut </span>phys_tris);
+<a href=#340 id=340 data-nosnippet>340</a>        }
+<a href=#341 id=341 data-nosnippet>341</a>
+<a href=#342 id=342 data-nosnippet>342</a>        <span class="comment">// Generate arrival cap when exiting a gap
+<a href=#343 id=343 data-nosnippet>343</a>        </span><span class="kw">if </span>seg_in_gap &amp;&amp; !next_in_gap {
+<a href=#344 id=344 data-nosnippet>344</a>            generate_end_cap(next, <span class="bool-val">false</span>, <span class="kw-2">&amp;mut </span>vertices, <span class="kw-2">&amp;mut </span>indices, <span class="kw-2">&amp;mut </span>phys_verts, <span class="kw-2">&amp;mut </span>phys_tris);
+<a href=#345 id=345 data-nosnippet>345</a>        }
+<a href=#346 id=346 data-nosnippet>346</a>
+<a href=#347 id=347 data-nosnippet>347</a>        <span class="comment">// Skip geometry for segments inside gaps
+<a href=#348 id=348 data-nosnippet>348</a>        </span><span class="kw">if </span>seg_in_gap {
+<a href=#349 id=349 data-nosnippet>349</a>            <span class="kw">continue</span>;
+<a href=#350 id=350 data-nosnippet>350</a>        }
+<a href=#351 id=351 data-nosnippet>351</a>
+<a href=#352 id=352 data-nosnippet>352</a>        <span class="kw">let </span>[c_bl, c_br, c_tr, c_tl] = corners[seg];
+<a href=#353 id=353 data-nosnippet>353</a>        <span class="kw">let </span>[n_bl, n_br, n_tr, n_tl] = corners[next];
+<a href=#354 id=354 data-nosnippet>354</a>
+<a href=#355 id=355 data-nosnippet>355</a>        <span class="kw">let </span>u0 = seg <span class="kw">as </span>f32 / num_segs <span class="kw">as </span>f32;
+<a href=#356 id=356 data-nosnippet>356</a>        <span class="kw">let </span>u1 = (seg + <span class="number">1</span>) <span class="kw">as </span>f32 / num_segs <span class="kw">as </span>f32;
+<a href=#357 id=357 data-nosnippet>357</a>
+<a href=#358 id=358 data-nosnippet>358</a>        <span class="comment">// Per-segment color: alternate between primary and stripe color
+<a href=#359 id=359 data-nosnippet>359</a>        </span><span class="kw">let </span>seg_color = <span class="kw">if let </span><span class="prelude-val">Some</span>(sc) = stripe_color {
+<a href=#360 id=360 data-nosnippet>360</a>            <span class="kw">let </span>dist = seg <span class="kw">as </span>f32 * spacing;
+<a href=#361 id=361 data-nosnippet>361</a>            <span class="kw">let </span>stripe_index = (dist / stripe_width).floor() <span class="kw">as </span>i32;
+<a href=#362 id=362 data-nosnippet>362</a>            <span class="kw">if </span>stripe_index % <span class="number">2 </span>== <span class="number">0 </span>{
+<a href=#363 id=363 data-nosnippet>363</a>                color
+<a href=#364 id=364 data-nosnippet>364</a>            } <span class="kw">else </span>{
+<a href=#365 id=365 data-nosnippet>365</a>                sc
+<a href=#366 id=366 data-nosnippet>366</a>            }
+<a href=#367 id=367 data-nosnippet>367</a>        } <span class="kw">else </span>{
+<a href=#368 id=368 data-nosnippet>368</a>            color
+<a href=#369 id=369 data-nosnippet>369</a>        };
+<a href=#370 id=370 data-nosnippet>370</a>
+<a href=#371 id=371 data-nosnippet>371</a>        <span class="comment">// --- Top face (TL, TR → NTL, NTR) ---
+<a href=#372 id=372 data-nosnippet>372</a>        // Normal: average of up vectors
+<a href=#373 id=373 data-nosnippet>373</a>        </span><span class="kw">let </span>top_normal = ((samples[seg].up + samples[next].up) * <span class="number">0.5</span>).normalized();
+<a href=#374 id=374 data-nosnippet>374</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
+<a href=#375 id=375 data-nosnippet>375</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
+<a href=#376 id=376 data-nosnippet>376</a>            Vertex {
+<a href=#377 id=377 data-nosnippet>377</a>                position: c_tl.to_array(),
+<a href=#378 id=378 data-nosnippet>378</a>                normal: top_normal.to_array(),
+<a href=#379 id=379 data-nosnippet>379</a>                color: seg_color,
+<a href=#380 id=380 data-nosnippet>380</a>                uv: [<span class="number">0.0</span>, u0],
+<a href=#381 id=381 data-nosnippet>381</a>            },
+<a href=#382 id=382 data-nosnippet>382</a>            Vertex {
+<a href=#383 id=383 data-nosnippet>383</a>                position: c_tr.to_array(),
+<a href=#384 id=384 data-nosnippet>384</a>                normal: top_normal.to_array(),
+<a href=#385 id=385 data-nosnippet>385</a>                color: seg_color,
+<a href=#386 id=386 data-nosnippet>386</a>                uv: [<span class="number">1.0</span>, u0],
+<a href=#387 id=387 data-nosnippet>387</a>            },
+<a href=#388 id=388 data-nosnippet>388</a>            Vertex {
+<a href=#389 id=389 data-nosnippet>389</a>                position: n_tl.to_array(),
+<a href=#390 id=390 data-nosnippet>390</a>                normal: top_normal.to_array(),
+<a href=#391 id=391 data-nosnippet>391</a>                color: seg_color,
+<a href=#392 id=392 data-nosnippet>392</a>                uv: [<span class="number">0.0</span>, u1],
+<a href=#393 id=393 data-nosnippet>393</a>            },
+<a href=#394 id=394 data-nosnippet>394</a>            Vertex {
+<a href=#395 id=395 data-nosnippet>395</a>                position: n_tr.to_array(),
+<a href=#396 id=396 data-nosnippet>396</a>                normal: top_normal.to_array(),
+<a href=#397 id=397 data-nosnippet>397</a>                color: seg_color,
+<a href=#398 id=398 data-nosnippet>398</a>                uv: [<span class="number">1.0</span>, u1],
+<a href=#399 id=399 data-nosnippet>399</a>            },
+<a href=#400 id=400 data-nosnippet>400</a>        ]);
+<a href=#401 id=401 data-nosnippet>401</a>        indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">1</span>, base + <span class="number">2</span>, base + <span class="number">1</span>, base + <span class="number">3</span>, base + <span class="number">2</span>]);
+<a href=#402 id=402 data-nosnippet>402</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
+<a href=#403 id=403 data-nosnippet>403</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[
+<a href=#404 id=404 data-nosnippet>404</a>            c_tl.to_array(),
+<a href=#405 id=405 data-nosnippet>405</a>            c_tr.to_array(),
+<a href=#406 id=406 data-nosnippet>406</a>            n_tl.to_array(),
+<a href=#407 id=407 data-nosnippet>407</a>            n_tr.to_array(),
+<a href=#408 id=408 data-nosnippet>408</a>        ]);
+<a href=#409 id=409 data-nosnippet>409</a>        phys_tris.push([pb, pb + <span class="number">1</span>, pb + <span class="number">2</span>]);
+<a href=#410 id=410 data-nosnippet>410</a>        phys_tris.push([pb + <span class="number">1</span>, pb + <span class="number">3</span>, pb + <span class="number">2</span>]);
+<a href=#411 id=411 data-nosnippet>411</a>
+<a href=#412 id=412 data-nosnippet>412</a>        <span class="comment">// --- Bottom face (BL, BR → NBL, NBR) ---
+<a href=#413 id=413 data-nosnippet>413</a>        </span><span class="kw">let </span>bot_normal = ((samples[seg].up + samples[next].up) * -<span class="number">0.5</span>).normalized();
+<a href=#414 id=414 data-nosnippet>414</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
+<a href=#415 id=415 data-nosnippet>415</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
+<a href=#416 id=416 data-nosnippet>416</a>            Vertex {
+<a href=#417 id=417 data-nosnippet>417</a>                position: c_br.to_array(),
+<a href=#418 id=418 data-nosnippet>418</a>                normal: bot_normal.to_array(),
+<a href=#419 id=419 data-nosnippet>419</a>                color: seg_color,
+<a href=#420 id=420 data-nosnippet>420</a>                uv: [<span class="number">0.0</span>, u0],
+<a href=#421 id=421 data-nosnippet>421</a>            },
+<a href=#422 id=422 data-nosnippet>422</a>            Vertex {
+<a href=#423 id=423 data-nosnippet>423</a>                position: c_bl.to_array(),
+<a href=#424 id=424 data-nosnippet>424</a>                normal: bot_normal.to_array(),
+<a href=#425 id=425 data-nosnippet>425</a>                color: seg_color,
+<a href=#426 id=426 data-nosnippet>426</a>                uv: [<span class="number">1.0</span>, u0],
+<a href=#427 id=427 data-nosnippet>427</a>            },
+<a href=#428 id=428 data-nosnippet>428</a>            Vertex {
+<a href=#429 id=429 data-nosnippet>429</a>                position: n_br.to_array(),
+<a href=#430 id=430 data-nosnippet>430</a>                normal: bot_normal.to_array(),
+<a href=#431 id=431 data-nosnippet>431</a>                color: seg_color,
+<a href=#432 id=432 data-nosnippet>432</a>                uv: [<span class="number">0.0</span>, u1],
+<a href=#433 id=433 data-nosnippet>433</a>            },
+<a href=#434 id=434 data-nosnippet>434</a>            Vertex {
+<a href=#435 id=435 data-nosnippet>435</a>                position: n_bl.to_array(),
+<a href=#436 id=436 data-nosnippet>436</a>                normal: bot_normal.to_array(),
+<a href=#437 id=437 data-nosnippet>437</a>                color: seg_color,
+<a href=#438 id=438 data-nosnippet>438</a>                uv: [<span class="number">1.0</span>, u1],
+<a href=#439 id=439 data-nosnippet>439</a>            },
+<a href=#440 id=440 data-nosnippet>440</a>        ]);
+<a href=#441 id=441 data-nosnippet>441</a>        indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">1</span>, base + <span class="number">2</span>, base + <span class="number">1</span>, base + <span class="number">3</span>, base + <span class="number">2</span>]);
+<a href=#442 id=442 data-nosnippet>442</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
+<a href=#443 id=443 data-nosnippet>443</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[
+<a href=#444 id=444 data-nosnippet>444</a>            c_br.to_array(),
+<a href=#445 id=445 data-nosnippet>445</a>            c_bl.to_array(),
+<a href=#446 id=446 data-nosnippet>446</a>            n_br.to_array(),
+<a href=#447 id=447 data-nosnippet>447</a>            n_bl.to_array(),
+<a href=#448 id=448 data-nosnippet>448</a>        ]);
+<a href=#449 id=449 data-nosnippet>449</a>        phys_tris.push([pb, pb + <span class="number">1</span>, pb + <span class="number">2</span>]);
+<a href=#450 id=450 data-nosnippet>450</a>        phys_tris.push([pb + <span class="number">1</span>, pb + <span class="number">3</span>, pb + <span class="number">2</span>]);
+<a href=#451 id=451 data-nosnippet>451</a>
+<a href=#452 id=452 data-nosnippet>452</a>        <span class="comment">// --- Left side face (TL, BL → NTL, NBL) ---
+<a href=#453 id=453 data-nosnippet>453</a>        </span><span class="kw">let </span>left_normal = ((samples[seg].right + samples[next].right) * -<span class="number">0.5</span>).normalized();
+<a href=#454 id=454 data-nosnippet>454</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
+<a href=#455 id=455 data-nosnippet>455</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
+<a href=#456 id=456 data-nosnippet>456</a>            Vertex {
+<a href=#457 id=457 data-nosnippet>457</a>                position: c_bl.to_array(),
+<a href=#458 id=458 data-nosnippet>458</a>                normal: left_normal.to_array(),
+<a href=#459 id=459 data-nosnippet>459</a>                color: seg_color,
+<a href=#460 id=460 data-nosnippet>460</a>                uv: [<span class="number">0.0</span>, u0],
+<a href=#461 id=461 data-nosnippet>461</a>            },
+<a href=#462 id=462 data-nosnippet>462</a>            Vertex {
+<a href=#463 id=463 data-nosnippet>463</a>                position: c_tl.to_array(),
+<a href=#464 id=464 data-nosnippet>464</a>                normal: left_normal.to_array(),
+<a href=#465 id=465 data-nosnippet>465</a>                color: seg_color,
+<a href=#466 id=466 data-nosnippet>466</a>                uv: [<span class="number">1.0</span>, u0],
+<a href=#467 id=467 data-nosnippet>467</a>            },
+<a href=#468 id=468 data-nosnippet>468</a>            Vertex {
+<a href=#469 id=469 data-nosnippet>469</a>                position: n_bl.to_array(),
+<a href=#470 id=470 data-nosnippet>470</a>                normal: left_normal.to_array(),
+<a href=#471 id=471 data-nosnippet>471</a>                color: seg_color,
+<a href=#472 id=472 data-nosnippet>472</a>                uv: [<span class="number">0.0</span>, u1],
+<a href=#473 id=473 data-nosnippet>473</a>            },
+<a href=#474 id=474 data-nosnippet>474</a>            Vertex {
+<a href=#475 id=475 data-nosnippet>475</a>                position: n_tl.to_array(),
+<a href=#476 id=476 data-nosnippet>476</a>                normal: left_normal.to_array(),
+<a href=#477 id=477 data-nosnippet>477</a>                color: seg_color,
+<a href=#478 id=478 data-nosnippet>478</a>                uv: [<span class="number">1.0</span>, u1],
+<a href=#479 id=479 data-nosnippet>479</a>            },
+<a href=#480 id=480 data-nosnippet>480</a>        ]);
+<a href=#481 id=481 data-nosnippet>481</a>        indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">1</span>, base + <span class="number">2</span>, base + <span class="number">1</span>, base + <span class="number">3</span>, base + <span class="number">2</span>]);
+<a href=#482 id=482 data-nosnippet>482</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
+<a href=#483 id=483 data-nosnippet>483</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[
+<a href=#484 id=484 data-nosnippet>484</a>            c_bl.to_array(),
+<a href=#485 id=485 data-nosnippet>485</a>            c_tl.to_array(),
+<a href=#486 id=486 data-nosnippet>486</a>            n_bl.to_array(),
+<a href=#487 id=487 data-nosnippet>487</a>            n_tl.to_array(),
+<a href=#488 id=488 data-nosnippet>488</a>        ]);
+<a href=#489 id=489 data-nosnippet>489</a>        phys_tris.push([pb, pb + <span class="number">1</span>, pb + <span class="number">2</span>]);
+<a href=#490 id=490 data-nosnippet>490</a>        phys_tris.push([pb + <span class="number">1</span>, pb + <span class="number">3</span>, pb + <span class="number">2</span>]);
+<a href=#491 id=491 data-nosnippet>491</a>
+<a href=#492 id=492 data-nosnippet>492</a>        <span class="comment">// --- Right side face (BR, TR → NBR, NTR) ---
+<a href=#493 id=493 data-nosnippet>493</a>        </span><span class="kw">let </span>right_normal = ((samples[seg].right + samples[next].right) * <span class="number">0.5</span>).normalized();
+<a href=#494 id=494 data-nosnippet>494</a>        <span class="kw">let </span>base = vertices.len() <span class="kw">as </span>u32;
+<a href=#495 id=495 data-nosnippet>495</a>        vertices.extend_from_slice(<span class="kw-2">&amp;</span>[
+<a href=#496 id=496 data-nosnippet>496</a>            Vertex {
+<a href=#497 id=497 data-nosnippet>497</a>                position: c_tr.to_array(),
+<a href=#498 id=498 data-nosnippet>498</a>                normal: right_normal.to_array(),
+<a href=#499 id=499 data-nosnippet>499</a>                color: seg_color,
+<a href=#500 id=500 data-nosnippet>500</a>                uv: [<span class="number">0.0</span>, u0],
+<a href=#501 id=501 data-nosnippet>501</a>            },
+<a href=#502 id=502 data-nosnippet>502</a>            Vertex {
+<a href=#503 id=503 data-nosnippet>503</a>                position: c_br.to_array(),
+<a href=#504 id=504 data-nosnippet>504</a>                normal: right_normal.to_array(),
+<a href=#505 id=505 data-nosnippet>505</a>                color: seg_color,
+<a href=#506 id=506 data-nosnippet>506</a>                uv: [<span class="number">1.0</span>, u0],
+<a href=#507 id=507 data-nosnippet>507</a>            },
+<a href=#508 id=508 data-nosnippet>508</a>            Vertex {
+<a href=#509 id=509 data-nosnippet>509</a>                position: n_tr.to_array(),
+<a href=#510 id=510 data-nosnippet>510</a>                normal: right_normal.to_array(),
+<a href=#511 id=511 data-nosnippet>511</a>                color: seg_color,
+<a href=#512 id=512 data-nosnippet>512</a>                uv: [<span class="number">0.0</span>, u1],
+<a href=#513 id=513 data-nosnippet>513</a>            },
+<a href=#514 id=514 data-nosnippet>514</a>            Vertex {
+<a href=#515 id=515 data-nosnippet>515</a>                position: n_br.to_array(),
+<a href=#516 id=516 data-nosnippet>516</a>                normal: right_normal.to_array(),
+<a href=#517 id=517 data-nosnippet>517</a>                color: seg_color,
+<a href=#518 id=518 data-nosnippet>518</a>                uv: [<span class="number">1.0</span>, u1],
+<a href=#519 id=519 data-nosnippet>519</a>            },
+<a href=#520 id=520 data-nosnippet>520</a>        ]);
+<a href=#521 id=521 data-nosnippet>521</a>        indices.extend_from_slice(<span class="kw-2">&amp;</span>[base, base + <span class="number">1</span>, base + <span class="number">2</span>, base + <span class="number">1</span>, base + <span class="number">3</span>, base + <span class="number">2</span>]);
+<a href=#522 id=522 data-nosnippet>522</a>        <span class="kw">let </span>pb = phys_verts.len() <span class="kw">as </span>u32;
+<a href=#523 id=523 data-nosnippet>523</a>        phys_verts.extend_from_slice(<span class="kw-2">&amp;</span>[
+<a href=#524 id=524 data-nosnippet>524</a>            c_tr.to_array(),
+<a href=#525 id=525 data-nosnippet>525</a>            c_br.to_array(),
+<a href=#526 id=526 data-nosnippet>526</a>            n_tr.to_array(),
+<a href=#527 id=527 data-nosnippet>527</a>            n_br.to_array(),
+<a href=#528 id=528 data-nosnippet>528</a>        ]);
+<a href=#529 id=529 data-nosnippet>529</a>        phys_tris.push([pb, pb + <span class="number">1</span>, pb + <span class="number">2</span>]);
+<a href=#530 id=530 data-nosnippet>530</a>        phys_tris.push([pb + <span class="number">1</span>, pb + <span class="number">3</span>, pb + <span class="number">2</span>]);
+<a href=#531 id=531 data-nosnippet>531</a>    }
+<a href=#532 id=532 data-nosnippet>532</a>
+<a href=#533 id=533 data-nosnippet>533</a>    <span class="comment">// End caps for open splines (only at actual spline endpoints, not gap edges)
+<a href=#534 id=534 data-nosnippet>534</a>    </span><span class="kw">if </span>!closed &amp;&amp; n &gt;= <span class="number">2 </span>{
+<a href=#535 id=535 data-nosnippet>535</a>        <span class="comment">// Front cap at sample 0 (if not in a gap)
+<a href=#536 id=536 data-nosnippet>536</a>        </span><span class="kw">if </span>!spline::is_in_gap(samples[<span class="number">0</span>].t, gap_ranges) {
+<a href=#537 id=537 data-nosnippet>537</a>            generate_end_cap(<span class="number">0</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;mut </span>vertices, <span class="kw-2">&amp;mut </span>indices, <span class="kw-2">&amp;mut </span>phys_verts, <span class="kw-2">&amp;mut </span>phys_tris);
+<a href=#538 id=538 data-nosnippet>538</a>        }
 <a href=#539 id=539 data-nosnippet>539</a>
-<a href=#540 id=540 data-nosnippet>540</a>        <span class="kw">let </span>(verts, indices, phys_verts, phys_tris) = generate_cross_section_mesh(
-<a href=#541 id=541 data-nosnippet>541</a>            <span class="kw-2">&amp;</span>info.samples,
-<a href=#542 id=542 data-nosnippet>542</a>            info.closed,
-<a href=#543 id=543 data-nosnippet>543</a>            job.def.width,
-<a href=#544 id=544 data-nosnippet>544</a>            job.def.height,
-<a href=#545 id=545 data-nosnippet>545</a>            job.def.offset,
-<a href=#546 id=546 data-nosnippet>546</a>            job.def.color,
-<a href=#547 id=547 data-nosnippet>547</a>            job.def.stripe_color,
-<a href=#548 id=548 data-nosnippet>548</a>            job.def.stripe_width,
-<a href=#549 id=549 data-nosnippet>549</a>            info.spacing,
-<a href=#550 id=550 data-nosnippet>550</a>        );
-<a href=#551 id=551 data-nosnippet>551</a>
-<a href=#552 id=552 data-nosnippet>552</a>        <span class="kw">if </span>verts.is_empty() {
-<a href=#553 id=553 data-nosnippet>553</a>            <span class="kw">continue</span>;
-<a href=#554 id=554 data-nosnippet>554</a>        }
-<a href=#555 id=555 data-nosnippet>555</a>
-<a href=#556 id=556 data-nosnippet>556</a>        <span class="macro">println!</span>(
-<a href=#557 id=557 data-nosnippet>557</a>            <span class="string">"  Mesh '{}': {}x{} @ offset [{:.1}, {:.1}] → {} verts, {} tris"</span>,
-<a href=#558 id=558 data-nosnippet>558</a>            job.entity_name,
-<a href=#559 id=559 data-nosnippet>559</a>            job.def.width,
-<a href=#560 id=560 data-nosnippet>560</a>            job.def.height,
-<a href=#561 id=561 data-nosnippet>561</a>            job.def.offset[<span class="number">0</span>],
-<a href=#562 id=562 data-nosnippet>562</a>            job.def.offset[<span class="number">1</span>],
-<a href=#563 id=563 data-nosnippet>563</a>            verts.len(),
-<a href=#564 id=564 data-nosnippet>564</a>            phys_tris.len(),
-<a href=#565 id=565 data-nosnippet>565</a>        );
+<a href=#540 id=540 data-nosnippet>540</a>        <span class="comment">// Back cap at last sample (if not in a gap)
+<a href=#541 id=541 data-nosnippet>541</a>        </span><span class="kw">let </span>last = n - <span class="number">1</span>;
+<a href=#542 id=542 data-nosnippet>542</a>        <span class="kw">if </span>!spline::is_in_gap(samples[last].t, gap_ranges) {
+<a href=#543 id=543 data-nosnippet>543</a>            generate_end_cap(last, <span class="bool-val">true</span>, <span class="kw-2">&amp;mut </span>vertices, <span class="kw-2">&amp;mut </span>indices, <span class="kw-2">&amp;mut </span>phys_verts, <span class="kw-2">&amp;mut </span>phys_tris);
+<a href=#544 id=544 data-nosnippet>544</a>        }
+<a href=#545 id=545 data-nosnippet>545</a>    }
+<a href=#546 id=546 data-nosnippet>546</a>
+<a href=#547 id=547 data-nosnippet>547</a>    (vertices, indices, phys_verts, phys_tris)
+<a href=#548 id=548 data-nosnippet>548</a>}
+<a href=#549 id=549 data-nosnippet>549</a>
+<a href=#550 id=550 data-nosnippet>550</a><span class="doccomment">/// Helper to set model.asset on an entity so the renderer draws it.
+<a href=#551 id=551 data-nosnippet>551</a></span><span class="kw">fn </span>set_model_asset(world: <span class="kw-2">&amp;mut </span>FlintWorld, entity_id: flint_core::EntityId, asset_name: <span class="kw-2">&amp;</span>str) {
+<a href=#552 id=552 data-nosnippet>552</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(comps) = world.get_components_mut(entity_id) {
+<a href=#553 id=553 data-nosnippet>553</a>        comps.set_field(
+<a href=#554 id=554 data-nosnippet>554</a>            <span class="string">"model"</span>,
+<a href=#555 id=555 data-nosnippet>555</a>            <span class="string">"asset"</span>,
+<a href=#556 id=556 data-nosnippet>556</a>            toml::Value::String(asset_name.to_string()),
+<a href=#557 id=557 data-nosnippet>557</a>        );
+<a href=#558 id=558 data-nosnippet>558</a>    } <span class="kw">else </span>{
+<a href=#559 id=559 data-nosnippet>559</a>        <span class="kw">let </span><span class="kw-2">mut </span>model_table = toml::map::Map::new();
+<a href=#560 id=560 data-nosnippet>560</a>        model_table.insert(<span class="string">"asset"</span>.into(), toml::Value::String(asset_name.to_string()));
+<a href=#561 id=561 data-nosnippet>561</a>        <span class="kw">let _ </span>= world.set_component(entity_id, <span class="string">"model"</span>, toml::Value::Table(model_table));
+<a href=#562 id=562 data-nosnippet>562</a>    }
+<a href=#563 id=563 data-nosnippet>563</a>}
+<a href=#564 id=564 data-nosnippet>564</a>
+<a href=#565 id=565 data-nosnippet>565</a><span class="comment">// ─── Main entry point ────────────────────────────────────
 <a href=#566 id=566 data-nosnippet>566</a>
-<a href=#567 id=567 data-nosnippet>567</a>        <span class="comment">// Upload render mesh
-<a href=#568 id=568 data-nosnippet>568</a>        </span><span class="kw">let </span>material = ImportedMaterial {
-<a href=#569 id=569 data-nosnippet>569</a>            name: job.entity_name.clone(),
-<a href=#570 id=570 data-nosnippet>570</a>            base_color: job.def.color,
-<a href=#571 id=571 data-nosnippet>571</a>            metallic: job.def.metallic,
-<a href=#572 id=572 data-nosnippet>572</a>            roughness: job.def.roughness,
-<a href=#573 id=573 data-nosnippet>573</a>            base_color_texture: <span class="prelude-val">None</span>,
-<a href=#574 id=574 data-nosnippet>574</a>            normal_texture: <span class="prelude-val">None</span>,
-<a href=#575 id=575 data-nosnippet>575</a>            metallic_roughness_texture: <span class="prelude-val">None</span>,
-<a href=#576 id=576 data-nosnippet>576</a>            use_vertex_color: job.def.stripe_color.is_some(),
-<a href=#577 id=577 data-nosnippet>577</a>            alpha_mode: flint_import::AlphaMode::Opaque,
-<a href=#578 id=578 data-nosnippet>578</a>            alpha_cutoff: <span class="number">0.5</span>,
-<a href=#579 id=579 data-nosnippet>579</a>        };
-<a href=#580 id=580 data-nosnippet>580</a>        renderer.load_procedural_mesh(device, <span class="kw-2">&amp;</span>job.entity_name, <span class="kw-2">&amp;</span>verts, <span class="kw-2">&amp;</span>indices, material);
-<a href=#581 id=581 data-nosnippet>581</a>
-<a href=#582 id=582 data-nosnippet>582</a>        <span class="comment">// Register trimesh collider (when physics is available)
-<a href=#583 id=583 data-nosnippet>583</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>phys) = physics {
-<a href=#584 id=584 data-nosnippet>584</a>            phys.sync.register_static_trimesh(
-<a href=#585 id=585 data-nosnippet>585</a>                job.entity_id,
-<a href=#586 id=586 data-nosnippet>586</a>                <span class="kw-2">&amp;mut </span>phys.physics_world,
-<a href=#587 id=587 data-nosnippet>587</a>                phys_verts,
-<a href=#588 id=588 data-nosnippet>588</a>                phys_tris,
-<a href=#589 id=589 data-nosnippet>589</a>                job.def.friction,
-<a href=#590 id=590 data-nosnippet>590</a>                job.def.restitution,
-<a href=#591 id=591 data-nosnippet>591</a>            );
-<a href=#592 id=592 data-nosnippet>592</a>        }
-<a href=#593 id=593 data-nosnippet>593</a>
-<a href=#594 id=594 data-nosnippet>594</a>        <span class="comment">// Set model.asset so renderer draws it
-<a href=#595 id=595 data-nosnippet>595</a>        </span>set_model_asset(world, job.entity_id, <span class="kw-2">&amp;</span>job.entity_name);
-<a href=#596 id=596 data-nosnippet>596</a>    }
-<a href=#597 id=597 data-nosnippet>597</a>
-<a href=#598 id=598 data-nosnippet>598</a>    <span class="kw">if </span>!spline_infos.is_empty() || !mesh_jobs.is_empty() {
-<a href=#599 id=599 data-nosnippet>599</a>        <span class="macro">println!</span>(
-<a href=#600 id=600 data-nosnippet>600</a>            <span class="string">"Spline generation complete: {} splines, {} meshes."</span>,
-<a href=#601 id=601 data-nosnippet>601</a>            spline_infos.len(),
-<a href=#602 id=602 data-nosnippet>602</a>            mesh_jobs.len(),
-<a href=#603 id=603 data-nosnippet>603</a>        );
-<a href=#604 id=604 data-nosnippet>604</a>    }
-<a href=#605 id=605 data-nosnippet>605</a>}</code></pre></div></section></main></body></html>
+<a href=#567 id=567 data-nosnippet>567</a></span><span class="doccomment">/// Load all spline data and generate geometry for spline_mesh entities.
+<a href=#568 id=568 data-nosnippet>568</a>///
+<a href=#569 id=569 data-nosnippet>569</a>/// Called from `PlayerApp::initialize()`. Scans the world for:
+<a href=#570 id=570 data-nosnippet>570</a>/// - Entities with a `spline` component (Pass 1: load + sample)
+<a href=#571 id=571 data-nosnippet>571</a>/// - Entities with a `spline_mesh` component (Pass 2: geometry)
+<a href=#572 id=572 data-nosnippet>572</a></span><span class="kw">pub fn </span>load_splines(
+<a href=#573 id=573 data-nosnippet>573</a>    scene_path: <span class="kw-2">&amp;</span>str,
+<a href=#574 id=574 data-nosnippet>574</a>    world: <span class="kw-2">&amp;mut </span>FlintWorld,
+<a href=#575 id=575 data-nosnippet>575</a>    renderer: <span class="kw-2">&amp;mut </span>SceneRenderer,
+<a href=#576 id=576 data-nosnippet>576</a>    <span class="kw-2">mut </span>physics: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>PhysicsSystem&gt;,
+<a href=#577 id=577 data-nosnippet>577</a>    device: <span class="kw-2">&amp;</span>wgpu::Device,
+<a href=#578 id=578 data-nosnippet>578</a>) {
+<a href=#579 id=579 data-nosnippet>579</a>    <span class="kw">let </span>scene_dir = Path::new(scene_path)
+<a href=#580 id=580 data-nosnippet>580</a>        .parent()
+<a href=#581 id=581 data-nosnippet>581</a>        .unwrap_or_else(|| Path::new(<span class="string">"."</span>));
+<a href=#582 id=582 data-nosnippet>582</a>
+<a href=#583 id=583 data-nosnippet>583</a>    <span class="comment">// ── Pass 1: Load spline data ──
+<a href=#584 id=584 data-nosnippet>584</a>
+<a href=#585 id=585 data-nosnippet>585</a>    // Collect spline entity names and their sampled data
+<a href=#586 id=586 data-nosnippet>586</a>    // (we need to collect first to avoid borrowing world during iteration)
+<a href=#587 id=587 data-nosnippet>587</a>    </span><span class="kw">struct </span>SplineInfo {
+<a href=#588 id=588 data-nosnippet>588</a>        entity_id: flint_core::EntityId,
+<a href=#589 id=589 data-nosnippet>589</a>        entity_name: String,
+<a href=#590 id=590 data-nosnippet>590</a>        samples: Vec&lt;SplineSample&gt;,
+<a href=#591 id=591 data-nosnippet>591</a>        closed: bool,
+<a href=#592 id=592 data-nosnippet>592</a>        spacing: f32,
+<a href=#593 id=593 data-nosnippet>593</a>        gap_ranges: Vec&lt;(f32, f32)&gt;,
+<a href=#594 id=594 data-nosnippet>594</a>    }
+<a href=#595 id=595 data-nosnippet>595</a>    <span class="kw">let </span><span class="kw-2">mut </span>spline_infos: Vec&lt;SplineInfo&gt; = Vec::new();
+<a href=#596 id=596 data-nosnippet>596</a>
+<a href=#597 id=597 data-nosnippet>597</a>    <span class="kw">for </span>entity <span class="kw">in </span>world.all_entities() {
+<a href=#598 id=598 data-nosnippet>598</a>        <span class="kw">let </span>spline_file = world
+<a href=#599 id=599 data-nosnippet>599</a>            .get_components(entity.id)
+<a href=#600 id=600 data-nosnippet>600</a>            .and_then(|c| c.get(<span class="string">"spline"</span>).cloned())
+<a href=#601 id=601 data-nosnippet>601</a>            .and_then(|s| s.get(<span class="string">"file"</span>).and_then(|v| v.as_str().map(String::from)));
+<a href=#602 id=602 data-nosnippet>602</a>
+<a href=#603 id=603 data-nosnippet>603</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(file_rel) = spline_file {
+<a href=#604 id=604 data-nosnippet>604</a>            <span class="comment">// Resolve path: scene dir, then parent
+<a href=#605 id=605 data-nosnippet>605</a>            </span><span class="kw">let </span>spline_path = {
+<a href=#606 id=606 data-nosnippet>606</a>                <span class="kw">let </span>p = scene_dir.join(<span class="kw-2">&amp;</span>file_rel);
+<a href=#607 id=607 data-nosnippet>607</a>                <span class="kw">if </span>p.exists() {
+<a href=#608 id=608 data-nosnippet>608</a>                    p
+<a href=#609 id=609 data-nosnippet>609</a>                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = scene_dir.parent() {
+<a href=#610 id=610 data-nosnippet>610</a>                    parent.join(<span class="kw-2">&amp;</span>file_rel)
+<a href=#611 id=611 data-nosnippet>611</a>                } <span class="kw">else </span>{
+<a href=#612 id=612 data-nosnippet>612</a>                    p
+<a href=#613 id=613 data-nosnippet>613</a>                }
+<a href=#614 id=614 data-nosnippet>614</a>            };
+<a href=#615 id=615 data-nosnippet>615</a>
+<a href=#616 id=616 data-nosnippet>616</a>            <span class="kw">match </span>parse_spline_file(<span class="kw-2">&amp;</span>spline_path) {
+<a href=#617 id=617 data-nosnippet>617</a>                <span class="prelude-val">Some</span>(def) =&gt; {
+<a href=#618 id=618 data-nosnippet>618</a>                    <span class="kw">let </span>samples = <span class="kw">if </span>def.closed {
+<a href=#619 id=619 data-nosnippet>619</a>                        spline::sample_closed_spline(<span class="kw-2">&amp;</span>def.control_points, def.spacing)
+<a href=#620 id=620 data-nosnippet>620</a>                    } <span class="kw">else </span>{
+<a href=#621 id=621 data-nosnippet>621</a>                        spline::sample_open_spline(<span class="kw-2">&amp;</span>def.control_points, def.spacing)
+<a href=#622 id=622 data-nosnippet>622</a>                    };
+<a href=#623 id=623 data-nosnippet>623</a>
+<a href=#624 id=624 data-nosnippet>624</a>                    <span class="macro">println!</span>(
+<a href=#625 id=625 data-nosnippet>625</a>                        <span class="string">"Loaded spline '{}': {} control points → {} samples ({})"</span>,
+<a href=#626 id=626 data-nosnippet>626</a>                        entity.name,
+<a href=#627 id=627 data-nosnippet>627</a>                        def.control_points.len(),
+<a href=#628 id=628 data-nosnippet>628</a>                        samples.len(),
+<a href=#629 id=629 data-nosnippet>629</a>                        <span class="kw">if </span>def.closed { <span class="string">"closed" </span>} <span class="kw">else </span>{ <span class="string">"open" </span>},
+<a href=#630 id=630 data-nosnippet>630</a>                    );
+<a href=#631 id=631 data-nosnippet>631</a>
+<a href=#632 id=632 data-nosnippet>632</a>                    spline_infos.push(SplineInfo {
+<a href=#633 id=633 data-nosnippet>633</a>                        entity_id: entity.id,
+<a href=#634 id=634 data-nosnippet>634</a>                        entity_name: entity.name.clone(),
+<a href=#635 id=635 data-nosnippet>635</a>                        samples,
+<a href=#636 id=636 data-nosnippet>636</a>                        closed: def.closed,
+<a href=#637 id=637 data-nosnippet>637</a>                        spacing: def.spacing,
+<a href=#638 id=638 data-nosnippet>638</a>                        gap_ranges: def.gap_ranges,
+<a href=#639 id=639 data-nosnippet>639</a>                    });
+<a href=#640 id=640 data-nosnippet>640</a>                }
+<a href=#641 id=641 data-nosnippet>641</a>                <span class="prelude-val">None </span>=&gt; {
+<a href=#642 id=642 data-nosnippet>642</a>                    <span class="macro">eprintln!</span>(<span class="string">"Failed to parse spline file: {}"</span>, spline_path.display());
+<a href=#643 id=643 data-nosnippet>643</a>                }
+<a href=#644 id=644 data-nosnippet>644</a>            }
+<a href=#645 id=645 data-nosnippet>645</a>        }
+<a href=#646 id=646 data-nosnippet>646</a>    }
+<a href=#647 id=647 data-nosnippet>647</a>
+<a href=#648 id=648 data-nosnippet>648</a>    <span class="comment">// Store spline data on entities
+<a href=#649 id=649 data-nosnippet>649</a>    </span><span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;</span>spline_infos {
+<a href=#650 id=650 data-nosnippet>650</a>        store_spline_data(world, info.entity_id, <span class="kw-2">&amp;</span>info.samples, info.closed, <span class="kw-2">&amp;</span>info.gap_ranges);
+<a href=#651 id=651 data-nosnippet>651</a>    }
+<a href=#652 id=652 data-nosnippet>652</a>
+<a href=#653 id=653 data-nosnippet>653</a>    <span class="comment">// Build lookup: entity name → index into spline_infos
+<a href=#654 id=654 data-nosnippet>654</a>    </span><span class="kw">let </span>spline_lookup: HashMap&lt;<span class="kw-2">&amp;</span>str, usize&gt; = spline_infos
+<a href=#655 id=655 data-nosnippet>655</a>        .iter()
+<a href=#656 id=656 data-nosnippet>656</a>        .enumerate()
+<a href=#657 id=657 data-nosnippet>657</a>        .map(|(i, info)| (info.entity_name.as_str(), i))
+<a href=#658 id=658 data-nosnippet>658</a>        .collect();
+<a href=#659 id=659 data-nosnippet>659</a>
+<a href=#660 id=660 data-nosnippet>660</a>    <span class="comment">// ── Pass 2: Generate spline_mesh geometry ──
+<a href=#661 id=661 data-nosnippet>661</a>
+<a href=#662 id=662 data-nosnippet>662</a>    // Collect mesh entities first
+<a href=#663 id=663 data-nosnippet>663</a>    </span><span class="kw">struct </span>MeshJob {
+<a href=#664 id=664 data-nosnippet>664</a>        entity_id: flint_core::EntityId,
+<a href=#665 id=665 data-nosnippet>665</a>        entity_name: String,
+<a href=#666 id=666 data-nosnippet>666</a>        def: SplineMeshDef,
+<a href=#667 id=667 data-nosnippet>667</a>    }
+<a href=#668 id=668 data-nosnippet>668</a>    <span class="kw">let </span><span class="kw-2">mut </span>mesh_jobs: Vec&lt;MeshJob&gt; = Vec::new();
+<a href=#669 id=669 data-nosnippet>669</a>
+<a href=#670 id=670 data-nosnippet>670</a>    <span class="kw">for </span>entity <span class="kw">in </span>world.all_entities() {
+<a href=#671 id=671 data-nosnippet>671</a>        <span class="kw">let </span>mesh_comp = world
+<a href=#672 id=672 data-nosnippet>672</a>            .get_components(entity.id)
+<a href=#673 id=673 data-nosnippet>673</a>            .and_then(|c| c.get(<span class="string">"spline_mesh"</span>).cloned());
+<a href=#674 id=674 data-nosnippet>674</a>
+<a href=#675 id=675 data-nosnippet>675</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(comp) = mesh_comp {
+<a href=#676 id=676 data-nosnippet>676</a>            <span class="kw">match </span>parse_spline_mesh_component(<span class="kw-2">&amp;</span>comp) {
+<a href=#677 id=677 data-nosnippet>677</a>                <span class="prelude-val">Some</span>(def) =&gt; {
+<a href=#678 id=678 data-nosnippet>678</a>                    mesh_jobs.push(MeshJob {
+<a href=#679 id=679 data-nosnippet>679</a>                        entity_id: entity.id,
+<a href=#680 id=680 data-nosnippet>680</a>                        entity_name: entity.name.clone(),
+<a href=#681 id=681 data-nosnippet>681</a>                        def,
+<a href=#682 id=682 data-nosnippet>682</a>                    });
+<a href=#683 id=683 data-nosnippet>683</a>                }
+<a href=#684 id=684 data-nosnippet>684</a>                <span class="prelude-val">None </span>=&gt; {
+<a href=#685 id=685 data-nosnippet>685</a>                    <span class="macro">eprintln!</span>(<span class="string">"Failed to parse spline_mesh on entity '{}'"</span>, entity.name);
+<a href=#686 id=686 data-nosnippet>686</a>                }
+<a href=#687 id=687 data-nosnippet>687</a>            }
+<a href=#688 id=688 data-nosnippet>688</a>        }
+<a href=#689 id=689 data-nosnippet>689</a>    }
+<a href=#690 id=690 data-nosnippet>690</a>
+<a href=#691 id=691 data-nosnippet>691</a>    <span class="kw">for </span>job <span class="kw">in </span><span class="kw-2">&amp;</span>mesh_jobs {
+<a href=#692 id=692 data-nosnippet>692</a>        <span class="kw">let </span>spline_idx = <span class="kw">match </span>spline_lookup.get(job.def.spline_entity.as_str()) {
+<a href=#693 id=693 data-nosnippet>693</a>            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>idx) =&gt; idx,
+<a href=#694 id=694 data-nosnippet>694</a>            <span class="prelude-val">None </span>=&gt; {
+<a href=#695 id=695 data-nosnippet>695</a>                <span class="macro">eprintln!</span>(
+<a href=#696 id=696 data-nosnippet>696</a>                    <span class="string">"spline_mesh '{}' references unknown spline entity '{}'"</span>,
+<a href=#697 id=697 data-nosnippet>697</a>                    job.entity_name, job.def.spline_entity
+<a href=#698 id=698 data-nosnippet>698</a>                );
+<a href=#699 id=699 data-nosnippet>699</a>                <span class="kw">continue</span>;
+<a href=#700 id=700 data-nosnippet>700</a>            }
+<a href=#701 id=701 data-nosnippet>701</a>        };
+<a href=#702 id=702 data-nosnippet>702</a>        <span class="kw">let </span>info = <span class="kw-2">&amp;</span>spline_infos[spline_idx];
+<a href=#703 id=703 data-nosnippet>703</a>
+<a href=#704 id=704 data-nosnippet>704</a>        <span class="kw">if </span>job.def.chunk_size &gt; <span class="number">0 </span>{
+<a href=#705 id=705 data-nosnippet>705</a>            <span class="comment">// ── Chunked mesh generation ──
+<a href=#706 id=706 data-nosnippet>706</a>            </span><span class="kw">let </span>chunk_sz = job.def.chunk_size <span class="kw">as </span>usize;
+<a href=#707 id=707 data-nosnippet>707</a>            <span class="kw">let </span>n = info.samples.len();
+<a href=#708 id=708 data-nosnippet>708</a>            <span class="kw">let </span>num_segs = <span class="kw">if </span>info.closed { n } <span class="kw">else </span>{ n - <span class="number">1 </span>};
+<a href=#709 id=709 data-nosnippet>709</a>            <span class="kw">let </span>num_chunks = (num_segs + chunk_sz - <span class="number">1</span>) / chunk_sz;
+<a href=#710 id=710 data-nosnippet>710</a>
+<a href=#711 id=711 data-nosnippet>711</a>            <span class="macro">println!</span>(
+<a href=#712 id=712 data-nosnippet>712</a>                <span class="string">"  Chunked mesh '{}': {}x{} @ offset [{:.1}, {:.1}], {} segments → {} chunks of {}"</span>,
+<a href=#713 id=713 data-nosnippet>713</a>                job.entity_name,
+<a href=#714 id=714 data-nosnippet>714</a>                job.def.width,
+<a href=#715 id=715 data-nosnippet>715</a>                job.def.height,
+<a href=#716 id=716 data-nosnippet>716</a>                job.def.offset[<span class="number">0</span>],
+<a href=#717 id=717 data-nosnippet>717</a>                job.def.offset[<span class="number">1</span>],
+<a href=#718 id=718 data-nosnippet>718</a>                num_segs,
+<a href=#719 id=719 data-nosnippet>719</a>                num_chunks,
+<a href=#720 id=720 data-nosnippet>720</a>                chunk_sz,
+<a href=#721 id=721 data-nosnippet>721</a>            );
+<a href=#722 id=722 data-nosnippet>722</a>
+<a href=#723 id=723 data-nosnippet>723</a>            <span class="kw">for </span>chunk_i <span class="kw">in </span><span class="number">0</span>..num_chunks {
+<a href=#724 id=724 data-nosnippet>724</a>                <span class="kw">let </span>seg_start = chunk_i * chunk_sz;
+<a href=#725 id=725 data-nosnippet>725</a>                <span class="kw">let </span>seg_end = ((chunk_i + <span class="number">1</span>) * chunk_sz).min(num_segs);
+<a href=#726 id=726 data-nosnippet>726</a>
+<a href=#727 id=727 data-nosnippet>727</a>                <span class="comment">// Sample range: include one extra sample for the last segment boundary
+<a href=#728 id=728 data-nosnippet>728</a>                </span><span class="kw">let </span>sample_start = seg_start;
+<a href=#729 id=729 data-nosnippet>729</a>                <span class="kw">let </span>sample_end = <span class="kw">if </span>info.closed {
+<a href=#730 id=730 data-nosnippet>730</a>                    <span class="comment">// For closed splines, the last segment wraps around
+<a href=#731 id=731 data-nosnippet>731</a>                    </span>seg_end + <span class="number">1 </span><span class="comment">// We'll handle wrapping below
+<a href=#732 id=732 data-nosnippet>732</a>                </span>} <span class="kw">else </span>{
+<a href=#733 id=733 data-nosnippet>733</a>                    (seg_end + <span class="number">1</span>).min(n)
+<a href=#734 id=734 data-nosnippet>734</a>                };
+<a href=#735 id=735 data-nosnippet>735</a>
+<a href=#736 id=736 data-nosnippet>736</a>                <span class="comment">// Build sub-sample slice for this chunk, handling closed spline wrapping
+<a href=#737 id=737 data-nosnippet>737</a>                </span><span class="kw">let </span>chunk_samples: Vec&lt;SplineSample&gt; = <span class="kw">if </span>info.closed {
+<a href=#738 id=738 data-nosnippet>738</a>                    (sample_start..sample_end)
+<a href=#739 id=739 data-nosnippet>739</a>                        .map(|i| info.samples[i % n].clone())
+<a href=#740 id=740 data-nosnippet>740</a>                        .collect()
+<a href=#741 id=741 data-nosnippet>741</a>                } <span class="kw">else </span>{
+<a href=#742 id=742 data-nosnippet>742</a>                    info.samples[sample_start..sample_end].to_vec()
+<a href=#743 id=743 data-nosnippet>743</a>                };
+<a href=#744 id=744 data-nosnippet>744</a>
+<a href=#745 id=745 data-nosnippet>745</a>                <span class="kw">if </span>chunk_samples.len() &lt; <span class="number">2 </span>{
+<a href=#746 id=746 data-nosnippet>746</a>                    <span class="kw">continue</span>;
+<a href=#747 id=747 data-nosnippet>747</a>                }
+<a href=#748 id=748 data-nosnippet>748</a>
+<a href=#749 id=749 data-nosnippet>749</a>                <span class="comment">// Check if this entire chunk falls within a gap
+<a href=#750 id=750 data-nosnippet>750</a>                </span><span class="kw">let </span>chunk_all_in_gap = (seg_start..seg_end).all(|seg| {
+<a href=#751 id=751 data-nosnippet>751</a>                    <span class="kw">let </span>sample_idx = <span class="kw">if </span>info.closed { seg % n } <span class="kw">else </span>{ seg };
+<a href=#752 id=752 data-nosnippet>752</a>                    spline::is_in_gap(info.samples[sample_idx].t, <span class="kw-2">&amp;</span>info.gap_ranges)
+<a href=#753 id=753 data-nosnippet>753</a>                });
+<a href=#754 id=754 data-nosnippet>754</a>                <span class="kw">if </span>chunk_all_in_gap {
+<a href=#755 id=755 data-nosnippet>755</a>                    <span class="kw">continue</span>;
+<a href=#756 id=756 data-nosnippet>756</a>                }
+<a href=#757 id=757 data-nosnippet>757</a>
+<a href=#758 id=758 data-nosnippet>758</a>                <span class="comment">// Parametric t range for this chunk
+<a href=#759 id=759 data-nosnippet>759</a>                </span><span class="kw">let </span>t_start = chunk_samples.first().unwrap().t;
+<a href=#760 id=760 data-nosnippet>760</a>                <span class="kw">let </span>t_end = chunk_samples.last().unwrap().t;
+<a href=#761 id=761 data-nosnippet>761</a>
+<a href=#762 id=762 data-nosnippet>762</a>                <span class="comment">// Generate mesh for this chunk (treat as open — no wrapping within a chunk)
+<a href=#763 id=763 data-nosnippet>763</a>                </span><span class="kw">let </span>(verts, indices, phys_verts, phys_tris) = generate_cross_section_mesh(
+<a href=#764 id=764 data-nosnippet>764</a>                    <span class="kw-2">&amp;</span>chunk_samples,
+<a href=#765 id=765 data-nosnippet>765</a>                    <span class="bool-val">false</span>, <span class="comment">// chunks are always open segments
+<a href=#766 id=766 data-nosnippet>766</a>                    </span>job.def.width,
+<a href=#767 id=767 data-nosnippet>767</a>                    job.def.height,
+<a href=#768 id=768 data-nosnippet>768</a>                    job.def.offset,
+<a href=#769 id=769 data-nosnippet>769</a>                    job.def.color,
+<a href=#770 id=770 data-nosnippet>770</a>                    job.def.stripe_color,
+<a href=#771 id=771 data-nosnippet>771</a>                    job.def.stripe_width,
+<a href=#772 id=772 data-nosnippet>772</a>                    info.spacing,
+<a href=#773 id=773 data-nosnippet>773</a>                    <span class="kw-2">&amp;</span>info.gap_ranges,
+<a href=#774 id=774 data-nosnippet>774</a>                );
+<a href=#775 id=775 data-nosnippet>775</a>
+<a href=#776 id=776 data-nosnippet>776</a>                <span class="kw">if </span>verts.is_empty() {
+<a href=#777 id=777 data-nosnippet>777</a>                    <span class="kw">continue</span>;
+<a href=#778 id=778 data-nosnippet>778</a>                }
+<a href=#779 id=779 data-nosnippet>779</a>
+<a href=#780 id=780 data-nosnippet>780</a>                <span class="comment">// Spawn child entity for this chunk
+<a href=#781 id=781 data-nosnippet>781</a>                </span><span class="kw">let </span>chunk_name = <span class="macro">format!</span>(<span class="string">"{}__chunk_{}"</span>, job.entity_name, chunk_i);
+<a href=#782 id=782 data-nosnippet>782</a>                <span class="kw">let </span>chunk_id = <span class="kw">match </span>world.spawn(<span class="kw-2">&amp;</span>chunk_name) {
+<a href=#783 id=783 data-nosnippet>783</a>                    <span class="prelude-val">Ok</span>(id) =&gt; id,
+<a href=#784 id=784 data-nosnippet>784</a>                    <span class="prelude-val">Err</span>(e) =&gt; {
+<a href=#785 id=785 data-nosnippet>785</a>                        <span class="macro">eprintln!</span>(<span class="string">"Failed to spawn chunk entity '{}': {}"</span>, chunk_name, e);
+<a href=#786 id=786 data-nosnippet>786</a>                        <span class="kw">continue</span>;
+<a href=#787 id=787 data-nosnippet>787</a>                    }
+<a href=#788 id=788 data-nosnippet>788</a>                };
+<a href=#789 id=789 data-nosnippet>789</a>
+<a href=#790 id=790 data-nosnippet>790</a>                <span class="comment">// Set parent relationship
+<a href=#791 id=791 data-nosnippet>791</a>                </span><span class="kw">let _ </span>= world.set_parent(chunk_id, job.entity_id);
+<a href=#792 id=792 data-nosnippet>792</a>
+<a href=#793 id=793 data-nosnippet>793</a>                <span class="comment">// Set transform (identity — geometry is already in world space)
+<a href=#794 id=794 data-nosnippet>794</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>transform_table = toml::map::Map::new();
+<a href=#795 id=795 data-nosnippet>795</a>                transform_table.insert(<span class="string">"position"</span>.into(), toml::Value::Array(<span class="macro">vec!</span>[
+<a href=#796 id=796 data-nosnippet>796</a>                    toml::Value::Float(<span class="number">0.0</span>),
+<a href=#797 id=797 data-nosnippet>797</a>                    toml::Value::Float(<span class="number">0.0</span>),
+<a href=#798 id=798 data-nosnippet>798</a>                    toml::Value::Float(<span class="number">0.0</span>),
+<a href=#799 id=799 data-nosnippet>799</a>                ]));
+<a href=#800 id=800 data-nosnippet>800</a>                <span class="kw">let _ </span>= world.set_component(chunk_id, <span class="string">"transform"</span>, toml::Value::Table(transform_table));
+<a href=#801 id=801 data-nosnippet>801</a>
+<a href=#802 id=802 data-nosnippet>802</a>                <span class="comment">// Set material component with opacity = 1.0
+<a href=#803 id=803 data-nosnippet>803</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>mat_table = toml::map::Map::new();
+<a href=#804 id=804 data-nosnippet>804</a>                mat_table.insert(<span class="string">"opacity"</span>.into(), toml::Value::Float(<span class="number">1.0</span>));
+<a href=#805 id=805 data-nosnippet>805</a>                <span class="kw">let _ </span>= world.set_component(chunk_id, <span class="string">"material"</span>, toml::Value::Table(mat_table));
+<a href=#806 id=806 data-nosnippet>806</a>
+<a href=#807 id=807 data-nosnippet>807</a>                <span class="comment">// Set spline_chunk component
+<a href=#808 id=808 data-nosnippet>808</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>chunk_table = toml::map::Map::new();
+<a href=#809 id=809 data-nosnippet>809</a>                chunk_table.insert(<span class="string">"chunk_index"</span>.into(), toml::Value::Integer(chunk_i <span class="kw">as </span>i64));
+<a href=#810 id=810 data-nosnippet>810</a>                chunk_table.insert(<span class="string">"t_start"</span>.into(), toml::Value::Float(t_start <span class="kw">as </span>f64));
+<a href=#811 id=811 data-nosnippet>811</a>                chunk_table.insert(<span class="string">"t_end"</span>.into(), toml::Value::Float(t_end <span class="kw">as </span>f64));
+<a href=#812 id=812 data-nosnippet>812</a>                <span class="kw">let _ </span>= world.set_component(chunk_id, <span class="string">"spline_chunk"</span>, toml::Value::Table(chunk_table));
+<a href=#813 id=813 data-nosnippet>813</a>
+<a href=#814 id=814 data-nosnippet>814</a>                <span class="comment">// Upload render mesh
+<a href=#815 id=815 data-nosnippet>815</a>                </span><span class="kw">let </span>material = ImportedMaterial {
+<a href=#816 id=816 data-nosnippet>816</a>                    name: chunk_name.clone(),
+<a href=#817 id=817 data-nosnippet>817</a>                    base_color: job.def.color,
+<a href=#818 id=818 data-nosnippet>818</a>                    metallic: job.def.metallic,
+<a href=#819 id=819 data-nosnippet>819</a>                    roughness: job.def.roughness,
+<a href=#820 id=820 data-nosnippet>820</a>                    base_color_texture: <span class="prelude-val">None</span>,
+<a href=#821 id=821 data-nosnippet>821</a>                    normal_texture: <span class="prelude-val">None</span>,
+<a href=#822 id=822 data-nosnippet>822</a>                    metallic_roughness_texture: <span class="prelude-val">None</span>,
+<a href=#823 id=823 data-nosnippet>823</a>                    use_vertex_color: job.def.stripe_color.is_some(),
+<a href=#824 id=824 data-nosnippet>824</a>                    alpha_mode: flint_import::AlphaMode::Opaque,
+<a href=#825 id=825 data-nosnippet>825</a>                    alpha_cutoff: <span class="number">0.5</span>,
+<a href=#826 id=826 data-nosnippet>826</a>                };
+<a href=#827 id=827 data-nosnippet>827</a>                renderer.load_procedural_mesh(device, <span class="kw-2">&amp;</span>chunk_name, <span class="kw-2">&amp;</span>verts, <span class="kw-2">&amp;</span>indices, material);
+<a href=#828 id=828 data-nosnippet>828</a>
+<a href=#829 id=829 data-nosnippet>829</a>                <span class="comment">// Register trimesh collider
+<a href=#830 id=830 data-nosnippet>830</a>                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>phys) = physics {
+<a href=#831 id=831 data-nosnippet>831</a>                    phys.sync.register_static_trimesh(
+<a href=#832 id=832 data-nosnippet>832</a>                        chunk_id,
+<a href=#833 id=833 data-nosnippet>833</a>                        <span class="kw-2">&amp;mut </span>phys.physics_world,
+<a href=#834 id=834 data-nosnippet>834</a>                        phys_verts,
+<a href=#835 id=835 data-nosnippet>835</a>                        phys_tris,
+<a href=#836 id=836 data-nosnippet>836</a>                        job.def.friction,
+<a href=#837 id=837 data-nosnippet>837</a>                        job.def.restitution,
+<a href=#838 id=838 data-nosnippet>838</a>                    );
+<a href=#839 id=839 data-nosnippet>839</a>                }
+<a href=#840 id=840 data-nosnippet>840</a>
+<a href=#841 id=841 data-nosnippet>841</a>                <span class="comment">// Set model.asset so renderer draws it
+<a href=#842 id=842 data-nosnippet>842</a>                </span>set_model_asset(world, chunk_id, <span class="kw-2">&amp;</span>chunk_name);
+<a href=#843 id=843 data-nosnippet>843</a>            }
+<a href=#844 id=844 data-nosnippet>844</a>            <span class="comment">// Parent entity gets no mesh when chunking is active
+<a href=#845 id=845 data-nosnippet>845</a>        </span>} <span class="kw">else </span>{
+<a href=#846 id=846 data-nosnippet>846</a>            <span class="comment">// ── Original single-mesh path ──
+<a href=#847 id=847 data-nosnippet>847</a>            </span><span class="kw">let </span>(verts, indices, phys_verts, phys_tris) = generate_cross_section_mesh(
+<a href=#848 id=848 data-nosnippet>848</a>                <span class="kw-2">&amp;</span>info.samples,
+<a href=#849 id=849 data-nosnippet>849</a>                info.closed,
+<a href=#850 id=850 data-nosnippet>850</a>                job.def.width,
+<a href=#851 id=851 data-nosnippet>851</a>                job.def.height,
+<a href=#852 id=852 data-nosnippet>852</a>                job.def.offset,
+<a href=#853 id=853 data-nosnippet>853</a>                job.def.color,
+<a href=#854 id=854 data-nosnippet>854</a>                job.def.stripe_color,
+<a href=#855 id=855 data-nosnippet>855</a>                job.def.stripe_width,
+<a href=#856 id=856 data-nosnippet>856</a>                info.spacing,
+<a href=#857 id=857 data-nosnippet>857</a>                <span class="kw-2">&amp;</span>info.gap_ranges,
+<a href=#858 id=858 data-nosnippet>858</a>            );
+<a href=#859 id=859 data-nosnippet>859</a>
+<a href=#860 id=860 data-nosnippet>860</a>            <span class="kw">if </span>verts.is_empty() {
+<a href=#861 id=861 data-nosnippet>861</a>                <span class="kw">continue</span>;
+<a href=#862 id=862 data-nosnippet>862</a>            }
+<a href=#863 id=863 data-nosnippet>863</a>
+<a href=#864 id=864 data-nosnippet>864</a>            <span class="macro">println!</span>(
+<a href=#865 id=865 data-nosnippet>865</a>                <span class="string">"  Mesh '{}': {}x{} @ offset [{:.1}, {:.1}] → {} verts, {} tris"</span>,
+<a href=#866 id=866 data-nosnippet>866</a>                job.entity_name,
+<a href=#867 id=867 data-nosnippet>867</a>                job.def.width,
+<a href=#868 id=868 data-nosnippet>868</a>                job.def.height,
+<a href=#869 id=869 data-nosnippet>869</a>                job.def.offset[<span class="number">0</span>],
+<a href=#870 id=870 data-nosnippet>870</a>                job.def.offset[<span class="number">1</span>],
+<a href=#871 id=871 data-nosnippet>871</a>                verts.len(),
+<a href=#872 id=872 data-nosnippet>872</a>                phys_tris.len(),
+<a href=#873 id=873 data-nosnippet>873</a>            );
+<a href=#874 id=874 data-nosnippet>874</a>
+<a href=#875 id=875 data-nosnippet>875</a>            <span class="comment">// Upload render mesh
+<a href=#876 id=876 data-nosnippet>876</a>            </span><span class="kw">let </span>material = ImportedMaterial {
+<a href=#877 id=877 data-nosnippet>877</a>                name: job.entity_name.clone(),
+<a href=#878 id=878 data-nosnippet>878</a>                base_color: job.def.color,
+<a href=#879 id=879 data-nosnippet>879</a>                metallic: job.def.metallic,
+<a href=#880 id=880 data-nosnippet>880</a>                roughness: job.def.roughness,
+<a href=#881 id=881 data-nosnippet>881</a>                base_color_texture: <span class="prelude-val">None</span>,
+<a href=#882 id=882 data-nosnippet>882</a>                normal_texture: <span class="prelude-val">None</span>,
+<a href=#883 id=883 data-nosnippet>883</a>                metallic_roughness_texture: <span class="prelude-val">None</span>,
+<a href=#884 id=884 data-nosnippet>884</a>                use_vertex_color: job.def.stripe_color.is_some(),
+<a href=#885 id=885 data-nosnippet>885</a>                alpha_mode: flint_import::AlphaMode::Opaque,
+<a href=#886 id=886 data-nosnippet>886</a>                alpha_cutoff: <span class="number">0.5</span>,
+<a href=#887 id=887 data-nosnippet>887</a>            };
+<a href=#888 id=888 data-nosnippet>888</a>            renderer.load_procedural_mesh(device, <span class="kw-2">&amp;</span>job.entity_name, <span class="kw-2">&amp;</span>verts, <span class="kw-2">&amp;</span>indices, material);
+<a href=#889 id=889 data-nosnippet>889</a>
+<a href=#890 id=890 data-nosnippet>890</a>            <span class="comment">// Register trimesh collider (when physics is available)
+<a href=#891 id=891 data-nosnippet>891</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>phys) = physics {
+<a href=#892 id=892 data-nosnippet>892</a>                phys.sync.register_static_trimesh(
+<a href=#893 id=893 data-nosnippet>893</a>                    job.entity_id,
+<a href=#894 id=894 data-nosnippet>894</a>                    <span class="kw-2">&amp;mut </span>phys.physics_world,
+<a href=#895 id=895 data-nosnippet>895</a>                    phys_verts,
+<a href=#896 id=896 data-nosnippet>896</a>                    phys_tris,
+<a href=#897 id=897 data-nosnippet>897</a>                    job.def.friction,
+<a href=#898 id=898 data-nosnippet>898</a>                    job.def.restitution,
+<a href=#899 id=899 data-nosnippet>899</a>                );
+<a href=#900 id=900 data-nosnippet>900</a>            }
+<a href=#901 id=901 data-nosnippet>901</a>
+<a href=#902 id=902 data-nosnippet>902</a>            <span class="comment">// Set model.asset so renderer draws it
+<a href=#903 id=903 data-nosnippet>903</a>            </span>set_model_asset(world, job.entity_id, <span class="kw-2">&amp;</span>job.entity_name);
+<a href=#904 id=904 data-nosnippet>904</a>        }
+<a href=#905 id=905 data-nosnippet>905</a>    }
+<a href=#906 id=906 data-nosnippet>906</a>
+<a href=#907 id=907 data-nosnippet>907</a>    <span class="kw">if </span>!spline_infos.is_empty() || !mesh_jobs.is_empty() {
+<a href=#908 id=908 data-nosnippet>908</a>        <span class="macro">println!</span>(
+<a href=#909 id=909 data-nosnippet>909</a>            <span class="string">"Spline generation complete: {} splines, {} meshes."</span>,
+<a href=#910 id=910 data-nosnippet>910</a>            spline_infos.len(),
+<a href=#911 id=911 data-nosnippet>911</a>            mesh_jobs.len(),
+<a href=#912 id=912 data-nosnippet>912</a>        );
+<a href=#913 id=913 data-nosnippet>913</a>    }
+<a href=#914 id=914 data-nosnippet>914</a>}</code></pre></div></section></main></body></html>

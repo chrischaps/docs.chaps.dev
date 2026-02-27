@@ -188,17 +188,14 @@
 <a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">if </span>denom.abs() &lt; <span class="number">1e-6 </span>{
 <a href=#113 id=113 data-nosnippet>113</a>        <span class="kw">return </span><span class="prelude-val">None</span>;
 <a href=#114 id=114 data-nosnippet>114</a>    }
-<a href=#115 id=115 data-nosnippet>115</a>    <span class="kw">let </span>t = (plane_d
-<a href=#116 id=116 data-nosnippet>116</a>        - plane_n[<span class="number">0</span>] * ray_o[<span class="number">0</span>]
-<a href=#117 id=117 data-nosnippet>117</a>        - plane_n[<span class="number">1</span>] * ray_o[<span class="number">1</span>]
-<a href=#118 id=118 data-nosnippet>118</a>        - plane_n[<span class="number">2</span>] * ray_o[<span class="number">2</span>])
-<a href=#119 id=119 data-nosnippet>119</a>        / denom;
-<a href=#120 id=120 data-nosnippet>120</a>    <span class="kw">if </span>t &lt; <span class="number">0.0 </span>{
-<a href=#121 id=121 data-nosnippet>121</a>        <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#122 id=122 data-nosnippet>122</a>    }
-<a href=#123 id=123 data-nosnippet>123</a>    <span class="prelude-val">Some</span>([
-<a href=#124 id=124 data-nosnippet>124</a>        ray_o[<span class="number">0</span>] + ray_d[<span class="number">0</span>] * t,
-<a href=#125 id=125 data-nosnippet>125</a>        ray_o[<span class="number">1</span>] + ray_d[<span class="number">1</span>] * t,
-<a href=#126 id=126 data-nosnippet>126</a>        ray_o[<span class="number">2</span>] + ray_d[<span class="number">2</span>] * t,
-<a href=#127 id=127 data-nosnippet>127</a>    ])
-<a href=#128 id=128 data-nosnippet>128</a>}</code></pre></div></section></main></body></html>
+<a href=#115 id=115 data-nosnippet>115</a>    <span class="kw">let </span>t =
+<a href=#116 id=116 data-nosnippet>116</a>        (plane_d - plane_n[<span class="number">0</span>] * ray_o[<span class="number">0</span>] - plane_n[<span class="number">1</span>] * ray_o[<span class="number">1</span>] - plane_n[<span class="number">2</span>] * ray_o[<span class="number">2</span>]) / denom;
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="kw">if </span>t &lt; <span class="number">0.0 </span>{
+<a href=#118 id=118 data-nosnippet>118</a>        <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#119 id=119 data-nosnippet>119</a>    }
+<a href=#120 id=120 data-nosnippet>120</a>    <span class="prelude-val">Some</span>([
+<a href=#121 id=121 data-nosnippet>121</a>        ray_o[<span class="number">0</span>] + ray_d[<span class="number">0</span>] * t,
+<a href=#122 id=122 data-nosnippet>122</a>        ray_o[<span class="number">1</span>] + ray_d[<span class="number">1</span>] * t,
+<a href=#123 id=123 data-nosnippet>123</a>        ray_o[<span class="number">2</span>] + ray_d[<span class="number">2</span>] * t,
+<a href=#124 id=124 data-nosnippet>124</a>    ])
+<a href=#125 id=125 data-nosnippet>125</a>}</code></pre></div></section></main></body></html>

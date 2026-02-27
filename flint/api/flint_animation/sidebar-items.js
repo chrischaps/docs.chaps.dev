@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["blend","clip","loader","node_clip","node_sync","player","sampler","skeletal_clip","skeletal_sampler","skeletal_sync","skeleton","sync"],"struct":["AnimationSystem"]};
+window.SIDEBAR_ITEMS = {"mod":["blend","clip","loader","node_clip","node_sync","player","sampler","skeletal_clip","skeletal_sampler","skeletal_sync","skeleton","sprite_clip","sprite_sync","sync"],"struct":["AnimationSystem"]};

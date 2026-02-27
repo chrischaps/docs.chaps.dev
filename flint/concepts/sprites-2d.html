@@ -1,0 +1,487 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>2D Sprites - Flint Engine</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Documentation for the Flint CLI-first, AI-agent-optimized 3D game engine">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "coal";
+            const default_dark_theme = "coal";
+            window.path_to_searchindex_js = "../searchindex-ece9bd88.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-7d06c78c.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Flint Engine</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/chrischaps/flint" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="2d-sprites"><a class="header" href="#2d-sprites">2D Sprites</a></h1>
+<p>Flint’s 2D sprite system provides GPU-instanced flat-quad rendering for side-scrollers, top-down games, and any project that needs sprite-based visuals. It sits alongside the existing 3D billboard sprite pipeline but uses an orthographic camera and XY-plane alignment instead of camera-facing quads.</p>
+<h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
+<p>2D sprites render as axis-aligned quads on the XY plane using a dedicated <code>Sprite2dPipeline</code> in <code>flint-render</code>. The pipeline follows the same storage-buffer instancing pattern as the particle system — one draw call per texture batch, quads generated from <code>vertex_index</code> in the shader, no vertex buffers needed.</p>
+<pre><code>Scene TOML              CPU collection              GPU rendering
+sprite component  ──►  Collect instances   ──►  Sprite2dPipeline
+  mode = "sprite2d"    batch by texture           instanced draw
+  texture, layer       sort by layer              storage buffer
+  tint, flip           pack Sprite2dInstanceGpu    orthographic proj
+</code></pre>
+<p>Key differences from 3D billboard sprites:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th>Billboard</th><th>Sprite2D</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Orientation</strong></td><td>Always faces camera</td><td>Fixed on XY plane</td></tr>
+<tr><td><strong>Camera</strong></td><td>Perspective (3D scene)</td><td>Orthographic</td></tr>
+<tr><td><strong>Z-ordering</strong></td><td>Depth buffer</td><td>Layer field (integer)</td></tr>
+<tr><td><strong>Depth write</strong></td><td>Yes (binary alpha discard)</td><td>No (layer-based sorting)</td></tr>
+<tr><td><strong>Use case</strong></td><td>Items/NPCs in 3D world</td><td>2D games</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="setting-up-a-2d-scene"><a class="header" href="#setting-up-a-2d-scene">Setting Up a 2D Scene</a></h2>
+<p>A 2D scene needs an orthographic camera and sprites set to <code>sprite2d</code> mode:</p>
+<pre><code class="language-toml">[scene]
+name = "My 2D Game"
+
+[camera]
+projection = "orthographic"
+ortho_height = 10.0            # visible height in world units
+position = [0.0, 0.0, 50.0]   # Z offset doesn't affect ortho rendering
+target = [0.0, 0.0, 0.0]
+
+[entities.player]
+archetype = "sprite"
+[entities.player.transform]
+position = [0.0, 2.0, 0.0]
+[entities.player.sprite]
+mode = "sprite2d"
+texture = "player.png"
+width = 1.0
+height = 2.0
+layer = 10
+tint = [1.0, 1.0, 1.0, 1.0]
+
+[entities.background]
+archetype = "sprite"
+[entities.background.transform]
+position = [0.0, 0.0, 0.0]
+[entities.background.sprite]
+mode = "sprite2d"
+texture = "sky.png"
+width = 20.0
+height = 12.0
+layer = 0
+</code></pre>
+<p>The <code>layer</code> field controls draw order — higher layers render in front. Unlike depth-buffer sorting, this gives you explicit, deterministic control over what overlaps what.</p>
+<h2 id="sprite-component"><a class="header" href="#sprite-component">Sprite Component</a></h2>
+<p>The <code>sprite</code> component works for both billboard and sprite2d modes. Set <code>mode = "sprite2d"</code> to switch to flat rendering.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>texture</code></td><td>string</td><td><code>""</code></td><td>Sprite texture file (empty = solid color from tint)</td></tr>
+<tr><td><code>width</code></td><td>f32</td><td>1.0</td><td>World-space width</td></tr>
+<tr><td><code>height</code></td><td>f32</td><td>1.0</td><td>World-space height</td></tr>
+<tr><td><code>mode</code></td><td>string</td><td><code>"billboard"</code></td><td><code>"billboard"</code> (3D camera-facing) or <code>"sprite2d"</code> (flat XY quad)</td></tr>
+<tr><td><code>layer</code></td><td>i32</td><td>0</td><td>Z-order layer for 2D sorting (higher = in front)</td></tr>
+<tr><td><code>tint</code></td><td>vec4</td><td>[1,1,1,1]</td><td>RGBA color multiplier</td></tr>
+<tr><td><code>flip_x</code></td><td>bool</td><td>false</td><td>Mirror horizontally</td></tr>
+<tr><td><code>flip_y</code></td><td>bool</td><td>false</td><td>Mirror vertically</td></tr>
+<tr><td><code>source_rect</code></td><td>vec4</td><td>[0,0,0,0]</td><td>Source rectangle in pixels <code>[x, y, w, h]</code>; <code>[0,0,0,0]</code> = full texture</td></tr>
+<tr><td><code>anchor_y</code></td><td>f32</td><td>0.0</td><td>Vertical anchor (0 = bottom, 0.5 = center)</td></tr>
+<tr><td><code>frame</code></td><td>i32</td><td>0</td><td>Current sprite sheet frame index</td></tr>
+<tr><td><code>frames_x</code></td><td>i32</td><td>1</td><td>Columns in sprite sheet</td></tr>
+<tr><td><code>frames_y</code></td><td>i32</td><td>1</td><td>Rows in sprite sheet</td></tr>
+<tr><td><code>fullbright</code></td><td>bool</td><td>true</td><td>Bypass PBR lighting (always true for 2D)</td></tr>
+<tr><td><code>visible</code></td><td>bool</td><td>true</td><td>Show/hide the sprite</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="texture-atlases"><a class="header" href="#texture-atlases">Texture Atlases</a></h2>
+<p>For sprite sheets and texture packing, Flint supports <code>.atlas.toml</code> sidecar files that define named regions within a texture:</p>
+<pre><code class="language-toml"># sprites/player_sheet.atlas.toml
+[atlas]
+texture = "player_sheet.png"
+
+[atlas.regions]
+idle_0  = [0,   0, 64, 64]
+idle_1  = [64,  0, 64, 64]
+run_0   = [0,  64, 64, 64]
+run_1   = [64, 64, 64, 64]
+run_2   = [128, 64, 64, 64]
+run_3   = [192, 64, 64, 64]
+</code></pre>
+<p>Each region is <code>[x, y, width, height]</code> in pixel coordinates. The <code>AtlasRegistry</code> loads all <code>.atlas.toml</code> files from a directory and resolves region names to UV rectangles at runtime.</p>
+<h2 id="sprite-sheet-animation"><a class="header" href="#sprite-sheet-animation">Sprite Sheet Animation</a></h2>
+<p>The <code>flint-animation</code> crate provides frame-based sprite animation through <code>.sprite.toml</code> clip files and the <code>sprite_animator</code> component.</p>
+<h3 id="defining-clips"><a class="header" href="#defining-clips">Defining Clips</a></h3>
+<p>Animation clips live in <code>.sprite.toml</code> files alongside your scene:</p>
+<pre><code class="language-toml"># animations/character.sprite.toml
+
+[animation.idle]
+texture = "character_sheet.png"
+frame_size = [64, 64]
+frames = [
+    { col = 0, row = 0, duration_ms = 300 },
+    { col = 1, row = 0, duration_ms = 300 },
+]
+loop_mode = "loop"
+
+[animation.run]
+texture = "character_sheet.png"
+frame_size = [64, 64]
+frames = [
+    { col = 0, row = 1, duration_ms = 100 },
+    { col = 1, row = 1, duration_ms = 100 },
+    { col = 2, row = 1, duration_ms = 100 },
+    { col = 3, row = 1, duration_ms = 100 },
+]
+loop_mode = "loop"
+
+[animation.jump]
+texture = "character_sheet.png"
+frame_size = [64, 64]
+frames = [
+    { col = 0, row = 2, duration_ms = 150 },
+    { col = 1, row = 2, duration_ms = 200 },
+    { col = 2, row = 2, duration_ms = 300 },
+]
+loop_mode = "once"
+</code></pre>
+<p>Each frame specifies a column and row in the sprite sheet, plus a duration in milliseconds. A single file can contain multiple named clips.</p>
+<h3 id="loop-modes"><a class="header" href="#loop-modes">Loop Modes</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Behavior</th></tr>
+</thead>
+<tbody>
+<tr><td><code>loop</code></td><td>Repeats indefinitely from the start</td></tr>
+<tr><td><code>ping_pong</code></td><td>Plays forward then backward, repeating</td></tr>
+<tr><td><code>once</code></td><td>Plays once and stops on the last frame</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="attaching-animation"><a class="header" href="#attaching-animation">Attaching Animation</a></h3>
+<p>Add a <code>sprite_animator</code> component alongside the <code>sprite</code> component:</p>
+<pre><code class="language-toml">[entities.player]
+archetype = "animated_sprite"
+[entities.player.transform]
+position = [0.0, 2.0, 0.0]
+[entities.player.sprite]
+mode = "sprite2d"
+texture = "character_sheet.png"
+width = 2.0
+height = 2.0
+[entities.player.sprite_animator]
+clip = "idle"
+playing = true
+speed = 1.0
+</code></pre>
+<p>The <code>animated_sprite</code> archetype bundles <code>transform</code>, <code>sprite</code> (mode = <code>sprite2d</code>), and <code>sprite_animator</code> together.</p>
+<h3 id="sprite-animator-component"><a class="header" href="#sprite-animator-component">Sprite Animator Component</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>clip</code></td><td>string</td><td><code>""</code></td><td>Active animation clip name</td></tr>
+<tr><td><code>playing</code></td><td>bool</td><td>false</td><td>Whether animation is playing</td></tr>
+<tr><td><code>speed</code></td><td>f32</td><td>1.0</td><td>Playback speed multiplier (0–10)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="how-playback-works"><a class="header" href="#how-playback-works">How Playback Works</a></h3>
+<p><code>SpriteAnimSync</code> runs each frame during the animation update:</p>
+<ol>
+<li><strong>Sync from world</strong> — reads <code>sprite_animator.clip</code> and <code>sprite_animator.playing</code> from the ECS, detects changes</li>
+<li><strong>Advance</strong> — steps playback time by <code>delta * speed</code>, finds the current frame in the clip</li>
+<li><strong>Write back</strong> — computes the source rectangle from the frame’s col/row and writes <code>sprite.source_rect</code> back to the ECS</li>
+</ol>
+<p>The source rectangle tells the GPU which portion of the sprite sheet to display. This happens automatically — scripts only need to set the clip name and playing state.</p>
+<h2 id="scripting-integration"><a class="header" href="#scripting-integration">Scripting Integration</a></h2>
+<p>Control sprite animation from <a href="scripting.html">Rhai scripts</a>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>sprite_play(entity_id, clip_name)</code></td><td>Start playing a clip</td></tr>
+<tr><td><code>sprite_stop(entity_id)</code></td><td>Stop playback</td></tr>
+<tr><td><code>sprite_set_speed(entity_id, speed)</code></td><td>Set playback speed</td></tr>
+<tr><td><code>sprite_is_playing(entity_id)</code></td><td>Check if currently playing</td></tr>
+</tbody>
+</table>
+</div>
+<p>The <code>on_animation_end(clip_name)</code> callback fires when a <code>once</code> clip finishes:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Rhai script: character animation controller
+fn on_init() {
+    let me = self_entity();
+    sprite_play(me, "idle");
+}
+
+fn on_update() {
+    let me = self_entity();
+    let vx = 0.0;
+
+    if action_held("move_right") { vx = 1.0; }
+    if action_held("move_left")  { vx = -1.0; }
+
+    if vx != 0.0 {
+        sprite_play(me, "run");
+        set_field(me, "sprite", "flip_x", vx &lt; 0.0);
+    } else {
+        sprite_play(me, "idle");
+    }
+}
+
+fn on_animation_end(clip) {
+    if clip == "jump" {
+        sprite_play(self_entity(), "idle");
+    }
+}
+<span class="boring">}</span></code></pre>
+<h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
+<ul>
+<li><strong>Sprite2dPipeline</strong> (<code>flint-render</code>) — wgpu render pipeline with orthographic projection, storage buffer instancing, per-texture batching</li>
+<li><strong>Sprite2dInstanceGpu</strong> — 80-byte per-instance struct: position, size, UV rect, tint, flip flags</li>
+<li><strong>TextureAtlas / AtlasRegistry</strong> (<code>flint-render</code>) — parses <code>.atlas.toml</code> files, resolves region names to pixel rectangles</li>
+<li><strong>SpriteAnimClip</strong> (<code>flint-animation</code>) — frame sequence with per-frame duration and loop mode</li>
+<li><strong>SpriteAnimSync</strong> (<code>flint-animation</code>) — bridges ECS <code>sprite_animator</code> components to playback state, writes <code>source_rect</code> back each frame</li>
+</ul>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="touch-input.html">Touch Input</a> — mobile-friendly input for 2D games</li>
+<li><a href="animation.html">Animation</a> — property tweens and skeletal animation</li>
+<li><a href="scripting.html">Scripting</a> — full scripting API including sprite animation functions</li>
+<li><a href="rendering.html">Rendering</a> — the GPU pipeline architecture</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../concepts/scripting.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../concepts/touch-input.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../concepts/scripting.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../concepts/touch-input.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

@@ -130,29 +130,26 @@
 <a href=#54 id=54 data-nosnippet>54</a>    <span class="doccomment">/// Drives transform.scale
 <a href=#55 id=55 data-nosnippet>55</a>    </span>Scale,
 <a href=#56 id=56 data-nosnippet>56</a>    <span class="doccomment">/// Drives an arbitrary float field on a named component
-<a href=#57 id=57 data-nosnippet>57</a>    </span>CustomFloat {
-<a href=#58 id=58 data-nosnippet>58</a>        component: String,
-<a href=#59 id=59 data-nosnippet>59</a>        field: String,
-<a href=#60 id=60 data-nosnippet>60</a>    },
-<a href=#61 id=61 data-nosnippet>61</a>}
-<a href=#62 id=62 data-nosnippet>62</a>
-<a href=#63 id=63 data-nosnippet>63</a><span class="doccomment">/// How to interpolate between keyframes
-<a href=#64 id=64 data-nosnippet>64</a></span><span class="attr">#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Default)]
-<a href=#65 id=65 data-nosnippet>65</a></span><span class="kw">pub enum </span>Interpolation {
-<a href=#66 id=66 data-nosnippet>66</a>    <span class="doccomment">/// Jump to next value (no blending)
-<a href=#67 id=67 data-nosnippet>67</a>    </span>Step,
-<a href=#68 id=68 data-nosnippet>68</a>    <span class="doccomment">/// Linear interpolation
-<a href=#69 id=69 data-nosnippet>69</a>    </span><span class="attr">#[default]
-<a href=#70 id=70 data-nosnippet>70</a>    </span>Linear,
-<a href=#71 id=71 data-nosnippet>71</a>    <span class="doccomment">/// Cubic Hermite spline (requires tangents)
-<a href=#72 id=72 data-nosnippet>72</a>    </span>CubicSpline,
-<a href=#73 id=73 data-nosnippet>73</a>}
-<a href=#74 id=74 data-nosnippet>74</a>
-<a href=#75 id=75 data-nosnippet>75</a><span class="doccomment">/// An event fired at a specific time during playback
-<a href=#76 id=76 data-nosnippet>76</a></span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
-<a href=#77 id=77 data-nosnippet>77</a></span><span class="kw">pub struct </span>AnimationEvent {
-<a href=#78 id=78 data-nosnippet>78</a>    <span class="doccomment">/// Time in seconds when this event fires
-<a href=#79 id=79 data-nosnippet>79</a>    </span><span class="kw">pub </span>time: f64,
-<a href=#80 id=80 data-nosnippet>80</a>    <span class="doccomment">/// Event name (consumed by game logic / audio triggers)
-<a href=#81 id=81 data-nosnippet>81</a>    </span><span class="kw">pub </span>event_name: String,
-<a href=#82 id=82 data-nosnippet>82</a>}</code></pre></div></section></main></body></html>
+<a href=#57 id=57 data-nosnippet>57</a>    </span>CustomFloat { component: String, field: String },
+<a href=#58 id=58 data-nosnippet>58</a>}
+<a href=#59 id=59 data-nosnippet>59</a>
+<a href=#60 id=60 data-nosnippet>60</a><span class="doccomment">/// How to interpolate between keyframes
+<a href=#61 id=61 data-nosnippet>61</a></span><span class="attr">#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Default)]
+<a href=#62 id=62 data-nosnippet>62</a></span><span class="kw">pub enum </span>Interpolation {
+<a href=#63 id=63 data-nosnippet>63</a>    <span class="doccomment">/// Jump to next value (no blending)
+<a href=#64 id=64 data-nosnippet>64</a>    </span>Step,
+<a href=#65 id=65 data-nosnippet>65</a>    <span class="doccomment">/// Linear interpolation
+<a href=#66 id=66 data-nosnippet>66</a>    </span><span class="attr">#[default]
+<a href=#67 id=67 data-nosnippet>67</a>    </span>Linear,
+<a href=#68 id=68 data-nosnippet>68</a>    <span class="doccomment">/// Cubic Hermite spline (requires tangents)
+<a href=#69 id=69 data-nosnippet>69</a>    </span>CubicSpline,
+<a href=#70 id=70 data-nosnippet>70</a>}
+<a href=#71 id=71 data-nosnippet>71</a>
+<a href=#72 id=72 data-nosnippet>72</a><span class="doccomment">/// An event fired at a specific time during playback
+<a href=#73 id=73 data-nosnippet>73</a></span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
+<a href=#74 id=74 data-nosnippet>74</a></span><span class="kw">pub struct </span>AnimationEvent {
+<a href=#75 id=75 data-nosnippet>75</a>    <span class="doccomment">/// Time in seconds when this event fires
+<a href=#76 id=76 data-nosnippet>76</a>    </span><span class="kw">pub </span>time: f64,
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="doccomment">/// Event name (consumed by game logic / audio triggers)
+<a href=#78 id=78 data-nosnippet>78</a>    </span><span class="kw">pub </span>event_name: String,
+<a href=#79 id=79 data-nosnippet>79</a>}</code></pre></div></section></main></body></html>

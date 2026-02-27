@@ -131,58 +131,53 @@
 <a href=#55 id=55 data-nosnippet>55</a>            <span class="kw">let </span>world_z = v * config.depth;
 <a href=#56 id=56 data-nosnippet>56</a>            <span class="kw">let </span>height = heightmap.sample(u, v) * config.height_scale;
 <a href=#57 id=57 data-nosnippet>57</a>
-<a href=#58 id=58 data-nosnippet>58</a>            <span class="kw">let </span>normal = heightmap.compute_normal(
-<a href=#59 id=59 data-nosnippet>59</a>                u,
-<a href=#60 id=60 data-nosnippet>60</a>                v,
-<a href=#61 id=61 data-nosnippet>61</a>                config.width,
-<a href=#62 id=62 data-nosnippet>62</a>                config.depth,
-<a href=#63 id=63 data-nosnippet>63</a>                config.height_scale,
-<a href=#64 id=64 data-nosnippet>64</a>            );
-<a href=#65 id=65 data-nosnippet>65</a>
-<a href=#66 id=66 data-nosnippet>66</a>            <span class="kw">let </span>pos = [world_x, height, world_z];
-<a href=#67 id=67 data-nosnippet>67</a>
-<a href=#68 id=68 data-nosnippet>68</a>            <span class="comment">// Update AABB
-<a href=#69 id=69 data-nosnippet>69</a>            </span><span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">3 </span>{
-<a href=#70 id=70 data-nosnippet>70</a>                aabb_min[i] = aabb_min[i].min(pos[i]);
-<a href=#71 id=71 data-nosnippet>71</a>                aabb_max[i] = aabb_max[i].max(pos[i]);
-<a href=#72 id=72 data-nosnippet>72</a>            }
-<a href=#73 id=73 data-nosnippet>73</a>
-<a href=#74 id=74 data-nosnippet>74</a>            positions.push(pos);
-<a href=#75 id=75 data-nosnippet>75</a>            normals.push(normal);
-<a href=#76 id=76 data-nosnippet>76</a>            uvs.push([u, v]);
-<a href=#77 id=77 data-nosnippet>77</a>        }
-<a href=#78 id=78 data-nosnippet>78</a>    }
-<a href=#79 id=79 data-nosnippet>79</a>
-<a href=#80 id=80 data-nosnippet>80</a>    <span class="comment">// Generate indices (two triangles per quad, CCW winding)
-<a href=#81 id=81 data-nosnippet>81</a>    </span><span class="kw">let </span>index_count = (resolution * resolution * <span class="number">6</span>) <span class="kw">as </span>usize;
-<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::with_capacity(index_count);
-<a href=#83 id=83 data-nosnippet>83</a>
-<a href=#84 id=84 data-nosnippet>84</a>    <span class="kw">for </span>qz <span class="kw">in </span><span class="number">0</span>..resolution {
-<a href=#85 id=85 data-nosnippet>85</a>        <span class="kw">for </span>qx <span class="kw">in </span><span class="number">0</span>..resolution {
-<a href=#86 id=86 data-nosnippet>86</a>            <span class="kw">let </span>tl = qz * verts_per_edge + qx;
-<a href=#87 id=87 data-nosnippet>87</a>            <span class="kw">let </span>tr = tl + <span class="number">1</span>;
-<a href=#88 id=88 data-nosnippet>88</a>            <span class="kw">let </span>bl = tl + verts_per_edge;
-<a href=#89 id=89 data-nosnippet>89</a>            <span class="kw">let </span>br = bl + <span class="number">1</span>;
+<a href=#58 id=58 data-nosnippet>58</a>            <span class="kw">let </span>normal =
+<a href=#59 id=59 data-nosnippet>59</a>                heightmap.compute_normal(u, v, config.width, config.depth, config.height_scale);
+<a href=#60 id=60 data-nosnippet>60</a>
+<a href=#61 id=61 data-nosnippet>61</a>            <span class="kw">let </span>pos = [world_x, height, world_z];
+<a href=#62 id=62 data-nosnippet>62</a>
+<a href=#63 id=63 data-nosnippet>63</a>            <span class="comment">// Update AABB
+<a href=#64 id=64 data-nosnippet>64</a>            </span><span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">3 </span>{
+<a href=#65 id=65 data-nosnippet>65</a>                aabb_min[i] = aabb_min[i].min(pos[i]);
+<a href=#66 id=66 data-nosnippet>66</a>                aabb_max[i] = aabb_max[i].max(pos[i]);
+<a href=#67 id=67 data-nosnippet>67</a>            }
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a>            positions.push(pos);
+<a href=#70 id=70 data-nosnippet>70</a>            normals.push(normal);
+<a href=#71 id=71 data-nosnippet>71</a>            uvs.push([u, v]);
+<a href=#72 id=72 data-nosnippet>72</a>        }
+<a href=#73 id=73 data-nosnippet>73</a>    }
+<a href=#74 id=74 data-nosnippet>74</a>
+<a href=#75 id=75 data-nosnippet>75</a>    <span class="comment">// Generate indices (two triangles per quad, CCW winding)
+<a href=#76 id=76 data-nosnippet>76</a>    </span><span class="kw">let </span>index_count = (resolution * resolution * <span class="number">6</span>) <span class="kw">as </span>usize;
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::with_capacity(index_count);
+<a href=#78 id=78 data-nosnippet>78</a>
+<a href=#79 id=79 data-nosnippet>79</a>    <span class="kw">for </span>qz <span class="kw">in </span><span class="number">0</span>..resolution {
+<a href=#80 id=80 data-nosnippet>80</a>        <span class="kw">for </span>qx <span class="kw">in </span><span class="number">0</span>..resolution {
+<a href=#81 id=81 data-nosnippet>81</a>            <span class="kw">let </span>tl = qz * verts_per_edge + qx;
+<a href=#82 id=82 data-nosnippet>82</a>            <span class="kw">let </span>tr = tl + <span class="number">1</span>;
+<a href=#83 id=83 data-nosnippet>83</a>            <span class="kw">let </span>bl = tl + verts_per_edge;
+<a href=#84 id=84 data-nosnippet>84</a>            <span class="kw">let </span>br = bl + <span class="number">1</span>;
+<a href=#85 id=85 data-nosnippet>85</a>
+<a href=#86 id=86 data-nosnippet>86</a>            <span class="comment">// First triangle (top-left, bottom-left, bottom-right)
+<a href=#87 id=87 data-nosnippet>87</a>            </span>indices.push(tl);
+<a href=#88 id=88 data-nosnippet>88</a>            indices.push(bl);
+<a href=#89 id=89 data-nosnippet>89</a>            indices.push(br);
 <a href=#90 id=90 data-nosnippet>90</a>
-<a href=#91 id=91 data-nosnippet>91</a>            <span class="comment">// First triangle (top-left, bottom-left, bottom-right)
+<a href=#91 id=91 data-nosnippet>91</a>            <span class="comment">// Second triangle (top-left, bottom-right, top-right)
 <a href=#92 id=92 data-nosnippet>92</a>            </span>indices.push(tl);
-<a href=#93 id=93 data-nosnippet>93</a>            indices.push(bl);
-<a href=#94 id=94 data-nosnippet>94</a>            indices.push(br);
-<a href=#95 id=95 data-nosnippet>95</a>
-<a href=#96 id=96 data-nosnippet>96</a>            <span class="comment">// Second triangle (top-left, bottom-right, top-right)
-<a href=#97 id=97 data-nosnippet>97</a>            </span>indices.push(tl);
-<a href=#98 id=98 data-nosnippet>98</a>            indices.push(br);
-<a href=#99 id=99 data-nosnippet>99</a>            indices.push(tr);
-<a href=#100 id=100 data-nosnippet>100</a>        }
-<a href=#101 id=101 data-nosnippet>101</a>    }
-<a href=#102 id=102 data-nosnippet>102</a>
-<a href=#103 id=103 data-nosnippet>103</a>    TerrainChunk {
-<a href=#104 id=104 data-nosnippet>104</a>        grid_pos: (col, row),
-<a href=#105 id=105 data-nosnippet>105</a>        positions,
-<a href=#106 id=106 data-nosnippet>106</a>        normals,
-<a href=#107 id=107 data-nosnippet>107</a>        uvs,
-<a href=#108 id=108 data-nosnippet>108</a>        indices,
-<a href=#109 id=109 data-nosnippet>109</a>        aabb_min,
-<a href=#110 id=110 data-nosnippet>110</a>        aabb_max,
-<a href=#111 id=111 data-nosnippet>111</a>    }
-<a href=#112 id=112 data-nosnippet>112</a>}</code></pre></div></section></main></body></html>
+<a href=#93 id=93 data-nosnippet>93</a>            indices.push(br);
+<a href=#94 id=94 data-nosnippet>94</a>            indices.push(tr);
+<a href=#95 id=95 data-nosnippet>95</a>        }
+<a href=#96 id=96 data-nosnippet>96</a>    }
+<a href=#97 id=97 data-nosnippet>97</a>
+<a href=#98 id=98 data-nosnippet>98</a>    TerrainChunk {
+<a href=#99 id=99 data-nosnippet>99</a>        grid_pos: (col, row),
+<a href=#100 id=100 data-nosnippet>100</a>        positions,
+<a href=#101 id=101 data-nosnippet>101</a>        normals,
+<a href=#102 id=102 data-nosnippet>102</a>        uvs,
+<a href=#103 id=103 data-nosnippet>103</a>        indices,
+<a href=#104 id=104 data-nosnippet>104</a>        aabb_min,
+<a href=#105 id=105 data-nosnippet>105</a>        aabb_max,
+<a href=#106 id=106 data-nosnippet>106</a>    }
+<a href=#107 id=107 data-nosnippet>107</a>}</code></pre></div></section></main></body></html>

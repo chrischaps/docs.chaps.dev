@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["apply_cli_overrides","auto_fit_camera","create_model_world","model_load_config","register_animation_data","render_node_tree","run","run_headless","run_interactive"],"struct":["AnimationInfo","ModelStats","PreviewApp","PreviewArgs","PreviewState"]};

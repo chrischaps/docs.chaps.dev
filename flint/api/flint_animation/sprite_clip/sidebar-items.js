@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["LoopMode"],"fn":["load_sprite_clips_from_file"],"struct":["SpriteAnimClip","SpriteAnimFrame"]};

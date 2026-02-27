@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Sprite2dBatch","Sprite2dInstanceGpu","Sprite2dPipeline","Sprite2dUniforms"]};
