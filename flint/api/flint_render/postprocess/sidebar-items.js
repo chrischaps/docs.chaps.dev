@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["HDR_FORMAT","MAX_BLOOM_MIPS","SSAO_KERNEL_SIZE"],"struct":["BloomMip","BloomUniforms","PostProcessConfig","PostProcessPipeline","PostProcessResources","PostProcessUniforms","SsaoBlurUniforms","SsaoUniforms"]};
+window.SIDEBAR_ITEMS = {"constant":["HDR_FORMAT","MAX_BLOOM_MIPS","SSAO_KERNEL_SIZE"],"struct":["BloomMip","BloomUniforms","PostProcessConfig","PostProcessPipeline","PostProcessResources","PostProcessUniforms","SsaoBlurUniforms","SsaoUniforms","VolumetricBlurUniforms","VolumetricUniforms"]};

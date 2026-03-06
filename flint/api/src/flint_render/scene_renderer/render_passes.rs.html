@@ -112,7 +112,7 @@
 <a href=#36 id=36 data-nosnippet>36</a>
 <a href=#37 id=37 data-nosnippet>37</a>        <span class="comment">// Update cascade matrices
 <a href=#38 id=38 data-nosnippet>38</a>        </span><span class="kw">let </span>camera_inv = camera.inverse_view_projection_matrix();
-<a href=#39 id=39 data-nosnippet>39</a>        shadow_pass.update_cascades(light.direction, camera_pos, camera_inv, <span class="number">0.1</span>, <span class="number">200.0</span>);
+<a href=#39 id=39 data-nosnippet>39</a>        shadow_pass.update_cascades(light.direction, camera_pos, camera_inv, <span class="number">0.1</span>, <span class="number">200.0</span>, <span class="number">100.0</span>);
 <a href=#40 id=40 data-nosnippet>40</a>
 <a href=#41 id=41 data-nosnippet>41</a>        <span class="comment">// Write shadow uniforms
 <a href=#42 id=42 data-nosnippet>42</a>        </span>queue.write_buffer(
@@ -992,25 +992,45 @@
 <a href=#916 id=916 data-nosnippet>916</a>            );
 <a href=#917 id=917 data-nosnippet>917</a>        }
 <a href=#918 id=918 data-nosnippet>918</a>
-<a href=#919 id=919 data-nosnippet>919</a>        <span class="comment">// Run bloom if post-processing effects are enabled
-<a href=#920 id=920 data-nosnippet>920</a>        </span><span class="kw">if </span><span class="self">self</span>.postprocess_config.enabled
-<a href=#921 id=921 data-nosnippet>921</a>            &amp;&amp; <span class="self">self</span>.postprocess_config.bloom_enabled
-<a href=#922 id=922 data-nosnippet>922</a>            &amp;&amp; resources.bloom_mip_count &gt; <span class="number">0
-<a href=#923 id=923 data-nosnippet>923</a>        </span>{
-<a href=#924 id=924 data-nosnippet>924</a>            pp.run_bloom(device, queue, resources, <span class="kw-2">&amp;</span><span class="self">self</span>.postprocess_config);
-<a href=#925 id=925 data-nosnippet>925</a>        }
-<a href=#926 id=926 data-nosnippet>926</a>
-<a href=#927 id=927 data-nosnippet>927</a>        <span class="comment">// Composite: HDR + bloom + SSAO + fog → tonemapped sRGB surface
-<a href=#928 id=928 data-nosnippet>928</a>        // (always runs — this is what converts Rgba16Float → surface format)
-<a href=#929 id=929 data-nosnippet>929</a>        </span>pp.composite(
-<a href=#930 id=930 data-nosnippet>930</a>            device,
-<a href=#931 id=931 data-nosnippet>931</a>            queue,
-<a href=#932 id=932 data-nosnippet>932</a>            resources,
-<a href=#933 id=933 data-nosnippet>933</a>            <span class="kw-2">&amp;</span><span class="self">self</span>.postprocess_config,
-<a href=#934 id=934 data-nosnippet>934</a>            target_view,
-<a href=#935 id=935 data-nosnippet>935</a>            depth_view,
-<a href=#936 id=936 data-nosnippet>936</a>            camera,
-<a href=#937 id=937 data-nosnippet>937</a>        );
-<a href=#938 id=938 data-nosnippet>938</a>    }
-<a href=#939 id=939 data-nosnippet>939</a>}
+<a href=#919 id=919 data-nosnippet>919</a>        <span class="comment">// Run volumetric (god rays) if enabled and shadows are available
+<a href=#920 id=920 data-nosnippet>920</a>        </span><span class="kw">if </span><span class="self">self</span>.postprocess_config.enabled &amp;&amp; <span class="self">self</span>.postprocess_config.volumetric_enabled {
+<a href=#921 id=921 data-nosnippet>921</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(shadow_pass) = <span class="kw-2">&amp;</span><span class="self">self</span>.shadow_pass {
+<a href=#922 id=922 data-nosnippet>922</a>                <span class="kw">if </span>shadow_pass.enabled {
+<a href=#923 id=923 data-nosnippet>923</a>                    pp.run_volumetric(
+<a href=#924 id=924 data-nosnippet>924</a>                        device,
+<a href=#925 id=925 data-nosnippet>925</a>                        queue,
+<a href=#926 id=926 data-nosnippet>926</a>                        resources,
+<a href=#927 id=927 data-nosnippet>927</a>                        <span class="kw-2">&amp;</span><span class="self">self</span>.postprocess_config,
+<a href=#928 id=928 data-nosnippet>928</a>                        depth_view,
+<a href=#929 id=929 data-nosnippet>929</a>                        camera,
+<a href=#930 id=930 data-nosnippet>930</a>                        <span class="kw-2">&amp;</span>shadow_pass.shadow_view,
+<a href=#931 id=931 data-nosnippet>931</a>                        <span class="kw-2">&amp;</span>shadow_pass.shadow_sampler,
+<a href=#932 id=932 data-nosnippet>932</a>                        <span class="kw-2">&amp;</span>shadow_pass.shadow_uniforms_buffer,
+<a href=#933 id=933 data-nosnippet>933</a>                        <span class="kw-2">&amp;</span><span class="self">self</span>.light_buffer,
+<a href=#934 id=934 data-nosnippet>934</a>                    );
+<a href=#935 id=935 data-nosnippet>935</a>                }
+<a href=#936 id=936 data-nosnippet>936</a>            }
+<a href=#937 id=937 data-nosnippet>937</a>        }
+<a href=#938 id=938 data-nosnippet>938</a>
+<a href=#939 id=939 data-nosnippet>939</a>        <span class="comment">// Run bloom if post-processing effects are enabled
+<a href=#940 id=940 data-nosnippet>940</a>        </span><span class="kw">if </span><span class="self">self</span>.postprocess_config.enabled
+<a href=#941 id=941 data-nosnippet>941</a>            &amp;&amp; <span class="self">self</span>.postprocess_config.bloom_enabled
+<a href=#942 id=942 data-nosnippet>942</a>            &amp;&amp; resources.bloom_mip_count &gt; <span class="number">0
+<a href=#943 id=943 data-nosnippet>943</a>        </span>{
+<a href=#944 id=944 data-nosnippet>944</a>            pp.run_bloom(device, queue, resources, <span class="kw-2">&amp;</span><span class="self">self</span>.postprocess_config);
+<a href=#945 id=945 data-nosnippet>945</a>        }
+<a href=#946 id=946 data-nosnippet>946</a>
+<a href=#947 id=947 data-nosnippet>947</a>        <span class="comment">// Composite: HDR + bloom + SSAO + volumetric + fog → tonemapped sRGB surface
+<a href=#948 id=948 data-nosnippet>948</a>        // (always runs — this is what converts Rgba16Float → surface format)
+<a href=#949 id=949 data-nosnippet>949</a>        </span>pp.composite(
+<a href=#950 id=950 data-nosnippet>950</a>            device,
+<a href=#951 id=951 data-nosnippet>951</a>            queue,
+<a href=#952 id=952 data-nosnippet>952</a>            resources,
+<a href=#953 id=953 data-nosnippet>953</a>            <span class="kw-2">&amp;</span><span class="self">self</span>.postprocess_config,
+<a href=#954 id=954 data-nosnippet>954</a>            target_view,
+<a href=#955 id=955 data-nosnippet>955</a>            depth_view,
+<a href=#956 id=956 data-nosnippet>956</a>            camera,
+<a href=#957 id=957 data-nosnippet>957</a>        );
+<a href=#958 id=958 data-nosnippet>958</a>    }
+<a href=#959 id=959 data-nosnippet>959</a>}
 </code></pre></div></section></main></body></html>

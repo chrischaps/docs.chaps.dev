@@ -1905,233 +1905,244 @@
 <a href=#1829 id=1829 data-nosnippet>1829</a>                        <span class="kw">if </span>(dir_count <span class="kw">as </span>usize) &lt; MAX_DIRECTIONAL_LIGHTS {
 <a href=#1830 id=1830 data-nosnippet>1830</a>                            <span class="kw">let </span>direction = <span class="self">Self</span>::extract_light_vec3(<span class="kw-2">&amp;</span>light, <span class="string">"direction"</span>)
 <a href=#1831 id=1831 data-nosnippet>1831</a>                                .unwrap_or([<span class="number">0.0</span>, -<span class="number">1.0</span>, <span class="number">0.0</span>]);
-<a href=#1832 id=1832 data-nosnippet>1832</a>                            directionals[dir_count <span class="kw">as </span>usize] = DirectionalLight {
-<a href=#1833 id=1833 data-nosnippet>1833</a>                                direction,
-<a href=#1834 id=1834 data-nosnippet>1834</a>                                _pad0: <span class="number">0.0</span>,
-<a href=#1835 id=1835 data-nosnippet>1835</a>                                color,
-<a href=#1836 id=1836 data-nosnippet>1836</a>                                intensity,
-<a href=#1837 id=1837 data-nosnippet>1837</a>                            };
-<a href=#1838 id=1838 data-nosnippet>1838</a>                            dir_count += <span class="number">1</span>;
-<a href=#1839 id=1839 data-nosnippet>1839</a>                        }
-<a href=#1840 id=1840 data-nosnippet>1840</a>                    }
-<a href=#1841 id=1841 data-nosnippet>1841</a>                    <span class="string">"point" </span>=&gt; {
-<a href=#1842 id=1842 data-nosnippet>1842</a>                        <span class="kw">if </span>(point_count <span class="kw">as </span>usize) &lt; MAX_POINT_LIGHTS {
-<a href=#1843 id=1843 data-nosnippet>1843</a>                            <span class="kw">let </span>light_pos =
-<a href=#1844 id=1844 data-nosnippet>1844</a>                                world.get_world_position(entity_id).unwrap_or(Vec3::ZERO);
-<a href=#1845 id=1845 data-nosnippet>1845</a>                            <span class="kw">let </span>radius = light
-<a href=#1846 id=1846 data-nosnippet>1846</a>                                .get(<span class="string">"range"</span>)
-<a href=#1847 id=1847 data-nosnippet>1847</a>                                .or_else(|| light.get(<span class="string">"radius"</span>))
-<a href=#1848 id=1848 data-nosnippet>1848</a>                                .and_then(toml_f32)
-<a href=#1849 id=1849 data-nosnippet>1849</a>                                .unwrap_or(<span class="number">10.0</span>);
-<a href=#1850 id=1850 data-nosnippet>1850</a>                            points[point_count <span class="kw">as </span>usize] = PointLight {
-<a href=#1851 id=1851 data-nosnippet>1851</a>                                position: [light_pos.x, light_pos.y, light_pos.z],
-<a href=#1852 id=1852 data-nosnippet>1852</a>                                radius,
-<a href=#1853 id=1853 data-nosnippet>1853</a>                                color,
-<a href=#1854 id=1854 data-nosnippet>1854</a>                                intensity,
-<a href=#1855 id=1855 data-nosnippet>1855</a>                            };
-<a href=#1856 id=1856 data-nosnippet>1856</a>                            point_count += <span class="number">1</span>;
-<a href=#1857 id=1857 data-nosnippet>1857</a>                        }
-<a href=#1858 id=1858 data-nosnippet>1858</a>                    }
-<a href=#1859 id=1859 data-nosnippet>1859</a>                    <span class="string">"spot" </span>=&gt; {
-<a href=#1860 id=1860 data-nosnippet>1860</a>                        <span class="kw">if </span>(spot_count <span class="kw">as </span>usize) &lt; MAX_SPOT_LIGHTS {
-<a href=#1861 id=1861 data-nosnippet>1861</a>                            <span class="kw">let </span>light_pos =
-<a href=#1862 id=1862 data-nosnippet>1862</a>                                world.get_world_position(entity_id).unwrap_or(Vec3::ZERO);
-<a href=#1863 id=1863 data-nosnippet>1863</a>                            <span class="kw">let </span>direction = <span class="self">Self</span>::extract_light_vec3(<span class="kw-2">&amp;</span>light, <span class="string">"direction"</span>)
-<a href=#1864 id=1864 data-nosnippet>1864</a>                                .unwrap_or([<span class="number">0.0</span>, -<span class="number">1.0</span>, <span class="number">0.0</span>]);
-<a href=#1865 id=1865 data-nosnippet>1865</a>                            <span class="kw">let </span>radius = light
-<a href=#1866 id=1866 data-nosnippet>1866</a>                                .get(<span class="string">"range"</span>)
-<a href=#1867 id=1867 data-nosnippet>1867</a>                                .or_else(|| light.get(<span class="string">"radius"</span>))
-<a href=#1868 id=1868 data-nosnippet>1868</a>                                .and_then(toml_f32)
-<a href=#1869 id=1869 data-nosnippet>1869</a>                                .unwrap_or(<span class="number">10.0</span>);
-<a href=#1870 id=1870 data-nosnippet>1870</a>                            <span class="kw">let </span>inner_angle =
-<a href=#1871 id=1871 data-nosnippet>1871</a>                                light.get(<span class="string">"inner_angle"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.3</span>);
-<a href=#1872 id=1872 data-nosnippet>1872</a>                            <span class="kw">let </span>outer_angle =
-<a href=#1873 id=1873 data-nosnippet>1873</a>                                light.get(<span class="string">"outer_angle"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.5</span>);
-<a href=#1874 id=1874 data-nosnippet>1874</a>                            spots[spot_count <span class="kw">as </span>usize] = SpotLight {
-<a href=#1875 id=1875 data-nosnippet>1875</a>                                position: [light_pos.x, light_pos.y, light_pos.z],
-<a href=#1876 id=1876 data-nosnippet>1876</a>                                radius,
-<a href=#1877 id=1877 data-nosnippet>1877</a>                                direction,
-<a href=#1878 id=1878 data-nosnippet>1878</a>                                inner_angle,
-<a href=#1879 id=1879 data-nosnippet>1879</a>                                color,
-<a href=#1880 id=1880 data-nosnippet>1880</a>                                outer_angle,
-<a href=#1881 id=1881 data-nosnippet>1881</a>                                intensity,
-<a href=#1882 id=1882 data-nosnippet>1882</a>                                _pad0: <span class="number">0.0</span>,
-<a href=#1883 id=1883 data-nosnippet>1883</a>                                _pad1: <span class="number">0.0</span>,
-<a href=#1884 id=1884 data-nosnippet>1884</a>                                _pad2: <span class="number">0.0</span>,
-<a href=#1885 id=1885 data-nosnippet>1885</a>                            };
-<a href=#1886 id=1886 data-nosnippet>1886</a>                            spot_count += <span class="number">1</span>;
-<a href=#1887 id=1887 data-nosnippet>1887</a>                        }
-<a href=#1888 id=1888 data-nosnippet>1888</a>                    }
-<a href=#1889 id=1889 data-nosnippet>1889</a>                    <span class="kw">_ </span>=&gt; {}
-<a href=#1890 id=1890 data-nosnippet>1890</a>                }
-<a href=#1891 id=1891 data-nosnippet>1891</a>            }
-<a href=#1892 id=1892 data-nosnippet>1892</a>        }
-<a href=#1893 id=1893 data-nosnippet>1893</a>
-<a href=#1894 id=1894 data-nosnippet>1894</a>        <span class="comment">// If no lights found in scene, use defaults
-<a href=#1895 id=1895 data-nosnippet>1895</a>        </span><span class="kw">if </span>dir_count == <span class="number">0 </span>&amp;&amp; point_count == <span class="number">0 </span>&amp;&amp; spot_count == <span class="number">0 </span>{
-<a href=#1896 id=1896 data-nosnippet>1896</a>            <span class="self">self</span>.light_uniforms = LightUniforms::default_scene_lights();
-<a href=#1897 id=1897 data-nosnippet>1897</a>        } <span class="kw">else </span>{
-<a href=#1898 id=1898 data-nosnippet>1898</a>            <span class="self">self</span>.light_uniforms.directional_lights = directionals;
-<a href=#1899 id=1899 data-nosnippet>1899</a>            <span class="self">self</span>.light_uniforms.point_lights = points;
-<a href=#1900 id=1900 data-nosnippet>1900</a>            <span class="self">self</span>.light_uniforms.spot_lights = spots;
-<a href=#1901 id=1901 data-nosnippet>1901</a>            <span class="self">self</span>.light_uniforms.directional_count = dir_count;
-<a href=#1902 id=1902 data-nosnippet>1902</a>            <span class="self">self</span>.light_uniforms.point_count = point_count;
-<a href=#1903 id=1903 data-nosnippet>1903</a>            <span class="self">self</span>.light_uniforms.spot_count = spot_count;
-<a href=#1904 id=1904 data-nosnippet>1904</a>        }
-<a href=#1905 id=1905 data-nosnippet>1905</a>    }
-<a href=#1906 id=1906 data-nosnippet>1906</a>
-<a href=#1907 id=1907 data-nosnippet>1907</a>    <span class="kw">fn </span>extract_light_vec3(table: <span class="kw-2">&amp;</span>toml::Value, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">3</span>]&gt; {
-<a href=#1908 id=1908 data-nosnippet>1908</a>        <span class="kw">let </span>arr = table.get(key)<span class="question-mark">?</span>.as_array()<span class="question-mark">?</span>;
-<a href=#1909 id=1909 data-nosnippet>1909</a>        <span class="kw">if </span>arr.len() &gt;= <span class="number">3 </span>{
-<a href=#1910 id=1910 data-nosnippet>1910</a>            <span class="kw">let </span>x = arr[<span class="number">0</span>]
-<a href=#1911 id=1911 data-nosnippet>1911</a>                .as_float()
-<a href=#1912 id=1912 data-nosnippet>1912</a>                .or_else(|| arr[<span class="number">0</span>].as_integer().map(|i| i <span class="kw">as </span>f64))<span class="question-mark">? </span><span class="kw">as </span>f32;
-<a href=#1913 id=1913 data-nosnippet>1913</a>            <span class="kw">let </span>y = arr[<span class="number">1</span>]
-<a href=#1914 id=1914 data-nosnippet>1914</a>                .as_float()
-<a href=#1915 id=1915 data-nosnippet>1915</a>                .or_else(|| arr[<span class="number">1</span>].as_integer().map(|i| i <span class="kw">as </span>f64))<span class="question-mark">? </span><span class="kw">as </span>f32;
-<a href=#1916 id=1916 data-nosnippet>1916</a>            <span class="kw">let </span>z = arr[<span class="number">2</span>]
-<a href=#1917 id=1917 data-nosnippet>1917</a>                .as_float()
-<a href=#1918 id=1918 data-nosnippet>1918</a>                .or_else(|| arr[<span class="number">2</span>].as_integer().map(|i| i <span class="kw">as </span>f64))<span class="question-mark">? </span><span class="kw">as </span>f32;
-<a href=#1919 id=1919 data-nosnippet>1919</a>            <span class="prelude-val">Some</span>([x, y, z])
-<a href=#1920 id=1920 data-nosnippet>1920</a>        } <span class="kw">else </span>{
-<a href=#1921 id=1921 data-nosnippet>1921</a>            <span class="prelude-val">None
-<a href=#1922 id=1922 data-nosnippet>1922</a>        </span>}
-<a href=#1923 id=1923 data-nosnippet>1923</a>    }
-<a href=#1924 id=1924 data-nosnippet>1924</a>
-<a href=#1925 id=1925 data-nosnippet>1925</a>    <span class="comment">// ── Render entry points ──
-<a href=#1926 id=1926 data-nosnippet>1926</a>
-<a href=#1927 id=1927 data-nosnippet>1927</a>    </span><span class="doccomment">/// Render the scene using a RenderContext (windowed mode)
-<a href=#1928 id=1928 data-nosnippet>1928</a>    </span><span class="kw">pub fn </span>render(
-<a href=#1929 id=1929 data-nosnippet>1929</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#1930 id=1930 data-nosnippet>1930</a>        context: <span class="kw-2">&amp;</span>RenderContext,
-<a href=#1931 id=1931 data-nosnippet>1931</a>        camera: <span class="kw-2">&amp;</span>Camera,
-<a href=#1932 id=1932 data-nosnippet>1932</a>        view: <span class="kw-2">&amp;</span>wgpu::TextureView,
-<a href=#1933 id=1933 data-nosnippet>1933</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), wgpu::SurfaceError&gt; {
-<a href=#1934 id=1934 data-nosnippet>1934</a>        <span class="self">self</span>.render_to(
-<a href=#1935 id=1935 data-nosnippet>1935</a>            <span class="kw-2">&amp;</span>context.device,
-<a href=#1936 id=1936 data-nosnippet>1936</a>            <span class="kw-2">&amp;</span>context.queue,
-<a href=#1937 id=1937 data-nosnippet>1937</a>            <span class="kw-2">&amp;</span>context.depth_view,
-<a href=#1938 id=1938 data-nosnippet>1938</a>            camera,
-<a href=#1939 id=1939 data-nosnippet>1939</a>            view,
-<a href=#1940 id=1940 data-nosnippet>1940</a>        );
-<a href=#1941 id=1941 data-nosnippet>1941</a>        <span class="prelude-val">Ok</span>(())
-<a href=#1942 id=1942 data-nosnippet>1942</a>    }
-<a href=#1943 id=1943 data-nosnippet>1943</a>
-<a href=#1944 id=1944 data-nosnippet>1944</a>    <span class="doccomment">/// Resize post-processing resources (call on window resize).
-<a href=#1945 id=1945 data-nosnippet>1945</a>    </span><span class="kw">pub fn </span>resize_postprocess(<span class="kw-2">&amp;mut </span><span class="self">self</span>, device: <span class="kw-2">&amp;</span>wgpu::Device, width: u32, height: u32) {
-<a href=#1946 id=1946 data-nosnippet>1946</a>        <span class="kw">if </span>width == <span class="number">0 </span>|| height == <span class="number">0 </span>{
-<a href=#1947 id=1947 data-nosnippet>1947</a>            <span class="kw">return</span>;
-<a href=#1948 id=1948 data-nosnippet>1948</a>        }
-<a href=#1949 id=1949 data-nosnippet>1949</a>        <span class="self">self</span>.postprocess_resources = <span class="prelude-val">Some</span>(PostProcessResources::new(device, width, height));
-<a href=#1950 id=1950 data-nosnippet>1950</a>    }
-<a href=#1951 id=1951 data-nosnippet>1951</a>
-<a href=#1952 id=1952 data-nosnippet>1952</a>    <span class="doccomment">/// Get the current post-processing configuration.
-<a href=#1953 id=1953 data-nosnippet>1953</a>    </span><span class="kw">pub fn </span>post_process_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PostProcessConfig {
-<a href=#1954 id=1954 data-nosnippet>1954</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.postprocess_config
-<a href=#1955 id=1955 data-nosnippet>1955</a>    }
-<a href=#1956 id=1956 data-nosnippet>1956</a>
-<a href=#1957 id=1957 data-nosnippet>1957</a>    <span class="doccomment">/// Set the post-processing configuration.
-<a href=#1958 id=1958 data-nosnippet>1958</a>    </span><span class="kw">pub fn </span>set_post_process_config(<span class="kw-2">&amp;mut </span><span class="self">self</span>, config: PostProcessConfig) {
-<a href=#1959 id=1959 data-nosnippet>1959</a>        <span class="self">self</span>.postprocess_config = config;
-<a href=#1960 id=1960 data-nosnippet>1960</a>    }
-<a href=#1961 id=1961 data-nosnippet>1961</a>
-<a href=#1962 id=1962 data-nosnippet>1962</a>    <span class="comment">// ── Slim render_to: orchestrates shadow → uniforms → main pass → postprocess ──
-<a href=#1963 id=1963 data-nosnippet>1963</a>
-<a href=#1964 id=1964 data-nosnippet>1964</a>    </span><span class="doccomment">/// Render the scene to an arbitrary texture view with explicit device/queue/depth
-<a href=#1965 id=1965 data-nosnippet>1965</a>    </span><span class="kw">pub fn </span>render_to(
-<a href=#1966 id=1966 data-nosnippet>1966</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#1967 id=1967 data-nosnippet>1967</a>        device: <span class="kw-2">&amp;</span>wgpu::Device,
-<a href=#1968 id=1968 data-nosnippet>1968</a>        queue: <span class="kw-2">&amp;</span>wgpu::Queue,
-<a href=#1969 id=1969 data-nosnippet>1969</a>        depth_view: <span class="kw-2">&amp;</span>wgpu::TextureView,
-<a href=#1970 id=1970 data-nosnippet>1970</a>        camera: <span class="kw-2">&amp;</span>Camera,
-<a href=#1971 id=1971 data-nosnippet>1971</a>        target_view: <span class="kw-2">&amp;</span>wgpu::TextureView,
-<a href=#1972 id=1972 data-nosnippet>1972</a>    ) {
-<a href=#1973 id=1973 data-nosnippet>1973</a>        <span class="kw">let </span>view_proj = camera.view_projection_matrix();
-<a href=#1974 id=1974 data-nosnippet>1974</a>        <span class="kw">let </span>camera_pos = camera.position_array();
-<a href=#1975 id=1975 data-nosnippet>1975</a>        <span class="kw">let </span>debug_mode_u32 = <span class="self">self</span>.debug_state.mode.as_u32();
-<a href=#1976 id=1976 data-nosnippet>1976</a>        <span class="kw">let </span>wireframe_only = <span class="self">self</span>.debug_state.mode == DebugMode::WireframeOnly;
-<a href=#1977 id=1977 data-nosnippet>1977</a>
-<a href=#1978 id=1978 data-nosnippet>1978</a>        <span class="comment">// Update light uniforms
-<a href=#1979 id=1979 data-nosnippet>1979</a>        </span>queue.write_buffer(
-<a href=#1980 id=1980 data-nosnippet>1980</a>            <span class="kw-2">&amp;</span><span class="self">self</span>.light_buffer,
-<a href=#1981 id=1981 data-nosnippet>1981</a>            <span class="number">0</span>,
-<a href=#1982 id=1982 data-nosnippet>1982</a>            bytemuck::cast_slice(<span class="kw-2">&amp;</span>[<span class="self">self</span>.light_uniforms]),
-<a href=#1983 id=1983 data-nosnippet>1983</a>        );
-<a href=#1984 id=1984 data-nosnippet>1984</a>
-<a href=#1985 id=1985 data-nosnippet>1985</a>        <span class="comment">// Shadow pass: render depth from light perspective
-<a href=#1986 id=1986 data-nosnippet>1986</a>        </span><span class="self">self</span>.render_shadow_pass(device, queue, camera, camera_pos);
-<a href=#1987 id=1987 data-nosnippet>1987</a>
-<a href=#1988 id=1988 data-nosnippet>1988</a>        <span class="comment">// All scene pipelines target Rgba16Float, so we always render to the HDR
-<a href=#1989 id=1989 data-nosnippet>1989</a>        // buffer and composite to sRGB.
-<a href=#1990 id=1990 data-nosnippet>1990</a>        </span><span class="kw">let </span>has_postprocess =
-<a href=#1991 id=1991 data-nosnippet>1991</a>            <span class="self">self</span>.postprocess_pipeline.is_some() &amp;&amp; <span class="self">self</span>.postprocess_resources.is_some();
-<a href=#1992 id=1992 data-nosnippet>1992</a>
-<a href=#1993 id=1993 data-nosnippet>1993</a>        <span class="comment">// Shader-side tonemapping is always OFF when compositing through the HDR
-<a href=#1994 id=1994 data-nosnippet>1994</a>        // buffer (the composite pass handles ACES + gamma).
-<a href=#1995 id=1995 data-nosnippet>1995</a>        </span><span class="kw">let </span>tonemapping_u32: u32 = <span class="kw">if </span>!has_postprocess &amp;&amp; <span class="self">self</span>.tonemapping_enabled {
-<a href=#1996 id=1996 data-nosnippet>1996</a>            <span class="number">1
-<a href=#1997 id=1997 data-nosnippet>1997</a>        </span>} <span class="kw">else </span>{
-<a href=#1998 id=1998 data-nosnippet>1998</a>            <span class="number">0
-<a href=#1999 id=1999 data-nosnippet>1999</a>        </span>};
-<a href=#2000 id=2000 data-nosnippet>2000</a>
-<a href=#2001 id=2001 data-nosnippet>2001</a>        <span class="comment">// Update all per-frame uniforms and sort transparent draws
-<a href=#2002 id=2002 data-nosnippet>2002</a>        </span><span class="self">self</span>.update_per_frame_uniforms(
-<a href=#2003 id=2003 data-nosnippet>2003</a>            queue,
-<a href=#2004 id=2004 data-nosnippet>2004</a>            view_proj,
-<a href=#2005 id=2005 data-nosnippet>2005</a>            camera_pos,
-<a href=#2006 id=2006 data-nosnippet>2006</a>            debug_mode_u32,
-<a href=#2007 id=2007 data-nosnippet>2007</a>            tonemapping_u32,
-<a href=#2008 id=2008 data-nosnippet>2008</a>            camera,
-<a href=#2009 id=2009 data-nosnippet>2009</a>        );
-<a href=#2010 id=2010 data-nosnippet>2010</a>
-<a href=#2011 id=2011 data-nosnippet>2011</a>        <span class="comment">// Choose render target: HDR buffer or direct to surface
-<a href=#2012 id=2012 data-nosnippet>2012</a>        </span><span class="kw">let </span>scene_target_view = <span class="kw">if </span>has_postprocess {
-<a href=#2013 id=2013 data-nosnippet>2013</a>            <span class="kw-2">&amp;</span><span class="self">self</span>.postprocess_resources.as_ref().unwrap().hdr_view
-<a href=#2014 id=2014 data-nosnippet>2014</a>        } <span class="kw">else </span>{
-<a href=#2015 id=2015 data-nosnippet>2015</a>            target_view
-<a href=#2016 id=2016 data-nosnippet>2016</a>        };
-<a href=#2017 id=2017 data-nosnippet>2017</a>
-<a href=#2018 id=2018 data-nosnippet>2018</a>        <span class="kw">let </span><span class="kw-2">mut </span>encoder = device.create_command_encoder(<span class="kw-2">&amp;</span>wgpu::CommandEncoderDescriptor {
-<a href=#2019 id=2019 data-nosnippet>2019</a>            label: <span class="prelude-val">Some</span>(<span class="string">"Render Encoder"</span>),
-<a href=#2020 id=2020 data-nosnippet>2020</a>        });
+<a href=#1832 id=1832 data-nosnippet>1832</a>                            <span class="kw">let </span>volumetric_intensity = light
+<a href=#1833 id=1833 data-nosnippet>1833</a>                                .get(<span class="string">"volumetric_intensity"</span>)
+<a href=#1834 id=1834 data-nosnippet>1834</a>                                .and_then(toml_f32)
+<a href=#1835 id=1835 data-nosnippet>1835</a>                                .unwrap_or(<span class="number">0.0</span>);
+<a href=#1836 id=1836 data-nosnippet>1836</a>                            <span class="kw">let </span>volumetric_color = <span class="self">Self</span>::extract_light_vec3(
+<a href=#1837 id=1837 data-nosnippet>1837</a>                                <span class="kw-2">&amp;</span>light,
+<a href=#1838 id=1838 data-nosnippet>1838</a>                                <span class="string">"volumetric_color"</span>,
+<a href=#1839 id=1839 data-nosnippet>1839</a>                            )
+<a href=#1840 id=1840 data-nosnippet>1840</a>                            .unwrap_or(color);
+<a href=#1841 id=1841 data-nosnippet>1841</a>                            directionals[dir_count <span class="kw">as </span>usize] = DirectionalLight {
+<a href=#1842 id=1842 data-nosnippet>1842</a>                                direction,
+<a href=#1843 id=1843 data-nosnippet>1843</a>                                volumetric_intensity,
+<a href=#1844 id=1844 data-nosnippet>1844</a>                                color,
+<a href=#1845 id=1845 data-nosnippet>1845</a>                                intensity,
+<a href=#1846 id=1846 data-nosnippet>1846</a>                                volumetric_color,
+<a href=#1847 id=1847 data-nosnippet>1847</a>                                _pad1: <span class="number">0.0</span>,
+<a href=#1848 id=1848 data-nosnippet>1848</a>                            };
+<a href=#1849 id=1849 data-nosnippet>1849</a>                            dir_count += <span class="number">1</span>;
+<a href=#1850 id=1850 data-nosnippet>1850</a>                        }
+<a href=#1851 id=1851 data-nosnippet>1851</a>                    }
+<a href=#1852 id=1852 data-nosnippet>1852</a>                    <span class="string">"point" </span>=&gt; {
+<a href=#1853 id=1853 data-nosnippet>1853</a>                        <span class="kw">if </span>(point_count <span class="kw">as </span>usize) &lt; MAX_POINT_LIGHTS {
+<a href=#1854 id=1854 data-nosnippet>1854</a>                            <span class="kw">let </span>light_pos =
+<a href=#1855 id=1855 data-nosnippet>1855</a>                                world.get_world_position(entity_id).unwrap_or(Vec3::ZERO);
+<a href=#1856 id=1856 data-nosnippet>1856</a>                            <span class="kw">let </span>radius = light
+<a href=#1857 id=1857 data-nosnippet>1857</a>                                .get(<span class="string">"range"</span>)
+<a href=#1858 id=1858 data-nosnippet>1858</a>                                .or_else(|| light.get(<span class="string">"radius"</span>))
+<a href=#1859 id=1859 data-nosnippet>1859</a>                                .and_then(toml_f32)
+<a href=#1860 id=1860 data-nosnippet>1860</a>                                .unwrap_or(<span class="number">10.0</span>);
+<a href=#1861 id=1861 data-nosnippet>1861</a>                            points[point_count <span class="kw">as </span>usize] = PointLight {
+<a href=#1862 id=1862 data-nosnippet>1862</a>                                position: [light_pos.x, light_pos.y, light_pos.z],
+<a href=#1863 id=1863 data-nosnippet>1863</a>                                radius,
+<a href=#1864 id=1864 data-nosnippet>1864</a>                                color,
+<a href=#1865 id=1865 data-nosnippet>1865</a>                                intensity,
+<a href=#1866 id=1866 data-nosnippet>1866</a>                            };
+<a href=#1867 id=1867 data-nosnippet>1867</a>                            point_count += <span class="number">1</span>;
+<a href=#1868 id=1868 data-nosnippet>1868</a>                        }
+<a href=#1869 id=1869 data-nosnippet>1869</a>                    }
+<a href=#1870 id=1870 data-nosnippet>1870</a>                    <span class="string">"spot" </span>=&gt; {
+<a href=#1871 id=1871 data-nosnippet>1871</a>                        <span class="kw">if </span>(spot_count <span class="kw">as </span>usize) &lt; MAX_SPOT_LIGHTS {
+<a href=#1872 id=1872 data-nosnippet>1872</a>                            <span class="kw">let </span>light_pos =
+<a href=#1873 id=1873 data-nosnippet>1873</a>                                world.get_world_position(entity_id).unwrap_or(Vec3::ZERO);
+<a href=#1874 id=1874 data-nosnippet>1874</a>                            <span class="kw">let </span>direction = <span class="self">Self</span>::extract_light_vec3(<span class="kw-2">&amp;</span>light, <span class="string">"direction"</span>)
+<a href=#1875 id=1875 data-nosnippet>1875</a>                                .unwrap_or([<span class="number">0.0</span>, -<span class="number">1.0</span>, <span class="number">0.0</span>]);
+<a href=#1876 id=1876 data-nosnippet>1876</a>                            <span class="kw">let </span>radius = light
+<a href=#1877 id=1877 data-nosnippet>1877</a>                                .get(<span class="string">"range"</span>)
+<a href=#1878 id=1878 data-nosnippet>1878</a>                                .or_else(|| light.get(<span class="string">"radius"</span>))
+<a href=#1879 id=1879 data-nosnippet>1879</a>                                .and_then(toml_f32)
+<a href=#1880 id=1880 data-nosnippet>1880</a>                                .unwrap_or(<span class="number">10.0</span>);
+<a href=#1881 id=1881 data-nosnippet>1881</a>                            <span class="kw">let </span>inner_angle =
+<a href=#1882 id=1882 data-nosnippet>1882</a>                                light.get(<span class="string">"inner_angle"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.3</span>);
+<a href=#1883 id=1883 data-nosnippet>1883</a>                            <span class="kw">let </span>outer_angle =
+<a href=#1884 id=1884 data-nosnippet>1884</a>                                light.get(<span class="string">"outer_angle"</span>).and_then(toml_f32).unwrap_or(<span class="number">0.5</span>);
+<a href=#1885 id=1885 data-nosnippet>1885</a>                            spots[spot_count <span class="kw">as </span>usize] = SpotLight {
+<a href=#1886 id=1886 data-nosnippet>1886</a>                                position: [light_pos.x, light_pos.y, light_pos.z],
+<a href=#1887 id=1887 data-nosnippet>1887</a>                                radius,
+<a href=#1888 id=1888 data-nosnippet>1888</a>                                direction,
+<a href=#1889 id=1889 data-nosnippet>1889</a>                                inner_angle,
+<a href=#1890 id=1890 data-nosnippet>1890</a>                                color,
+<a href=#1891 id=1891 data-nosnippet>1891</a>                                outer_angle,
+<a href=#1892 id=1892 data-nosnippet>1892</a>                                intensity,
+<a href=#1893 id=1893 data-nosnippet>1893</a>                                _pad0: <span class="number">0.0</span>,
+<a href=#1894 id=1894 data-nosnippet>1894</a>                                _pad1: <span class="number">0.0</span>,
+<a href=#1895 id=1895 data-nosnippet>1895</a>                                _pad2: <span class="number">0.0</span>,
+<a href=#1896 id=1896 data-nosnippet>1896</a>                            };
+<a href=#1897 id=1897 data-nosnippet>1897</a>                            spot_count += <span class="number">1</span>;
+<a href=#1898 id=1898 data-nosnippet>1898</a>                        }
+<a href=#1899 id=1899 data-nosnippet>1899</a>                    }
+<a href=#1900 id=1900 data-nosnippet>1900</a>                    <span class="kw">_ </span>=&gt; {}
+<a href=#1901 id=1901 data-nosnippet>1901</a>                }
+<a href=#1902 id=1902 data-nosnippet>1902</a>            }
+<a href=#1903 id=1903 data-nosnippet>1903</a>        }
+<a href=#1904 id=1904 data-nosnippet>1904</a>
+<a href=#1905 id=1905 data-nosnippet>1905</a>        <span class="comment">// If no lights found in scene, use defaults
+<a href=#1906 id=1906 data-nosnippet>1906</a>        </span><span class="kw">if </span>dir_count == <span class="number">0 </span>&amp;&amp; point_count == <span class="number">0 </span>&amp;&amp; spot_count == <span class="number">0 </span>{
+<a href=#1907 id=1907 data-nosnippet>1907</a>            <span class="self">self</span>.light_uniforms = LightUniforms::default_scene_lights();
+<a href=#1908 id=1908 data-nosnippet>1908</a>        } <span class="kw">else </span>{
+<a href=#1909 id=1909 data-nosnippet>1909</a>            <span class="self">self</span>.light_uniforms.directional_lights = directionals;
+<a href=#1910 id=1910 data-nosnippet>1910</a>            <span class="self">self</span>.light_uniforms.point_lights = points;
+<a href=#1911 id=1911 data-nosnippet>1911</a>            <span class="self">self</span>.light_uniforms.spot_lights = spots;
+<a href=#1912 id=1912 data-nosnippet>1912</a>            <span class="self">self</span>.light_uniforms.directional_count = dir_count;
+<a href=#1913 id=1913 data-nosnippet>1913</a>            <span class="self">self</span>.light_uniforms.point_count = point_count;
+<a href=#1914 id=1914 data-nosnippet>1914</a>            <span class="self">self</span>.light_uniforms.spot_count = spot_count;
+<a href=#1915 id=1915 data-nosnippet>1915</a>        }
+<a href=#1916 id=1916 data-nosnippet>1916</a>    }
+<a href=#1917 id=1917 data-nosnippet>1917</a>
+<a href=#1918 id=1918 data-nosnippet>1918</a>    <span class="kw">fn </span>extract_light_vec3(table: <span class="kw-2">&amp;</span>toml::Value, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">3</span>]&gt; {
+<a href=#1919 id=1919 data-nosnippet>1919</a>        <span class="kw">let </span>arr = table.get(key)<span class="question-mark">?</span>.as_array()<span class="question-mark">?</span>;
+<a href=#1920 id=1920 data-nosnippet>1920</a>        <span class="kw">if </span>arr.len() &gt;= <span class="number">3 </span>{
+<a href=#1921 id=1921 data-nosnippet>1921</a>            <span class="kw">let </span>x = arr[<span class="number">0</span>]
+<a href=#1922 id=1922 data-nosnippet>1922</a>                .as_float()
+<a href=#1923 id=1923 data-nosnippet>1923</a>                .or_else(|| arr[<span class="number">0</span>].as_integer().map(|i| i <span class="kw">as </span>f64))<span class="question-mark">? </span><span class="kw">as </span>f32;
+<a href=#1924 id=1924 data-nosnippet>1924</a>            <span class="kw">let </span>y = arr[<span class="number">1</span>]
+<a href=#1925 id=1925 data-nosnippet>1925</a>                .as_float()
+<a href=#1926 id=1926 data-nosnippet>1926</a>                .or_else(|| arr[<span class="number">1</span>].as_integer().map(|i| i <span class="kw">as </span>f64))<span class="question-mark">? </span><span class="kw">as </span>f32;
+<a href=#1927 id=1927 data-nosnippet>1927</a>            <span class="kw">let </span>z = arr[<span class="number">2</span>]
+<a href=#1928 id=1928 data-nosnippet>1928</a>                .as_float()
+<a href=#1929 id=1929 data-nosnippet>1929</a>                .or_else(|| arr[<span class="number">2</span>].as_integer().map(|i| i <span class="kw">as </span>f64))<span class="question-mark">? </span><span class="kw">as </span>f32;
+<a href=#1930 id=1930 data-nosnippet>1930</a>            <span class="prelude-val">Some</span>([x, y, z])
+<a href=#1931 id=1931 data-nosnippet>1931</a>        } <span class="kw">else </span>{
+<a href=#1932 id=1932 data-nosnippet>1932</a>            <span class="prelude-val">None
+<a href=#1933 id=1933 data-nosnippet>1933</a>        </span>}
+<a href=#1934 id=1934 data-nosnippet>1934</a>    }
+<a href=#1935 id=1935 data-nosnippet>1935</a>
+<a href=#1936 id=1936 data-nosnippet>1936</a>    <span class="comment">// ── Render entry points ──
+<a href=#1937 id=1937 data-nosnippet>1937</a>
+<a href=#1938 id=1938 data-nosnippet>1938</a>    </span><span class="doccomment">/// Render the scene using a RenderContext (windowed mode)
+<a href=#1939 id=1939 data-nosnippet>1939</a>    </span><span class="kw">pub fn </span>render(
+<a href=#1940 id=1940 data-nosnippet>1940</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1941 id=1941 data-nosnippet>1941</a>        context: <span class="kw-2">&amp;</span>RenderContext,
+<a href=#1942 id=1942 data-nosnippet>1942</a>        camera: <span class="kw-2">&amp;</span>Camera,
+<a href=#1943 id=1943 data-nosnippet>1943</a>        view: <span class="kw-2">&amp;</span>wgpu::TextureView,
+<a href=#1944 id=1944 data-nosnippet>1944</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), wgpu::SurfaceError&gt; {
+<a href=#1945 id=1945 data-nosnippet>1945</a>        <span class="self">self</span>.render_to(
+<a href=#1946 id=1946 data-nosnippet>1946</a>            <span class="kw-2">&amp;</span>context.device,
+<a href=#1947 id=1947 data-nosnippet>1947</a>            <span class="kw-2">&amp;</span>context.queue,
+<a href=#1948 id=1948 data-nosnippet>1948</a>            <span class="kw-2">&amp;</span>context.depth_view,
+<a href=#1949 id=1949 data-nosnippet>1949</a>            camera,
+<a href=#1950 id=1950 data-nosnippet>1950</a>            view,
+<a href=#1951 id=1951 data-nosnippet>1951</a>        );
+<a href=#1952 id=1952 data-nosnippet>1952</a>        <span class="prelude-val">Ok</span>(())
+<a href=#1953 id=1953 data-nosnippet>1953</a>    }
+<a href=#1954 id=1954 data-nosnippet>1954</a>
+<a href=#1955 id=1955 data-nosnippet>1955</a>    <span class="doccomment">/// Resize post-processing resources (call on window resize).
+<a href=#1956 id=1956 data-nosnippet>1956</a>    </span><span class="kw">pub fn </span>resize_postprocess(<span class="kw-2">&amp;mut </span><span class="self">self</span>, device: <span class="kw-2">&amp;</span>wgpu::Device, width: u32, height: u32) {
+<a href=#1957 id=1957 data-nosnippet>1957</a>        <span class="kw">if </span>width == <span class="number">0 </span>|| height == <span class="number">0 </span>{
+<a href=#1958 id=1958 data-nosnippet>1958</a>            <span class="kw">return</span>;
+<a href=#1959 id=1959 data-nosnippet>1959</a>        }
+<a href=#1960 id=1960 data-nosnippet>1960</a>        <span class="self">self</span>.postprocess_resources = <span class="prelude-val">Some</span>(PostProcessResources::new(device, width, height));
+<a href=#1961 id=1961 data-nosnippet>1961</a>    }
+<a href=#1962 id=1962 data-nosnippet>1962</a>
+<a href=#1963 id=1963 data-nosnippet>1963</a>    <span class="doccomment">/// Get the current post-processing configuration.
+<a href=#1964 id=1964 data-nosnippet>1964</a>    </span><span class="kw">pub fn </span>post_process_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PostProcessConfig {
+<a href=#1965 id=1965 data-nosnippet>1965</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.postprocess_config
+<a href=#1966 id=1966 data-nosnippet>1966</a>    }
+<a href=#1967 id=1967 data-nosnippet>1967</a>
+<a href=#1968 id=1968 data-nosnippet>1968</a>    <span class="doccomment">/// Set the post-processing configuration.
+<a href=#1969 id=1969 data-nosnippet>1969</a>    </span><span class="kw">pub fn </span>set_post_process_config(<span class="kw-2">&amp;mut </span><span class="self">self</span>, config: PostProcessConfig) {
+<a href=#1970 id=1970 data-nosnippet>1970</a>        <span class="self">self</span>.postprocess_config = config;
+<a href=#1971 id=1971 data-nosnippet>1971</a>    }
+<a href=#1972 id=1972 data-nosnippet>1972</a>
+<a href=#1973 id=1973 data-nosnippet>1973</a>    <span class="comment">// ── Slim render_to: orchestrates shadow → uniforms → main pass → postprocess ──
+<a href=#1974 id=1974 data-nosnippet>1974</a>
+<a href=#1975 id=1975 data-nosnippet>1975</a>    </span><span class="doccomment">/// Render the scene to an arbitrary texture view with explicit device/queue/depth
+<a href=#1976 id=1976 data-nosnippet>1976</a>    </span><span class="kw">pub fn </span>render_to(
+<a href=#1977 id=1977 data-nosnippet>1977</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1978 id=1978 data-nosnippet>1978</a>        device: <span class="kw-2">&amp;</span>wgpu::Device,
+<a href=#1979 id=1979 data-nosnippet>1979</a>        queue: <span class="kw-2">&amp;</span>wgpu::Queue,
+<a href=#1980 id=1980 data-nosnippet>1980</a>        depth_view: <span class="kw-2">&amp;</span>wgpu::TextureView,
+<a href=#1981 id=1981 data-nosnippet>1981</a>        camera: <span class="kw-2">&amp;</span>Camera,
+<a href=#1982 id=1982 data-nosnippet>1982</a>        target_view: <span class="kw-2">&amp;</span>wgpu::TextureView,
+<a href=#1983 id=1983 data-nosnippet>1983</a>    ) {
+<a href=#1984 id=1984 data-nosnippet>1984</a>        <span class="kw">let </span>view_proj = camera.view_projection_matrix();
+<a href=#1985 id=1985 data-nosnippet>1985</a>        <span class="kw">let </span>camera_pos = camera.position_array();
+<a href=#1986 id=1986 data-nosnippet>1986</a>        <span class="kw">let </span>debug_mode_u32 = <span class="self">self</span>.debug_state.mode.as_u32();
+<a href=#1987 id=1987 data-nosnippet>1987</a>        <span class="kw">let </span>wireframe_only = <span class="self">self</span>.debug_state.mode == DebugMode::WireframeOnly;
+<a href=#1988 id=1988 data-nosnippet>1988</a>
+<a href=#1989 id=1989 data-nosnippet>1989</a>        <span class="comment">// Update light uniforms
+<a href=#1990 id=1990 data-nosnippet>1990</a>        </span>queue.write_buffer(
+<a href=#1991 id=1991 data-nosnippet>1991</a>            <span class="kw-2">&amp;</span><span class="self">self</span>.light_buffer,
+<a href=#1992 id=1992 data-nosnippet>1992</a>            <span class="number">0</span>,
+<a href=#1993 id=1993 data-nosnippet>1993</a>            bytemuck::cast_slice(<span class="kw-2">&amp;</span>[<span class="self">self</span>.light_uniforms]),
+<a href=#1994 id=1994 data-nosnippet>1994</a>        );
+<a href=#1995 id=1995 data-nosnippet>1995</a>
+<a href=#1996 id=1996 data-nosnippet>1996</a>        <span class="comment">// Shadow pass: render depth from light perspective
+<a href=#1997 id=1997 data-nosnippet>1997</a>        </span><span class="self">self</span>.render_shadow_pass(device, queue, camera, camera_pos);
+<a href=#1998 id=1998 data-nosnippet>1998</a>
+<a href=#1999 id=1999 data-nosnippet>1999</a>        <span class="comment">// All scene pipelines target Rgba16Float, so we always render to the HDR
+<a href=#2000 id=2000 data-nosnippet>2000</a>        // buffer and composite to sRGB.
+<a href=#2001 id=2001 data-nosnippet>2001</a>        </span><span class="kw">let </span>has_postprocess =
+<a href=#2002 id=2002 data-nosnippet>2002</a>            <span class="self">self</span>.postprocess_pipeline.is_some() &amp;&amp; <span class="self">self</span>.postprocess_resources.is_some();
+<a href=#2003 id=2003 data-nosnippet>2003</a>
+<a href=#2004 id=2004 data-nosnippet>2004</a>        <span class="comment">// Shader-side tonemapping is always OFF when compositing through the HDR
+<a href=#2005 id=2005 data-nosnippet>2005</a>        // buffer (the composite pass handles ACES + gamma).
+<a href=#2006 id=2006 data-nosnippet>2006</a>        </span><span class="kw">let </span>tonemapping_u32: u32 = <span class="kw">if </span>!has_postprocess &amp;&amp; <span class="self">self</span>.tonemapping_enabled {
+<a href=#2007 id=2007 data-nosnippet>2007</a>            <span class="number">1
+<a href=#2008 id=2008 data-nosnippet>2008</a>        </span>} <span class="kw">else </span>{
+<a href=#2009 id=2009 data-nosnippet>2009</a>            <span class="number">0
+<a href=#2010 id=2010 data-nosnippet>2010</a>        </span>};
+<a href=#2011 id=2011 data-nosnippet>2011</a>
+<a href=#2012 id=2012 data-nosnippet>2012</a>        <span class="comment">// Update all per-frame uniforms and sort transparent draws
+<a href=#2013 id=2013 data-nosnippet>2013</a>        </span><span class="self">self</span>.update_per_frame_uniforms(
+<a href=#2014 id=2014 data-nosnippet>2014</a>            queue,
+<a href=#2015 id=2015 data-nosnippet>2015</a>            view_proj,
+<a href=#2016 id=2016 data-nosnippet>2016</a>            camera_pos,
+<a href=#2017 id=2017 data-nosnippet>2017</a>            debug_mode_u32,
+<a href=#2018 id=2018 data-nosnippet>2018</a>            tonemapping_u32,
+<a href=#2019 id=2019 data-nosnippet>2019</a>            camera,
+<a href=#2020 id=2020 data-nosnippet>2020</a>        );
 <a href=#2021 id=2021 data-nosnippet>2021</a>
-<a href=#2022 id=2022 data-nosnippet>2022</a>        {
-<a href=#2023 id=2023 data-nosnippet>2023</a>            <span class="kw">let </span><span class="kw-2">mut </span>render_pass = encoder.begin_render_pass(<span class="kw-2">&amp;</span>wgpu::RenderPassDescriptor {
-<a href=#2024 id=2024 data-nosnippet>2024</a>                label: <span class="prelude-val">Some</span>(<span class="string">"Render Pass"</span>),
-<a href=#2025 id=2025 data-nosnippet>2025</a>                color_attachments: <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(wgpu::RenderPassColorAttachment {
-<a href=#2026 id=2026 data-nosnippet>2026</a>                    view: scene_target_view,
-<a href=#2027 id=2027 data-nosnippet>2027</a>                    resolve_target: <span class="prelude-val">None</span>,
-<a href=#2028 id=2028 data-nosnippet>2028</a>                    ops: wgpu::Operations {
-<a href=#2029 id=2029 data-nosnippet>2029</a>                        load: wgpu::LoadOp::Clear(wgpu::Color {
-<a href=#2030 id=2030 data-nosnippet>2030</a>                            r: <span class="number">0.1</span>,
-<a href=#2031 id=2031 data-nosnippet>2031</a>                            g: <span class="number">0.1</span>,
-<a href=#2032 id=2032 data-nosnippet>2032</a>                            b: <span class="number">0.15</span>,
-<a href=#2033 id=2033 data-nosnippet>2033</a>                            a: <span class="number">1.0</span>,
-<a href=#2034 id=2034 data-nosnippet>2034</a>                        }),
-<a href=#2035 id=2035 data-nosnippet>2035</a>                        store: wgpu::StoreOp::Store,
-<a href=#2036 id=2036 data-nosnippet>2036</a>                    },
-<a href=#2037 id=2037 data-nosnippet>2037</a>                })],
-<a href=#2038 id=2038 data-nosnippet>2038</a>                depth_stencil_attachment: <span class="prelude-val">Some</span>(wgpu::RenderPassDepthStencilAttachment {
-<a href=#2039 id=2039 data-nosnippet>2039</a>                    view: depth_view,
-<a href=#2040 id=2040 data-nosnippet>2040</a>                    depth_ops: <span class="prelude-val">Some</span>(wgpu::Operations {
-<a href=#2041 id=2041 data-nosnippet>2041</a>                        load: wgpu::LoadOp::Clear(<span class="number">1.0</span>),
-<a href=#2042 id=2042 data-nosnippet>2042</a>                        store: wgpu::StoreOp::Store,
-<a href=#2043 id=2043 data-nosnippet>2043</a>                    }),
-<a href=#2044 id=2044 data-nosnippet>2044</a>                    stencil_ops: <span class="prelude-val">None</span>,
-<a href=#2045 id=2045 data-nosnippet>2045</a>                }),
-<a href=#2046 id=2046 data-nosnippet>2046</a>                timestamp_writes: <span class="prelude-val">None</span>,
-<a href=#2047 id=2047 data-nosnippet>2047</a>                occlusion_query_set: <span class="prelude-val">None</span>,
-<a href=#2048 id=2048 data-nosnippet>2048</a>            });
-<a href=#2049 id=2049 data-nosnippet>2049</a>
-<a href=#2050 id=2050 data-nosnippet>2050</a>            <span class="self">self</span>.render_main_pass(<span class="kw-2">&amp;mut </span>render_pass, wireframe_only, queue, camera);
-<a href=#2051 id=2051 data-nosnippet>2051</a>        }
-<a href=#2052 id=2052 data-nosnippet>2052</a>
-<a href=#2053 id=2053 data-nosnippet>2053</a>        queue.submit(std::iter::once(encoder.finish()));
-<a href=#2054 id=2054 data-nosnippet>2054</a>
-<a href=#2055 id=2055 data-nosnippet>2055</a>        <span class="comment">// Composite: always needed to convert HDR → sRGB surface
-<a href=#2056 id=2056 data-nosnippet>2056</a>        </span><span class="kw">if </span>has_postprocess {
-<a href=#2057 id=2057 data-nosnippet>2057</a>            <span class="self">self</span>.render_postprocess(device, queue, depth_view, target_view, camera);
-<a href=#2058 id=2058 data-nosnippet>2058</a>        }
-<a href=#2059 id=2059 data-nosnippet>2059</a>    }
-<a href=#2060 id=2060 data-nosnippet>2060</a>}
+<a href=#2022 id=2022 data-nosnippet>2022</a>        <span class="comment">// Choose render target: HDR buffer or direct to surface
+<a href=#2023 id=2023 data-nosnippet>2023</a>        </span><span class="kw">let </span>scene_target_view = <span class="kw">if </span>has_postprocess {
+<a href=#2024 id=2024 data-nosnippet>2024</a>            <span class="kw-2">&amp;</span><span class="self">self</span>.postprocess_resources.as_ref().unwrap().hdr_view
+<a href=#2025 id=2025 data-nosnippet>2025</a>        } <span class="kw">else </span>{
+<a href=#2026 id=2026 data-nosnippet>2026</a>            target_view
+<a href=#2027 id=2027 data-nosnippet>2027</a>        };
+<a href=#2028 id=2028 data-nosnippet>2028</a>
+<a href=#2029 id=2029 data-nosnippet>2029</a>        <span class="kw">let </span><span class="kw-2">mut </span>encoder = device.create_command_encoder(<span class="kw-2">&amp;</span>wgpu::CommandEncoderDescriptor {
+<a href=#2030 id=2030 data-nosnippet>2030</a>            label: <span class="prelude-val">Some</span>(<span class="string">"Render Encoder"</span>),
+<a href=#2031 id=2031 data-nosnippet>2031</a>        });
+<a href=#2032 id=2032 data-nosnippet>2032</a>
+<a href=#2033 id=2033 data-nosnippet>2033</a>        {
+<a href=#2034 id=2034 data-nosnippet>2034</a>            <span class="kw">let </span><span class="kw-2">mut </span>render_pass = encoder.begin_render_pass(<span class="kw-2">&amp;</span>wgpu::RenderPassDescriptor {
+<a href=#2035 id=2035 data-nosnippet>2035</a>                label: <span class="prelude-val">Some</span>(<span class="string">"Render Pass"</span>),
+<a href=#2036 id=2036 data-nosnippet>2036</a>                color_attachments: <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(wgpu::RenderPassColorAttachment {
+<a href=#2037 id=2037 data-nosnippet>2037</a>                    view: scene_target_view,
+<a href=#2038 id=2038 data-nosnippet>2038</a>                    resolve_target: <span class="prelude-val">None</span>,
+<a href=#2039 id=2039 data-nosnippet>2039</a>                    ops: wgpu::Operations {
+<a href=#2040 id=2040 data-nosnippet>2040</a>                        load: wgpu::LoadOp::Clear(wgpu::Color {
+<a href=#2041 id=2041 data-nosnippet>2041</a>                            r: <span class="number">0.1</span>,
+<a href=#2042 id=2042 data-nosnippet>2042</a>                            g: <span class="number">0.1</span>,
+<a href=#2043 id=2043 data-nosnippet>2043</a>                            b: <span class="number">0.15</span>,
+<a href=#2044 id=2044 data-nosnippet>2044</a>                            a: <span class="number">1.0</span>,
+<a href=#2045 id=2045 data-nosnippet>2045</a>                        }),
+<a href=#2046 id=2046 data-nosnippet>2046</a>                        store: wgpu::StoreOp::Store,
+<a href=#2047 id=2047 data-nosnippet>2047</a>                    },
+<a href=#2048 id=2048 data-nosnippet>2048</a>                })],
+<a href=#2049 id=2049 data-nosnippet>2049</a>                depth_stencil_attachment: <span class="prelude-val">Some</span>(wgpu::RenderPassDepthStencilAttachment {
+<a href=#2050 id=2050 data-nosnippet>2050</a>                    view: depth_view,
+<a href=#2051 id=2051 data-nosnippet>2051</a>                    depth_ops: <span class="prelude-val">Some</span>(wgpu::Operations {
+<a href=#2052 id=2052 data-nosnippet>2052</a>                        load: wgpu::LoadOp::Clear(<span class="number">1.0</span>),
+<a href=#2053 id=2053 data-nosnippet>2053</a>                        store: wgpu::StoreOp::Store,
+<a href=#2054 id=2054 data-nosnippet>2054</a>                    }),
+<a href=#2055 id=2055 data-nosnippet>2055</a>                    stencil_ops: <span class="prelude-val">None</span>,
+<a href=#2056 id=2056 data-nosnippet>2056</a>                }),
+<a href=#2057 id=2057 data-nosnippet>2057</a>                timestamp_writes: <span class="prelude-val">None</span>,
+<a href=#2058 id=2058 data-nosnippet>2058</a>                occlusion_query_set: <span class="prelude-val">None</span>,
+<a href=#2059 id=2059 data-nosnippet>2059</a>            });
+<a href=#2060 id=2060 data-nosnippet>2060</a>
+<a href=#2061 id=2061 data-nosnippet>2061</a>            <span class="self">self</span>.render_main_pass(<span class="kw-2">&amp;mut </span>render_pass, wireframe_only, queue, camera);
+<a href=#2062 id=2062 data-nosnippet>2062</a>        }
+<a href=#2063 id=2063 data-nosnippet>2063</a>
+<a href=#2064 id=2064 data-nosnippet>2064</a>        queue.submit(std::iter::once(encoder.finish()));
+<a href=#2065 id=2065 data-nosnippet>2065</a>
+<a href=#2066 id=2066 data-nosnippet>2066</a>        <span class="comment">// Composite: always needed to convert HDR → sRGB surface
+<a href=#2067 id=2067 data-nosnippet>2067</a>        </span><span class="kw">if </span>has_postprocess {
+<a href=#2068 id=2068 data-nosnippet>2068</a>            <span class="self">self</span>.render_postprocess(device, queue, depth_view, target_view, camera);
+<a href=#2069 id=2069 data-nosnippet>2069</a>        }
+<a href=#2070 id=2070 data-nosnippet>2070</a>    }
+<a href=#2071 id=2071 data-nosnippet>2071</a>}
 </code></pre></div></section></main></body></html>

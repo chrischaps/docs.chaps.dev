@@ -36,7 +36,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a58e5294.js";
+            window.path_to_searchindex_js = "../searchindex-81699b98.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-7d06c78c.js"></script>
@@ -654,7 +654,7 @@ enabled = true
 </div>
 <p><code>find_nearest_interactable()</code> returns a map with <code>entity</code> (ID), <code>prompt_text</code>, <code>interaction_type</code>, and <code>distance</code> fields when an interactable entity is within range.</p>
 <h4 id="layer-ordering"><a class="header" href="#layer-ordering">Layer Ordering</a></h4>
-<p>All draw commands accept a <code>layer</code> parameter (or default to 0). Commands are sorted by layer before rendering:</p>
+<p>All <code>_ex</code> draw variants accept a <code>layer</code> parameter which must be an <strong>integer</strong> (<code>0</code>, <code>1</code>, <code>-1</code>), not a float. Using <code>0.0</code> instead of <code>0</code> will cause a “Function not found” error because Rhai does not implicitly convert between <code>float</code> and <code>int</code>. Commands are sorted by layer before rendering:</p>
 <ul>
 <li><strong>Negative layers</strong> render behind (background elements)</li>
 <li><strong>Layer 0</strong> is the default</li>

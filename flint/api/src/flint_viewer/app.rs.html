@@ -1790,116 +1790,164 @@
 <a href=#1714 id=1714 data-nosnippet>1714</a>                                <span class="macro">println!</span>(<span class="string">"Shadows: {}"</span>, <span class="kw">if </span>on { <span class="string">"ON" </span>} <span class="kw">else </span>{ <span class="string">"OFF" </span>});
 <a href=#1715 id=1715 data-nosnippet>1715</a>                            }
 <a href=#1716 id=1716 data-nosnippet>1716</a>                        }
-<a href=#1717 id=1717 data-nosnippet>1717</a>                        <span class="kw">_ </span>=&gt; {}
-<a href=#1718 id=1718 data-nosnippet>1718</a>                    }
-<a href=#1719 id=1719 data-nosnippet>1719</a>                }
-<a href=#1720 id=1720 data-nosnippet>1720</a>            }
-<a href=#1721 id=1721 data-nosnippet>1721</a>
-<a href=#1722 id=1722 data-nosnippet>1722</a>            WindowEvent::MouseInput { state, button, .. } =&gt; {
-<a href=#1723 id=1723 data-nosnippet>1723</a>                <span class="kw">if </span>is_editor {
-<a href=#1724 id=1724 data-nosnippet>1724</a>                    <span class="kw">if </span>state == ElementState::Pressed {
-<a href=#1725 id=1725 data-nosnippet>1725</a>                        <span class="self">self</span>.handle_editor_mouse_press(button);
-<a href=#1726 id=1726 data-nosnippet>1726</a>                    } <span class="kw">else </span>{
-<a href=#1727 id=1727 data-nosnippet>1727</a>                        <span class="self">self</span>.handle_editor_mouse_release(button);
-<a href=#1728 id=1728 data-nosnippet>1728</a>                    }
-<a href=#1729 id=1729 data-nosnippet>1729</a>                } <span class="kw">else </span>{
-<a href=#1730 id=1730 data-nosnippet>1730</a>                    <span class="kw">match </span>button {
-<a href=#1731 id=1731 data-nosnippet>1731</a>                        MouseButton::Left =&gt; {
-<a href=#1732 id=1732 data-nosnippet>1732</a>                            <span class="kw">let </span>was_pressed = <span class="self">self</span>.mouse_pressed;
-<a href=#1733 id=1733 data-nosnippet>1733</a>                            <span class="self">self</span>.mouse_pressed = state == ElementState::Pressed;
-<a href=#1734 id=1734 data-nosnippet>1734</a>
-<a href=#1735 id=1735 data-nosnippet>1735</a>                            <span class="comment">// On click release (not drag), try picking
-<a href=#1736 id=1736 data-nosnippet>1736</a>                            </span><span class="kw">if </span>state == ElementState::Released &amp;&amp; was_pressed &amp;&amp; !gizmo_active {
-<a href=#1737 id=1737 data-nosnippet>1737</a>                                <span class="kw">if let </span><span class="prelude-val">Some</span>((x, y)) = <span class="self">self</span>.last_mouse_pos {
-<a href=#1738 id=1738 data-nosnippet>1738</a>                                    <span class="self">self</span>.try_pick_entity(x, y);
-<a href=#1739 id=1739 data-nosnippet>1739</a>                                }
-<a href=#1740 id=1740 data-nosnippet>1740</a>                            }
-<a href=#1741 id=1741 data-nosnippet>1741</a>                        }
-<a href=#1742 id=1742 data-nosnippet>1742</a>                        MouseButton::Right =&gt; {
-<a href=#1743 id=1743 data-nosnippet>1743</a>                            <span class="self">self</span>.right_mouse_pressed = state == ElementState::Pressed;
-<a href=#1744 id=1744 data-nosnippet>1744</a>                        }
-<a href=#1745 id=1745 data-nosnippet>1745</a>                        <span class="kw">_ </span>=&gt; {}
-<a href=#1746 id=1746 data-nosnippet>1746</a>                    }
-<a href=#1747 id=1747 data-nosnippet>1747</a>                }
-<a href=#1748 id=1748 data-nosnippet>1748</a>            }
-<a href=#1749 id=1749 data-nosnippet>1749</a>
-<a href=#1750 id=1750 data-nosnippet>1750</a>            WindowEvent::CursorMoved { position, .. } =&gt; {
-<a href=#1751 id=1751 data-nosnippet>1751</a>                <span class="kw">if </span>is_editor {
-<a href=#1752 id=1752 data-nosnippet>1752</a>                    <span class="self">self</span>.handle_editor_cursor_moved(position);
-<a href=#1753 id=1753 data-nosnippet>1753</a>                } <span class="kw">else </span>{
-<a href=#1754 id=1754 data-nosnippet>1754</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>((last_x, last_y)) = <span class="self">self</span>.last_mouse_pos {
-<a href=#1755 id=1755 data-nosnippet>1755</a>                        <span class="kw">let </span>dx = (position.x - last_x) <span class="kw">as </span>f32;
-<a href=#1756 id=1756 data-nosnippet>1756</a>                        <span class="kw">let </span>dy = (position.y - last_y) <span class="kw">as </span>f32;
-<a href=#1757 id=1757 data-nosnippet>1757</a>
-<a href=#1758 id=1758 data-nosnippet>1758</a>                        <span class="comment">// Only orbit if gizmo is not active
-<a href=#1759 id=1759 data-nosnippet>1759</a>                        </span><span class="kw">if </span><span class="self">self</span>.mouse_pressed &amp;&amp; !gizmo_active {
-<a href=#1760 id=1760 data-nosnippet>1760</a>                            <span class="self">self</span>.camera.orbit_horizontal(-dx * <span class="number">0.01</span>);
-<a href=#1761 id=1761 data-nosnippet>1761</a>                            <span class="self">self</span>.camera.orbit_vertical(-dy * <span class="number">0.01</span>);
-<a href=#1762 id=1762 data-nosnippet>1762</a>                            <span class="self">self</span>.camera_snap_target = <span class="prelude-val">None</span>;
-<a href=#1763 id=1763 data-nosnippet>1763</a>                            <span class="self">self</span>.camera.orthographic = <span class="bool-val">false</span>;
+<a href=#1717 id=1717 data-nosnippet>1717</a>                        PhysicalKey::Code(KeyCode::F5) =&gt; {
+<a href=#1718 id=1718 data-nosnippet>1718</a>                            <span class="kw">if let </span><span class="prelude-val">Some</span>(renderer) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.scene_renderer {
+<a href=#1719 id=1719 data-nosnippet>1719</a>                                <span class="kw">let </span><span class="kw-2">mut </span>config = renderer.post_process_config().clone();
+<a href=#1720 id=1720 data-nosnippet>1720</a>                                config.bloom_enabled = !config.bloom_enabled;
+<a href=#1721 id=1721 data-nosnippet>1721</a>                                <span class="macro">println!</span>(<span class="string">"Bloom: {}"</span>, <span class="kw">if </span>config.bloom_enabled { <span class="string">"ON" </span>} <span class="kw">else </span>{ <span class="string">"OFF" </span>});
+<a href=#1722 id=1722 data-nosnippet>1722</a>                                renderer.set_post_process_config(config);
+<a href=#1723 id=1723 data-nosnippet>1723</a>                            }
+<a href=#1724 id=1724 data-nosnippet>1724</a>                        }
+<a href=#1725 id=1725 data-nosnippet>1725</a>                        PhysicalKey::Code(KeyCode::F6) =&gt; {
+<a href=#1726 id=1726 data-nosnippet>1726</a>                            <span class="kw">if let </span><span class="prelude-val">Some</span>(renderer) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.scene_renderer {
+<a href=#1727 id=1727 data-nosnippet>1727</a>                                <span class="kw">let </span><span class="kw-2">mut </span>config = renderer.post_process_config().clone();
+<a href=#1728 id=1728 data-nosnippet>1728</a>                                config.enabled = !config.enabled;
+<a href=#1729 id=1729 data-nosnippet>1729</a>                                <span class="macro">println!</span>(<span class="string">"Post-processing: {}"</span>, <span class="kw">if </span>config.enabled { <span class="string">"ON" </span>} <span class="kw">else </span>{ <span class="string">"OFF" </span>});
+<a href=#1730 id=1730 data-nosnippet>1730</a>                                renderer.set_post_process_config(config);
+<a href=#1731 id=1731 data-nosnippet>1731</a>                            }
+<a href=#1732 id=1732 data-nosnippet>1732</a>                        }
+<a href=#1733 id=1733 data-nosnippet>1733</a>                        PhysicalKey::Code(KeyCode::F7) =&gt; {
+<a href=#1734 id=1734 data-nosnippet>1734</a>                            <span class="kw">if let </span><span class="prelude-val">Some</span>(renderer) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.scene_renderer {
+<a href=#1735 id=1735 data-nosnippet>1735</a>                                <span class="kw">let </span><span class="kw-2">mut </span>config = renderer.post_process_config().clone();
+<a href=#1736 id=1736 data-nosnippet>1736</a>                                config.ssao_enabled = !config.ssao_enabled;
+<a href=#1737 id=1737 data-nosnippet>1737</a>                                <span class="macro">println!</span>(<span class="string">"SSAO: {}"</span>, <span class="kw">if </span>config.ssao_enabled { <span class="string">"ON" </span>} <span class="kw">else </span>{ <span class="string">"OFF" </span>});
+<a href=#1738 id=1738 data-nosnippet>1738</a>                                renderer.set_post_process_config(config);
+<a href=#1739 id=1739 data-nosnippet>1739</a>                            }
+<a href=#1740 id=1740 data-nosnippet>1740</a>                        }
+<a href=#1741 id=1741 data-nosnippet>1741</a>                        PhysicalKey::Code(KeyCode::F8) =&gt; {
+<a href=#1742 id=1742 data-nosnippet>1742</a>                            <span class="kw">if let </span><span class="prelude-val">Some</span>(renderer) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.scene_renderer {
+<a href=#1743 id=1743 data-nosnippet>1743</a>                                <span class="kw">let </span><span class="kw-2">mut </span>config = renderer.post_process_config().clone();
+<a href=#1744 id=1744 data-nosnippet>1744</a>                                config.fog_enabled = !config.fog_enabled;
+<a href=#1745 id=1745 data-nosnippet>1745</a>                                <span class="macro">println!</span>(<span class="string">"Fog: {}"</span>, <span class="kw">if </span>config.fog_enabled { <span class="string">"ON" </span>} <span class="kw">else </span>{ <span class="string">"OFF" </span>});
+<a href=#1746 id=1746 data-nosnippet>1746</a>                                renderer.set_post_process_config(config);
+<a href=#1747 id=1747 data-nosnippet>1747</a>                            }
+<a href=#1748 id=1748 data-nosnippet>1748</a>                        }
+<a href=#1749 id=1749 data-nosnippet>1749</a>                        PhysicalKey::Code(KeyCode::F9) =&gt; {
+<a href=#1750 id=1750 data-nosnippet>1750</a>                            <span class="kw">if let </span><span class="prelude-val">Some</span>(renderer) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.scene_renderer {
+<a href=#1751 id=1751 data-nosnippet>1751</a>                                <span class="kw">let </span><span class="kw-2">mut </span>config = renderer.post_process_config().clone();
+<a href=#1752 id=1752 data-nosnippet>1752</a>                                config.dither_enabled = !config.dither_enabled;
+<a href=#1753 id=1753 data-nosnippet>1753</a>                                <span class="macro">println!</span>(<span class="string">"Dither: {}"</span>, <span class="kw">if </span>config.dither_enabled { <span class="string">"ON" </span>} <span class="kw">else </span>{ <span class="string">"OFF" </span>});
+<a href=#1754 id=1754 data-nosnippet>1754</a>                                renderer.set_post_process_config(config);
+<a href=#1755 id=1755 data-nosnippet>1755</a>                            }
+<a href=#1756 id=1756 data-nosnippet>1756</a>                        }
+<a href=#1757 id=1757 data-nosnippet>1757</a>                        PhysicalKey::Code(KeyCode::F10) =&gt; {
+<a href=#1758 id=1758 data-nosnippet>1758</a>                            <span class="kw">if let </span><span class="prelude-val">Some</span>(renderer) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.scene_renderer {
+<a href=#1759 id=1759 data-nosnippet>1759</a>                                <span class="kw">let </span><span class="kw-2">mut </span>config = renderer.post_process_config().clone();
+<a href=#1760 id=1760 data-nosnippet>1760</a>                                config.volumetric_enabled = !config.volumetric_enabled;
+<a href=#1761 id=1761 data-nosnippet>1761</a>                                <span class="macro">println!</span>(<span class="string">"Volumetric: {}"</span>, <span class="kw">if </span>config.volumetric_enabled { <span class="string">"ON" </span>} <span class="kw">else </span>{ <span class="string">"OFF" </span>});
+<a href=#1762 id=1762 data-nosnippet>1762</a>                                renderer.set_post_process_config(config);
+<a href=#1763 id=1763 data-nosnippet>1763</a>                            }
 <a href=#1764 id=1764 data-nosnippet>1764</a>                        }
-<a href=#1765 id=1765 data-nosnippet>1765</a>
-<a href=#1766 id=1766 data-nosnippet>1766</a>                        <span class="kw">if </span><span class="self">self</span>.right_mouse_pressed {
-<a href=#1767 id=1767 data-nosnippet>1767</a>                            <span class="self">self</span>.camera.pan(-dx * <span class="number">0.02</span>, dy * <span class="number">0.02</span>);
-<a href=#1768 id=1768 data-nosnippet>1768</a>                            <span class="self">self</span>.camera_snap_target = <span class="prelude-val">None</span>;
-<a href=#1769 id=1769 data-nosnippet>1769</a>                        }
-<a href=#1770 id=1770 data-nosnippet>1770</a>                    }
-<a href=#1771 id=1771 data-nosnippet>1771</a>
-<a href=#1772 id=1772 data-nosnippet>1772</a>                    <span class="self">self</span>.last_mouse_pos = <span class="prelude-val">Some</span>((position.x, position.y));
-<a href=#1773 id=1773 data-nosnippet>1773</a>                }
-<a href=#1774 id=1774 data-nosnippet>1774</a>            }
-<a href=#1775 id=1775 data-nosnippet>1775</a>
-<a href=#1776 id=1776 data-nosnippet>1776</a>            WindowEvent::MouseWheel { delta, .. } =&gt; {
-<a href=#1777 id=1777 data-nosnippet>1777</a>                <span class="kw">let </span>scroll = <span class="kw">match </span>delta {
-<a href=#1778 id=1778 data-nosnippet>1778</a>                    MouseScrollDelta::LineDelta(<span class="kw">_</span>, y) =&gt; y,
-<a href=#1779 id=1779 data-nosnippet>1779</a>                    MouseScrollDelta::PixelDelta(pos) =&gt; pos.y <span class="kw">as </span>f32 / <span class="number">100.0</span>,
-<a href=#1780 id=1780 data-nosnippet>1780</a>                };
-<a href=#1781 id=1781 data-nosnippet>1781</a>                <span class="self">self</span>.camera.zoom(scroll);
-<a href=#1782 id=1782 data-nosnippet>1782</a>            }
-<a href=#1783 id=1783 data-nosnippet>1783</a>
-<a href=#1784 id=1784 data-nosnippet>1784</a>            WindowEvent::RedrawRequested =&gt; {
-<a href=#1785 id=1785 data-nosnippet>1785</a>                <span class="self">self</span>.check_reload();
-<a href=#1786 id=1786 data-nosnippet>1786</a>                <span class="self">self</span>.render();
-<a href=#1787 id=1787 data-nosnippet>1787</a>            }
-<a href=#1788 id=1788 data-nosnippet>1788</a>
-<a href=#1789 id=1789 data-nosnippet>1789</a>            <span class="kw">_ </span>=&gt; {}
-<a href=#1790 id=1790 data-nosnippet>1790</a>        }
-<a href=#1791 id=1791 data-nosnippet>1791</a>    }
-<a href=#1792 id=1792 data-nosnippet>1792</a>
-<a href=#1793 id=1793 data-nosnippet>1793</a>    <span class="kw">fn </span>about_to_wait(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _event_loop: <span class="kw-2">&amp;</span>ActiveEventLoop) {
-<a href=#1794 id=1794 data-nosnippet>1794</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(window) = <span class="kw-2">&amp;</span><span class="self">self</span>.window {
-<a href=#1795 id=1795 data-nosnippet>1795</a>            window.request_redraw();
-<a href=#1796 id=1796 data-nosnippet>1796</a>        }
-<a href=#1797 id=1797 data-nosnippet>1797</a>    }
-<a href=#1798 id=1798 data-nosnippet>1798</a>}
-<a href=#1799 id=1799 data-nosnippet>1799</a>
-<a href=#1800 id=1800 data-nosnippet>1800</a><span class="comment">// --- Helpers ---
-<a href=#1801 id=1801 data-nosnippet>1801</a>
-<a href=#1802 id=1802 data-nosnippet>1802</a></span><span class="kw">fn </span>vec3_to_toml(v: [f32; <span class="number">3</span>]) -&gt; toml::Value {
-<a href=#1803 id=1803 data-nosnippet>1803</a>    toml::Value::Array(<span class="macro">vec!</span>[
-<a href=#1804 id=1804 data-nosnippet>1804</a>        toml::Value::Float(v[<span class="number">0</span>] <span class="kw">as </span>f64),
-<a href=#1805 id=1805 data-nosnippet>1805</a>        toml::Value::Float(v[<span class="number">1</span>] <span class="kw">as </span>f64),
-<a href=#1806 id=1806 data-nosnippet>1806</a>        toml::Value::Float(v[<span class="number">2</span>] <span class="kw">as </span>f64),
-<a href=#1807 id=1807 data-nosnippet>1807</a>    ])
-<a href=#1808 id=1808 data-nosnippet>1808</a>}
-<a href=#1809 id=1809 data-nosnippet>1809</a>
-<a href=#1810 id=1810 data-nosnippet>1810</a><span class="kw">fn </span>lerp(a: f32, b: f32, t: f32) -&gt; f32 {
-<a href=#1811 id=1811 data-nosnippet>1811</a>    a + (b - a) * t
-<a href=#1812 id=1812 data-nosnippet>1812</a>}
+<a href=#1765 id=1765 data-nosnippet>1765</a>                        <span class="kw">_ </span>=&gt; {}
+<a href=#1766 id=1766 data-nosnippet>1766</a>                    }
+<a href=#1767 id=1767 data-nosnippet>1767</a>                }
+<a href=#1768 id=1768 data-nosnippet>1768</a>            }
+<a href=#1769 id=1769 data-nosnippet>1769</a>
+<a href=#1770 id=1770 data-nosnippet>1770</a>            WindowEvent::MouseInput { state, button, .. } =&gt; {
+<a href=#1771 id=1771 data-nosnippet>1771</a>                <span class="kw">if </span>is_editor {
+<a href=#1772 id=1772 data-nosnippet>1772</a>                    <span class="kw">if </span>state == ElementState::Pressed {
+<a href=#1773 id=1773 data-nosnippet>1773</a>                        <span class="self">self</span>.handle_editor_mouse_press(button);
+<a href=#1774 id=1774 data-nosnippet>1774</a>                    } <span class="kw">else </span>{
+<a href=#1775 id=1775 data-nosnippet>1775</a>                        <span class="self">self</span>.handle_editor_mouse_release(button);
+<a href=#1776 id=1776 data-nosnippet>1776</a>                    }
+<a href=#1777 id=1777 data-nosnippet>1777</a>                } <span class="kw">else </span>{
+<a href=#1778 id=1778 data-nosnippet>1778</a>                    <span class="kw">match </span>button {
+<a href=#1779 id=1779 data-nosnippet>1779</a>                        MouseButton::Left =&gt; {
+<a href=#1780 id=1780 data-nosnippet>1780</a>                            <span class="kw">let </span>was_pressed = <span class="self">self</span>.mouse_pressed;
+<a href=#1781 id=1781 data-nosnippet>1781</a>                            <span class="self">self</span>.mouse_pressed = state == ElementState::Pressed;
+<a href=#1782 id=1782 data-nosnippet>1782</a>
+<a href=#1783 id=1783 data-nosnippet>1783</a>                            <span class="comment">// On click release (not drag), try picking
+<a href=#1784 id=1784 data-nosnippet>1784</a>                            </span><span class="kw">if </span>state == ElementState::Released &amp;&amp; was_pressed &amp;&amp; !gizmo_active {
+<a href=#1785 id=1785 data-nosnippet>1785</a>                                <span class="kw">if let </span><span class="prelude-val">Some</span>((x, y)) = <span class="self">self</span>.last_mouse_pos {
+<a href=#1786 id=1786 data-nosnippet>1786</a>                                    <span class="self">self</span>.try_pick_entity(x, y);
+<a href=#1787 id=1787 data-nosnippet>1787</a>                                }
+<a href=#1788 id=1788 data-nosnippet>1788</a>                            }
+<a href=#1789 id=1789 data-nosnippet>1789</a>                        }
+<a href=#1790 id=1790 data-nosnippet>1790</a>                        MouseButton::Right =&gt; {
+<a href=#1791 id=1791 data-nosnippet>1791</a>                            <span class="self">self</span>.right_mouse_pressed = state == ElementState::Pressed;
+<a href=#1792 id=1792 data-nosnippet>1792</a>                        }
+<a href=#1793 id=1793 data-nosnippet>1793</a>                        <span class="kw">_ </span>=&gt; {}
+<a href=#1794 id=1794 data-nosnippet>1794</a>                    }
+<a href=#1795 id=1795 data-nosnippet>1795</a>                }
+<a href=#1796 id=1796 data-nosnippet>1796</a>            }
+<a href=#1797 id=1797 data-nosnippet>1797</a>
+<a href=#1798 id=1798 data-nosnippet>1798</a>            WindowEvent::CursorMoved { position, .. } =&gt; {
+<a href=#1799 id=1799 data-nosnippet>1799</a>                <span class="kw">if </span>is_editor {
+<a href=#1800 id=1800 data-nosnippet>1800</a>                    <span class="self">self</span>.handle_editor_cursor_moved(position);
+<a href=#1801 id=1801 data-nosnippet>1801</a>                } <span class="kw">else </span>{
+<a href=#1802 id=1802 data-nosnippet>1802</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>((last_x, last_y)) = <span class="self">self</span>.last_mouse_pos {
+<a href=#1803 id=1803 data-nosnippet>1803</a>                        <span class="kw">let </span>dx = (position.x - last_x) <span class="kw">as </span>f32;
+<a href=#1804 id=1804 data-nosnippet>1804</a>                        <span class="kw">let </span>dy = (position.y - last_y) <span class="kw">as </span>f32;
+<a href=#1805 id=1805 data-nosnippet>1805</a>
+<a href=#1806 id=1806 data-nosnippet>1806</a>                        <span class="comment">// Only orbit if gizmo is not active
+<a href=#1807 id=1807 data-nosnippet>1807</a>                        </span><span class="kw">if </span><span class="self">self</span>.mouse_pressed &amp;&amp; !gizmo_active {
+<a href=#1808 id=1808 data-nosnippet>1808</a>                            <span class="self">self</span>.camera.orbit_horizontal(-dx * <span class="number">0.01</span>);
+<a href=#1809 id=1809 data-nosnippet>1809</a>                            <span class="self">self</span>.camera.orbit_vertical(-dy * <span class="number">0.01</span>);
+<a href=#1810 id=1810 data-nosnippet>1810</a>                            <span class="self">self</span>.camera_snap_target = <span class="prelude-val">None</span>;
+<a href=#1811 id=1811 data-nosnippet>1811</a>                            <span class="self">self</span>.camera.orthographic = <span class="bool-val">false</span>;
+<a href=#1812 id=1812 data-nosnippet>1812</a>                        }
 <a href=#1813 id=1813 data-nosnippet>1813</a>
-<a href=#1814 id=1814 data-nosnippet>1814</a><span class="kw">fn </span>shortest_angle_diff(from: f32, to: f32) -&gt; f32 {
-<a href=#1815 id=1815 data-nosnippet>1815</a>    <span class="kw">use </span>std::f32::consts::PI;
-<a href=#1816 id=1816 data-nosnippet>1816</a>    <span class="kw">let </span><span class="kw-2">mut </span>diff = to - from;
-<a href=#1817 id=1817 data-nosnippet>1817</a>    <span class="kw">while </span>diff &gt; PI {
-<a href=#1818 id=1818 data-nosnippet>1818</a>        diff -= <span class="number">2.0 </span>* PI;
-<a href=#1819 id=1819 data-nosnippet>1819</a>    }
-<a href=#1820 id=1820 data-nosnippet>1820</a>    <span class="kw">while </span>diff &lt; -PI {
-<a href=#1821 id=1821 data-nosnippet>1821</a>        diff += <span class="number">2.0 </span>* PI;
-<a href=#1822 id=1822 data-nosnippet>1822</a>    }
-<a href=#1823 id=1823 data-nosnippet>1823</a>    diff
-<a href=#1824 id=1824 data-nosnippet>1824</a>}
-<a href=#1825 id=1825 data-nosnippet>1825</a>
-<a href=#1826 id=1826 data-nosnippet>1826</a><span class="kw">fn </span>lerp_angle(from: f32, to: f32, t: f32) -&gt; f32 {
-<a href=#1827 id=1827 data-nosnippet>1827</a>    from + shortest_angle_diff(from, to) * t
-<a href=#1828 id=1828 data-nosnippet>1828</a>}
+<a href=#1814 id=1814 data-nosnippet>1814</a>                        <span class="kw">if </span><span class="self">self</span>.right_mouse_pressed {
+<a href=#1815 id=1815 data-nosnippet>1815</a>                            <span class="self">self</span>.camera.pan(-dx * <span class="number">0.02</span>, dy * <span class="number">0.02</span>);
+<a href=#1816 id=1816 data-nosnippet>1816</a>                            <span class="self">self</span>.camera_snap_target = <span class="prelude-val">None</span>;
+<a href=#1817 id=1817 data-nosnippet>1817</a>                        }
+<a href=#1818 id=1818 data-nosnippet>1818</a>                    }
+<a href=#1819 id=1819 data-nosnippet>1819</a>
+<a href=#1820 id=1820 data-nosnippet>1820</a>                    <span class="self">self</span>.last_mouse_pos = <span class="prelude-val">Some</span>((position.x, position.y));
+<a href=#1821 id=1821 data-nosnippet>1821</a>                }
+<a href=#1822 id=1822 data-nosnippet>1822</a>            }
+<a href=#1823 id=1823 data-nosnippet>1823</a>
+<a href=#1824 id=1824 data-nosnippet>1824</a>            WindowEvent::MouseWheel { delta, .. } =&gt; {
+<a href=#1825 id=1825 data-nosnippet>1825</a>                <span class="kw">let </span>scroll = <span class="kw">match </span>delta {
+<a href=#1826 id=1826 data-nosnippet>1826</a>                    MouseScrollDelta::LineDelta(<span class="kw">_</span>, y) =&gt; y,
+<a href=#1827 id=1827 data-nosnippet>1827</a>                    MouseScrollDelta::PixelDelta(pos) =&gt; pos.y <span class="kw">as </span>f32 / <span class="number">100.0</span>,
+<a href=#1828 id=1828 data-nosnippet>1828</a>                };
+<a href=#1829 id=1829 data-nosnippet>1829</a>                <span class="self">self</span>.camera.zoom(scroll);
+<a href=#1830 id=1830 data-nosnippet>1830</a>            }
+<a href=#1831 id=1831 data-nosnippet>1831</a>
+<a href=#1832 id=1832 data-nosnippet>1832</a>            WindowEvent::RedrawRequested =&gt; {
+<a href=#1833 id=1833 data-nosnippet>1833</a>                <span class="self">self</span>.check_reload();
+<a href=#1834 id=1834 data-nosnippet>1834</a>                <span class="self">self</span>.render();
+<a href=#1835 id=1835 data-nosnippet>1835</a>            }
+<a href=#1836 id=1836 data-nosnippet>1836</a>
+<a href=#1837 id=1837 data-nosnippet>1837</a>            <span class="kw">_ </span>=&gt; {}
+<a href=#1838 id=1838 data-nosnippet>1838</a>        }
+<a href=#1839 id=1839 data-nosnippet>1839</a>    }
+<a href=#1840 id=1840 data-nosnippet>1840</a>
+<a href=#1841 id=1841 data-nosnippet>1841</a>    <span class="kw">fn </span>about_to_wait(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _event_loop: <span class="kw-2">&amp;</span>ActiveEventLoop) {
+<a href=#1842 id=1842 data-nosnippet>1842</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(window) = <span class="kw-2">&amp;</span><span class="self">self</span>.window {
+<a href=#1843 id=1843 data-nosnippet>1843</a>            window.request_redraw();
+<a href=#1844 id=1844 data-nosnippet>1844</a>        }
+<a href=#1845 id=1845 data-nosnippet>1845</a>    }
+<a href=#1846 id=1846 data-nosnippet>1846</a>}
+<a href=#1847 id=1847 data-nosnippet>1847</a>
+<a href=#1848 id=1848 data-nosnippet>1848</a><span class="comment">// --- Helpers ---
+<a href=#1849 id=1849 data-nosnippet>1849</a>
+<a href=#1850 id=1850 data-nosnippet>1850</a></span><span class="kw">fn </span>vec3_to_toml(v: [f32; <span class="number">3</span>]) -&gt; toml::Value {
+<a href=#1851 id=1851 data-nosnippet>1851</a>    toml::Value::Array(<span class="macro">vec!</span>[
+<a href=#1852 id=1852 data-nosnippet>1852</a>        toml::Value::Float(v[<span class="number">0</span>] <span class="kw">as </span>f64),
+<a href=#1853 id=1853 data-nosnippet>1853</a>        toml::Value::Float(v[<span class="number">1</span>] <span class="kw">as </span>f64),
+<a href=#1854 id=1854 data-nosnippet>1854</a>        toml::Value::Float(v[<span class="number">2</span>] <span class="kw">as </span>f64),
+<a href=#1855 id=1855 data-nosnippet>1855</a>    ])
+<a href=#1856 id=1856 data-nosnippet>1856</a>}
+<a href=#1857 id=1857 data-nosnippet>1857</a>
+<a href=#1858 id=1858 data-nosnippet>1858</a><span class="kw">fn </span>lerp(a: f32, b: f32, t: f32) -&gt; f32 {
+<a href=#1859 id=1859 data-nosnippet>1859</a>    a + (b - a) * t
+<a href=#1860 id=1860 data-nosnippet>1860</a>}
+<a href=#1861 id=1861 data-nosnippet>1861</a>
+<a href=#1862 id=1862 data-nosnippet>1862</a><span class="kw">fn </span>shortest_angle_diff(from: f32, to: f32) -&gt; f32 {
+<a href=#1863 id=1863 data-nosnippet>1863</a>    <span class="kw">use </span>std::f32::consts::PI;
+<a href=#1864 id=1864 data-nosnippet>1864</a>    <span class="kw">let </span><span class="kw-2">mut </span>diff = to - from;
+<a href=#1865 id=1865 data-nosnippet>1865</a>    <span class="kw">while </span>diff &gt; PI {
+<a href=#1866 id=1866 data-nosnippet>1866</a>        diff -= <span class="number">2.0 </span>* PI;
+<a href=#1867 id=1867 data-nosnippet>1867</a>    }
+<a href=#1868 id=1868 data-nosnippet>1868</a>    <span class="kw">while </span>diff &lt; -PI {
+<a href=#1869 id=1869 data-nosnippet>1869</a>        diff += <span class="number">2.0 </span>* PI;
+<a href=#1870 id=1870 data-nosnippet>1870</a>    }
+<a href=#1871 id=1871 data-nosnippet>1871</a>    diff
+<a href=#1872 id=1872 data-nosnippet>1872</a>}
+<a href=#1873 id=1873 data-nosnippet>1873</a>
+<a href=#1874 id=1874 data-nosnippet>1874</a><span class="kw">fn </span>lerp_angle(from: f32, to: f32, t: f32) -&gt; f32 {
+<a href=#1875 id=1875 data-nosnippet>1875</a>    from + shortest_angle_diff(from, to) * t
+<a href=#1876 id=1876 data-nosnippet>1876</a>}
 </code></pre></div></section></main></body></html>

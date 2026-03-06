@@ -37,7 +37,7 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-a58e5294.js";
+            window.path_to_searchindex_js = "searchindex-81699b98.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-7d06c78c.js"></script>
@@ -2381,17 +2381,17 @@ fullbright = true
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="post-processing-2"><a class="header" href="#post-processing-2">Post-Processing</a></h1>
-<p>Flint includes an HDR post-processing pipeline that transforms the raw scene render into polished final output with bloom, tonemapping, and vignette effects.</p>
+<p>Flint includes an HDR post-processing pipeline that transforms the raw scene render into polished final output with bloom, SSAO, fog, volumetric lighting, tonemapping, and vignette effects.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
 <p>Instead of rendering directly to the screen, the scene is drawn to an intermediate <strong>HDR buffer</strong> (<code>Rgba16Float</code> format) that can store values brighter than 1.0. A series of fullscreen passes then process this buffer:</p>
-<pre><code>Scene render         Bloom chain              Composite pass
-(PBR, skinned,   →  downsample (5 mips)  →   exposure
- billboard,         upsample (additive)       ACES tonemapping
- particles,                                   gamma correction
- skybox)                                      vignette
-     ↓                    ↓                       ↓
- Rgba16Float          bloom texture           sRGB surface
- HDR buffer           (bright halos)          (final output)
+<pre><code>Scene render         SSAO        Volumetric    Bloom chain       Composite pass
+(PBR, skinned,   →  depth-based  shadow-based  downsample    →   exposure
+ billboard,         AO texture   god rays      upsample          ACES tonemapping
+ particles,                                                      gamma correction
+ skybox)                                                         fog + vignette
+     ↓                  ↓            ↓              ↓                ↓
+ Rgba16Float       AO texture   vol texture    bloom texture    sRGB surface
+ HDR buffer        (darkening)  (light shafts) (bright halos)  (final output)
 </code></pre>
 <p>All scene pipelines — PBR, skinned mesh, billboard sprite, particle, and skybox — render to the HDR buffer when post-processing is active. The PBR shader’s built-in tonemapping is automatically disabled so it outputs linear HDR values for the composite pass to process.</p>
 <h2 id="bloom"><a class="header" href="#bloom">Bloom</a></h2>
@@ -2407,31 +2407,136 @@ fullbright = true
 <p><img src="images/bloom-off.png" alt="Bloom disabled — same scene with raw PBR output"></p>
 <p><em>Post-processing disabled: the same scene rendered with shader-level tonemapping only.</em></p>
 <p>The mip chain depth is calculated as <code>floor(log2(min(width, height))) - 3</code>, capped at 5 levels, ensuring the smallest mip is at least 8x8 pixels.</p>
-<h2 id="scene-configuration"><a class="header" href="#scene-configuration">Scene Configuration</a></h2>
-<p>Add a <code>[post_process]</code> block to your scene TOML to configure per-scene settings:</p>
-<pre><code class="language-toml">[post_process]
-bloom_enabled = true
-bloom_intensity = 0.04
-bloom_threshold = 1.0
-vignette_enabled = true
-vignette_intensity = 0.3
-exposure = 1.0
-</code></pre>
+<h2 id="ssao-screen-space-ambient-occlusion"><a class="header" href="#ssao-screen-space-ambient-occlusion">SSAO (Screen-Space Ambient Occlusion)</a></h2>
+<p>SSAO darkens crevices, corners, and areas where surfaces meet, adding depth and realism to a scene without requiring extra light sources. The implementation samples the depth buffer around each pixel to estimate how much ambient light would be blocked by nearby geometry.</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>bloom_enabled</code></td><td>bool</td><td><code>true</code></td><td>Enable bloom effect</td></tr>
-<tr><td><code>bloom_intensity</code></td><td>f32</td><td><code>0.04</code></td><td>Bloom mix strength (0.0 = none, higher = more glow)</td></tr>
-<tr><td><code>bloom_threshold</code></td><td>f32</td><td><code>1.0</code></td><td>Minimum brightness for bloom extraction</td></tr>
-<tr><td><code>vignette_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable screen-edge darkening</td></tr>
-<tr><td><code>vignette_intensity</code></td><td>f32</td><td><code>0.3</code></td><td>Vignette darkness (0.0 = none, 1.0 = strong)</td></tr>
-<tr><td><code>exposure</code></td><td>f32</td><td><code>1.0</code></td><td>Exposure multiplier (higher = brighter overall image)</td></tr>
+<tr><td><code>ssao_enabled</code></td><td>bool</td><td><code>true</code></td><td>Enable SSAO</td></tr>
+<tr><td><code>ssao_radius</code></td><td>f32</td><td><code>0.5</code></td><td>Sample radius in world units (larger = wider darkening)</td></tr>
+<tr><td><code>ssao_intensity</code></td><td>f32</td><td><code>1.0</code></td><td>Occlusion strength (higher = darker crevices)</td></tr>
 </tbody>
 </table>
 </div>
+<h2 id="fog"><a class="header" href="#fog">Fog</a></h2>
+<p>Distance-based fog blends a configurable fog color into the scene based on pixel depth. Height-based falloff can be layered on top so fog is thicker near the ground and thins out at higher elevations.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>fog_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable distance fog</td></tr>
+<tr><td><code>fog_color</code></td><td>[f32; 3]</td><td><code>[0.7, 0.75, 0.82]</code></td><td>Fog color (linear RGB)</td></tr>
+<tr><td><code>fog_density</code></td><td>f32</td><td><code>0.02</code></td><td>Exponential density factor</td></tr>
+<tr><td><code>fog_start</code></td><td>f32</td><td><code>5.0</code></td><td>Distance where fog begins</td></tr>
+<tr><td><code>fog_end</code></td><td>f32</td><td><code>100.0</code></td><td>Distance where fog reaches full opacity</td></tr>
+<tr><td><code>fog_height_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable height-based falloff</td></tr>
+<tr><td><code>fog_height_falloff</code></td><td>f32</td><td><code>0.1</code></td><td>How quickly fog thins with altitude</td></tr>
+<tr><td><code>fog_height_origin</code></td><td>f32</td><td><code>0.0</code></td><td>World Y where fog is thickest</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="volumetric-lighting-god-rays"><a class="header" href="#volumetric-lighting-god-rays">Volumetric Lighting (God Rays)</a></h2>
+<p>Volumetric lighting simulates light scattering through participating media (dust, fog, haze), producing visible shafts of light (god rays). The effect ray-marches from each pixel toward the camera, sampling the shadow map at each step to determine whether that point in space is lit or in shadow.</p>
+<h3 id="how-it-works-1"><a class="header" href="#how-it-works-1">How it works</a></h3>
+<ol>
+<li>For each screen pixel, reconstruct its world position from the depth buffer</li>
+<li>March <code>volumetric_samples</code> steps along the view ray from the pixel back toward the camera</li>
+<li>At each step, project the position into shadow-map space and sample the cascaded shadow map</li>
+<li>Accumulate light contribution where the sample is not in shadow, applying exponential decay</li>
+<li>The resulting volumetric texture is additively blended into the scene during the composite pass</li>
+</ol>
+<p>Because volumetric lighting depends on the shadow map, it requires at least one directional light with shadows enabled. The effect is disabled when shadows are off.</p>
+<h3 id="per-light-configuration"><a class="header" href="#per-light-configuration">Per-light configuration</a></h3>
+<p>Each directional light can control its volumetric contribution independently via its <code>light</code> component:</p>
+<pre><code class="language-toml">[entities.sun.light]
+type = "directional"
+direction = [0.4, 0.6, 0.05]
+color = [1.0, 0.92, 0.75]
+intensity = 6.0
+volumetric_intensity = 4.0               # god ray brightness (0 = no rays)
+volumetric_color = [1.0, 0.88, 0.6]      # tint for the light shafts
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Light field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>volumetric_intensity</code></td><td>f32</td><td><code>0.0</code></td><td>Per-light god ray strength (0 = disabled for this light)</td></tr>
+<tr><td><code>volumetric_color</code></td><td>[f32; 3]</td><td>light color</td><td>Tint color for the shafts from this light</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="global-scene-settings"><a class="header" href="#global-scene-settings">Global scene settings</a></h3>
+<p>The <code>[post_process]</code> block controls the overall volumetric pass:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>volumetric_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable volumetric lighting</td></tr>
+<tr><td><code>volumetric_samples</code></td><td>u32</td><td><code>32</code></td><td>Ray-march steps per pixel (higher = smoother, more expensive)</td></tr>
+<tr><td><code>volumetric_density</code></td><td>f32</td><td><code>1.0</code></td><td>Scattering density multiplier</td></tr>
+<tr><td><code>volumetric_max_distance</code></td><td>f32</td><td><code>100.0</code></td><td>Maximum ray-march distance from camera</td></tr>
+<tr><td><code>volumetric_decay</code></td><td>f32</td><td><code>0.98</code></td><td>Exponential decay per step (closer to 1.0 = shafts extend further)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="example-dungeon-window"><a class="header" href="#example-dungeon-window">Example: dungeon window</a></h3>
+<pre><code class="language-toml">[post_process]
+volumetric_enabled = true
+volumetric_samples = 64
+volumetric_density = 30.0
+volumetric_max_distance = 15.0
+volumetric_decay = 0.998
+exposure = 2.5
+
+[entities.sun.light]
+type = "directional"
+direction = [0.4, 0.4, 0.05]
+color = [1.0, 0.92, 0.75]
+intensity = 6.0
+volumetric_intensity = 4.0
+volumetric_color = [1.0, 0.88, 0.6]
+</code></pre>
+<p>High <code>volumetric_density</code> with a short <code>volumetric_max_distance</code> and <code>decay</code> close to 1.0 produces thick, concentrated shafts — good for dusty interiors. For outdoor haze, use lower density and longer distance.</p>
+<h2 id="dither"><a class="header" href="#dither">Dither</a></h2>
+<p>Subtle dithering reduces color banding in gradients (skies, fog falloff, smooth surfaces). A blue-noise pattern is applied during the composite pass.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>dither_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable dithering</td></tr>
+<tr><td><code>dither_intensity</code></td><td>f32</td><td><code>0.03</code></td><td>Dither strength (subtle values like 0.02–0.05 work best)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="scene-configuration"><a class="header" href="#scene-configuration">Scene Configuration</a></h2>
+<p>Add a <code>[post_process]</code> block to your scene TOML to configure per-scene settings:</p>
+<pre><code class="language-toml">[post_process]
+bloom_enabled = true
+bloom_intensity = 0.04
+bloom_threshold = 1.0
+ssao_enabled = true
+ssao_radius = 0.5
+ssao_intensity = 1.0
+fog_enabled = true
+fog_density = 0.02
+fog_color = [0.7, 0.75, 0.82]
+volumetric_enabled = false
+vignette_enabled = true
+vignette_intensity = 0.3
+exposure = 1.0
+</code></pre>
+<p>All fields are optional — omitted values use their defaults.</p>
 <h2 id="cli-flags"><a class="header" href="#cli-flags">CLI Flags</a></h2>
 <p>Override post-processing settings from the command line:</p>
 <pre><code class="language-bash"># Disable all post-processing
@@ -2443,8 +2548,20 @@ flint render scene.toml --bloom-intensity 0.08 --bloom-threshold 0.8
 # Adjust exposure
 flint render scene.toml --exposure 1.5
 
+# SSAO
+flint render scene.toml --ssao-radius 0.5 --ssao-intensity 1.0
+
+# Fog
+flint render scene.toml --fog-density 0.02 --fog-color 0.7,0.75,0.82 --fog-height-falloff 0.1
+
+# Volumetric lighting
+flint render scene.toml --volumetric-density 1.0 --volumetric-samples 32
+
+# Dither
+flint render scene.toml --dither-intensity 0.03
+
 # Combine flags
-flint play scene.toml --bloom-intensity 0.1 --exposure 1.2
+flint play scene.toml --bloom-intensity 0.1 --exposure 1.2 --volumetric-density 5.0
 </code></pre>
 <div class="table-wrapper">
 <table>
@@ -2453,15 +2570,24 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2
 </thead>
 <tbody>
 <tr><td><code>--no-postprocess</code></td><td>Disable the entire post-processing pipeline</td></tr>
+<tr><td><code>--no-shadows</code></td><td>Disable shadow mapping (also disables volumetric)</td></tr>
 <tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td>Override bloom intensity</td></tr>
 <tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td>Override bloom brightness threshold</td></tr>
 <tr><td><code>--exposure &lt;f32&gt;</code></td><td>Override exposure multiplier</td></tr>
+<tr><td><code>--ssao-radius &lt;f32&gt;</code></td><td>Override SSAO sample radius</td></tr>
+<tr><td><code>--ssao-intensity &lt;f32&gt;</code></td><td>Override SSAO strength</td></tr>
+<tr><td><code>--fog-density &lt;f32&gt;</code></td><td>Override fog density (0 disables fog)</td></tr>
+<tr><td><code>--fog-color &lt;r,g,b&gt;</code></td><td>Override fog color</td></tr>
+<tr><td><code>--fog-height-falloff &lt;f32&gt;</code></td><td>Enable height fog with given falloff</td></tr>
+<tr><td><code>--volumetric-density &lt;f32&gt;</code></td><td>Override volumetric density (0 disables)</td></tr>
+<tr><td><code>--volumetric-samples &lt;u32&gt;</code></td><td>Override volumetric ray-march steps</td></tr>
+<tr><td><code>--dither-intensity &lt;f32&gt;</code></td><td>Override dither strength</td></tr>
 </tbody>
 </table>
 </div>
 <p>CLI flags take precedence over scene TOML settings.</p>
 <h2 id="runtime-toggles"><a class="header" href="#runtime-toggles">Runtime Toggles</a></h2>
-<p>During gameplay (<code>flint play</code>), toggle post-processing effects with keyboard shortcuts:</p>
+<p>During gameplay (<code>flint play</code> / <code>flint edit</code>), toggle post-processing effects with keyboard shortcuts:</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -2470,6 +2596,10 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2
 <tbody>
 <tr><td><strong>F5</strong></td><td>Toggle bloom on/off</td></tr>
 <tr><td><strong>F6</strong></td><td>Toggle entire post-processing pipeline on/off</td></tr>
+<tr><td><strong>F7</strong></td><td>Toggle SSAO on/off</td></tr>
+<tr><td><strong>F8</strong></td><td>Toggle fog on/off</td></tr>
+<tr><td><strong>F9</strong></td><td>Toggle dither on/off</td></tr>
+<tr><td><strong>F10</strong></td><td>Toggle volumetric lighting on/off</td></tr>
 </tbody>
 </table>
 </div>
@@ -2477,9 +2607,13 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2
 <h2 id="shader-integration"><a class="header" href="#shader-integration">Shader Integration</a></h2>
 <p>When the post-processing pipeline is active, the engine sets <code>enable_tonemapping = 0</code> in the PBR uniform buffer, forcing shaders to output raw linear HDR values. The composite pass then applies:</p>
 <ol>
+<li><strong>SSAO</strong> — darkens ambient-occluded areas using the AO texture</li>
+<li><strong>Volumetric</strong> — additively blends god ray light shafts</li>
 <li><strong>Exposure</strong> — multiplies all color values by the exposure setting</li>
 <li><strong>ACES tonemapping</strong> — maps HDR values to displayable range using the ACES filmic curve</li>
+<li><strong>Fog</strong> — blends fog color based on depth and optional height falloff</li>
 <li><strong>Gamma correction</strong> — converts linear light to sRGB</li>
+<li><strong>Dither</strong> — applies subtle noise to reduce banding</li>
 <li><strong>Vignette</strong> — darkens screen edges for a cinematic look</li>
 </ol>
 <p>When post-processing is disabled (via <code>--no-postprocess</code> or F6), the shader handles tonemapping and gamma internally. This dual-path design ensures backward compatibility with scenes that don’t use post-processing.</p>
@@ -2489,6 +2623,7 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2
 <li><strong>Progressive downsample/upsample</strong> (rather than a single Gaussian blur) produces wide, natural-looking bloom cheaply</li>
 <li><strong>1x1 black fallback texture</strong> when bloom is disabled avoids conditional bind group creation</li>
 <li><strong>Resize handling</strong> — <code>PostProcessResources</code> are recreated on window resize since the HDR texture and bloom mip chain are resolution-dependent</li>
+<li><strong>Extended shadow depth</strong> — the shadow frustum’s depth range is extended beyond the camera frustum so off-screen casters (ceilings, walls behind the camera) are captured in the shadow map, which is critical for correct volumetric shafts in enclosed spaces</li>
 </ul>
 <h2 id="further-reading-10"><a class="header" href="#further-reading-10">Further Reading</a></h2>
 <ul>
@@ -2729,7 +2864,7 @@ speed = 1.0
   │   flint-render        │  Upload bone matrices → vertex shader skinning
   └──────────────────────┘
 </code></pre>
-<h3 id="how-it-works-1"><a class="header" href="#how-it-works-1">How It Works</a></h3>
+<h3 id="how-it-works-2"><a class="header" href="#how-it-works-2">How It Works</a></h3>
 <ol>
 <li><strong>Import</strong> — <code>flint-import</code> extracts the skeleton (joint hierarchy, inverse bind matrices) and animation clips (per-joint keyframe channels) from glTF files</li>
 <li><strong>Evaluate</strong> — each frame, <code>flint-animation</code> samples the current clip time to produce local joint poses, walks the bone hierarchy to compute global transforms, and multiplies by inverse bind matrices to get final bone matrices</li>
@@ -2833,7 +2968,7 @@ fn on_init() {
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="terrain"><a class="header" href="#terrain">Terrain</a></h1>
 <p>Flint’s terrain system provides heightmap-based outdoor environments via the <code>flint-terrain</code> crate. Rolling hills, mountains, valleys, and open landscapes are defined by a grayscale heightmap image and textured with up to four blended surface layers controlled by an RGBA splat map.</p>
-<h2 id="how-it-works-2"><a class="header" href="#how-it-works-2">How It Works</a></h2>
+<h2 id="how-it-works-3"><a class="header" href="#how-it-works-3">How It Works</a></h2>
 <p>A single <code>terrain</code> component on an entity defines the entire terrain surface:</p>
 <pre><code>Heightmap PNG          flint-terrain              flint-render
   grayscale    ──►  Chunked mesh generation  ──►  TerrainPipeline
@@ -3023,7 +3158,7 @@ texture_tile = 16.0
 <blockquote>
 <p><strong>Note:</strong> Particle effects are dynamic simulations that accumulate over time. Use <code>flint play</code> to see them in action — headless <code>flint render</code> captures a single frame and won’t show accumulated particles.</p>
 </blockquote>
-<h2 id="how-it-works-3"><a class="header" href="#how-it-works-3">How It Works</a></h2>
+<h2 id="how-it-works-4"><a class="header" href="#how-it-works-4">How It Works</a></h2>
 <p>Each entity with a <code>particle_emitter</code> component owns a <strong>pool</strong> of particles simulated on the CPU and rendered as camera-facing quads via GPU instancing. The pipeline is:</p>
 <pre><code>TOML component                CPU simulation              GPU rendering
 particle_emitter   ──►  ParticleSync reads config  ──►  ParticlePipeline
@@ -3331,7 +3466,7 @@ body_type = "static"
 <p>Raycasting is exposed to scripts via the <code>raycast()</code> function — see <a href="#physics-api">Scripting: Physics API</a> for the script-level interface and examples.</p>
 <h2 id="input-system"><a class="header" href="#input-system">Input System</a></h2>
 <p>The <code>InputState</code> struct provides a config-driven, device-agnostic input layer. It tracks keyboard, mouse, and gamepad state each frame and evaluates logical <strong>actions</strong> from physical bindings.</p>
-<h3 id="how-it-works-4"><a class="header" href="#how-it-works-4">How It Works</a></h3>
+<h3 id="how-it-works-5"><a class="header" href="#how-it-works-5">How It Works</a></h3>
 <p>All input flows through a unified <code>Binding</code> model:</p>
 <ul>
 <li><strong>Keyboard keys</strong> (<code>Key { code }</code>) — any winit <code>KeyCode</code> name (e.g., <code>"KeyW"</code>, <code>"Space"</code>, <code>"ShiftLeft"</code>)</li>
@@ -3933,7 +4068,7 @@ enabled = true
 </div>
 <p><code>find_nearest_interactable()</code> returns a map with <code>entity</code> (ID), <code>prompt_text</code>, <code>interaction_type</code>, and <code>distance</code> fields when an interactable entity is within range.</p>
 <h4 id="layer-ordering"><a class="header" href="#layer-ordering">Layer Ordering</a></h4>
-<p>All draw commands accept a <code>layer</code> parameter (or default to 0). Commands are sorted by layer before rendering:</p>
+<p>All <code>_ex</code> draw variants accept a <code>layer</code> parameter which must be an <strong>integer</strong> (<code>0</code>, <code>1</code>, <code>-1</code>), not a float. Using <code>0.0</code> instead of <code>0</code> will cause a “Function not found” error because Rhai does not implicitly convert between <code>float</code> and <code>int</code>. Commands are sorted by layer before rendering:</p>
 <ul>
 <li><strong>Negative layers</strong> render behind (background elements)</li>
 <li><strong>Layer 0</strong> is the default</li>
@@ -4316,7 +4451,7 @@ fn on_draw_ui() {
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="2d-sprites"><a class="header" href="#2d-sprites">2D Sprites</a></h1>
 <p>Flint’s 2D sprite system provides GPU-instanced flat-quad rendering for side-scrollers, top-down games, and any project that needs sprite-based visuals. It sits alongside the existing 3D billboard sprite pipeline but uses an orthographic camera and XY-plane alignment instead of camera-facing quads.</p>
-<h2 id="how-it-works-5"><a class="header" href="#how-it-works-5">How It Works</a></h2>
+<h2 id="how-it-works-6"><a class="header" href="#how-it-works-6">How It Works</a></h2>
 <p>2D sprites render as axis-aligned quads on the XY plane using a dedicated <code>Sprite2dPipeline</code> in <code>flint-render</code>. The pipeline follows the same storage-buffer instancing pattern as the particle system — one draw call per texture batch, quads generated from <code>vertex_index</code> in the shader, no vertex buffers needed.</p>
 <pre><code>Scene TOML              CPU collection              GPU rendering
 sprite component  ──►  Collect instances   ──►  Sprite2dPipeline
@@ -4566,7 +4701,7 @@ fn on_animation_end(clip) {
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="touch-input"><a class="header" href="#touch-input">Touch Input</a></h1>
 <p>Flint’s input system extends seamlessly to touchscreens through <strong>touch zones</strong> — named screen regions that map to the same action bindings used by keyboard and gamepad. A single input config can drive a game on desktop and mobile without code changes.</p>
-<h2 id="how-it-works-6"><a class="header" href="#how-it-works-6">How It Works</a></h2>
+<h2 id="how-it-works-7"><a class="header" href="#how-it-works-7">How It Works</a></h2>
 <p>Touch input integrates into the existing <code>InputState</code> system in <code>flint-runtime</code>:</p>
 <pre><code>Touch event (OS)         Normalized tracking         Action evaluation
 TouchStart(id, x, y) ──► TouchPoint { id, pos,  ──► binding_value(TouchZone)
@@ -7318,7 +7453,6 @@ default_style = "medieval_tavern"
 <li><strong>Plugin system</strong> — third-party engine extensions</li>
 <li><strong>Package manager</strong> — share schemas, constraints, and assets between projects</li>
 <li><strong>WebAssembly</strong> — browser-based viewer and potentially runtime</li>
-<li><strong>Volumetric lighting</strong> — light shafts and fog volumes</li>
 <li><strong>Shader graph</strong> — visual shader editing for non-programmers</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
