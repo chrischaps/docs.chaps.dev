@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["HeightBrushMode","SplatBrushMode"],"fn":["apply_height_brush","apply_splat_brush","ray_heightmap_intersect"],"struct":["BrushParams"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["MusgraveType","VoronoiFeature","VoronoiMetric"],"fn":["musgrave_sample","noise_to_image","perlin_fbm","simplex_fbm","voronoi_sample"],"struct":["Fbm","PerlinNoise","SimplexNoise","ValueNoise","VoronoiResult","WorleyNoise"],"trait":["NoiseSource"]};

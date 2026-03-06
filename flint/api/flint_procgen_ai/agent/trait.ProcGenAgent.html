@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An AI agent that can create, interpret, and refine procedural generation specs."><title>ProcGenAgent in flint_procgen_ai::agent - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="flint_procgen_ai" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">ProcGenAgent</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../flint_procgen_ai/index.html">flint_<wbr>procgen_<wbr>ai</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Proc<wbr>GenAgent</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.create_spec_from_prompt" title="create_spec_from_prompt">create_spec_from_prompt</a></li><li><a href="#tymethod.interpret_spec" title="interpret_spec">interpret_spec</a></li><li><a href="#tymethod.refine_spec" title="refine_spec">refine_spec</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In flint_<wbr>procgen_<wbr>ai::<wbr>agent</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">flint_procgen_ai</a>::<wbr><a href="index.html">agent</a></div><h1>Trait <span class="trait">Proc<wbr>GenAgent</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/flint_procgen_ai/agent.rs.html#20-29">Source</a> </span></div><pre class="rust item-decl"><code>pub trait ProcGenAgent: <a class="trait" href="https://doc.rust-lang.org/1.93.1/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + <a class="trait" href="https://doc.rust-lang.org/1.93.1/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> {
+    // Required methods
+    fn <a href="#tymethod.interpret_spec" class="fn">interpret_spec</a>(&amp;self, spec: &amp;ProcGenSpec) -&gt; <a class="type" href="../error/type.Result.html" title="type flint_procgen_ai::error::Result">Result</a>&lt;<a class="struct" href="struct.SpecFeedback.html" title="struct flint_procgen_ai::agent::SpecFeedback">SpecFeedback</a>&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.create_spec_from_prompt" class="fn">create_spec_from_prompt</a>(
+        &amp;self,
+        prompt: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.str.html">str</a>,
+        generator: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.str.html">str</a>,
+    ) -&gt; <a class="type" href="../error/type.Result.html" title="type flint_procgen_ai::error::Result">Result</a>&lt;ProcGenSpec&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.refine_spec" class="fn">refine_spec</a>(
+        &amp;self,
+        spec: &amp;ProcGenSpec,
+        reference: <a class="enum" href="https://doc.rust-lang.org/1.93.1/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;[<a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.u8.html">u8</a>]&gt;,
+    ) -&gt; <a class="type" href="../error/type.Result.html" title="type flint_procgen_ai::error::Result">Result</a>&lt;ProcGenSpec&gt;;
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An AI agent that can create, interpret, and refine procedural generation specs.</p>
+<p>Object-safe (<code>Box&lt;dyn ProcGenAgent&gt;</code> works). Implementations must be <code>Send + Sync</code>
+to support future async/threaded usage.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.interpret_spec" class="method"><a class="src rightside" href="../../src/flint_procgen_ai/agent.rs.html#22">Source</a><h4 class="code-header">fn <a href="#tymethod.interpret_spec" class="fn">interpret_spec</a>(&amp;self, spec: &amp;ProcGenSpec) -&gt; <a class="type" href="../error/type.Result.html" title="type flint_procgen_ai::error::Result">Result</a>&lt;<a class="struct" href="struct.SpecFeedback.html" title="struct flint_procgen_ai::agent::SpecFeedback">SpecFeedback</a>&gt;</h4></section></summary><div class="docblock"><p>Analyze a spec and return feedback with suggestions.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.create_spec_from_prompt" class="method"><a class="src rightside" href="../../src/flint_procgen_ai/agent.rs.html#25">Source</a><h4 class="code-header">fn <a href="#tymethod.create_spec_from_prompt" class="fn">create_spec_from_prompt</a>(
+    &amp;self,
+    prompt: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.str.html">str</a>,
+    generator: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.str.html">str</a>,
+) -&gt; <a class="type" href="../error/type.Result.html" title="type flint_procgen_ai::error::Result">Result</a>&lt;ProcGenSpec&gt;</h4></section></summary><div class="docblock"><p>Create a new spec from a natural-language prompt and target generator type.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.refine_spec" class="method"><a class="src rightside" href="../../src/flint_procgen_ai/agent.rs.html#28">Source</a><h4 class="code-header">fn <a href="#tymethod.refine_spec" class="fn">refine_spec</a>(
+    &amp;self,
+    spec: &amp;ProcGenSpec,
+    reference: <a class="enum" href="https://doc.rust-lang.org/1.93.1/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;[<a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.u8.html">u8</a>]&gt;,
+) -&gt; <a class="type" href="../error/type.Result.html" title="type flint_procgen_ai::error::Result">Result</a>&lt;ProcGenSpec&gt;</h4></section></summary><div class="docblock"><p>Refine an existing spec, optionally using a reference image for guidance.</p>
+</div></details></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-ProcGenAgent-for-MockAgent" class="impl"><a class="src rightside" href="../../src/flint_procgen_ai/mock.rs.html#14-102">Source</a><a href="#impl-ProcGenAgent-for-MockAgent" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.ProcGenAgent.html" title="trait flint_procgen_ai::agent::ProcGenAgent">ProcGenAgent</a> for <a class="struct" href="../mock/struct.MockAgent.html" title="struct flint_procgen_ai::mock::MockAgent">MockAgent</a></h3></section></div><script src="../../trait.impl/flint_procgen_ai/agent/trait.ProcGenAgent.js" async></script></section></div></main></body></html>

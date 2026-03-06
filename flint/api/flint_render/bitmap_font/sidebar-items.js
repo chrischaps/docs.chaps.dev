@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["anchor_origin","apply_fill"],"struct":["BitmapFont"]};

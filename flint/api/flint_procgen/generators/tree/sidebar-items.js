@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BranchMethod","CrownShape","LeafStyle"],"fn":["generate_bark_normal_map","generate_tree","generate_trunk"],"mod":["branches","leaves","lod"],"struct":["BranchOutput","BranchParams","LeafParams","TreeGenerator","TreeOutput","TrunkOutput","TrunkParams"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["generate_body_part","parse_body_part"],"struct":["BodyPartDef"]};

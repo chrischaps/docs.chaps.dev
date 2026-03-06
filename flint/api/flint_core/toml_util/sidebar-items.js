@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["toml_color","toml_f32","toml_f32_slice","toml_f64","toml_to_vec3","toml_vec3","toml_vec4"]};

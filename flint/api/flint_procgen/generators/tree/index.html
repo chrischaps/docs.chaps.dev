@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Tree generator — produces procedural tree meshes with bark materials."><title>flint_procgen::generators::tree - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint_procgen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module tree</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../flint_procgen/index.html">flint_<wbr>procgen</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module tree</a></h2><h3><a href="#reexports">Module Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In flint_<wbr>procgen::<wbr>generators</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">flint_procgen</a>::<wbr><a href="../index.html">generators</a></div><h1>Module <span>tree</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/flint_procgen/generators/tree/mod.rs.html#1-1085">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Tree generator — produces procedural tree meshes with bark materials.</p>
+<p>Tasks 3.1 (trunk) and 3.2 (branches) are complete. Task 3.3
+(leaves/LOD) will extend this module into a full <code>TreeGenerator</code>.</p>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt id="reexport.generate_branches"><code>pub use branches::<a class="fn" href="branches/fn.generate_branches.html" title="fn flint_procgen::generators::tree::branches::generate_branches">generate_branches</a>;</code></dt><dt id="reexport.generate_leaves"><code>pub use leaves::<a class="fn" href="leaves/fn.generate_leaves.html" title="fn flint_procgen::generators::tree::leaves::generate_leaves">generate_leaves</a>;</code></dt><dt id="reexport.generate_lods"><code>pub use lod::<a class="fn" href="lod/fn.generate_lods.html" title="fn flint_procgen::generators::tree::lod::generate_lods">generate_lods</a>;</code></dt></dl><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="branches/index.html" title="mod flint_procgen::generators::tree::branches">branches</a></dt><dd>Branch generation — wires L-system and space colonization algorithms
+to produce branch geometry attached to a trunk tip.</dd><dt><a class="mod" href="leaves/index.html" title="mod flint_procgen::generators::tree::leaves">leaves</a></dt><dd>Leaf geometry generation for procedural trees.</dd><dt><a class="mod" href="lod/index.html" title="mod flint_procgen::generators::tree::lod">lod</a></dt><dd>LOD (Level of Detail) generation via mesh simplification.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.BranchOutput.html" title="struct flint_procgen::generators::tree::BranchOutput">Branch<wbr>Output</a></dt><dd>Output of branch generation.</dd><dt><a class="struct" href="struct.BranchParams.html" title="struct flint_procgen::generators::tree::BranchParams">Branch<wbr>Params</a></dt><dd>Typed branch configuration extracted from a <code>ProcGenSpec</code>’s params table.</dd><dt><a class="struct" href="struct.LeafParams.html" title="struct flint_procgen::generators::tree::LeafParams">Leaf<wbr>Params</a></dt><dd>Typed leaf configuration extracted from a <code>ProcGenSpec</code>’s params table.</dd><dt><a class="struct" href="struct.TreeGenerator.html" title="struct flint_procgen::generators::tree::TreeGenerator">Tree<wbr>Generator</a></dt><dd>Procedural tree generator — produces trunk, branches, and leaves with
+optional LOD levels.</dd><dt><a class="struct" href="struct.TreeOutput.html" title="struct flint_procgen::generators::tree::TreeOutput">Tree<wbr>Output</a></dt><dd>Output of full tree generation (trunk + branches).</dd><dt><a class="struct" href="struct.TrunkOutput.html" title="struct flint_procgen::generators::tree::TrunkOutput">Trunk<wbr>Output</a></dt><dd>Output of trunk generation, containing geometry, normal map, and attachment info.</dd><dt><a class="struct" href="struct.TrunkParams.html" title="struct flint_procgen::generators::tree::TrunkParams">Trunk<wbr>Params</a></dt><dd>Typed trunk configuration extracted from a <code>ProcGenSpec</code>’s params table.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.BranchMethod.html" title="enum flint_procgen::generators::tree::BranchMethod">Branch<wbr>Method</a></dt><dd>Which branching algorithm to use.</dd><dt><a class="enum" href="enum.CrownShape.html" title="enum flint_procgen::generators::tree::CrownShape">Crown<wbr>Shape</a></dt><dd>Shape of the crown volume for space colonization.</dd><dt><a class="enum" href="enum.LeafStyle.html" title="enum flint_procgen::generators::tree::LeafStyle">Leaf<wbr>Style</a></dt><dd>How leaf geometry is constructed at branch tips.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.generate_bark_normal_map.html" title="fn flint_procgen::generators::tree::generate_bark_normal_map">generate_<wbr>bark_<wbr>normal_<wbr>map</a></dt><dd>Generate a procedural bark normal map.</dd><dt><a class="fn" href="fn.generate_tree.html" title="fn flint_procgen::generators::tree::generate_tree">generate_<wbr>tree</a></dt><dd>Generate a complete tree (trunk + branches) from parameters and RNG.</dd><dt><a class="fn" href="fn.generate_trunk.html" title="fn flint_procgen::generators::tree::generate_trunk">generate_<wbr>trunk</a></dt><dd>Generate a trunk mesh from the given parameters and RNG.</dd></dl></section></div></main></body></html>

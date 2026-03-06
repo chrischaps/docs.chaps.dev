@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BoneDef","SkeletonDef","SkinnedMeshData","SkinnedVertex"]};

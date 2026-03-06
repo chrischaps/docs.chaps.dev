@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\flint-scene\src\format.rs`."><title>format.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="flint_scene" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><style>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/flint-scene/src/format.rs`."><title>format.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="flint_scene" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><style>
     /* Flint rustdoc theme overrides - match the mdBook dark theme */
     :root {
         --flint-ember: #E8913A;
@@ -268,7 +268,7 @@
 <a href=#192 id=192 data-nosnippet>192</a>}
 <a href=#193 id=193 data-nosnippet>193</a>
 <a href=#194 id=194 data-nosnippet>194</a><span class="doccomment">/// Definition of an entity in a scene file
-<a href=#195 id=195 data-nosnippet>195</a></span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
+<a href=#195 id=195 data-nosnippet>195</a></span><span class="attr">#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 <a href=#196 id=196 data-nosnippet>196</a></span><span class="kw">pub struct </span>EntityDef {
 <a href=#197 id=197 data-nosnippet>197</a>    <span class="doccomment">/// Optional archetype name
 <a href=#198 id=198 data-nosnippet>198</a>    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
@@ -306,72 +306,67 @@
 <a href=#230 id=230 data-nosnippet>230</a>    </span>}
 <a href=#231 id=231 data-nosnippet>231</a>}
 <a href=#232 id=232 data-nosnippet>232</a>
-<a href=#233 id=233 data-nosnippet>233</a><span class="kw">impl </span>Default <span class="kw">for </span>EntityDef {
-<a href=#234 id=234 data-nosnippet>234</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-<a href=#235 id=235 data-nosnippet>235</a>        <span class="self">Self</span>::new()
-<a href=#236 id=236 data-nosnippet>236</a>    }
-<a href=#237 id=237 data-nosnippet>237</a>}
-<a href=#238 id=238 data-nosnippet>238</a>
-<a href=#239 id=239 data-nosnippet>239</a><span class="kw">impl </span>SceneFile {
-<a href=#240 id=240 data-nosnippet>240</a>    <span class="doccomment">/// Create a new scene file
-<a href=#241 id=241 data-nosnippet>241</a>    </span><span class="kw">pub fn </span>new(name: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
-<a href=#242 id=242 data-nosnippet>242</a>        <span class="self">Self </span>{
-<a href=#243 id=243 data-nosnippet>243</a>            scene: SceneMetadata {
-<a href=#244 id=244 data-nosnippet>244</a>                name: name.into(),
-<a href=#245 id=245 data-nosnippet>245</a>                version: default_version(),
-<a href=#246 id=246 data-nosnippet>246</a>                description: <span class="prelude-val">None</span>,
-<a href=#247 id=247 data-nosnippet>247</a>                input_config: <span class="prelude-val">None</span>,
-<a href=#248 id=248 data-nosnippet>248</a>            },
-<a href=#249 id=249 data-nosnippet>249</a>            camera: <span class="prelude-val">None</span>,
-<a href=#250 id=250 data-nosnippet>250</a>            environment: <span class="prelude-val">None</span>,
-<a href=#251 id=251 data-nosnippet>251</a>            post_process: <span class="prelude-val">None</span>,
-<a href=#252 id=252 data-nosnippet>252</a>            prefabs: HashMap::new(),
-<a href=#253 id=253 data-nosnippet>253</a>            entities: HashMap::new(),
-<a href=#254 id=254 data-nosnippet>254</a>        }
-<a href=#255 id=255 data-nosnippet>255</a>    }
+<a href=#233 id=233 data-nosnippet>233</a><span class="kw">impl </span>SceneFile {
+<a href=#234 id=234 data-nosnippet>234</a>    <span class="doccomment">/// Create a new scene file
+<a href=#235 id=235 data-nosnippet>235</a>    </span><span class="kw">pub fn </span>new(name: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
+<a href=#236 id=236 data-nosnippet>236</a>        <span class="self">Self </span>{
+<a href=#237 id=237 data-nosnippet>237</a>            scene: SceneMetadata {
+<a href=#238 id=238 data-nosnippet>238</a>                name: name.into(),
+<a href=#239 id=239 data-nosnippet>239</a>                version: default_version(),
+<a href=#240 id=240 data-nosnippet>240</a>                description: <span class="prelude-val">None</span>,
+<a href=#241 id=241 data-nosnippet>241</a>                input_config: <span class="prelude-val">None</span>,
+<a href=#242 id=242 data-nosnippet>242</a>            },
+<a href=#243 id=243 data-nosnippet>243</a>            camera: <span class="prelude-val">None</span>,
+<a href=#244 id=244 data-nosnippet>244</a>            environment: <span class="prelude-val">None</span>,
+<a href=#245 id=245 data-nosnippet>245</a>            post_process: <span class="prelude-val">None</span>,
+<a href=#246 id=246 data-nosnippet>246</a>            prefabs: HashMap::new(),
+<a href=#247 id=247 data-nosnippet>247</a>            entities: HashMap::new(),
+<a href=#248 id=248 data-nosnippet>248</a>        }
+<a href=#249 id=249 data-nosnippet>249</a>    }
+<a href=#250 id=250 data-nosnippet>250</a>
+<a href=#251 id=251 data-nosnippet>251</a>    <span class="doccomment">/// Add an entity to the scene
+<a href=#252 id=252 data-nosnippet>252</a>    </span><span class="kw">pub fn </span>add_entity(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;String&gt;, entity: EntityDef) {
+<a href=#253 id=253 data-nosnippet>253</a>        <span class="self">self</span>.entities.insert(name.into(), entity);
+<a href=#254 id=254 data-nosnippet>254</a>    }
+<a href=#255 id=255 data-nosnippet>255</a>}
 <a href=#256 id=256 data-nosnippet>256</a>
-<a href=#257 id=257 data-nosnippet>257</a>    <span class="doccomment">/// Add an entity to the scene
-<a href=#258 id=258 data-nosnippet>258</a>    </span><span class="kw">pub fn </span>add_entity(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;String&gt;, entity: EntityDef) {
-<a href=#259 id=259 data-nosnippet>259</a>        <span class="self">self</span>.entities.insert(name.into(), entity);
-<a href=#260 id=260 data-nosnippet>260</a>    }
-<a href=#261 id=261 data-nosnippet>261</a>}
-<a href=#262 id=262 data-nosnippet>262</a>
-<a href=#263 id=263 data-nosnippet>263</a><span class="attr">#[cfg(test)]
-<a href=#264 id=264 data-nosnippet>264</a></span><span class="kw">mod </span>tests {
-<a href=#265 id=265 data-nosnippet>265</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#266 id=266 data-nosnippet>266</a>
-<a href=#267 id=267 data-nosnippet>267</a>    <span class="attr">#[test]
-<a href=#268 id=268 data-nosnippet>268</a>    </span><span class="kw">fn </span>test_scene_file_serialization() {
-<a href=#269 id=269 data-nosnippet>269</a>        <span class="kw">let </span><span class="kw-2">mut </span>scene = SceneFile::new(<span class="string">"Test Scene"</span>);
-<a href=#270 id=270 data-nosnippet>270</a>        scene.add_entity(
-<a href=#271 id=271 data-nosnippet>271</a>            <span class="string">"door1"</span>,
-<a href=#272 id=272 data-nosnippet>272</a>            EntityDef::new()
-<a href=#273 id=273 data-nosnippet>273</a>                .with_archetype(<span class="string">"door"</span>)
-<a href=#274 id=274 data-nosnippet>274</a>                .with_component(<span class="string">"door"</span>, <span class="macro">toml::toml!</span> { locked = <span class="bool-val">false </span>}.into()),
-<a href=#275 id=275 data-nosnippet>275</a>        );
-<a href=#276 id=276 data-nosnippet>276</a>
-<a href=#277 id=277 data-nosnippet>277</a>        <span class="kw">let </span>toml_str = toml::to_string_pretty(<span class="kw-2">&amp;</span>scene).unwrap();
-<a href=#278 id=278 data-nosnippet>278</a>        <span class="macro">assert!</span>(toml_str.contains(<span class="string">"Test Scene"</span>));
-<a href=#279 id=279 data-nosnippet>279</a>        <span class="macro">assert!</span>(toml_str.contains(<span class="string">"door1"</span>));
-<a href=#280 id=280 data-nosnippet>280</a>    }
-<a href=#281 id=281 data-nosnippet>281</a>
-<a href=#282 id=282 data-nosnippet>282</a>    <span class="attr">#[test]
-<a href=#283 id=283 data-nosnippet>283</a>    </span><span class="kw">fn </span>test_scene_file_deserialization() {
-<a href=#284 id=284 data-nosnippet>284</a>        <span class="kw">let </span>toml_str = <span class="string">r#"
-<a href=#285 id=285 data-nosnippet>285</a>[scene]
-<a href=#286 id=286 data-nosnippet>286</a>name = "Test Scene"
-<a href=#287 id=287 data-nosnippet>287</a>version = "1.0"
-<a href=#288 id=288 data-nosnippet>288</a>
-<a href=#289 id=289 data-nosnippet>289</a>[entities.room1]
-<a href=#290 id=290 data-nosnippet>290</a>archetype = "room"
-<a href=#291 id=291 data-nosnippet>291</a>
-<a href=#292 id=292 data-nosnippet>292</a>[entities.room1.bounds]
-<a href=#293 id=293 data-nosnippet>293</a>min = [0, 0, 0]
-<a href=#294 id=294 data-nosnippet>294</a>max = [10, 4, 8]
-<a href=#295 id=295 data-nosnippet>295</a>"#</span>;
-<a href=#296 id=296 data-nosnippet>296</a>
-<a href=#297 id=297 data-nosnippet>297</a>        <span class="kw">let </span>scene: SceneFile = toml::from_str(toml_str).unwrap();
-<a href=#298 id=298 data-nosnippet>298</a>        <span class="macro">assert_eq!</span>(scene.scene.name, <span class="string">"Test Scene"</span>);
-<a href=#299 id=299 data-nosnippet>299</a>        <span class="macro">assert!</span>(scene.entities.contains_key(<span class="string">"room1"</span>));
-<a href=#300 id=300 data-nosnippet>300</a>    }
-<a href=#301 id=301 data-nosnippet>301</a>}</code></pre></div></section></main></body></html>
+<a href=#257 id=257 data-nosnippet>257</a><span class="attr">#[cfg(test)]
+<a href=#258 id=258 data-nosnippet>258</a></span><span class="kw">mod </span>tests {
+<a href=#259 id=259 data-nosnippet>259</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#260 id=260 data-nosnippet>260</a>
+<a href=#261 id=261 data-nosnippet>261</a>    <span class="attr">#[test]
+<a href=#262 id=262 data-nosnippet>262</a>    </span><span class="kw">fn </span>test_scene_file_serialization() {
+<a href=#263 id=263 data-nosnippet>263</a>        <span class="kw">let </span><span class="kw-2">mut </span>scene = SceneFile::new(<span class="string">"Test Scene"</span>);
+<a href=#264 id=264 data-nosnippet>264</a>        scene.add_entity(
+<a href=#265 id=265 data-nosnippet>265</a>            <span class="string">"door1"</span>,
+<a href=#266 id=266 data-nosnippet>266</a>            EntityDef::new()
+<a href=#267 id=267 data-nosnippet>267</a>                .with_archetype(<span class="string">"door"</span>)
+<a href=#268 id=268 data-nosnippet>268</a>                .with_component(<span class="string">"door"</span>, <span class="macro">toml::toml!</span> { locked = <span class="bool-val">false </span>}.into()),
+<a href=#269 id=269 data-nosnippet>269</a>        );
+<a href=#270 id=270 data-nosnippet>270</a>
+<a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">let </span>toml_str = toml::to_string_pretty(<span class="kw-2">&amp;</span>scene).unwrap();
+<a href=#272 id=272 data-nosnippet>272</a>        <span class="macro">assert!</span>(toml_str.contains(<span class="string">"Test Scene"</span>));
+<a href=#273 id=273 data-nosnippet>273</a>        <span class="macro">assert!</span>(toml_str.contains(<span class="string">"door1"</span>));
+<a href=#274 id=274 data-nosnippet>274</a>    }
+<a href=#275 id=275 data-nosnippet>275</a>
+<a href=#276 id=276 data-nosnippet>276</a>    <span class="attr">#[test]
+<a href=#277 id=277 data-nosnippet>277</a>    </span><span class="kw">fn </span>test_scene_file_deserialization() {
+<a href=#278 id=278 data-nosnippet>278</a>        <span class="kw">let </span>toml_str = <span class="string">r#"
+<a href=#279 id=279 data-nosnippet>279</a>[scene]
+<a href=#280 id=280 data-nosnippet>280</a>name = "Test Scene"
+<a href=#281 id=281 data-nosnippet>281</a>version = "1.0"
+<a href=#282 id=282 data-nosnippet>282</a>
+<a href=#283 id=283 data-nosnippet>283</a>[entities.room1]
+<a href=#284 id=284 data-nosnippet>284</a>archetype = "room"
+<a href=#285 id=285 data-nosnippet>285</a>
+<a href=#286 id=286 data-nosnippet>286</a>[entities.room1.bounds]
+<a href=#287 id=287 data-nosnippet>287</a>min = [0, 0, 0]
+<a href=#288 id=288 data-nosnippet>288</a>max = [10, 4, 8]
+<a href=#289 id=289 data-nosnippet>289</a>"#</span>;
+<a href=#290 id=290 data-nosnippet>290</a>
+<a href=#291 id=291 data-nosnippet>291</a>        <span class="kw">let </span>scene: SceneFile = toml::from_str(toml_str).unwrap();
+<a href=#292 id=292 data-nosnippet>292</a>        <span class="macro">assert_eq!</span>(scene.scene.name, <span class="string">"Test Scene"</span>);
+<a href=#293 id=293 data-nosnippet>293</a>        <span class="macro">assert!</span>(scene.entities.contains_key(<span class="string">"room1"</span>));
+<a href=#294 id=294 data-nosnippet>294</a>    }
+<a href=#295 id=295 data-nosnippet>295</a>}
+</code></pre></div></section></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["field","grid","maps","node_graph","ops","organic","pattern","pipeline","voronoi"],"struct":["TextureGenerator"]};

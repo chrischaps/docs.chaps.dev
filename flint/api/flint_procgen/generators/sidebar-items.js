@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["register_built_in_generators"],"mod":["creature","texture","tree","util"]};

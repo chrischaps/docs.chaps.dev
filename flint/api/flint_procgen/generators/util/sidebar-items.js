@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["parse_hex_color","srgb_to_linear","toml_f32","toml_f64","toml_string","toml_string_array","toml_u32","u8_from_hex"]};

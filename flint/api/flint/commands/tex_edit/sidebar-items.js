@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["best_preview_image","channel_color","dynamic_channel_params","resolve_channel_label","run"],"struct":["TexEditApp","TexEditArgs","TexEditViewer","UndoSnapshot"]};

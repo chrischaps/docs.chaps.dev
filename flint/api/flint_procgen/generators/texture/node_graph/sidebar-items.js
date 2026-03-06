@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["TextureNode"],"fn":["explicit_connections","graph_to_ops","has_explicit_connections","ops_to_graph","topological_sort"],"struct":["Connection"]};

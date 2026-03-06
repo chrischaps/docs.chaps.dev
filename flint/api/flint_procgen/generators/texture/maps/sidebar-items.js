@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["derive_albedo","derive_maps","derive_normal","derive_roughness"],"struct":["TextureMapParams"]};

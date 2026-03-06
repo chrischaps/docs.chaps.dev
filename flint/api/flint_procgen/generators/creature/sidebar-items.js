@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["body_parts","limb_chains","skeleton_builder"],"struct":["CreatureGenerator"]};

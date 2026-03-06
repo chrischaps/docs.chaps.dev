@@ -1,0 +1,527 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/flint-terrain/src/brush.rs`."><title>brush.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="flint_terrain" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">flint_terrain/</div>brush.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Terrain brush tools for interactive sculpting and splat painting
+<a href=#2 id=2 data-nosnippet>2</a>
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span>noise::{NoiseFn, Perlin};
+<a href=#4 id=4 data-nosnippet>4</a>
+<a href=#5 id=5 data-nosnippet>5</a><span class="doccomment">/// Parameters for brush operations
+<a href=#6 id=6 data-nosnippet>6</a></span><span class="attr">#[derive(Debug, Clone, Copy)]
+<a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">pub struct </span>BrushParams {
+<a href=#8 id=8 data-nosnippet>8</a>    <span class="doccomment">/// Brush radius in UV space (0..1)
+<a href=#9 id=9 data-nosnippet>9</a>    </span><span class="kw">pub </span>radius: f32,
+<a href=#10 id=10 data-nosnippet>10</a>    <span class="doccomment">/// Brush strength (0..1)
+<a href=#11 id=11 data-nosnippet>11</a>    </span><span class="kw">pub </span>strength: f32,
+<a href=#12 id=12 data-nosnippet>12</a>    <span class="doccomment">/// Falloff curve (0 = hard edge, 1 = smooth gaussian)
+<a href=#13 id=13 data-nosnippet>13</a>    </span><span class="kw">pub </span>falloff: f32,
+<a href=#14 id=14 data-nosnippet>14</a>}
+<a href=#15 id=15 data-nosnippet>15</a>
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">impl </span>Default <span class="kw">for </span>BrushParams {
+<a href=#17 id=17 data-nosnippet>17</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#18 id=18 data-nosnippet>18</a>        <span class="self">Self </span>{
+<a href=#19 id=19 data-nosnippet>19</a>            radius: <span class="number">0.05</span>,
+<a href=#20 id=20 data-nosnippet>20</a>            strength: <span class="number">0.5</span>,
+<a href=#21 id=21 data-nosnippet>21</a>            falloff: <span class="number">0.7</span>,
+<a href=#22 id=22 data-nosnippet>22</a>        }
+<a href=#23 id=23 data-nosnippet>23</a>    }
+<a href=#24 id=24 data-nosnippet>24</a>}
+<a href=#25 id=25 data-nosnippet>25</a>
+<a href=#26 id=26 data-nosnippet>26</a><span class="doccomment">/// Height brush modes
+<a href=#27 id=27 data-nosnippet>27</a></span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+<a href=#28 id=28 data-nosnippet>28</a></span><span class="kw">pub enum </span>HeightBrushMode {
+<a href=#29 id=29 data-nosnippet>29</a>    Raise,
+<a href=#30 id=30 data-nosnippet>30</a>    Lower,
+<a href=#31 id=31 data-nosnippet>31</a>    Smooth,
+<a href=#32 id=32 data-nosnippet>32</a>    Flatten,
+<a href=#33 id=33 data-nosnippet>33</a>    Noise,
+<a href=#34 id=34 data-nosnippet>34</a>}
+<a href=#35 id=35 data-nosnippet>35</a>
+<a href=#36 id=36 data-nosnippet>36</a><span class="doccomment">/// Splat brush modes
+<a href=#37 id=37 data-nosnippet>37</a></span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+<a href=#38 id=38 data-nosnippet>38</a></span><span class="kw">pub enum </span>SplatBrushMode {
+<a href=#39 id=39 data-nosnippet>39</a>    Paint,
+<a href=#40 id=40 data-nosnippet>40</a>    Erase,
+<a href=#41 id=41 data-nosnippet>41</a>}
+<a href=#42 id=42 data-nosnippet>42</a>
+<a href=#43 id=43 data-nosnippet>43</a><span class="doccomment">/// Apply a height brush stroke at UV position (u, v) on the heightmap buffer.
+<a href=#44 id=44 data-nosnippet>44</a></span><span class="kw">pub fn </span>apply_height_brush(
+<a href=#45 id=45 data-nosnippet>45</a>    heights: <span class="kw-2">&amp;mut </span>[f32],
+<a href=#46 id=46 data-nosnippet>46</a>    res: u32,
+<a href=#47 id=47 data-nosnippet>47</a>    u: f32,
+<a href=#48 id=48 data-nosnippet>48</a>    v: f32,
+<a href=#49 id=49 data-nosnippet>49</a>    mode: HeightBrushMode,
+<a href=#50 id=50 data-nosnippet>50</a>    params: <span class="kw-2">&amp;</span>BrushParams,
+<a href=#51 id=51 data-nosnippet>51</a>    dt: f32,
+<a href=#52 id=52 data-nosnippet>52</a>    seed: u64,
+<a href=#53 id=53 data-nosnippet>53</a>) {
+<a href=#54 id=54 data-nosnippet>54</a>    <span class="kw">let </span>res = res <span class="kw">as </span>usize;
+<a href=#55 id=55 data-nosnippet>55</a>    <span class="kw">let </span>cx = (u * (res - <span class="number">1</span>) <span class="kw">as </span>f32) <span class="kw">as </span>i32;
+<a href=#56 id=56 data-nosnippet>56</a>    <span class="kw">let </span>cy = (v * (res - <span class="number">1</span>) <span class="kw">as </span>f32) <span class="kw">as </span>i32;
+<a href=#57 id=57 data-nosnippet>57</a>    <span class="kw">let </span>pixel_radius = (params.radius * res <span class="kw">as </span>f32).ceil() <span class="kw">as </span>i32;
+<a href=#58 id=58 data-nosnippet>58</a>
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">let </span>rate = params.strength * dt;
+<a href=#60 id=60 data-nosnippet>60</a>
+<a href=#61 id=61 data-nosnippet>61</a>    <span class="comment">// For flatten: compute average height under brush
+<a href=#62 id=62 data-nosnippet>62</a>    </span><span class="kw">let </span>flatten_target = <span class="kw">if </span>mode == HeightBrushMode::Flatten {
+<a href=#63 id=63 data-nosnippet>63</a>        compute_brush_average(heights, res, cx, cy, pixel_radius, params.falloff)
+<a href=#64 id=64 data-nosnippet>64</a>    } <span class="kw">else </span>{
+<a href=#65 id=65 data-nosnippet>65</a>        <span class="number">0.0
+<a href=#66 id=66 data-nosnippet>66</a>    </span>};
+<a href=#67 id=67 data-nosnippet>67</a>
+<a href=#68 id=68 data-nosnippet>68</a>    <span class="kw">let </span>noise_gen = <span class="kw">if </span>mode == HeightBrushMode::Noise {
+<a href=#69 id=69 data-nosnippet>69</a>        <span class="prelude-val">Some</span>(Perlin::new((seed &amp; <span class="number">0xFFFF_FFFF</span>) <span class="kw">as </span>u32))
+<a href=#70 id=70 data-nosnippet>70</a>    } <span class="kw">else </span>{
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="prelude-val">None
+<a href=#72 id=72 data-nosnippet>72</a>    </span>};
+<a href=#73 id=73 data-nosnippet>73</a>
+<a href=#74 id=74 data-nosnippet>74</a>    <span class="kw">for </span>dy <span class="kw">in </span>-pixel_radius..=pixel_radius {
+<a href=#75 id=75 data-nosnippet>75</a>        <span class="kw">for </span>dx <span class="kw">in </span>-pixel_radius..=pixel_radius {
+<a href=#76 id=76 data-nosnippet>76</a>            <span class="kw">let </span>px = cx + dx;
+<a href=#77 id=77 data-nosnippet>77</a>            <span class="kw">let </span>py = cy + dy;
+<a href=#78 id=78 data-nosnippet>78</a>
+<a href=#79 id=79 data-nosnippet>79</a>            <span class="kw">if </span>px &lt; <span class="number">0 </span>|| px &gt;= res <span class="kw">as </span>i32 || py &lt; <span class="number">0 </span>|| py &gt;= res <span class="kw">as </span>i32 {
+<a href=#80 id=80 data-nosnippet>80</a>                <span class="kw">continue</span>;
+<a href=#81 id=81 data-nosnippet>81</a>            }
+<a href=#82 id=82 data-nosnippet>82</a>
+<a href=#83 id=83 data-nosnippet>83</a>            <span class="kw">let </span>dist = ((dx * dx + dy * dy) <span class="kw">as </span>f32).sqrt() / pixel_radius.max(<span class="number">1</span>) <span class="kw">as </span>f32;
+<a href=#84 id=84 data-nosnippet>84</a>            <span class="kw">if </span>dist &gt; <span class="number">1.0 </span>{
+<a href=#85 id=85 data-nosnippet>85</a>                <span class="kw">continue</span>;
+<a href=#86 id=86 data-nosnippet>86</a>            }
+<a href=#87 id=87 data-nosnippet>87</a>
+<a href=#88 id=88 data-nosnippet>88</a>            <span class="kw">let </span>weight = falloff_weight(dist, params.falloff);
+<a href=#89 id=89 data-nosnippet>89</a>            <span class="kw">let </span>idx = py <span class="kw">as </span>usize * res + px <span class="kw">as </span>usize;
+<a href=#90 id=90 data-nosnippet>90</a>
+<a href=#91 id=91 data-nosnippet>91</a>            <span class="kw">match </span>mode {
+<a href=#92 id=92 data-nosnippet>92</a>                HeightBrushMode::Raise =&gt; {
+<a href=#93 id=93 data-nosnippet>93</a>                    heights[idx] += rate * weight;
+<a href=#94 id=94 data-nosnippet>94</a>                }
+<a href=#95 id=95 data-nosnippet>95</a>                HeightBrushMode::Lower =&gt; {
+<a href=#96 id=96 data-nosnippet>96</a>                    heights[idx] -= rate * weight;
+<a href=#97 id=97 data-nosnippet>97</a>                }
+<a href=#98 id=98 data-nosnippet>98</a>                HeightBrushMode::Smooth =&gt; {
+<a href=#99 id=99 data-nosnippet>99</a>                    <span class="kw">let </span>avg = local_average(heights, res, px, py);
+<a href=#100 id=100 data-nosnippet>100</a>                    <span class="kw">let </span>diff = avg - heights[idx];
+<a href=#101 id=101 data-nosnippet>101</a>                    heights[idx] += diff * rate * weight;
+<a href=#102 id=102 data-nosnippet>102</a>                }
+<a href=#103 id=103 data-nosnippet>103</a>                HeightBrushMode::Flatten =&gt; {
+<a href=#104 id=104 data-nosnippet>104</a>                    <span class="kw">let </span>diff = flatten_target - heights[idx];
+<a href=#105 id=105 data-nosnippet>105</a>                    heights[idx] += diff * rate * weight;
+<a href=#106 id=106 data-nosnippet>106</a>                }
+<a href=#107 id=107 data-nosnippet>107</a>                HeightBrushMode::Noise =&gt; {
+<a href=#108 id=108 data-nosnippet>108</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>ng) = noise_gen {
+<a href=#109 id=109 data-nosnippet>109</a>                        <span class="kw">let </span>nx = px <span class="kw">as </span>f64 * <span class="number">0.1</span>;
+<a href=#110 id=110 data-nosnippet>110</a>                        <span class="kw">let </span>ny = py <span class="kw">as </span>f64 * <span class="number">0.1</span>;
+<a href=#111 id=111 data-nosnippet>111</a>                        <span class="kw">let </span>n = ng.get([nx, ny]) <span class="kw">as </span>f32;
+<a href=#112 id=112 data-nosnippet>112</a>                        heights[idx] += n * rate * weight;
+<a href=#113 id=113 data-nosnippet>113</a>                    }
+<a href=#114 id=114 data-nosnippet>114</a>                }
+<a href=#115 id=115 data-nosnippet>115</a>            }
+<a href=#116 id=116 data-nosnippet>116</a>        }
+<a href=#117 id=117 data-nosnippet>117</a>    }
+<a href=#118 id=118 data-nosnippet>118</a>}
+<a href=#119 id=119 data-nosnippet>119</a>
+<a href=#120 id=120 data-nosnippet>120</a><span class="doccomment">/// Apply a splat brush stroke at UV position (u, v) on the splat buffer.
+<a href=#121 id=121 data-nosnippet>121</a></span><span class="kw">pub fn </span>apply_splat_brush(
+<a href=#122 id=122 data-nosnippet>122</a>    splat: <span class="kw-2">&amp;mut </span>[u8],
+<a href=#123 id=123 data-nosnippet>123</a>    res: u32,
+<a href=#124 id=124 data-nosnippet>124</a>    u: f32,
+<a href=#125 id=125 data-nosnippet>125</a>    v: f32,
+<a href=#126 id=126 data-nosnippet>126</a>    layer: u8,
+<a href=#127 id=127 data-nosnippet>127</a>    mode: SplatBrushMode,
+<a href=#128 id=128 data-nosnippet>128</a>    params: <span class="kw-2">&amp;</span>BrushParams,
+<a href=#129 id=129 data-nosnippet>129</a>    dt: f32,
+<a href=#130 id=130 data-nosnippet>130</a>) {
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="kw">if </span>layer &gt; <span class="number">3 </span>{
+<a href=#132 id=132 data-nosnippet>132</a>        <span class="kw">return</span>;
+<a href=#133 id=133 data-nosnippet>133</a>    }
+<a href=#134 id=134 data-nosnippet>134</a>
+<a href=#135 id=135 data-nosnippet>135</a>    <span class="kw">let </span>res = res <span class="kw">as </span>usize;
+<a href=#136 id=136 data-nosnippet>136</a>    <span class="kw">let </span>cx = (u * (res - <span class="number">1</span>) <span class="kw">as </span>f32) <span class="kw">as </span>i32;
+<a href=#137 id=137 data-nosnippet>137</a>    <span class="kw">let </span>cy = (v * (res - <span class="number">1</span>) <span class="kw">as </span>f32) <span class="kw">as </span>i32;
+<a href=#138 id=138 data-nosnippet>138</a>    <span class="kw">let </span>pixel_radius = (params.radius * res <span class="kw">as </span>f32).ceil() <span class="kw">as </span>i32;
+<a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">let </span>rate = params.strength * dt;
+<a href=#140 id=140 data-nosnippet>140</a>
+<a href=#141 id=141 data-nosnippet>141</a>    <span class="kw">for </span>dy <span class="kw">in </span>-pixel_radius..=pixel_radius {
+<a href=#142 id=142 data-nosnippet>142</a>        <span class="kw">for </span>dx <span class="kw">in </span>-pixel_radius..=pixel_radius {
+<a href=#143 id=143 data-nosnippet>143</a>            <span class="kw">let </span>px = cx + dx;
+<a href=#144 id=144 data-nosnippet>144</a>            <span class="kw">let </span>py = cy + dy;
+<a href=#145 id=145 data-nosnippet>145</a>
+<a href=#146 id=146 data-nosnippet>146</a>            <span class="kw">if </span>px &lt; <span class="number">0 </span>|| px &gt;= res <span class="kw">as </span>i32 || py &lt; <span class="number">0 </span>|| py &gt;= res <span class="kw">as </span>i32 {
+<a href=#147 id=147 data-nosnippet>147</a>                <span class="kw">continue</span>;
+<a href=#148 id=148 data-nosnippet>148</a>            }
+<a href=#149 id=149 data-nosnippet>149</a>
+<a href=#150 id=150 data-nosnippet>150</a>            <span class="kw">let </span>dist = ((dx * dx + dy * dy) <span class="kw">as </span>f32).sqrt() / pixel_radius.max(<span class="number">1</span>) <span class="kw">as </span>f32;
+<a href=#151 id=151 data-nosnippet>151</a>            <span class="kw">if </span>dist &gt; <span class="number">1.0 </span>{
+<a href=#152 id=152 data-nosnippet>152</a>                <span class="kw">continue</span>;
+<a href=#153 id=153 data-nosnippet>153</a>            }
+<a href=#154 id=154 data-nosnippet>154</a>
+<a href=#155 id=155 data-nosnippet>155</a>            <span class="kw">let </span>weight = falloff_weight(dist, params.falloff) * rate;
+<a href=#156 id=156 data-nosnippet>156</a>            <span class="kw">let </span>idx = (py <span class="kw">as </span>usize * res + px <span class="kw">as </span>usize) * <span class="number">4</span>;
+<a href=#157 id=157 data-nosnippet>157</a>
+<a href=#158 id=158 data-nosnippet>158</a>            <span class="kw">match </span>mode {
+<a href=#159 id=159 data-nosnippet>159</a>                SplatBrushMode::Paint =&gt; {
+<a href=#160 id=160 data-nosnippet>160</a>                    <span class="comment">// Increase target layer, decrease others proportionally
+<a href=#161 id=161 data-nosnippet>161</a>                    </span><span class="kw">let </span>current = splat[idx + layer <span class="kw">as </span>usize] <span class="kw">as </span>f32;
+<a href=#162 id=162 data-nosnippet>162</a>                    <span class="kw">let </span>add = (<span class="number">255.0 </span>- current) * weight;
+<a href=#163 id=163 data-nosnippet>163</a>                    splat[idx + layer <span class="kw">as </span>usize] =
+<a href=#164 id=164 data-nosnippet>164</a>                        (current + add).round().clamp(<span class="number">0.0</span>, <span class="number">255.0</span>) <span class="kw">as </span>u8;
+<a href=#165 id=165 data-nosnippet>165</a>
+<a href=#166 id=166 data-nosnippet>166</a>                    <span class="comment">// Redistribute remaining to other channels
+<a href=#167 id=167 data-nosnippet>167</a>                    </span><span class="kw">let </span>new_val = splat[idx + layer <span class="kw">as </span>usize] <span class="kw">as </span>f32;
+<a href=#168 id=168 data-nosnippet>168</a>                    <span class="kw">let </span>others_total: f32 = (<span class="number">0</span>..<span class="number">4</span>)
+<a href=#169 id=169 data-nosnippet>169</a>                        .filter(|<span class="kw-2">&amp;</span>c| <span class="macro">c !</span>= layer <span class="kw">as </span>usize)
+<a href=#170 id=170 data-nosnippet>170</a>                        .map(|c| splat[idx + c] <span class="kw">as </span>f32)
+<a href=#171 id=171 data-nosnippet>171</a>                        .sum();
+<a href=#172 id=172 data-nosnippet>172</a>
+<a href=#173 id=173 data-nosnippet>173</a>                    <span class="kw">let </span>remaining = <span class="number">255.0 </span>- new_val;
+<a href=#174 id=174 data-nosnippet>174</a>                    <span class="kw">if </span>others_total &gt; <span class="number">0.0 </span>{
+<a href=#175 id=175 data-nosnippet>175</a>                        <span class="kw">for </span>c <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
+<a href=#176 id=176 data-nosnippet>176</a>                            <span class="kw">if </span><span class="macro">c !</span>= layer <span class="kw">as </span>usize {
+<a href=#177 id=177 data-nosnippet>177</a>                                splat[idx + c] = (splat[idx + c] <span class="kw">as </span>f32 * remaining
+<a href=#178 id=178 data-nosnippet>178</a>                                    / others_total)
+<a href=#179 id=179 data-nosnippet>179</a>                                    .round()
+<a href=#180 id=180 data-nosnippet>180</a>                                    .clamp(<span class="number">0.0</span>, <span class="number">255.0</span>)
+<a href=#181 id=181 data-nosnippet>181</a>                                    <span class="kw">as </span>u8;
+<a href=#182 id=182 data-nosnippet>182</a>                            }
+<a href=#183 id=183 data-nosnippet>183</a>                        }
+<a href=#184 id=184 data-nosnippet>184</a>                    }
+<a href=#185 id=185 data-nosnippet>185</a>                }
+<a href=#186 id=186 data-nosnippet>186</a>                SplatBrushMode::Erase =&gt; {
+<a href=#187 id=187 data-nosnippet>187</a>                    <span class="comment">// Decrease target layer, increase layer 0 as fallback
+<a href=#188 id=188 data-nosnippet>188</a>                    </span><span class="kw">let </span>current = splat[idx + layer <span class="kw">as </span>usize] <span class="kw">as </span>f32;
+<a href=#189 id=189 data-nosnippet>189</a>                    <span class="kw">let </span>sub = current * weight;
+<a href=#190 id=190 data-nosnippet>190</a>                    splat[idx + layer <span class="kw">as </span>usize] =
+<a href=#191 id=191 data-nosnippet>191</a>                        (current - sub).round().clamp(<span class="number">0.0</span>, <span class="number">255.0</span>) <span class="kw">as </span>u8;
+<a href=#192 id=192 data-nosnippet>192</a>
+<a href=#193 id=193 data-nosnippet>193</a>                    <span class="comment">// Give the removed weight to layer 0 (unless erasing layer 0)
+<a href=#194 id=194 data-nosnippet>194</a>                    </span><span class="kw">let </span>fallback = <span class="kw">if </span>layer == <span class="number">0 </span>{ <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+<a href=#195 id=195 data-nosnippet>195</a>                    splat[idx + fallback] =
+<a href=#196 id=196 data-nosnippet>196</a>                        (splat[idx + fallback] <span class="kw">as </span>f32 + sub).round().clamp(<span class="number">0.0</span>, <span class="number">255.0</span>) <span class="kw">as </span>u8;
+<a href=#197 id=197 data-nosnippet>197</a>                }
+<a href=#198 id=198 data-nosnippet>198</a>            }
+<a href=#199 id=199 data-nosnippet>199</a>        }
+<a href=#200 id=200 data-nosnippet>200</a>    }
+<a href=#201 id=201 data-nosnippet>201</a>}
+<a href=#202 id=202 data-nosnippet>202</a>
+<a href=#203 id=203 data-nosnippet>203</a><span class="doccomment">/// Cast a ray against a heightmap and find the UV intersection point.
+<a href=#204 id=204 data-nosnippet>204</a>///
+<a href=#205 id=205 data-nosnippet>205</a>/// Uses ray marching with binary search refinement.
+<a href=#206 id=206 data-nosnippet>206</a>/// Returns `Some((u, v))` if the ray hits the terrain.
+<a href=#207 id=207 data-nosnippet>207</a></span><span class="kw">pub fn </span>ray_heightmap_intersect(
+<a href=#208 id=208 data-nosnippet>208</a>    origin: [f32; <span class="number">3</span>],
+<a href=#209 id=209 data-nosnippet>209</a>    dir: [f32; <span class="number">3</span>],
+<a href=#210 id=210 data-nosnippet>210</a>    heights: <span class="kw-2">&amp;</span>[f32],
+<a href=#211 id=211 data-nosnippet>211</a>    res: u32,
+<a href=#212 id=212 data-nosnippet>212</a>    width: f32,
+<a href=#213 id=213 data-nosnippet>213</a>    depth: f32,
+<a href=#214 id=214 data-nosnippet>214</a>    height_scale: f32,
+<a href=#215 id=215 data-nosnippet>215</a>) -&gt; <span class="prelude-ty">Option</span>&lt;(f32, f32)&gt; {
+<a href=#216 id=216 data-nosnippet>216</a>    <span class="kw">let </span>res = res <span class="kw">as </span>usize;
+<a href=#217 id=217 data-nosnippet>217</a>
+<a href=#218 id=218 data-nosnippet>218</a>    <span class="comment">// Normalize direction
+<a href=#219 id=219 data-nosnippet>219</a>    </span><span class="kw">let </span>len = (dir[<span class="number">0</span>] * dir[<span class="number">0</span>] + dir[<span class="number">1</span>] * dir[<span class="number">1</span>] + dir[<span class="number">2</span>] * dir[<span class="number">2</span>]).sqrt();
+<a href=#220 id=220 data-nosnippet>220</a>    <span class="kw">if </span>len &lt; <span class="number">1e-8 </span>{
+<a href=#221 id=221 data-nosnippet>221</a>        <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#222 id=222 data-nosnippet>222</a>    }
+<a href=#223 id=223 data-nosnippet>223</a>    <span class="kw">let </span>d = [dir[<span class="number">0</span>] / len, dir[<span class="number">1</span>] / len, dir[<span class="number">2</span>] / len];
+<a href=#224 id=224 data-nosnippet>224</a>
+<a href=#225 id=225 data-nosnippet>225</a>    <span class="comment">// March along ray with adaptive step
+<a href=#226 id=226 data-nosnippet>226</a>    </span><span class="kw">let </span>max_dist = (width * width + depth * depth + (height_scale * height_scale)).sqrt() * <span class="number">2.0</span>;
+<a href=#227 id=227 data-nosnippet>227</a>    <span class="kw">let </span>step = (width.min(depth)) / res <span class="kw">as </span>f32;
+<a href=#228 id=228 data-nosnippet>228</a>
+<a href=#229 id=229 data-nosnippet>229</a>    <span class="kw">let </span><span class="kw-2">mut </span>t = <span class="number">0.0f32</span>;
+<a href=#230 id=230 data-nosnippet>230</a>    <span class="kw">let </span><span class="kw-2">mut </span>prev_above = <span class="bool-val">true</span>;
+<a href=#231 id=231 data-nosnippet>231</a>
+<a href=#232 id=232 data-nosnippet>232</a>    <span class="kw">while </span>t &lt; max_dist {
+<a href=#233 id=233 data-nosnippet>233</a>        <span class="kw">let </span>px = origin[<span class="number">0</span>] + d[<span class="number">0</span>] * t;
+<a href=#234 id=234 data-nosnippet>234</a>        <span class="kw">let </span>py = origin[<span class="number">1</span>] + d[<span class="number">1</span>] * t;
+<a href=#235 id=235 data-nosnippet>235</a>        <span class="kw">let </span>pz = origin[<span class="number">2</span>] + d[<span class="number">2</span>] * t;
+<a href=#236 id=236 data-nosnippet>236</a>
+<a href=#237 id=237 data-nosnippet>237</a>        <span class="comment">// Convert to UV
+<a href=#238 id=238 data-nosnippet>238</a>        </span><span class="kw">let </span>u = px / width;
+<a href=#239 id=239 data-nosnippet>239</a>        <span class="kw">let </span>v = pz / depth;
+<a href=#240 id=240 data-nosnippet>240</a>
+<a href=#241 id=241 data-nosnippet>241</a>        <span class="kw">if </span>!(-<span class="number">0.1</span>..=<span class="number">1.1</span>).contains(<span class="kw-2">&amp;</span>u) || !(-<span class="number">0.1</span>..=<span class="number">1.1</span>).contains(<span class="kw-2">&amp;</span>v) {
+<a href=#242 id=242 data-nosnippet>242</a>            <span class="comment">// Way out of bounds — if we were in bounds before, we've exited
+<a href=#243 id=243 data-nosnippet>243</a>            </span><span class="kw">if </span>t &gt; step * <span class="number">2.0 </span>{
+<a href=#244 id=244 data-nosnippet>244</a>                <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#245 id=245 data-nosnippet>245</a>            }
+<a href=#246 id=246 data-nosnippet>246</a>            t += step;
+<a href=#247 id=247 data-nosnippet>247</a>            <span class="kw">continue</span>;
+<a href=#248 id=248 data-nosnippet>248</a>        }
+<a href=#249 id=249 data-nosnippet>249</a>
+<a href=#250 id=250 data-nosnippet>250</a>        <span class="kw">let </span>terrain_h = sample_bilinear(heights, res, u.clamp(<span class="number">0.0</span>, <span class="number">1.0</span>), v.clamp(<span class="number">0.0</span>, <span class="number">1.0</span>))
+<a href=#251 id=251 data-nosnippet>251</a>            * height_scale;
+<a href=#252 id=252 data-nosnippet>252</a>        <span class="kw">let </span>above = py &gt; terrain_h;
+<a href=#253 id=253 data-nosnippet>253</a>
+<a href=#254 id=254 data-nosnippet>254</a>        <span class="kw">if </span>!above &amp;&amp; prev_above &amp;&amp; t &gt; <span class="number">0.0 </span>{
+<a href=#255 id=255 data-nosnippet>255</a>            <span class="comment">// Binary search refinement
+<a href=#256 id=256 data-nosnippet>256</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>lo = t - step;
+<a href=#257 id=257 data-nosnippet>257</a>            <span class="kw">let </span><span class="kw-2">mut </span>hi = t;
+<a href=#258 id=258 data-nosnippet>258</a>            <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">16 </span>{
+<a href=#259 id=259 data-nosnippet>259</a>                <span class="kw">let </span>mid = (lo + hi) * <span class="number">0.5</span>;
+<a href=#260 id=260 data-nosnippet>260</a>                <span class="kw">let </span>mx = origin[<span class="number">0</span>] + d[<span class="number">0</span>] * mid;
+<a href=#261 id=261 data-nosnippet>261</a>                <span class="kw">let </span>my = origin[<span class="number">1</span>] + d[<span class="number">1</span>] * mid;
+<a href=#262 id=262 data-nosnippet>262</a>                <span class="kw">let </span>mz = origin[<span class="number">2</span>] + d[<span class="number">2</span>] * mid;
+<a href=#263 id=263 data-nosnippet>263</a>                <span class="kw">let </span>mu = (mx / width).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#264 id=264 data-nosnippet>264</a>                <span class="kw">let </span>mv = (mz / depth).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#265 id=265 data-nosnippet>265</a>                <span class="kw">let </span>mh = sample_bilinear(heights, res, mu, mv) * height_scale;
+<a href=#266 id=266 data-nosnippet>266</a>                <span class="kw">if </span>my &gt; mh {
+<a href=#267 id=267 data-nosnippet>267</a>                    lo = mid;
+<a href=#268 id=268 data-nosnippet>268</a>                } <span class="kw">else </span>{
+<a href=#269 id=269 data-nosnippet>269</a>                    hi = mid;
+<a href=#270 id=270 data-nosnippet>270</a>                }
+<a href=#271 id=271 data-nosnippet>271</a>            }
+<a href=#272 id=272 data-nosnippet>272</a>
+<a href=#273 id=273 data-nosnippet>273</a>            <span class="kw">let </span>final_t = (lo + hi) * <span class="number">0.5</span>;
+<a href=#274 id=274 data-nosnippet>274</a>            <span class="kw">let </span>fu = ((origin[<span class="number">0</span>] + d[<span class="number">0</span>] * final_t) / width).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#275 id=275 data-nosnippet>275</a>            <span class="kw">let </span>fv = ((origin[<span class="number">2</span>] + d[<span class="number">2</span>] * final_t) / depth).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#276 id=276 data-nosnippet>276</a>            <span class="kw">return </span><span class="prelude-val">Some</span>((fu, fv));
+<a href=#277 id=277 data-nosnippet>277</a>        }
+<a href=#278 id=278 data-nosnippet>278</a>
+<a href=#279 id=279 data-nosnippet>279</a>        prev_above = above;
+<a href=#280 id=280 data-nosnippet>280</a>        t += step;
+<a href=#281 id=281 data-nosnippet>281</a>    }
+<a href=#282 id=282 data-nosnippet>282</a>
+<a href=#283 id=283 data-nosnippet>283</a>    <span class="prelude-val">None
+<a href=#284 id=284 data-nosnippet>284</a></span>}
+<a href=#285 id=285 data-nosnippet>285</a>
+<a href=#286 id=286 data-nosnippet>286</a><span class="kw">fn </span>falloff_weight(dist: f32, falloff: f32) -&gt; f32 {
+<a href=#287 id=287 data-nosnippet>287</a>    <span class="kw">if </span>falloff &lt;= <span class="number">0.0 </span>{
+<a href=#288 id=288 data-nosnippet>288</a>        <span class="comment">// Hard edge
+<a href=#289 id=289 data-nosnippet>289</a>        </span><span class="kw">if </span>dist &lt;= <span class="number">1.0 </span>{
+<a href=#290 id=290 data-nosnippet>290</a>            <span class="number">1.0
+<a href=#291 id=291 data-nosnippet>291</a>        </span>} <span class="kw">else </span>{
+<a href=#292 id=292 data-nosnippet>292</a>            <span class="number">0.0
+<a href=#293 id=293 data-nosnippet>293</a>        </span>}
+<a href=#294 id=294 data-nosnippet>294</a>    } <span class="kw">else </span>{
+<a href=#295 id=295 data-nosnippet>295</a>        <span class="comment">// Gaussian-ish falloff
+<a href=#296 id=296 data-nosnippet>296</a>        </span><span class="kw">let </span>sigma = falloff * <span class="number">0.5</span>;
+<a href=#297 id=297 data-nosnippet>297</a>        (-dist * dist / (<span class="number">2.0 </span>* sigma * sigma)).exp()
+<a href=#298 id=298 data-nosnippet>298</a>    }
+<a href=#299 id=299 data-nosnippet>299</a>}
+<a href=#300 id=300 data-nosnippet>300</a>
+<a href=#301 id=301 data-nosnippet>301</a><span class="kw">fn </span>local_average(heights: <span class="kw-2">&amp;</span>[f32], res: usize, x: i32, y: i32) -&gt; f32 {
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="kw">let </span><span class="kw-2">mut </span>sum = <span class="number">0.0f32</span>;
+<a href=#303 id=303 data-nosnippet>303</a>    <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
+<a href=#304 id=304 data-nosnippet>304</a>
+<a href=#305 id=305 data-nosnippet>305</a>    <span class="kw">for </span>dy <span class="kw">in </span>-<span class="number">1</span>..=<span class="number">1 </span>{
+<a href=#306 id=306 data-nosnippet>306</a>        <span class="kw">for </span>dx <span class="kw">in </span>-<span class="number">1</span>..=<span class="number">1 </span>{
+<a href=#307 id=307 data-nosnippet>307</a>            <span class="kw">let </span>nx = x + dx;
+<a href=#308 id=308 data-nosnippet>308</a>            <span class="kw">let </span>ny = y + dy;
+<a href=#309 id=309 data-nosnippet>309</a>            <span class="kw">if </span>nx &gt;= <span class="number">0 </span>&amp;&amp; nx &lt; res <span class="kw">as </span>i32 &amp;&amp; ny &gt;= <span class="number">0 </span>&amp;&amp; ny &lt; res <span class="kw">as </span>i32 {
+<a href=#310 id=310 data-nosnippet>310</a>                sum += heights[ny <span class="kw">as </span>usize * res + nx <span class="kw">as </span>usize];
+<a href=#311 id=311 data-nosnippet>311</a>                count += <span class="number">1</span>;
+<a href=#312 id=312 data-nosnippet>312</a>            }
+<a href=#313 id=313 data-nosnippet>313</a>        }
+<a href=#314 id=314 data-nosnippet>314</a>    }
+<a href=#315 id=315 data-nosnippet>315</a>
+<a href=#316 id=316 data-nosnippet>316</a>    <span class="kw">if </span>count &gt; <span class="number">0 </span>{
+<a href=#317 id=317 data-nosnippet>317</a>        sum / count <span class="kw">as </span>f32
+<a href=#318 id=318 data-nosnippet>318</a>    } <span class="kw">else </span>{
+<a href=#319 id=319 data-nosnippet>319</a>        heights[y <span class="kw">as </span>usize * res + x <span class="kw">as </span>usize]
+<a href=#320 id=320 data-nosnippet>320</a>    }
+<a href=#321 id=321 data-nosnippet>321</a>}
+<a href=#322 id=322 data-nosnippet>322</a>
+<a href=#323 id=323 data-nosnippet>323</a><span class="kw">fn </span>compute_brush_average(
+<a href=#324 id=324 data-nosnippet>324</a>    heights: <span class="kw-2">&amp;</span>[f32],
+<a href=#325 id=325 data-nosnippet>325</a>    res: usize,
+<a href=#326 id=326 data-nosnippet>326</a>    cx: i32,
+<a href=#327 id=327 data-nosnippet>327</a>    cy: i32,
+<a href=#328 id=328 data-nosnippet>328</a>    pixel_radius: i32,
+<a href=#329 id=329 data-nosnippet>329</a>    falloff: f32,
+<a href=#330 id=330 data-nosnippet>330</a>) -&gt; f32 {
+<a href=#331 id=331 data-nosnippet>331</a>    <span class="kw">let </span><span class="kw-2">mut </span>sum = <span class="number">0.0f32</span>;
+<a href=#332 id=332 data-nosnippet>332</a>    <span class="kw">let </span><span class="kw-2">mut </span>weight_sum = <span class="number">0.0f32</span>;
+<a href=#333 id=333 data-nosnippet>333</a>
+<a href=#334 id=334 data-nosnippet>334</a>    <span class="kw">for </span>dy <span class="kw">in </span>-pixel_radius..=pixel_radius {
+<a href=#335 id=335 data-nosnippet>335</a>        <span class="kw">for </span>dx <span class="kw">in </span>-pixel_radius..=pixel_radius {
+<a href=#336 id=336 data-nosnippet>336</a>            <span class="kw">let </span>px = cx + dx;
+<a href=#337 id=337 data-nosnippet>337</a>            <span class="kw">let </span>py = cy + dy;
+<a href=#338 id=338 data-nosnippet>338</a>            <span class="kw">if </span>px &lt; <span class="number">0 </span>|| px &gt;= res <span class="kw">as </span>i32 || py &lt; <span class="number">0 </span>|| py &gt;= res <span class="kw">as </span>i32 {
+<a href=#339 id=339 data-nosnippet>339</a>                <span class="kw">continue</span>;
+<a href=#340 id=340 data-nosnippet>340</a>            }
+<a href=#341 id=341 data-nosnippet>341</a>            <span class="kw">let </span>dist = ((dx * dx + dy * dy) <span class="kw">as </span>f32).sqrt() / pixel_radius.max(<span class="number">1</span>) <span class="kw">as </span>f32;
+<a href=#342 id=342 data-nosnippet>342</a>            <span class="kw">if </span>dist &gt; <span class="number">1.0 </span>{
+<a href=#343 id=343 data-nosnippet>343</a>                <span class="kw">continue</span>;
+<a href=#344 id=344 data-nosnippet>344</a>            }
+<a href=#345 id=345 data-nosnippet>345</a>            <span class="kw">let </span>w = falloff_weight(dist, falloff);
+<a href=#346 id=346 data-nosnippet>346</a>            sum += heights[py <span class="kw">as </span>usize * res + px <span class="kw">as </span>usize] * w;
+<a href=#347 id=347 data-nosnippet>347</a>            weight_sum += w;
+<a href=#348 id=348 data-nosnippet>348</a>        }
+<a href=#349 id=349 data-nosnippet>349</a>    }
+<a href=#350 id=350 data-nosnippet>350</a>
+<a href=#351 id=351 data-nosnippet>351</a>    <span class="kw">if </span>weight_sum &gt; <span class="number">0.0 </span>{
+<a href=#352 id=352 data-nosnippet>352</a>        sum / weight_sum
+<a href=#353 id=353 data-nosnippet>353</a>    } <span class="kw">else </span>{
+<a href=#354 id=354 data-nosnippet>354</a>        <span class="number">0.0
+<a href=#355 id=355 data-nosnippet>355</a>    </span>}
+<a href=#356 id=356 data-nosnippet>356</a>}
+<a href=#357 id=357 data-nosnippet>357</a>
+<a href=#358 id=358 data-nosnippet>358</a><span class="kw">fn </span>sample_bilinear(heights: <span class="kw-2">&amp;</span>[f32], res: usize, u: f32, v: f32) -&gt; f32 {
+<a href=#359 id=359 data-nosnippet>359</a>    <span class="kw">let </span>u = u.clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#360 id=360 data-nosnippet>360</a>    <span class="kw">let </span>v = v.clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#361 id=361 data-nosnippet>361</a>    <span class="kw">let </span>fx = u * (res - <span class="number">1</span>) <span class="kw">as </span>f32;
+<a href=#362 id=362 data-nosnippet>362</a>    <span class="kw">let </span>fy = v * (res - <span class="number">1</span>) <span class="kw">as </span>f32;
+<a href=#363 id=363 data-nosnippet>363</a>    <span class="kw">let </span>x0 = (fx <span class="kw">as </span>usize).min(res - <span class="number">2</span>);
+<a href=#364 id=364 data-nosnippet>364</a>    <span class="kw">let </span>y0 = (fy <span class="kw">as </span>usize).min(res - <span class="number">2</span>);
+<a href=#365 id=365 data-nosnippet>365</a>    <span class="kw">let </span>x1 = x0 + <span class="number">1</span>;
+<a href=#366 id=366 data-nosnippet>366</a>    <span class="kw">let </span>y1 = y0 + <span class="number">1</span>;
+<a href=#367 id=367 data-nosnippet>367</a>    <span class="kw">let </span>tx = fx - x0 <span class="kw">as </span>f32;
+<a href=#368 id=368 data-nosnippet>368</a>    <span class="kw">let </span>ty = fy - y0 <span class="kw">as </span>f32;
+<a href=#369 id=369 data-nosnippet>369</a>    <span class="kw">let </span>h00 = heights[y0 * res + x0];
+<a href=#370 id=370 data-nosnippet>370</a>    <span class="kw">let </span>h10 = heights[y0 * res + x1];
+<a href=#371 id=371 data-nosnippet>371</a>    <span class="kw">let </span>h01 = heights[y1 * res + x0];
+<a href=#372 id=372 data-nosnippet>372</a>    <span class="kw">let </span>h11 = heights[y1 * res + x1];
+<a href=#373 id=373 data-nosnippet>373</a>    <span class="kw">let </span>h0 = h00 * (<span class="number">1.0 </span>- tx) + h10 * tx;
+<a href=#374 id=374 data-nosnippet>374</a>    <span class="kw">let </span>h1 = h01 * (<span class="number">1.0 </span>- tx) + h11 * tx;
+<a href=#375 id=375 data-nosnippet>375</a>    h0 * (<span class="number">1.0 </span>- ty) + h1 * ty
+<a href=#376 id=376 data-nosnippet>376</a>}
+<a href=#377 id=377 data-nosnippet>377</a>
+<a href=#378 id=378 data-nosnippet>378</a><span class="attr">#[cfg(test)]
+<a href=#379 id=379 data-nosnippet>379</a></span><span class="kw">mod </span>tests {
+<a href=#380 id=380 data-nosnippet>380</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#381 id=381 data-nosnippet>381</a>
+<a href=#382 id=382 data-nosnippet>382</a>    <span class="attr">#[test]
+<a href=#383 id=383 data-nosnippet>383</a>    </span><span class="kw">fn </span>raise_increases_heights() {
+<a href=#384 id=384 data-nosnippet>384</a>        <span class="kw">let </span>res = <span class="number">16u32</span>;
+<a href=#385 id=385 data-nosnippet>385</a>        <span class="kw">let </span><span class="kw-2">mut </span>heights = <span class="macro">vec!</span>[<span class="number">0.5</span>; (res * res) <span class="kw">as </span>usize];
+<a href=#386 id=386 data-nosnippet>386</a>        <span class="kw">let </span>before = heights[<span class="number">8 </span>* <span class="number">16 </span>+ <span class="number">8</span>];
+<a href=#387 id=387 data-nosnippet>387</a>
+<a href=#388 id=388 data-nosnippet>388</a>        apply_height_brush(
+<a href=#389 id=389 data-nosnippet>389</a>            <span class="kw-2">&amp;mut </span>heights,
+<a href=#390 id=390 data-nosnippet>390</a>            res,
+<a href=#391 id=391 data-nosnippet>391</a>            <span class="number">0.5</span>,
+<a href=#392 id=392 data-nosnippet>392</a>            <span class="number">0.5</span>,
+<a href=#393 id=393 data-nosnippet>393</a>            HeightBrushMode::Raise,
+<a href=#394 id=394 data-nosnippet>394</a>            <span class="kw-2">&amp;</span>BrushParams {
+<a href=#395 id=395 data-nosnippet>395</a>                radius: <span class="number">0.2</span>,
+<a href=#396 id=396 data-nosnippet>396</a>                strength: <span class="number">1.0</span>,
+<a href=#397 id=397 data-nosnippet>397</a>                falloff: <span class="number">0.5</span>,
+<a href=#398 id=398 data-nosnippet>398</a>            },
+<a href=#399 id=399 data-nosnippet>399</a>            <span class="number">0.1</span>,
+<a href=#400 id=400 data-nosnippet>400</a>            <span class="number">42</span>,
+<a href=#401 id=401 data-nosnippet>401</a>        );
+<a href=#402 id=402 data-nosnippet>402</a>
+<a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">let </span>after = heights[<span class="number">8 </span>* <span class="number">16 </span>+ <span class="number">8</span>];
+<a href=#404 id=404 data-nosnippet>404</a>        <span class="macro">assert!</span>(after &gt; before);
+<a href=#405 id=405 data-nosnippet>405</a>    }
+<a href=#406 id=406 data-nosnippet>406</a>
+<a href=#407 id=407 data-nosnippet>407</a>    <span class="attr">#[test]
+<a href=#408 id=408 data-nosnippet>408</a>    </span><span class="kw">fn </span>smooth_converges() {
+<a href=#409 id=409 data-nosnippet>409</a>        <span class="kw">let </span>res = <span class="number">16u32</span>;
+<a href=#410 id=410 data-nosnippet>410</a>        <span class="comment">// Create a spike
+<a href=#411 id=411 data-nosnippet>411</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>heights = <span class="macro">vec!</span>[<span class="number">0.0</span>; (res * res) <span class="kw">as </span>usize];
+<a href=#412 id=412 data-nosnippet>412</a>        heights[<span class="number">8 </span>* <span class="number">16 </span>+ <span class="number">8</span>] = <span class="number">1.0</span>;
+<a href=#413 id=413 data-nosnippet>413</a>
+<a href=#414 id=414 data-nosnippet>414</a>        <span class="kw">let </span>params = BrushParams {
+<a href=#415 id=415 data-nosnippet>415</a>            radius: <span class="number">0.3</span>,
+<a href=#416 id=416 data-nosnippet>416</a>            strength: <span class="number">1.0</span>,
+<a href=#417 id=417 data-nosnippet>417</a>            falloff: <span class="number">1.0</span>,
+<a href=#418 id=418 data-nosnippet>418</a>        };
+<a href=#419 id=419 data-nosnippet>419</a>
+<a href=#420 id=420 data-nosnippet>420</a>        <span class="comment">// Apply smooth several times
+<a href=#421 id=421 data-nosnippet>421</a>        </span><span class="kw">for _ in </span><span class="number">0</span>..<span class="number">10 </span>{
+<a href=#422 id=422 data-nosnippet>422</a>            apply_height_brush(<span class="kw-2">&amp;mut </span>heights, res, <span class="number">0.5</span>, <span class="number">0.5</span>, HeightBrushMode::Smooth, <span class="kw-2">&amp;</span>params, <span class="number">0.1</span>, <span class="number">42</span>);
+<a href=#423 id=423 data-nosnippet>423</a>        }
+<a href=#424 id=424 data-nosnippet>424</a>
+<a href=#425 id=425 data-nosnippet>425</a>        <span class="comment">// The spike should have smoothed out
+<a href=#426 id=426 data-nosnippet>426</a>        </span><span class="macro">assert!</span>(heights[<span class="number">8 </span>* <span class="number">16 </span>+ <span class="number">8</span>] &lt; <span class="number">0.8</span>);
+<a href=#427 id=427 data-nosnippet>427</a>    }
+<a href=#428 id=428 data-nosnippet>428</a>
+<a href=#429 id=429 data-nosnippet>429</a>    <span class="attr">#[test]
+<a href=#430 id=430 data-nosnippet>430</a>    </span><span class="kw">fn </span>ray_intersect_flat_terrain() {
+<a href=#431 id=431 data-nosnippet>431</a>        <span class="kw">let </span>res = <span class="number">16u32</span>;
+<a href=#432 id=432 data-nosnippet>432</a>        <span class="kw">let </span>heights = <span class="macro">vec!</span>[<span class="number">0.5</span>; (res * res) <span class="kw">as </span>usize];
+<a href=#433 id=433 data-nosnippet>433</a>
+<a href=#434 id=434 data-nosnippet>434</a>        <span class="comment">// Ray from above, pointing down
+<a href=#435 id=435 data-nosnippet>435</a>        </span><span class="kw">let </span>hit = ray_heightmap_intersect(
+<a href=#436 id=436 data-nosnippet>436</a>            [<span class="number">50.0</span>, <span class="number">100.0</span>, <span class="number">50.0</span>], <span class="comment">// origin above center
+<a href=#437 id=437 data-nosnippet>437</a>            </span>[<span class="number">0.0</span>, -<span class="number">1.0</span>, <span class="number">0.0</span>],    <span class="comment">// straight down
+<a href=#438 id=438 data-nosnippet>438</a>            </span><span class="kw-2">&amp;</span>heights,
+<a href=#439 id=439 data-nosnippet>439</a>            res,
+<a href=#440 id=440 data-nosnippet>440</a>            <span class="number">100.0</span>,
+<a href=#441 id=441 data-nosnippet>441</a>            <span class="number">100.0</span>,
+<a href=#442 id=442 data-nosnippet>442</a>            <span class="number">50.0</span>, <span class="comment">// height_scale=50 * 0.5 = 25.0 terrain height
+<a href=#443 id=443 data-nosnippet>443</a>        </span>);
+<a href=#444 id=444 data-nosnippet>444</a>
+<a href=#445 id=445 data-nosnippet>445</a>        <span class="macro">assert!</span>(hit.is_some());
+<a href=#446 id=446 data-nosnippet>446</a>        <span class="kw">let </span>(u, v) = hit.unwrap();
+<a href=#447 id=447 data-nosnippet>447</a>        <span class="macro">assert!</span>((u - <span class="number">0.5</span>).abs() &lt; <span class="number">0.1</span>);
+<a href=#448 id=448 data-nosnippet>448</a>        <span class="macro">assert!</span>((v - <span class="number">0.5</span>).abs() &lt; <span class="number">0.1</span>);
+<a href=#449 id=449 data-nosnippet>449</a>    }
+<a href=#450 id=450 data-nosnippet>450</a>}
+</code></pre></div></section></main></body></html>

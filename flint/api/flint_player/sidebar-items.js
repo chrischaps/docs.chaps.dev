@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["spline_gen"],"struct":["PlayerApp"]};
+window.SIDEBAR_ITEMS = {"fn":["post_process_config_from_def"],"mod":["spline_gen"],"struct":["PlayerApp"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["extrude","normals","primitives","simplify","tangents","uv"],"struct":["MeshBuilder"]};

@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-ece9bd88.js";
+            window.path_to_searchindex_js = "searchindex-a58e5294.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-7d06c78c.js"></script>
@@ -196,12 +196,12 @@
 <tr><td><code>flint query "&lt;expr&gt;"</code></td><td>Query entities (e.g., <code>"entities where archetype == 'door'"</code>)</td></tr>
 <tr><td><code>flint schema &lt;name&gt;</code></td><td>Inspect a component or archetype schema</td></tr>
 <tr><td><code>flint validate &lt;scene&gt;</code></td><td>Validate scene against constraints (<code>--fix</code> to auto-fix)</td></tr>
-<tr><td><code>flint serve &lt;scene&gt; --watch</code></td><td>Interactive viewer with hot-reload</td></tr>
+<tr><td><code>flint edit &lt;file&gt;</code></td><td>Unified interactive editor (auto-detects file type)</td></tr>
 <tr><td><code>flint play &lt;scene&gt;</code></td><td>First-person gameplay with physics + scripting</td></tr>
 <tr><td><code>flint render &lt;scene&gt; -o out.png</code></td><td>Headless render to PNG</td></tr>
+<tr><td><code>flint gen &lt;spec&gt; -o out.glb</code></td><td>Run procgen spec to produce mesh/texture</td></tr>
 <tr><td><code>flint asset generate &lt;type&gt;</code></td><td>AI asset generation (texture, model, audio)</td></tr>
 <tr><td><code>flint asset import &lt;file&gt;</code></td><td>Import file into asset catalog</td></tr>
-<tr><td><code>flint edit &lt;scene&gt;</code></td><td>Interactive spline/track editor</td></tr>
 <tr><td><code>flint prefab view &lt;template&gt;</code></td><td>Preview a prefab template in the viewer</td></tr>
 </tbody>
 </table>
@@ -231,7 +231,7 @@
 </tbody>
 </table>
 </div>
-<h3 id="viewer-flint-serve"><a class="header" href="#viewer-flint-serve">Viewer (<code>flint serve</code>)</a></h3>
+<h3 id="scene-viewer-flint-edit-scenetoml"><a class="header" href="#scene-viewer-flint-edit-scenetoml">Scene Viewer (<code>flint edit &lt;scene.toml&gt;</code>)</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -252,7 +252,7 @@
 </tbody>
 </table>
 </div>
-<h3 id="editor-flint-edit"><a class="header" href="#editor-flint-edit">Editor (<code>flint edit</code>)</a></h3>
+<h3 id="spline-editor-flint-edit-scenetoml---spline"><a class="header" href="#spline-editor-flint-edit-scenetoml---spline">Spline Editor (<code>flint edit &lt;scene.toml&gt; --spline</code>)</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -269,6 +269,20 @@
 <tr><td>Delete</td><td>Remove point</td></tr>
 <tr><td>Ctrl+S</td><td>Save spline</td></tr>
 <tr><td>Ctrl+Z</td><td>Undo</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="file-type-auto-detection-flint-edit"><a class="header" href="#file-type-auto-detection-flint-edit">File Type Auto-Detection (<code>flint edit</code>)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Extension</th><th>Opens</th></tr>
+</thead>
+<tbody>
+<tr><td><code>.scene.toml</code>, <code>.chunk.toml</code></td><td>Scene viewer</td></tr>
+<tr><td><code>.procgen.toml</code></td><td>Procgen previewer (or texture pipeline editor)</td></tr>
+<tr><td><code>.terrain.toml</code></td><td>Terrain editor</td></tr>
+<tr><td><code>.glb</code>, <code>.gltf</code></td><td>Model previewer (orbit camera)</td></tr>
 </tbody>
 </table>
 </div>

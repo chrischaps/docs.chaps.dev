@@ -37,7 +37,7 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-ece9bd88.js";
+            window.path_to_searchindex_js = "searchindex-a58e5294.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-7d06c78c.js"></script>
@@ -280,12 +280,12 @@ flint play levels/tavern.scene.toml
 <tr><td><code>flint query "&lt;expr&gt;"</code></td><td>Query entities (e.g., <code>"entities where archetype == 'door'"</code>)</td></tr>
 <tr><td><code>flint schema &lt;name&gt;</code></td><td>Inspect a component or archetype schema</td></tr>
 <tr><td><code>flint validate &lt;scene&gt;</code></td><td>Validate scene against constraints (<code>--fix</code> to auto-fix)</td></tr>
-<tr><td><code>flint serve &lt;scene&gt; --watch</code></td><td>Interactive viewer with hot-reload</td></tr>
+<tr><td><code>flint edit &lt;file&gt;</code></td><td>Unified interactive editor (auto-detects file type)</td></tr>
 <tr><td><code>flint play &lt;scene&gt;</code></td><td>First-person gameplay with physics + scripting</td></tr>
 <tr><td><code>flint render &lt;scene&gt; -o out.png</code></td><td>Headless render to PNG</td></tr>
+<tr><td><code>flint gen &lt;spec&gt; -o out.glb</code></td><td>Run procgen spec to produce mesh/texture</td></tr>
 <tr><td><code>flint asset generate &lt;type&gt;</code></td><td>AI asset generation (texture, model, audio)</td></tr>
 <tr><td><code>flint asset import &lt;file&gt;</code></td><td>Import file into asset catalog</td></tr>
-<tr><td><code>flint edit &lt;scene&gt;</code></td><td>Interactive spline/track editor</td></tr>
 <tr><td><code>flint prefab view &lt;template&gt;</code></td><td>Preview a prefab template in the viewer</td></tr>
 </tbody>
 </table>
@@ -315,7 +315,7 @@ flint play levels/tavern.scene.toml
 </tbody>
 </table>
 </div>
-<h3 id="viewer-flint-serve"><a class="header" href="#viewer-flint-serve">Viewer (<code>flint serve</code>)</a></h3>
+<h3 id="scene-viewer-flint-edit-scenetoml"><a class="header" href="#scene-viewer-flint-edit-scenetoml">Scene Viewer (<code>flint edit &lt;scene.toml&gt;</code>)</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -336,7 +336,7 @@ flint play levels/tavern.scene.toml
 </tbody>
 </table>
 </div>
-<h3 id="editor-flint-edit"><a class="header" href="#editor-flint-edit">Editor (<code>flint edit</code>)</a></h3>
+<h3 id="spline-editor-flint-edit-scenetoml---spline"><a class="header" href="#spline-editor-flint-edit-scenetoml---spline">Spline Editor (<code>flint edit &lt;scene.toml&gt; --spline</code>)</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -353,6 +353,20 @@ flint play levels/tavern.scene.toml
 <tr><td>Delete</td><td>Remove point</td></tr>
 <tr><td>Ctrl+S</td><td>Save spline</td></tr>
 <tr><td>Ctrl+Z</td><td>Undo</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="file-type-auto-detection-flint-edit"><a class="header" href="#file-type-auto-detection-flint-edit">File Type Auto-Detection (<code>flint edit</code>)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Extension</th><th>Opens</th></tr>
+</thead>
+<tbody>
+<tr><td><code>.scene.toml</code>, <code>.chunk.toml</code></td><td>Scene viewer</td></tr>
+<tr><td><code>.procgen.toml</code></td><td>Procgen previewer (or texture pipeline editor)</td></tr>
+<tr><td><code>.terrain.toml</code></td><td>Terrain editor</td></tr>
+<tr><td><code>.glb</code>, <code>.gltf</code></td><td>Model previewer (orbit camera)</td></tr>
 </tbody>
 </table>
 </div>
@@ -2994,7 +3008,7 @@ texture_tile = 16.0
 <li><strong>CPU-side simulation</strong> — no GPU compute for terrain generation</li>
 <li><strong>Fixed PBR parameters</strong> — metallic and roughness are uniform across the entire terrain surface</li>
 </ul>
-<p>See the <a href="../TERRAIN_ROADMAP.html">Terrain Roadmap</a> for planned features including LOD, sculpting, auto-splatting, triplanar mapping, and more.</p>
+<p>See the <a href="../../TERRAIN_ROADMAP.html">Terrain Roadmap</a> for planned features including LOD, sculpting, auto-splatting, triplanar mapping, and more.</p>
 <h2 id="further-reading-13"><a class="header" href="#further-reading-13">Further Reading</a></h2>
 <ul>
 <li><a href="#rendering">Rendering</a> — the PBR pipeline that terrain builds on</li>
@@ -6120,10 +6134,10 @@ flint play scenes/main.scene.toml --schemas schemas
 <tr><td><code>flint asset regenerate</code></td><td>Regenerate an existing asset with new parameters</td></tr>
 <tr><td><code>flint asset job status</code></td><td>Check status of an async generation job</td></tr>
 <tr><td><code>flint asset job list</code></td><td>List all generation jobs</td></tr>
-<tr><td><code>flint serve &lt;scene&gt;</code></td><td>Launch the hot-reload PBR viewer with egui inspector</td></tr>
+<tr><td><code>flint edit &lt;file&gt;</code></td><td>Unified interactive editor (auto-detects file type)</td></tr>
 <tr><td><code>flint play &lt;scene&gt;</code></td><td>Play a scene with first-person controls and physics</td></tr>
 <tr><td><code>flint render &lt;scene&gt;</code></td><td>Render a scene to PNG (headless)</td></tr>
-<tr><td><code>flint edit &lt;scene&gt;</code></td><td>Launch the interactive spline/track editor</td></tr>
+<tr><td><code>flint gen &lt;spec&gt;</code></td><td>Run a procedural generation spec to produce meshes or textures</td></tr>
 <tr><td><code>flint prefab view &lt;template&gt;</code></td><td>Preview a prefab template in the viewer</td></tr>
 </tbody>
 </table>
@@ -6219,28 +6233,78 @@ flint render scene.toml -o shot.png --distance 20 --pitch 30 --yaw 45 --target 0
 <tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td><code>0.04</code></td><td>Bloom strength</td></tr>
 <tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Bloom brightness threshold</td></tr>
 <tr><td><code>--exposure &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Exposure multiplier</td></tr>
+<tr><td><code>--ssao-radius &lt;f32&gt;</code></td><td><code>0.5</code></td><td>SSAO sample radius</td></tr>
+<tr><td><code>--ssao-intensity &lt;f32&gt;</code></td><td><code>1.0</code></td><td>SSAO intensity (0 = disabled)</td></tr>
+<tr><td><code>--fog-density &lt;f32&gt;</code></td><td><code>0.02</code></td><td>Fog density (0 = disabled)</td></tr>
+<tr><td><code>--fog-color &lt;r,g,b&gt;</code></td><td><code>0.7,0.75,0.82</code></td><td>Fog color</td></tr>
+<tr><td><code>--fog-height-falloff &lt;f32&gt;</code></td><td><code>0.1</code></td><td>Fog height falloff</td></tr>
 <tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Schemas directory (repeatable)</td></tr>
 </tbody>
 </table>
 </div>
-<h2 id="the-serve-command"><a class="header" href="#the-serve-command">The <code>serve</code> Command</a></h2>
-<p>Launch the interactive scene viewer with hot-reload:</p>
-<pre><code class="language-bash">flint serve demo/phase3_showcase.scene.toml --watch --schemas schemas
-flint serve scene.toml --no-inspector
+<h2 id="the-edit-command"><a class="header" href="#the-edit-command">The <code>edit</code> Command</a></h2>
+<p>Unified interactive editor that auto-detects file type and opens the appropriate tool:</p>
+<pre><code class="language-bash">flint edit levels/demo.scene.toml              # Scene viewer (hot-reload)
+flint edit levels/demo.scene.toml --spline     # Spline/track editor
+flint edit models/character.glb                # Model previewer (orbit camera)
+flint edit models/character.glb --watch        # Model previewer with file watching
+flint edit specs/oak_tree.procgen.toml         # Procgen previewer (mesh/texture)
+flint edit specs/stone_wall.procgen.toml       # Texture pipeline editor (if pipeline pattern)
+flint edit terrain.terrain.toml                # Terrain editor
 </code></pre>
+<h3 id="file-type-detection"><a class="header" href="#file-type-detection">File Type Detection</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Extension</th><th>Tool</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>.scene.toml</code>, <code>.chunk.toml</code></td><td>Scene viewer</td><td>Hot-reload, egui inspector, gizmos</td></tr>
+<tr><td><code>.procgen.toml</code> (pipeline pattern)</td><td>Texture pipeline editor</td><td>Node graph for texture specs</td></tr>
+<tr><td><code>.procgen.toml</code> (other)</td><td>Procgen previewer</td><td>Live preview of generated mesh/texture</td></tr>
+<tr><td><code>.terrain.toml</code></td><td>Terrain editor</td><td>Heightmap terrain editing</td></tr>
+<tr><td><code>.glb</code>, <code>.gltf</code></td><td>Model previewer</td><td>Orbit camera, animation playback</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="common-flags"><a class="header" href="#common-flags">Common Flags</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Flag</th><th>Default</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>--watch</code></td><td><code>false</code></td><td>Watch for file changes and auto-reload</td></tr>
-<tr><td><code>--no-inspector</code></td><td><code>false</code></td><td>Hide egui inspector panels</td></tr>
 <tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Schemas directory (repeatable)</td></tr>
+<tr><td><code>--width &lt;px&gt;</code></td><td>(auto)</td><td>Window width</td></tr>
+<tr><td><code>--height &lt;px&gt;</code></td><td>(auto)</td><td>Window height</td></tr>
+<tr><td><code>--no-grid</code></td><td><code>false</code></td><td>Disable ground grid</td></tr>
+<tr><td><code>--watch</code></td><td><code>false</code></td><td>Watch for file changes</td></tr>
+<tr><td><code>--seed &lt;u64&gt;</code></td><td>(auto)</td><td>Override seed (procgen)</td></tr>
+<tr><td><code>--no-inspector</code></td><td><code>false</code></td><td>Hide egui inspector (scene)</td></tr>
+<tr><td><code>--auto-orbit</code></td><td><code>false</code></td><td>Auto-orbit camera (model/procgen)</td></tr>
 </tbody>
 </table>
 </div>
-<h3 id="viewer-controls"><a class="header" href="#viewer-controls">Viewer Controls</a></h3>
+<h3 id="model-previewer-flags"><a class="header" href="#model-previewer-flags">Model Previewer Flags</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--distance &lt;f32&gt;</code></td><td>(auto)</td><td>Camera orbit distance</td></tr>
+<tr><td><code>--yaw &lt;deg&gt;</code></td><td>(auto)</td><td>Horizontal camera angle</td></tr>
+<tr><td><code>--pitch &lt;deg&gt;</code></td><td>(auto)</td><td>Vertical camera angle</td></tr>
+<tr><td><code>--target &lt;x,y,z&gt;</code></td><td>(auto)</td><td>Camera look-at point</td></tr>
+<tr><td><code>--fov &lt;deg&gt;</code></td><td>(auto)</td><td>Field of view</td></tr>
+<tr><td><code>--no-animate</code></td><td><code>false</code></td><td>Disable animation playback</td></tr>
+<tr><td><code>--clip &lt;name&gt;</code></td><td>(none)</td><td>Start with a specific animation clip</td></tr>
+<tr><td><code>--anim-speed &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Animation playback speed multiplier</td></tr>
+<tr><td><code>--render &lt;path&gt;</code></td><td>(none)</td><td>Render to PNG instead of opening a window</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="scene-viewer-controls"><a class="header" href="#scene-viewer-controls">Scene Viewer Controls</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -6263,6 +6327,30 @@ flint serve scene.toml --no-inspector
 </table>
 </div>
 <p>When an entity is selected, a <strong>translate gizmo</strong> appears with colored axis arrows (red = X, green = Y, blue = Z) and plane handles. Click and drag an axis or plane to move the entity. Position changes can be undone/redone and saved back to the scene file.</p>
+<h3 id="spline-editor-controls---spline"><a class="header" href="#spline-editor-controls---spline">Spline Editor Controls (<code>--spline</code>)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Input</th><th>Action</th></tr>
+</thead>
+<tbody>
+<tr><td>Left-click</td><td>Select control point</td></tr>
+<tr><td>Left-drag</td><td>Move control point on constraint plane</td></tr>
+<tr><td>Alt + drag</td><td>Move control point vertically (Y axis)</td></tr>
+<tr><td>Middle-drag</td><td>Orbit camera</td></tr>
+<tr><td>Right-drag</td><td>Pan camera</td></tr>
+<tr><td>Scroll</td><td>Zoom</td></tr>
+<tr><td>Tab / Shift+Tab</td><td>Cycle through control points</td></tr>
+<tr><td>I</td><td>Insert a new control point after selected</td></tr>
+<tr><td>Delete</td><td>Remove selected control point</td></tr>
+<tr><td>Ctrl+S</td><td>Save spline to disk</td></tr>
+<tr><td>Ctrl+Z</td><td>Undo</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>Legacy aliases:</strong> <code>flint serve</code>, <code>flint preview</code>, <code>flint gen-preview</code>, <code>flint tex-edit</code>, <code>flint terrain-edit</code>, and <code>flint spline-edit</code> still work but route through <code>flint edit</code>.</p>
+</blockquote>
 <h2 id="the-asset-generate-command"><a class="header" href="#the-asset-generate-command">The <code>asset generate</code> Command</a></h2>
 <p>Generate assets using AI providers:</p>
 <pre><code class="language-bash">flint asset generate texture -d "rough stone wall" --style medieval_tavern
@@ -6288,44 +6376,34 @@ flint asset generate audio -d "tavern ambient noise" --duration 10.0
 </table>
 </div>
 <p>Generated assets are automatically stored in content-addressed storage and registered in the asset catalog with a <code>.asset.toml</code> sidecar. Models are validated against style constraints after generation.</p>
-<h2 id="the-edit-command"><a class="header" href="#the-edit-command">The <code>edit</code> Command</a></h2>
-<p>Launch the interactive spline editor for authoring and modifying track layouts:</p>
-<pre><code class="language-bash">flint edit scenes/race_track.scene.toml --schemas engine/schemas --schemas schemas
+<h2 id="the-gen-command"><a class="header" href="#the-gen-command">The <code>gen</code> Command</a></h2>
+<p>Run a procedural generation spec to produce meshes (GLB) or textures (PNG):</p>
+<pre><code class="language-bash">flint gen specs/oak_tree.procgen.toml -o tree.glb
+flint gen specs/stone_wall.procgen.toml -o wall.png
+flint gen specs/oak_tree.procgen.toml --dry-run
+flint gen specs/oak_tree.procgen.toml --seed 42 -o tree.glb
+flint gen specs/oak_tree.procgen.toml --batch 10 --seed-start 0
 </code></pre>
-<p>The editor extends the scene viewer with spline-specific tools. It parses the first <code>.spline.toml</code> reference found in the scene and provides visual editing of control points.</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Flag</th><th>Default</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Schemas directory (repeatable)</td></tr>
+<tr><td><code>-o, --output &lt;path&gt;</code></td><td>(derived from spec)</td><td>Output file or directory</td></tr>
+<tr><td><code>--seed &lt;u64&gt;</code></td><td>(from spec)</td><td>Override the spec’s seed</td></tr>
+<tr><td><code>--dry-run</code></td><td><code>false</code></td><td>Print estimated cost without generating</td></tr>
+<tr><td><code>--format &lt;fmt&gt;</code></td><td>(auto)</td><td>Force output format: <code>glb</code> or <code>png</code></td></tr>
+<tr><td><code>--batch &lt;N&gt;</code></td><td>(none)</td><td>Generate N variants with sequential seeds</td></tr>
+<tr><td><code>--seed-start &lt;u64&gt;</code></td><td><code>0</code></td><td>Starting seed for batch generation</td></tr>
+<tr><td><code>--register</code></td><td><code>false</code></td><td>Store output in content store with provenance</td></tr>
+<tr><td><code>--force</code></td><td><code>false</code></td><td>Regenerate even if cached</td></tr>
+<tr><td><code>--validate</code></td><td><code>false</code></td><td>Validate output after generation</td></tr>
+<tr><td><code>--strict</code></td><td><code>false</code></td><td>Treat warnings as failures</td></tr>
+<tr><td><code>--style-guide &lt;path&gt;</code></td><td>(none)</td><td>Style guide TOML for validation constraints</td></tr>
 </tbody>
 </table>
 </div>
-<h3 id="editor-controls"><a class="header" href="#editor-controls">Editor Controls</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Input</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td>Left-click</td><td>Select / pick control point</td></tr>
-<tr><td>Left-drag</td><td>Move control point on constraint plane</td></tr>
-<tr><td>Alt + drag</td><td>Move control point vertically (Y axis)</td></tr>
-<tr><td>Middle-drag</td><td>Orbit camera</td></tr>
-<tr><td>Right-drag</td><td>Pan camera</td></tr>
-<tr><td>Scroll</td><td>Zoom</td></tr>
-<tr><td>Tab / Shift+Tab</td><td>Cycle through control points</td></tr>
-<tr><td>I</td><td>Insert a new control point after the selected one</td></tr>
-<tr><td>Delete</td><td>Remove selected control point</td></tr>
-<tr><td>Ctrl+S</td><td>Save spline to disk</td></tr>
-<tr><td>Ctrl+Z</td><td>Undo</td></tr>
-<tr><td>Escape</td><td>Cancel current drag</td></tr>
-</tbody>
-</table>
-</div>
-<p>The editor also provides an egui panel with DragValue editors for precise X/Y/Z/Twist control of the selected point.</p>
 <h2 id="the-prefab-view-command"><a class="header" href="#the-prefab-view-command">The <code>prefab view</code> Command</a></h2>
 <p>Preview a prefab template in the interactive viewer:</p>
 <pre><code class="language-bash">flint prefab view prefabs/kart.prefab.toml --schemas engine/schemas --schemas schemas
@@ -6342,7 +6420,7 @@ flint asset generate audio -d "tavern ambient noise" --duration 10.0
 </table>
 </div>
 <p>This command loads the <code>.prefab.toml</code> template, performs variable substitution, builds a synthetic scene from the expanded entities, and launches the viewer for visual inspection. Useful for verifying prefab structure and appearance without creating a full scene.</p>
-<h2 id="common-flags"><a class="header" href="#common-flags">Common Flags</a></h2>
+<h2 id="common-flags-1"><a class="header" href="#common-flags-1">Common Flags</a></h2>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -6352,7 +6430,6 @@ flint asset generate audio -d "tavern ambient noise" --duration 10.0
 <tr><td><code>--scene &lt;path&gt;</code></td><td>Path to scene file</td></tr>
 <tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (repeatable for multi-schema layering; default: <code>schemas</code>)</td></tr>
 <tr><td><code>--format &lt;fmt&gt;</code></td><td>Output format: <code>json</code>, <code>toml</code>, or <code>text</code></td></tr>
-<tr><td><code>--watch</code></td><td>Watch for file changes (with <code>serve</code>)</td></tr>
 <tr><td><code>--fix</code></td><td>Apply auto-fixes (with <code>validate</code>)</td></tr>
 <tr><td><code>--dry-run</code></td><td>Preview changes without applying</td></tr>
 </tbody>
@@ -6365,8 +6442,11 @@ flint &lt;command&gt; --help
 
 # Examples
 flint init my-game
-flint serve levels/tavern.scene.toml --watch --schemas schemas
+flint edit levels/tavern.scene.toml              # Interactive scene viewer
+flint edit models/character.glb --watch           # Model previewer
 flint play levels/tavern.scene.toml
+flint render levels/tavern.scene.toml -o shot.png
+flint gen specs/oak_tree.procgen.toml -o tree.glb
 flint query "entities where archetype == 'door'" --scene levels/tavern.scene.toml
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -6700,19 +6780,23 @@ default_style = "medieval_tavern"
 <p>Environment variable overrides: <code>FLINT_FLUX_API_KEY</code>, <code>FLINT_MESHY_API_KEY</code>, <code>FLINT_ELEVENLABS_API_KEY</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="architecture-overview"><a class="header" href="#architecture-overview">Architecture Overview</a></h1>
-<p>Flint is structured as a nineteen-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
+<p>Flint is structured as a twenty-three-crate Cargo workspace with clear dependency layering. Each crate has a focused responsibility, and dependencies flow in one direction — from the binaries down to core types.</p>
 <h2 id="workspace-structure"><a class="header" href="#workspace-structure">Workspace Structure</a></h2>
 <pre><code>flint/
 ├── crates/
 │   ├── flint-cli/          # CLI binary (clap). Entry point for all commands.
 │   ├── flint-asset-gen/    # AI asset generation: providers, style guides, batch resolution
+│   ├── flint-procgen/      # Procedural generation: Generator trait, registry, tree/texture/creature generators
+│   ├── flint-procgen-ai/   # AI-assisted procgen: ProcGenAgent trait, spec creation/refinement
 │   ├── flint-player/       # Standalone player binary with game loop, physics, audio, animation, scripting
+│   ├── flint-android/      # Android entry point (NativeActivity, APK asset extraction)
 │   ├── flint-script/       # Rhai scripting: ScriptEngine, ScriptSync, hot-reload
 │   ├── flint-viewer/       # egui-based GUI inspector with hot-reload
 │   ├── flint-particles/    # GPU-instanced particle system with pooling and emission shapes
 │   ├── flint-animation/    # Two-tier animation: property tweens + skeletal/glTF
 │   ├── flint-audio/        # Kira spatial audio: 3D sounds, ambient loops, triggers
-│   ├── flint-runtime/      # Game loop infrastructure (GameClock, InputState, EventBus)
+│   ├── flint-terrain/      # Heightmap terrain with splat-map blending
+│   ├── flint-runtime/      # Game loop infrastructure (GameClock, InputState, EventBus, GameStateMachine)
 │   ├── flint-physics/      # Rapier 3D integration (PhysicsWorld, CharacterController)
 │   ├── flint-render/       # wgpu PBR renderer with Cook-Torrance shading + skinned mesh pipeline
 │   ├── flint-import/       # File importers (glTF/GLB with skeleton/skin extraction)
@@ -6782,7 +6866,9 @@ default_style = "medieval_tavern"
       ├──► flint-render    (renderer)    ├──► flint-animation (tweens + skeletal)
       ├──► flint-constraint(validation)  ├──► flint-particles (GPU particles)
       ├──► flint-asset     (catalog)     ├──► flint-script    (Rhai scripting)
-      ├──► flint-asset-gen (AI gen)      └──► flint-render    (PBR + skinned mesh)
+      ├──► flint-asset-gen (AI gen)      ├──► flint-terrain   (heightmap terrain)
+      ├──► flint-procgen   (proc gen)    └──► flint-render    (PBR + skinned mesh)
+      ├──► flint-procgen-ai(AI procgen)          │
       └──► flint-import    (glTF import)         │
               │                                  ▼
               ▼                              flint-import  (glTF meshes + skins)
@@ -6844,9 +6930,11 @@ default_style = "medieval_tavern"
 <p>Game loop infrastructure for interactive scenes:</p>
 <ul>
 <li><code>GameClock</code> — fixed-timestep accumulator (1/60s default)</li>
-<li><code>InputState</code> — keyboard and mouse tracking with action bindings</li>
+<li><code>InputState</code> and <code>InputConfig</code> — keyboard/mouse/gamepad tracking with TOML-configured action bindings</li>
 <li><code>EventBus</code> — decoupled event dispatch between systems</li>
 <li><code>RuntimeSystem</code> trait — standard interface for update/render systems</li>
+<li><code>GameStateMachine</code> — pushdown automaton for game states (play, pause, menu) with per-system <code>SystemPolicy</code></li>
+<li><code>PersistentStore</code> — key-value data that survives scene transitions</li>
 </ul>
 <h3 id="flint-physics"><a class="header" href="#flint-physics">flint-physics</a></h3>
 <p>Rapier 3D integration:</p>
@@ -6906,6 +6994,38 @@ default_style = "medieval_tavern"
 <li><code>FlintConfig</code> — layered configuration for API keys and provider settings</li>
 <li><code>JobStore</code> — persistent tracking of async generation jobs (for long-running 3D model generation)</li>
 </ul>
+<h3 id="flint-procgen"><a class="header" href="#flint-procgen">flint-procgen</a></h3>
+<p>Procedural generation framework:</p>
+<ul>
+<li><code>Generator</code> trait — pluggable generator interface with <code>generate()</code>, <code>param_schema()</code>, <code>estimate_cost()</code></li>
+<li><code>GeneratorRegistry</code> — register and look up generators by type name</li>
+<li><code>ProcGenSpec</code> — TOML spec format with metadata, seed config, and generator parameters</li>
+<li>Built-in generators: <code>tree_v1</code> (L-system/space colonization trees), <code>texture_v1</code> (PBR texture maps), <code>creature_v1</code></li>
+<li><code>ProcGenCache</code> — LRU cache keyed by (spec_hash, seed) with memory budget</li>
+<li>Algorithmic building blocks: noise (Perlin, simplex, Worley, FBM), L-system engine, mesh builder, space colonization</li>
+</ul>
+<h3 id="flint-procgen-ai"><a class="header" href="#flint-procgen-ai">flint-procgen-ai</a></h3>
+<p>AI-assisted procedural generation (tool-time only):</p>
+<ul>
+<li><code>ProcGenAgent</code> trait — <code>interpret_spec()</code>, <code>create_spec_from_prompt()</code>, <code>refine_spec()</code></li>
+<li><code>MockAgent</code> implementation for testing</li>
+</ul>
+<h3 id="flint-terrain"><a class="header" href="#flint-terrain">flint-terrain</a></h3>
+<p>Heightmap terrain system:</p>
+<ul>
+<li>Chunked mesh generation from grayscale PNG heightmaps</li>
+<li>RGBA splat-map blending for up to 4 texture layers</li>
+<li>Bilinear height interpolation for smooth surfaces</li>
+<li><code>terrain_height(x, z)</code> callback for script queries</li>
+<li>Does NOT depend on <code>flint-render</code>; uses standard <code>Vertex</code> format</li>
+</ul>
+<h3 id="flint-android"><a class="header" href="#flint-android">flint-android</a></h3>
+<p>Android entry point (excluded from default workspace members):</p>
+<ul>
+<li><code>NativeActivity</code> integration</li>
+<li>APK asset extraction</li>
+<li>Build via <code>cargo ndk -p flint-android</code>; min API 26</li>
+</ul>
 <h3 id="flint-player"><a class="header" href="#flint-player">flint-player</a></h3>
 <p>Standalone player binary that wires together runtime, physics, audio, animation, particles, scripting, and rendering:</p>
 <ul>
@@ -6920,7 +7040,7 @@ default_style = "medieval_tavern"
 <li>Optional asset catalog integration for runtime name-based asset resolution</li>
 </ul>
 <h3 id="flint-cli"><a class="header" href="#flint-cli">flint-cli</a></h3>
-<p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>serve</code>, <code>play</code>, <code>validate</code>, <code>asset</code>, <code>render</code>.</p>
+<p>Binary crate with clap-derived command definitions. Routes commands to the appropriate subsystem crate. Commands: <code>init</code>, <code>entity</code>, <code>scene</code>, <code>query</code>, <code>schema</code>, <code>edit</code>, <code>play</code>, <code>validate</code>, <code>asset</code>, <code>render</code>, <code>gen</code>, <code>prefab</code>.</p>
 <h2 id="further-reading-27"><a class="header" href="#further-reading-27">Further Reading</a></h2>
 <ul>
 <li><a href="#crate-dependency-graph">Crate Dependency Graph</a> — visual dependency diagram</li>
@@ -6928,7 +7048,7 @@ default_style = "medieval_tavern"
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="crate-dependency-graph"><a class="header" href="#crate-dependency-graph">Crate Dependency Graph</a></h1>
-<p>This page shows how Flint’s nineteen crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
+<p>This page shows how Flint’s twenty-three crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
 <h2 id="dependency-diagram"><a class="header" href="#dependency-diagram">Dependency Diagram</a></h2>
 <pre><code>          ┌─────────────┐                ┌──────────────┐
           │  flint-cli  │                │ flint-player │
@@ -6995,9 +7115,13 @@ default_style = "medieval_tavern"
 <tr><td><code>flint-animation</code></td><td>core, ecs, import, runtime</td><td>player</td></tr>
 <tr><td><code>flint-particles</code></td><td>core, ecs, runtime</td><td>player</td></tr>
 <tr><td><code>flint-script</code></td><td>core, ecs, runtime, physics</td><td>player</td></tr>
+<tr><td><code>flint-terrain</code></td><td>core</td><td>player</td></tr>
 <tr><td><code>flint-asset-gen</code></td><td>core, asset, import</td><td>cli</td></tr>
+<tr><td><code>flint-procgen</code></td><td>core</td><td>cli, player, procgen-ai</td></tr>
+<tr><td><code>flint-procgen-ai</code></td><td>core, procgen</td><td>cli</td></tr>
 <tr><td><code>flint-viewer</code></td><td>core, ecs, scene, schema, render, import, constraint</td><td>cli</td></tr>
-<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, particles, script, import, asset</td><td><em>(binary entry point)</em></td></tr>
+<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, particles, script, import, asset, terrain, procgen</td><td><em>(binary entry point)</em></td></tr>
+<tr><td><code>flint-android</code></td><td>player</td><td><em>(binary entry point, excluded from default members)</em></td></tr>
 <tr><td><code>flint-cli</code></td><td>all crates</td><td><em>(binary entry point)</em></td></tr>
 </tbody>
 </table>
@@ -7009,9 +7133,9 @@ default_style = "medieval_tavern"
 <li><strong>Core</strong> — fundamental types (<code>flint-core</code>)</li>
 <li><strong>Schema</strong> — data definitions (<code>flint-schema</code>)</li>
 <li><strong>Storage</strong> — entity and asset management (<code>flint-ecs</code>, <code>flint-asset</code>)</li>
-<li><strong>Logic</strong> — query, scene, constraint, import, asset-gen</li>
-<li><strong>Systems</strong> — render, runtime, physics, audio, animation, particles, script</li>
-<li><strong>Applications</strong> — viewer, player</li>
+<li><strong>Logic</strong> — query, scene, constraint, import, asset-gen, procgen, procgen-ai</li>
+<li><strong>Systems</strong> — render, runtime, physics, audio, animation, particles, script, terrain</li>
+<li><strong>Applications</strong> — viewer, player, android</li>
 <li><strong>Interface</strong> — CLI binary (<code>flint-cli</code>), player binary (<code>flint-player</code>)</li>
 </ol>
 <p><strong>Two entry points.</strong> The CLI binary (<code>flint-cli</code>) serves scene authoring and validation workflows. The player binary (<code>flint-player</code>) serves interactive gameplay. Both share the same underlying crate hierarchy.</p>

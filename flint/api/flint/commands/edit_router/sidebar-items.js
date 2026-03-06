@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FileKind"],"fn":["detect_file_kind","run"],"struct":["EditArgs"]};

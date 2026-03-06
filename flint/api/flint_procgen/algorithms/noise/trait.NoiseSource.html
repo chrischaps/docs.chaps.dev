@@ -1,0 +1,93 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A deterministic noise source that can be sampled in 2D and 3D."><title>NoiseSource in flint_procgen::algorithms::noise - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint_procgen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">NoiseSource</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../flint_procgen/index.html">flint_<wbr>procgen</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Noise<wbr>Source</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.sample_2d" title="sample_2d">sample_2d</a></li><li><a href="#tymethod.sample_3d" title="sample_3d">sample_3d</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.sample_2d_01" title="sample_2d_01">sample_2d_01</a></li><li><a href="#method.sample_3d_01" title="sample_3d_01">sample_3d_01</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In flint_<wbr>procgen::<wbr>algorithms::<wbr>noise</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">flint_procgen</a>::<wbr><a href="../index.html">algorithms</a>::<wbr><a href="index.html">noise</a></div><h1>Trait <span class="trait">Noise<wbr>Source</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/flint_procgen/algorithms/noise.rs.html#20-36">Source</a> </span></div><pre class="rust item-decl"><code>pub trait NoiseSource: <a class="trait" href="https://doc.rust-lang.org/1.93.1/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + <a class="trait" href="https://doc.rust-lang.org/1.93.1/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> {
+    // Required methods
+    fn <a href="#tymethod.sample_2d" class="fn">sample_2d</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, y: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sample_3d" class="fn">sample_3d</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, y: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, z: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>;
+
+    // Provided methods
+    fn <a href="#method.sample_2d_01" class="fn">sample_2d_01</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, y: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.sample_3d_01" class="fn">sample_3d_01</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, y: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, z: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a> { ... }
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A deterministic noise source that can be sampled in 2D and 3D.</p>
+<p>All implementations must be <code>Send + Sync</code> so they can be shared across
+threads. Output values are nominally in [-1, 1], though individual
+algorithms may occasionally exceed this range by a small margin.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.sample_2d" class="method"><a class="src rightside" href="../../../src/flint_procgen/algorithms/noise.rs.html#22">Source</a><h4 class="code-header">fn <a href="#tymethod.sample_2d" class="fn">sample_2d</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, y: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a></h4></section></summary><div class="docblock"><p>Sample the noise field at a 2D point. Returns a value in [-1, 1].</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sample_3d" class="method"><a class="src rightside" href="../../../src/flint_procgen/algorithms/noise.rs.html#25">Source</a><h4 class="code-header">fn <a href="#tymethod.sample_3d" class="fn">sample_3d</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, y: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, z: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a></h4></section></summary><div class="docblock"><p>Sample the noise field at a 3D point. Returns a value in [-1, 1].</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.sample_2d_01" class="method"><a class="src rightside" href="../../../src/flint_procgen/algorithms/noise.rs.html#28-30">Source</a><h4 class="code-header">fn <a href="#method.sample_2d_01" class="fn">sample_2d_01</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, y: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a></h4></section></summary><div class="docblock"><p>Convenience: remap <a href="trait.NoiseSource.html#tymethod.sample_2d" title="method flint_procgen::algorithms::noise::NoiseSource::sample_2d"><code>sample_2d</code></a> to [0, 1].</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.sample_3d_01" class="method"><a class="src rightside" href="../../../src/flint_procgen/algorithms/noise.rs.html#33-35">Source</a><h4 class="code-header">fn <a href="#method.sample_3d_01" class="fn">sample_3d_01</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, y: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>, z: <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.93.1/std/primitive.f64.html">f64</a></h4></section></summary><div class="docblock"><p>Convenience: remap <a href="trait.NoiseSource.html#tymethod.sample_3d" title="method flint_procgen::algorithms::noise::NoiseSource::sample_3d"><code>sample_3d</code></a> to [0, 1].</p>
+</div></details></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-NoiseSource-for-PerlinNoise" class="impl"><a class="src rightside" href="../../../src/flint_procgen/algorithms/noise.rs.html#60-68">Source</a><a href="#impl-NoiseSource-for-PerlinNoise" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.NoiseSource.html" title="trait flint_procgen::algorithms::noise::NoiseSource">NoiseSource</a> for <a class="struct" href="struct.PerlinNoise.html" title="struct flint_procgen::algorithms::noise::PerlinNoise">PerlinNoise</a></h3></section><section id="impl-NoiseSource-for-SimplexNoise" class="impl"><a class="src rightside" href="../../../src/flint_procgen/algorithms/noise.rs.html#92-100">Source</a><a href="#impl-NoiseSource-for-SimplexNoise" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.NoiseSource.html" title="trait flint_procgen::algorithms::noise::NoiseSource">NoiseSource</a> for <a class="struct" href="struct.SimplexNoise.html" title="struct flint_procgen::algorithms::noise::SimplexNoise">SimplexNoise</a></h3></section><section id="impl-NoiseSource-for-ValueNoise" class="impl"><a class="src rightside" href="../../../src/flint_procgen/algorithms/noise.rs.html#190-198">Source</a><a href="#impl-NoiseSource-for-ValueNoise" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.NoiseSource.html" title="trait flint_procgen::algorithms::noise::NoiseSource">NoiseSource</a> for <a class="struct" href="struct.ValueNoise.html" title="struct flint_procgen::algorithms::noise::ValueNoise">ValueNoise</a></h3></section><section id="impl-NoiseSource-for-WorleyNoise" class="impl"><a class="src rightside" href="../../../src/flint_procgen/algorithms/noise.rs.html#158-166">Source</a><a href="#impl-NoiseSource-for-WorleyNoise" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.NoiseSource.html" title="trait flint_procgen::algorithms::noise::NoiseSource">NoiseSource</a> for <a class="struct" href="struct.WorleyNoise.html" title="struct flint_procgen::algorithms::noise::WorleyNoise">WorleyNoise</a></h3></section><section id="impl-NoiseSource-for-Fbm%3CS%3E" class="impl"><a class="src rightside" href="../../../src/flint_procgen/algorithms/noise.rs.html#248-280">Source</a><a href="#impl-NoiseSource-for-Fbm%3CS%3E" class="anchor">§</a><h3 class="code-header">impl&lt;S: <a class="trait" href="trait.NoiseSource.html" title="trait flint_procgen::algorithms::noise::NoiseSource">NoiseSource</a>&gt; <a class="trait" href="trait.NoiseSource.html" title="trait flint_procgen::algorithms::noise::NoiseSource">NoiseSource</a> for <a class="struct" href="struct.Fbm.html" title="struct flint_procgen::algorithms::noise::Fbm">Fbm</a>&lt;S&gt;</h3></section></div><script src="../../../trait.impl/flint_procgen/algorithms/noise/trait.NoiseSource.js" async></script></section></div></main></body></html>

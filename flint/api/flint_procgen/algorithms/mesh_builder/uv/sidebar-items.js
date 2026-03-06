@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ProjectionAxis"],"fn":["apply_cylindrical_uv","apply_planar_uv"]};

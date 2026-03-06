@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EditMode"],"fn":["drag_f32","drag_f64","drag_i64","render_brush_params_ui","render_height_layer_ui","render_splat_rule_ui","render_texture_layer_ui","run"],"struct":["TerrainEditApp","TerrainEditArgs"]};

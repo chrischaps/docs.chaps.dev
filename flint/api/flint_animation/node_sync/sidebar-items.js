@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["NodePlaybackState","NodeSync"]};
+window.SIDEBAR_ITEMS = {"struct":["NodeSync"],"type":["NodePlaybackState"]};

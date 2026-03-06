@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["SkeletalPlaybackState","SkeletalSync"]};
+window.SIDEBAR_ITEMS = {"struct":["SkeletalSync"],"type":["SkeletalPlaybackState"]};

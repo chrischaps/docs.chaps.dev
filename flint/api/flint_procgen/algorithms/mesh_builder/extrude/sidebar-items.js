@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["build_spine_from_positions","extrude_along_curve","spine_from_spline_samples"],"struct":["ExtrudeParams","ExtrudePoint"]};

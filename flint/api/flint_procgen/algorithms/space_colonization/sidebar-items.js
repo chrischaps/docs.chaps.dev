@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CrownVolume"],"fn":["canopy_tree","columnar_tree","deciduous_tree"],"struct":["SpaceColonization","SpaceColonizationParams"]};
