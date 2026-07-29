@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/flint-render/src/scene_renderer/extract.rs`."><title>extract.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint_render" data-themes="" data-resource-suffix="" data-rustdoc-version="1.93.1 (01f6ddf75 2026-02-11)" data-channel="1.93.1" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-a3946164.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-a410ff4d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\flint-render\src\scene_renderer\extract.rs`."><title>extract.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint_render" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
     /* Flint rustdoc theme overrides - match the mdBook dark theme */
     :root {
         --flint-ember: #E8913A;
@@ -74,7 +74,7 @@
     <span style="color: #999;">API Reference</span>
 </div>
 
-</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">flint_render/scene_renderer/</div>extract.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Entity extraction helpers for `update_from_world()`.
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">flint_render\scene_renderer/</div>extract.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Entity extraction helpers for `update_from_world()`.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! Each method examines one entity type and pushes draw calls into the
 <a href=#4 id=4 data-nosnippet>4</a>//! appropriate draw-list on `SceneRenderer`.
@@ -204,7 +204,7 @@
 <a href=#128 id=128 data-nosnippet>128</a>
 <a href=#129 id=129 data-nosnippet>129</a>            <span class="kw">let </span>is_transparent = ecs_opacity &lt; <span class="number">1.0
 <a href=#130 id=130 data-nosnippet>130</a>                </span>|| gltf_alpha &lt; <span class="number">1.0
-<a href=#131 id=131 data-nosnippet>131</a>                </span>|| <span class="macro">blend_mode !</span>= BlendMode::Alpha
+<a href=#131 id=131 data-nosnippet>131</a>                </span>|| blend_mode != BlendMode::Alpha
 <a href=#132 id=132 data-nosnippet>132</a>                || gpu_mesh.material.alpha_mode == flint_import::AlphaMode::Blend;
 <a href=#133 id=133 data-nosnippet>133</a>
 <a href=#134 id=134 data-nosnippet>134</a>            <span class="kw">let </span>skinned_draw = SkinnedDrawCall {
@@ -344,7 +344,7 @@
 <a href=#268 id=268 data-nosnippet>268</a>            <span class="kw">let </span>is_transparent = ecs_opacity &lt; <span class="number">1.0
 <a href=#269 id=269 data-nosnippet>269</a>                </span>|| gltf_alpha &lt; <span class="number">1.0
 <a href=#270 id=270 data-nosnippet>270</a>                </span>|| base_color[<span class="number">3</span>] &lt; <span class="number">1.0
-<a href=#271 id=271 data-nosnippet>271</a>                </span>|| <span class="macro">blend_mode !</span>= BlendMode::Alpha
+<a href=#271 id=271 data-nosnippet>271</a>                </span>|| blend_mode != BlendMode::Alpha
 <a href=#272 id=272 data-nosnippet>272</a>                || gpu_mesh.material.alpha_mode == flint_import::AlphaMode::Blend;
 <a href=#273 id=273 data-nosnippet>273</a>
 <a href=#274 id=274 data-nosnippet>274</a>            <span class="kw">let </span><span class="kw-2">mut </span>draw = <span class="self">Self</span>::create_imported_draw_call(
@@ -972,7 +972,7 @@
 <a href=#896 id=896 data-nosnippet>896</a>            .and_then(|v| v.as_str().map(String::from))
 <a href=#897 id=897 data-nosnippet>897</a>            .unwrap_or_default();
 <a href=#898 id=898 data-nosnippet>898</a>        <span class="kw">let </span>proc_blend_mode = parse_blend_mode(<span class="kw-2">&amp;</span>proc_blend_mode_str);
-<a href=#899 id=899 data-nosnippet>899</a>        <span class="kw">let </span>proc_is_transparent = proc_opacity &lt; <span class="number">1.0 </span>|| <span class="macro">proc_blend_mode !</span>= BlendMode::Alpha;
+<a href=#899 id=899 data-nosnippet>899</a>        <span class="kw">let </span>proc_is_transparent = proc_opacity &lt; <span class="number">1.0 </span>|| proc_blend_mode != BlendMode::Alpha;
 <a href=#900 id=900 data-nosnippet>900</a>
 <a href=#901 id=901 data-nosnippet>901</a>        <span class="kw">if </span>!visual.wireframe {
 <a href=#902 id=902 data-nosnippet>902</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(tex_name) = <span class="kw-2">&amp;</span>material_texture {
@@ -1251,5 +1251,4 @@
 <a href=#1175 id=1175 data-nosnippet>1175</a>            batch_start = batch_end;
 <a href=#1176 id=1176 data-nosnippet>1176</a>        }
 <a href=#1177 id=1177 data-nosnippet>1177</a>    }
-<a href=#1178 id=1178 data-nosnippet>1178</a>}
-</code></pre></div></section></main></body></html>
+<a href=#1178 id=1178 data-nosnippet>1178</a>}</code></pre></div></section></main></body></html>

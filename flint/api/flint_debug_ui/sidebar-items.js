@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["assign_columns"],"struct":["CameraDebugPanel","CameraPanelConfig","DeadCalmDebugPanel","GrassDebugPanel","OceanDebugPanel","OceanPanelConfig","RealityDebugPanel","RealityPanelConfig","TimeOfDayDebugPanel","TimeOfDayPanelConfig","VisitorDebugPanel","WeatherDebugPanel","WeatherPanelConfig"],"trait":["DebugPanel"]};

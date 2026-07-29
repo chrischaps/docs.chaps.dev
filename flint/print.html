@@ -29,7 +29,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="theme/css/custom-8d5049aa.css">
+        <link rel="stylesheet" href="theme/css/custom-a9d3dcc9.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -37,10 +37,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-81699b98.js";
+            window.path_to_searchindex_js = "searchindex-a4f50de0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7d06c78c.js"></script>
+        <script src="toc-ddc7ede1.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -307,6 +307,7 @@ flint play levels/tavern.scene.toml
 <tr><td>R</td><td>Reload</td></tr>
 <tr><td>1 / 2</td><td>Weapon slots</td></tr>
 <tr><td>F1</td><td>Cycle debug mode (PBR → Wireframe → Normals → Depth → UV → Unlit → Metal/Rough)</td></tr>
+<tr><td>F3</td><td>Toggle debug panels (ocean, day/time, camera, grass — only those the scene uses)</td></tr>
 <tr><td>F4</td><td>Toggle shadows</td></tr>
 <tr><td>F5</td><td>Toggle bloom</td></tr>
 <tr><td>F6</td><td>Toggle post-processing pipeline</td></tr>
@@ -2380,6 +2381,308 @@ fullbright = true
 <li><a href="#headless-rendering-2">Headless Rendering</a> — CI integration guide</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="sky"><a class="header" href="#sky">Sky</a></h1>
+<p>The <code>sky</code> component replaces the texture skybox with a procedural sky: a
+vertical gradient, a sun disc that follows the scene’s light, a hashed
+starfield, and FBM clouds that drift.</p>
+<p><img src="images/sky-dusk.png" alt="Dusk over the ocean"></p>
+<p><em>Every value in this frame is a number on one component. Nothing here is a
+texture.</em></p>
+<pre><code class="language-toml">[entities.sky_dome]
+[entities.sky_dome.sky]
+zenith_color = [0.10, 0.32, 0.70, 1.0]
+horizon_color = [0.55, 0.75, 0.90, 1.0]
+haze_color = [0.80, 0.88, 0.95, 0.55]
+cloud_coverage = 0.38
+star_opacity = 0.0
+</code></pre>
+<p>Add it and the skybox pipeline steps aside. One sky per scene.</p>
+<h2 id="time-of-day-belongs-to-your-game"><a class="header" href="#time-of-day-belongs-to-your-game">Time of day belongs to your game</a></h2>
+<p><strong>Flint does not have a time-of-day system, and that is deliberate.</strong> The sky
+component is a <em>state</em>, not a clock. There is no <code>hour</code> field, no sun path
+built into the engine, no assumption that your world has 24-hour days at all.</p>
+<p>A game that wants a day/night cycle writes a script that interpolates its own
+keyframes into these fields with <code>set_field</code> each frame. That script owns what
+“dusk” means for that game — how long it lasts, what color it is, whether the
+day is ten minutes or ten hours, whether there are days at all.</p>
+<p>The payoff is that the same component serves a game with a wheeling
+sunrise-to-starscape cycle, a game permanently frozen at golden hour, and a
+game whose sky is driven by something other than time entirely.</p>
+<p>The engine’s contribution is the <strong>Day / Time</strong> debug panel (<code>F3</code>), which
+drives a game-side <code>time_of_day</code> component by convention — see
+<a href="#debug-panels-f3">the CLI reference</a>.</p>
+<h2 id="fields"><a class="header" href="#fields">Fields</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Effect</th></tr>
+</thead>
+<tbody>
+<tr><td><code>zenith_color</code></td><td>Sky color straight up.</td></tr>
+<tr><td><code>horizon_color</code></td><td>Sky color at the horizon.</td></tr>
+<tr><td><code>haze_color</code></td><td>Horizon haze band; <strong>alpha is its strength</strong>.</td></tr>
+<tr><td><code>cloud_tint</code></td><td>Cloud color; <strong>alpha is opacity</strong>.</td></tr>
+<tr><td><code>sun_disc_size</code></td><td>Sun angular radius, in radians.</td></tr>
+<tr><td><code>sun_glow</code></td><td>Glow strength around the disc.</td></tr>
+<tr><td><code>star_opacity</code></td><td>Starfield visibility, 0 by day to 1 at night.</td></tr>
+<tr><td><code>cloud_coverage</code></td><td>0 clear to 1 overcast.</td></tr>
+<tr><td><code>cloud_density</code></td><td>Cloud edge softness and thickness.</td></tr>
+<tr><td><code>cloud_scale</code></td><td>Cloud noise frequency.</td></tr>
+<tr><td><code>cloud_drift_x</code> / <code>cloud_drift_y</code></td><td>Cloud drift speed.</td></tr>
+<tr><td><code>ambient_sky</code> / <code>ambient_ground</code></td><td>Optional hemisphere ambient override.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="the-sun"><a class="header" href="#the-sun">The sun</a></h3>
+<p>The sun disc is drawn where <code>directional_lights[0]</code> points — it is not
+positioned independently. Move the light and the disc follows, which means the
+visible sun and the light actually casting your shadows can never disagree.</p>
+<p>Flint’s light <code>direction</code> points <strong>from surfaces toward the light</strong>.</p>
+<h3 id="ambient"><a class="header" href="#ambient">Ambient</a></h3>
+<p><code>ambient_sky</code> and <code>ambient_ground</code> override the hemisphere ambient in the light
+uniforms. This is how a night gets genuinely dark: a script drops both along
+with the sun’s intensity, and unlit surfaces fall away instead of staying
+suspiciously legible.</p>
+<h3 id="stars"><a class="header" href="#stars">Stars</a></h3>
+<p>Stars are a hash function, not a texture — no seams, no resolution, and free to
+fade with <code>star_opacity</code>. The hash is deliberately sinless: <code>fract(sin(x))</code>
+loses precision far from the origin on some GPUs and breaks into a visible
+lattice.</p>
+<h2 id="reflections"><a class="header" href="#reflections">Reflections</a></h2>
+<p>An ocean with <code>sky_reflection_strength &gt; 0</code> takes a per-frame snapshot of the
+sky’s gradient and reflects it, Fresnel-weighted. Change the sky and the water
+follows with no extra wiring.</p>
+<p>The snapshot carries the gradient only, never the sun disc — see
+<a href="#water-clarity">Ocean: water clarity</a> for why.</p>
+<h2 id="see-also"><a class="header" href="#see-also">See also</a></h2>
+<ul>
+<li><a href="#ocean">Ocean</a> — reflects this sky</li>
+<li><a href="#rendering">Rendering</a> — lights, shadows, and the texture skybox</li>
+<li><a href="#scripting">Scripting</a> — <code>set_field</code> for per-frame sky drives</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="ocean"><a class="header" href="#ocean">Ocean</a></h1>
+<p>Flint renders an endless, physically-grounded ocean: a sum of Gerstner waves
+shaped by a JONSWAP wind-sea spectrum, drawn on a camera-following grid and
+shaded in hard cel bands. The waves are believable — real dispersion, real
+directional spread — while the <em>look</em> stays graphic.</p>
+<p><img src="images/ocean-hero.png" alt="The ocean at mid-morning"></p>
+<p><em>Flat bold blues, hard-edged white foam. The wave physics is real; the shading
+is a woodblock print.</em></p>
+<p>Add one <code>ocean</code> component to a scene and you have a horizon-to-horizon sea:</p>
+<pre><code class="language-toml">[entities.ocean]
+[entities.ocean.ocean]
+seed = 7
+num_waves = 12
+wavelength_min = 5.0
+wavelength_max = 70.0
+amplitude = 0.85
+choppiness = 0.7
+wind_speed = 7.0
+fetch_km = 60.0
+</code></pre>
+<p>One ocean per scene. The grid follows the camera, so there is no world size to
+configure and no edge to sail off.</p>
+<h2 id="the-parity-contract"><a class="header" href="#the-parity-contract">The parity contract</a></h2>
+<p>This is the single most important thing to know about the ocean.</p>
+<p><strong><code>flint-core/src/ocean.rs</code> is the sole source of truth for wave math.</strong> It
+builds the wave array on the CPU, and the GPU only <em>sums the array it is
+given</em> — <code>ocean_shader.wgsl</code> contains no spectrum logic of its own. That is
+what lets a script ask <code>ocean_height(x, z)</code> and get the same answer the
+renderer drew, which is what buoyancy, splash detection and camera work all
+depend on.</p>
+<p>If you change the wave math, CPU and GPU must move together. Two guards exist:</p>
+<ul>
+<li><code>gpu_packing_matches_cpu_evaluation</code> in <code>flint-core</code> asserts the packed GPU
+layout evaluates to the CPU result.</li>
+<li>A <code>wave_probe</code> script pinning a visible buoy to <code>ocean_height</code> will visibly
+detach from the surface the moment parity breaks.</li>
+</ul>
+<p>A related trap: <strong>wave phase is precomputed per frame in <code>f64</code> on the CPU and
+uploaded.</strong> Never accumulate phase in <code>f32</code> in the shader — over a long
+session it drifts and the sea starts to shimmer.</p>
+<h2 id="the-spectrum"><a class="header" href="#the-spectrum">The spectrum</a></h2>
+<p>Waves are not chosen by hand. You describe a sea state and the spectrum
+generates the wave set.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>seed</code></td><td>Spectrum RNG seed. Same seed, same ocean, forever.</td></tr>
+<tr><td><code>num_waves</code></td><td>1–16 Gerstner waves summed.</td></tr>
+<tr><td><code>wavelength_min</code> / <code>wavelength_max</code></td><td>The band the spectrum samples, in meters.</td></tr>
+<tr><td><code>amplitude</code></td><td>Total wave amplitude (max crest height) in meters.</td></tr>
+<tr><td><code>choppiness</code></td><td>0 = rolling swells, 1 = sharp trochoidal crests.</td></tr>
+<tr><td><code>direction_deg</code> / <code>spread_deg</code></td><td>Primary travel direction and directional spread. Short waves wander further off-axis than long ones.</td></tr>
+<tr><td><code>speed_scale</code></td><td>Time multiplier. 0 freezes the sea without flattening it.</td></tr>
+<tr><td><code>wind_speed</code></td><td>Wind in m/s — moves the JONSWAP energy peak.</td></tr>
+<tr><td><code>fetch_km</code></td><td>How far the wind has blown over open water. Longer fetch puts energy into longer swell.</td></tr>
+<tr><td><code>peak_enhancement</code></td><td>JONSWAP gamma. 1 = broad confused sea, 3.3 = typical, higher = one narrow dominant swell.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Each wave obeys the deep-water dispersion relation, so longer waves genuinely
+travel faster. <code>wind_speed</code> and <code>fetch_km</code> are the expressive controls: raising
+both moves energy into long swell and gives you an ocean that <em>feels</em> like it
+has weather behind it.</p>
+<h3 id="phase-safe-fields"><a class="header" href="#phase-safe-fields">Phase-safe fields</a></h3>
+<p>If you animate the ocean at runtime (a weather system, say), only some fields
+can change without visibly popping the sea:</p>
+<ul>
+<li><strong>Safe to ramp:</strong> <code>amplitude</code>, <code>choppiness</code>, <code>wind_speed</code>, <code>fetch_km</code>.
+Regenerating the spectrum preserves existing wave phases.</li>
+<li><strong>Load-time only:</strong> <code>direction_deg</code>, <code>spread_deg</code>, <code>seed</code>, <code>speed_scale</code>, and
+the wavelength band. Changing these re-rolls the wave set and the surface
+jumps.</li>
+</ul>
+<p>Pick a wavelength band wide enough at load time to cover every sea state you
+intend to reach, then move energy <em>within</em> it with wind and fetch.</p>
+<h2 id="shading"><a class="header" href="#shading">Shading</a></h2>
+<p>The fragment shader is deliberately not a water shader in the photoreal sense.
+Lighting is quantized into <code>ramp_steps</code> hard bands, and foam is a hard-edged
+mask rather than a soft blend.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Effect</th></tr>
+</thead>
+<tbody>
+<tr><td><code>deep_color</code> / <code>shallow_color</code></td><td>Water in wave shadow / in full light.</td></tr>
+<tr><td><code>foam_color</code></td><td>Crest foam.</td></tr>
+<tr><td><code>sss_color</code></td><td>Fake subsurface glow through backlit wave flanks.</td></tr>
+<tr><td><code>foam_threshold</code></td><td>Jacobian threshold — higher makes more foam.</td></tr>
+<tr><td><code>foam_noise_scale</code></td><td>World-space frequency of foam breakup.</td></tr>
+<tr><td><code>ramp_steps</code></td><td>Cel bands in the diffuse ramp (1–8).</td></tr>
+<tr><td><code>specular_strength</code></td><td>Sun glint. The glint is Fresnel-weighted, so it does not smear into a white disc under the camera.</td></tr>
+<tr><td><code>band_wobble</code></td><td>Noise on the band contours. 0 gives razor edges; a little wobble stops them reading as machine-made.</td></tr>
+<tr><td><code>band_dither</code> / <code>band_dither_scale</code></td><td>Halftone dot transition at band edges, in dots per meter.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Foam comes from the <strong>Jacobian</strong> of the Gerstner displacement — that is, from
+where the surface is actually compressing toward a breaking crest. It is a
+physical quantity, not a height threshold, which is why the foam sits where
+foam belongs even in a confused sea.</p>
+<p>The ocean <strong>writes depth</strong>, so scene fog applies to it correctly. It also fogs
+<em>itself</em> to the scene fog color before the composite’s sky cutoff, otherwise
+the far water would render as an unfogged dark band at the horizon.</p>
+<h3 id="bioluminescence"><a class="header" href="#bioluminescence">Bioluminescence</a></h3>
+<p><code>foam_glow</code> (0 = off) makes foam emissive in <code>foam_glow_color</code>. Drive it from a
+time-of-day script to get plankton bloom nights where the wake lights up.</p>
+<h3 id="contact-foam"><a class="header" href="#contact-foam">Contact foam</a></h3>
+<p>Give any entity an <code>ocean_contact</code> component and the ocean grows a splash ring
+around its hull:</p>
+<pre><code class="language-toml">[entities.boat.ocean_contact]
+half_x = 1.2
+half_z = 1.15
+</code></pre>
+<p>The renderer tracks the hull’s center, yaw and extents, differentiates its
+position for velocity, and the shader computes churn from <em>the water’s orbital
+velocity relative to the hull, projected into the nearest hull face</em>. A flat
+sea stays quiet, the lee side stays quiet, and the windward face flares.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Effect</th></tr>
+</thead>
+<tbody>
+<tr><td><code>splash_strength</code></td><td>Overall gain; 0 disables.</td></tr>
+<tr><td><code>splash_width</code></td><td>Max foam band width outward from the hull, in meters.</td></tr>
+<tr><td><code>splash_baseline</code></td><td>Churn floor on calm water. 0 makes foam vanish when flat.</td></tr>
+<tr><td><code>splash_response</code></td><td>Impact speed → churn gain (s/m).</td></tr>
+<tr><td><code>splash_flicker_speed</code> / <code>splash_noise_scale</code></td><td>Lapping rate and scalloped-edge frequency.</td></tr>
+</tbody>
+</table>
+</div>
+<p>On genuinely glassy water, set <code>splash_baseline = 0</code> — a foam ring hugging a
+motionless hull on a mirror reads as a bug.</p>
+<h3 id="rain"><a class="header" href="#rain">Rain</a></h3>
+<p><code>rain_ripple</code> (0..1) scatters expanding impact rings across the surface,
+hashed on a world-space grid and scanned over a 3×3 cell neighborhood so rings
+crossing cell boundaries do not tile into visible squares. They fade out by
+~30 m. Drive it from the same weather signal that drives your rain particles.</p>
+<h2 id="water-clarity"><a class="header" href="#water-clarity">Water clarity</a></h2>
+<p>With post-processing enabled the ocean does a grab pass and refracts whatever
+is underwater:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Effect</th></tr>
+</thead>
+<tbody>
+<tr><td><code>turbidity</code></td><td>0 = glass-clear, high = murk within half a meter.</td></tr>
+<tr><td><code>refraction_strength</code></td><td>Screen-space distortion of submerged geometry.</td></tr>
+<tr><td><code>absorption_color</code></td><td>Per-channel absorption rate. Red dies first in seawater.</td></tr>
+<tr><td><code>sky_reflection_strength</code></td><td>Fresnel-weighted analytic sky reflection. Needs a <code>sky</code> component.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The sky reflection is a snapshot of the procedural sky’s gradient, so
+reflections track the time of day for free. It deliberately contains <strong>no sun
+disc</strong> — the cel specular already <em>is</em> the sun’s reflection, and including it
+here would draw two suns.</p>
+<p>Surfaces seen from below flip their normal and drop both sky reflection and
+specular, so the underside of the water reads as water rather than as an opaque
+mirror of the sky.</p>
+<h2 id="the-grid"><a class="header" href="#the-grid">The grid</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Effect</th></tr>
+</thead>
+<tbody>
+<tr><td><code>grid_scale</code></td><td>Inner metric scale of the camera-following grid, in meters.</td></tr>
+<tr><td><code>fade_start</code> / <code>fade_end</code></td><td>Where wave displacement starts fading and where the ocean goes flat.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The mesh is a normalized grid, radially warped so the center has sub-meter
+cells and the rim reaches kilometers — past the geometric horizon at eye
+height, so the water’s edge is never visible. It follows the camera snapped to
+inner-cell multiples, which keeps waves world-anchored instead of swimming
+with the view.</p>
+<h2 id="querying-the-ocean-from-scripts"><a class="header" href="#querying-the-ocean-from-scripts">Querying the ocean from scripts</a></h2>
+<pre><code class="language-rhai">let h  = ocean_height(x, z);        // Eulerian surface height (m)
+let v  = ocean_velocity_y(x, z);    // vertical surface velocity (m/s)
+let n  = ocean_normal(x, z);        // #{x, y, z} surface normal
+</code></pre>
+<p><code>ocean_height</code> is what buoyancy is built on — sample it at a few points under a
+hull and drive the transform from the result:</p>
+<pre><code class="language-rhai">fn on_update() {
+    let me = entity();
+    let p = get_field(me, "transform", "position");
+    let h = ocean_height(p.x, p.z);
+    // ... ease the hull toward h, tilt from ocean_normal ...
+}
+</code></pre>
+<p><code>ocean_velocity_y</code> is the analytic ∂h/∂t, not a finite difference, and it is
+the signal you want for impact cues: the <em>relative approach speed</em> between
+water and hull tells you how hard a wave struck, which is what separates a lap
+from a slam.</p>
+<p>Sampling is cheap enough for a handful of probes per frame. It is not cheap
+enough for thousands.</p>
+<h2 id="debugging"><a class="header" href="#debugging">Debugging</a></h2>
+<p>The <strong>Ocean Debug</strong> panel (<code>F3</code> in the player) exposes the whole component
+live — spectrum, colors, foam, contact foam, band edges, clarity, grid — and
+<strong>Commit to File</strong> writes your tuning back into the scene TOML.</p>
+<p><code>show_probe</code> parks a bright buoy on the surface as a standing CPU/GPU parity
+check.</p>
+<p>Headless:</p>
+<pre><code class="language-bash">flint render scene.toml --schemas schemas --width 2560 --height 1440 --no-grid \
+  --distance 9 --pitch 18 --yaw 35 --target 0,0.4,0
+</code></pre>
+<p>Note that <code>flint render</code> runs <strong>no scripts</strong>. If your hull floats by script,
+it will render at its authored transform rather than on the water — frame
+around it, or bake a fixture scene with the values you want.</p>
+<h2 id="see-also-1"><a class="header" href="#see-also-1">See also</a></h2>
+<ul>
+<li><a href="#sky">Sky</a> — the procedural sky the ocean reflects</li>
+<li><a href="#post-processing-2">Post-Processing</a> — including underwater render mode 5</li>
+<li><a href="#scripting">Scripting</a> — the full Rhai API</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="post-processing-2"><a class="header" href="#post-processing-2">Post-Processing</a></h1>
 <p>Flint includes an HDR post-processing pipeline that transforms the raw scene render into polished final output with bloom, SSAO, fog, volumetric lighting, tonemapping, and vignette effects.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
@@ -2617,6 +2920,76 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2 --volumetric-density 
 <li><strong>Vignette</strong> — darkens screen edges for a cinematic look</li>
 </ol>
 <p>When post-processing is disabled (via <code>--no-postprocess</code> or F6), the shader handles tonemapping and gamma internally. This dual-path design ensures backward compatibility with scenes that don’t use post-processing.</p>
+<h2 id="render-modes"><a class="header" href="#render-modes">Render Modes</a></h2>
+<p>Render modes are whole-screen stylizations that branch <strong>after ACES tonemapping
+and before vignette</strong>. They are not debug views: they are a supported way to
+make the world visibly stop being itself for a while.</p>
+<p><img src="images/render-mode-tron.png" alt="Tron render mode"></p>
+<p><em>Mode 4 over an ocean scene: depth-reconstructed world grid, Sobel edges on
+depth and luminance.</em></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Name</th><th>What it does</th></tr>
+</thead>
+<tbody>
+<tr><td>0</td><td>None</td><td>Normal output.</td></tr>
+<tr><td>1</td><td>Matrix</td><td>Procedural dot-matrix glyphs per 8×12 px cell. Brightness <em>and</em> density track scene luminance, with per-column rain heads.</td></tr>
+<tr><td>2</td><td>Blood</td><td>Palette remap. Ocean scenes recolor through the ocean shader too, so the water is genuinely a different sea rather than a red filter over a blue one.</td></tr>
+<tr><td>3</td><td>Drunk</td><td>Pre-sample UV sway warping the whole composite chain, plus a ghosting double-tap.</td></tr>
+<tr><td>4</td><td>Tron</td><td>Depth Sobel + luminance edges in cyan over a dimmed scene, with a world-space grid reconstructed from depth so it rides real geometry.</td></tr>
+<tr><td>5</td><td>Underwater</td><td>Masks per pixel against a <strong>waterline plane</strong>, not a patch mask. Banded murk absorption, a wobbled foam lip on the line, light shafts, Snell-window brightening.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Four uniforms carry the state: <code>render_mode</code>, <code>mode_mix</code> (0..1 blend),
+<code>mode_time</code>, and a <code>mode_params</code> vec4 whose meaning is per-mode.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th><code>mode_params</code></th></tr>
+</thead>
+<tbody>
+<tr><td>1–4</td><td><code>x</code> = bleed-mask scale, <code>y</code> = mask style (0 = fbm patches, 1 = radial iris), <code>z</code> = rate, <code>w</code> = spare</td></tr>
+<tr><td>5</td><td><code>x</code> = signed eye depth in meters (+ = submerged), <code>y</code> = sea energy 0..1, <code>z</code> = daylight 0..1, <code>w</code> = bioluminescence 0..1</td></tr>
+</tbody>
+</table>
+</div>
+<p>Modes 1–4 fade in through an fbm <strong>bleed mask</strong> whose threshold sweeps across
+the noise span, so patch coverage grows with <code>mode_mix</code> and pins to full
+coverage at 1. Mode 5 ignores the mask entirely — being underwater is a fact
+about where your eye is, not a patch that spreads.</p>
+<h3 id="from-scripts"><a class="header" href="#from-scripts">From scripts</a></h3>
+<pre><code class="language-rhai">set_render_mode(4, 0.85);                  // mode, mix
+set_render_mode_params(3.0, 0.0, 6.0, 0.0);
+</code></pre>
+<p><strong><code>set_render_mode</code> is transient, and it is the only post-process override that
+is.</strong> Every other override — exposure, bloom, fog, chromatic aberration — is
+sticky: set it once and it persists. The render mode is zeroed the frame your
+script <em>stops calling it</em>.</p>
+<p>That asymmetry is deliberate. A sticky render mode plus a script that crashed,
+hot-reloaded, or was disabled mid-effect would leave the world permanently
+inside a hallucination with no way out. Instead, a dead script means a healed
+world. The cost is that you must call it every frame the effect is active:</p>
+<pre><code class="language-rhai">fn on_update() {
+    let m = current_mix();          // your own envelope
+    if m &gt; 0.001 {
+        set_render_mode(active_mode, m);
+    }
+    // stop calling -&gt; the engine restores the world by itself
+}
+</code></pre>
+<p>Sticky effects a mode borrows (FOV, radial blur, chromatic aberration) are
+<em>not</em> covered by this, so zero them yourself when your effect ends.</p>
+<h3 id="headless"><a class="header" href="#headless">Headless</a></h3>
+<pre><code class="language-bash">flint render scene.toml --schemas schemas \
+  --render-mode 4 --mode-mix 1.0 --mode-params 3,0,6,0
+</code></pre>
+<p>Since <code>flint render</code> runs no scripts, these flags <strong>are</strong> the fixture — there
+is no script to drive the mode for you.</p>
+<p>One practical note: modes 1 and 4 key off scene luminance, so they read best
+in daylight even if your game schedules them at night. A night scene renders
+the Matrix mode nearly black.</p>
 <h2 id="design-decisions-1"><a class="header" href="#design-decisions-1">Design Decisions</a></h2>
 <ul>
 <li><strong>Rgba16Float</strong> for the HDR buffer provides sufficient precision for bloom extraction without the memory cost of Rgba32Float</li>
@@ -2645,6 +3018,30 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2 --volumetric-density 
 <p>The listener position and orientation are updated each frame to match the first-person camera, so sounds pan and attenuate as you move through the scene.</p>
 <h2 id="ambient-loops"><a class="header" href="#ambient-loops">Ambient Loops</a></h2>
 <p>Non-spatial sounds play on the main audio track at constant volume regardless of listener position. Set <code>spatial = false</code> on an <code>audio_source</code> to use this mode — useful for background music, ambient atmosphere, and UI sounds.</p>
+<h2 id="mixer-buses"><a class="header" href="#mixer-buses">Mixer Buses</a></h2>
+<p>Every sound routes through one of two buses — <code>music</code> and <code>sfx</code> — both children
+of Kira’s main track:</p>
+<pre><code>main  ──┬── music     (audio_source.bus = "music")
+        └── sfx       (everything else, including all one-shots)
+</code></pre>
+<p>Opt a source into the music bus in the scene:</p>
+<pre><code class="language-toml">[entities.score.audio_source]
+file = "audio/theme_night.ogg"
+bus = "music"
+loop = true
+autoplay = true
+</code></pre>
+<p>Initial gains come from the CLI:</p>
+<pre><code class="language-bash">flint play scene.toml --music-volume 0.8 --sfx-volume 1.0
+flint play scene.toml --music-volume 0     # mute the score, keep the world
+</code></pre>
+<p><strong>Bus gain multiplies underneath per-sound volume.</strong> A script crossfading
+between two music beds keeps working at any bus gain, and a player who has
+turned the music down does not have their fades overridden.</p>
+<p>The master low-pass applies to both buses, so <code>set_audio_lowpass</code> muffles the
+entire mix — score included — which is what you want when the effect is
+“something is between you and the world” rather than “the sfx got quieter”.</p>
+<p>One-shots (<code>play_sound</code>, <code>play_sound_at</code>) are always sfx.</p>
 <h2 id="audio-schemas"><a class="header" href="#audio-schemas">Audio Schemas</a></h2>
 <p>Three component schemas define audio behavior:</p>
 <p><strong>audio_source</strong> (<code>audio_source.toml</code>) — a sound attached to an entity:</p>
@@ -2662,9 +3059,15 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2 --volumetric-density 
 <tr><td><code>min_distance</code></td><td>f32</td><td>1.0</td><td>Distance at full volume</td></tr>
 <tr><td><code>max_distance</code></td><td>f32</td><td>25.0</td><td>Distance at silence</td></tr>
 <tr><td><code>autoplay</code></td><td>bool</td><td>true</td><td>Start playing on scene load</td></tr>
+<tr><td><code>bus</code></td><td>string</td><td><code>"sfx"</code></td><td>Mixer bus: <code>"sfx"</code> or <code>"music"</code></td></tr>
 </tbody>
 </table>
 </div>
+<blockquote>
+<p><strong>Looping component sources must keep <code>autoplay = true</code>.</strong> Components have no
+play/stop API — scripts can only fade their volume. If you need a sound that
+starts on cue, use a one-shot instead.</p>
+</blockquote>
 <p><strong>audio_listener</strong> (<code>audio_listener.toml</code>) — marks which entity receives audio:</p>
 <div class="table-wrapper">
 <table>
@@ -2705,7 +3108,7 @@ set_field(engine_sound, "audio_source", "volume", 0.3 + rpm_ratio * 0.7);
 <h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
 <p>The audio system has three main components:</p>
 <ul>
-<li><strong>AudioEngine</strong> — wraps Kira’s <code>AudioManager</code>, handles sound file loading, listener positioning, and spatial track creation. Sounds route through spatial tracks for 3D positioning or the main track for ambient playback.</li>
+<li><strong>AudioEngine</strong> — wraps Kira’s <code>AudioManager</code>, handles sound file loading, listener positioning, and spatial track creation. Sounds route through spatial tracks for 3D positioning, or through a mixer bus for non-positional playback.</li>
 <li><strong>AudioSync</strong> — bridges TOML <code>audio_source</code> components to Kira spatial tracks. Discovers new audio entities each frame and updates spatial positions from entity transforms.</li>
 <li><strong>AudioTrigger</strong> — maps game events (collisions, interactions) to <code>AudioCommand</code>s that play sounds at specific positions.</li>
 </ul>
@@ -2897,6 +3300,51 @@ blend_target = "walk"      # Crossfade into this clip
 blend_duration = 0.3       # Over 0.3 seconds
 </code></pre>
 <p>Blending uses slerp for rotation quaternions and lerp for translation/scale, producing smooth pose interpolation.</p>
+<p><strong>The engine clears <code>blend_target</code> when the crossfade completes.</strong> It is a
+request, not a state — once the fade lands, the field is retired and the clip
+you faded into becomes the plain <code>clip</code>. Scripts must not treat a non-empty
+<code>blend_target</code> as “currently blending to X” beyond the fade, and must not
+re-assert it every frame: a target that never retires re-arms its own crossfade
+forever, and the clip plays only its first <code>blend_duration</code> seconds on loop.</p>
+<p>Calling <code>blend_to</code> with the clip that is <strong>already playing</strong> is a deliberate
+restart, not a no-op. That is what lets a held key chain discrete steps —
+each press re-triggers the same clip from the top.</p>
+<blockquote>
+<p><code>flint edit &lt;model.glb&gt;</code> plays clips directly and never goes through the
+blend path, so a clip that previews correctly can still be broken in play.
+Verify crossfades in <code>flint play</code>.</p>
+</blockquote>
+<h3 id="additive-layers"><a class="header" href="#additive-layers">Additive Layers</a></h3>
+<p>An additive layer runs a second clip on its own clock and composes it <em>onto</em>
+the base pose, as a delta from rest, on keyed joints only:</p>
+<pre><code class="language-toml">[entities.character.animator]
+clip = "idle"
+layer_clip = "breathe"     # loops independently
+layer_weight = 1.0         # live dial: 0 = off
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>layer_clip</code></td><td>string</td><td>“”</td><td>Additive layer clip</td></tr>
+<tr><td><code>layer_weight</code></td><td>f32</td><td>1.0</td><td>Layer strength (0 = off)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Because the layer only touches joints it actually keys, a breathing or
+weight-shift layer authored on the spine leaves the legs entirely to the base
+clip. And because it is composed after blending, <strong>the layer survives base
+crossfades</strong> — the character keeps breathing through the transition from idle
+to walk rather than holding its breath for 0.3 seconds.</p>
+<p><code>layer_weight</code> is a live dial, so fading a layer in and out is a single field
+write.</p>
+<h3 id="rest-poses"><a class="header" href="#rest-poses">Rest Poses</a></h3>
+<p>Pose buffers are seeded from the glTF <strong>bind-local TRS</strong>, not from identity.
+This matters for sparse clips: a clip that keys only an arm would otherwise
+collapse every un-keyed limb onto its parent, and your character would fold up
+the moment it played.</p>
 <h3 id="skeleton-schema"><a class="header" href="#skeleton-schema">Skeleton Schema</a></h3>
 <p>The <code>skeleton</code> component references a glTF skin:</p>
 <pre><code class="language-toml">[entities.character.skeleton]
@@ -2916,8 +3364,10 @@ skin = "Armature"           # Name of the glTF skin
 <tr><td><code>autoplay</code></td><td>bool</td><td>false</td><td>Start playing on scene load</td></tr>
 <tr><td><code>loop</code></td><td>bool</td><td>true</td><td>Loop when the clip ends</td></tr>
 <tr><td><code>speed</code></td><td>f32</td><td>1.0</td><td>Playback speed (-10.0 to 10.0)</td></tr>
-<tr><td><code>blend_target</code></td><td>string</td><td>“”</td><td>Clip to crossfade into</td></tr>
+<tr><td><code>blend_target</code></td><td>string</td><td>“”</td><td>Clip to crossfade into (cleared by the engine when the fade completes)</td></tr>
 <tr><td><code>blend_duration</code></td><td>f32</td><td>0.3</td><td>Crossfade duration in seconds</td></tr>
+<tr><td><code>layer_clip</code></td><td>string</td><td>“”</td><td>Additive layer clip</td></tr>
+<tr><td><code>layer_weight</code></td><td>f32</td><td>1.0</td><td>Additive layer strength (0 = off)</td></tr>
 </tbody>
 </table>
 </div>
@@ -3268,6 +3718,7 @@ autoplay = true          # Fire immediately
 <tr><td><code>color_start</code></td><td>vec4</td><td>[1,1,1,1]</td><td>RGBA color at birth</td></tr>
 <tr><td><code>color_end</code></td><td>vec4</td><td>[1,1,1,0]</td><td>RGBA color at death</td></tr>
 <tr><td><code>texture</code></td><td>string</td><td>“”</td><td>Sprite texture (empty = white dot)</td></tr>
+<tr><td><code>stretch</code></td><td>f32</td><td>0.0</td><td>Velocity-aligned billboard stretch, in seconds</td></tr>
 <tr><td><code>frames_x</code></td><td>i32</td><td>1</td><td>Sprite sheet columns</td></tr>
 <tr><td><code>frames_y</code></td><td>i32</td><td>1</td><td>Sprite sheet rows</td></tr>
 <tr><td><code>animate_frames</code></td><td>bool</td><td>false</td><td>Auto-advance frames over lifetime</td></tr>
@@ -3372,6 +3823,41 @@ color_end = [1.0, 1.0, 0.9, 0.0]
 shape = "box"
 shape_extents = [2.0, 1.0, 2.0]
 </code></pre>
+<h3 id="rain-1"><a class="header" href="#rain-1">Rain</a></h3>
+<p>Rain is the case <code>stretch</code> exists for. A camera-facing quad makes rain look
+like falling confetti; a velocity-aligned one makes it look like rain.</p>
+<pre><code class="language-toml">emission_rate = 4000.0
+lifetime = 1.2
+gravity = [0.6, -14.0, 0.0]      # tilt X/Z to slant with the wind
+speed_min = 0.0
+speed_max = 0.5
+size_start = 0.012
+size_end = 0.012
+color_start = [0.72, 0.78, 0.86, 0.5]
+color_end = [0.72, 0.78, 0.86, 0.0]
+texture = "textures/rain_drop.png"
+stretch = 0.03                   # elongate along on-screen motion
+shape = "box"
+shape_extents = [14.0, 0.5, 14.0]
+world_space = true
+</code></pre>
+<p><code>stretch</code> is in seconds: the quad elongates along its on-screen motion by
+<code>|velocity| * stretch</code>, so faster drops draw longer streaks with no extra
+authoring. Keep it small — 0.03 already reads as heavy rain, and large values
+smear particles into ribbons.</p>
+<p>Practical notes:</p>
+<ul>
+<li>Attach the emitter to something that follows the camera and reposition it
+each frame. Rain only needs to exist where it can be seen.</li>
+<li>Budget properly: <code>emission_rate × lifetime</code> is roughly how many are alive.
+The example is ~4800, under the 6000 cap.</li>
+<li>Slant the fall by tilting the <code>gravity</code> vector rather than by giving
+particles horizontal velocity — it stays coherent as gusts change.</li>
+<li>Particles are <strong>unlit</strong>. Dim <code>color_start</code>/<code>color_end</code> to match your scene’s
+light, or night rain will glow.</li>
+</ul>
+<p>Particle textures are resolved against the scene directory first, then its
+parent, and are loaded at scene load.</p>
 <h2 id="further-reading-14"><a class="header" href="#further-reading-14">Further Reading</a></h2>
 <ul>
 <li><a href="#scripting">Scripting</a> — full scripting API including particle functions</li>
@@ -3719,11 +4205,17 @@ enabled = true
 <tr><td><code>play_sound(name)</code></td><td>Play a non-spatial sound at default volume</td></tr>
 <tr><td><code>play_sound(name, volume)</code></td><td>Play a non-spatial sound at the given volume (0.0–1.0)</td></tr>
 <tr><td><code>play_sound_at(name, x, y, z, volume)</code></td><td>Play a spatial sound at a 3D position</td></tr>
+<tr><td><code>play_sound_at(name, x, y, z, volume, pitch)</code></td><td>As above, with a pitch multiplier</td></tr>
 <tr><td><code>stop_sound(name)</code></td><td>Stop a playing sound</td></tr>
 </tbody>
 </table>
 </div>
-<p>Sound names match the audio files loaded from the <code>audio/</code> directory (without extension).</p>
+<p>Sound names match the audio files loaded from the <code>audio/</code> directory (without extension). A one-shot naming a file that is not there fails silently — it logs a warning and plays nothing.</p>
+<p>Varying <code>pitch</code> slightly per trigger (say 0.9–1.1) is the cheapest way to stop a
+repeated one-shot sounding like a repeated one-shot.</p>
+<p>Spatial one-shot tracks attenuate to silence at 25 m. An event further away
+than that must use non-spatial <code>play_sound</code> with a hand-scaled volume, or it
+will simply not be heard.</p>
 <h3 id="animation-api"><a class="header" href="#animation-api">Animation API</a></h3>
 <p>Animation functions write directly to the <code>animator</code> component on the target entity. The <code>AnimationSync</code> system picks up changes on the next frame:</p>
 <div class="table-wrapper">
@@ -3778,6 +4270,48 @@ enabled = true
 </tbody>
 </table>
 </div>
+<h3 id="ocean-api"><a class="header" href="#ocean-api">Ocean API</a></h3>
+<p>Available when the scene has an <a href="#ocean"><code>ocean</code></a> component. All coordinates
+are world-space; all queries are evaluated on the same clock the renderer used
+this frame, so what you sample is what is on screen.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ocean_height(x, z)</code></td><td><code>f64</code></td><td>Eulerian surface height in meters</td></tr>
+<tr><td><code>ocean_velocity_y(x, z)</code></td><td><code>f64</code></td><td>Vertical surface velocity in m/s (analytic ∂h/∂t)</td></tr>
+<tr><td><code>ocean_normal(x, z)</code></td><td><code>Map</code></td><td>Surface normal <code>#{x, y, z}</code></td></tr>
+</tbody>
+</table>
+</div>
+<pre><code class="language-rhai">// Float a hull on five probe points.
+let p = get_field(me, "transform", "position");
+let h = ocean_height(p.x, p.z);
+</code></pre>
+<p><code>ocean_velocity_y</code> is the impact signal: the <em>relative</em> approach speed between
+water and hull is what distinguishes a lap from a slam. Without a scene ocean
+these return 0 (and <code>#{0,1,0}</code>) rather than failing.</p>
+<p>A handful of probes per frame is cheap. Thousands are not.</p>
+<h3 id="input-and-cursor-api"><a class="header" href="#input-and-cursor-api">Input and Cursor API</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>any_input_just_pressed()</code></td><td><code>bool</code></td><td>True on the frame any key, mouse button, or gamepad button was pressed</td></tr>
+<tr><td><code>set_cursor_captured(captured)</code></td><td></td><td>Capture (hide + lock) or release the mouse cursor</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>any_input_just_pressed</code> reads <strong>raw</strong> presses and bypasses action maps
+entirely — it is for “press any key to continue”, where the whole point is that
+you do not care which key.</p>
+<p><code>set_cursor_captured(true)</code> is how a scene gets mouse-look without a
+character-controller player entity. The engine only captures automatically for
+scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
 <h3 id="event-api"><a class="header" href="#event-api">Event API</a></h3>
 <div class="table-wrapper">
 <table>
@@ -3916,10 +4450,23 @@ enabled = true
 <tr><td><code>set_vignette(intensity)</code></td><td>Set vignette intensity (0.0 = none, 1.0 = heavy)</td></tr>
 <tr><td><code>set_bloom_intensity(intensity)</code></td><td>Set bloom strength (0.0 = none)</td></tr>
 <tr><td><code>set_exposure(value)</code></td><td>Set exposure multiplier (1.0 = default)</td></tr>
+<tr><td><code>set_chromatic_aberration(amount)</code></td><td>Set chromatic aberration strength</td></tr>
+<tr><td><code>set_radial_blur(amount)</code></td><td>Set radial blur strength</td></tr>
+<tr><td><code>set_ssao_intensity(value)</code></td><td>Set SSAO intensity</td></tr>
+<tr><td><code>set_fog_density(value)</code></td><td>Set fog density</td></tr>
+<tr><td><code>set_fog_color(r, g, b)</code></td><td>Set fog color (linear 0–1)</td></tr>
+<tr><td><code>set_render_mode(mode, mix)</code></td><td>Stylized render mode (see below)</td></tr>
+<tr><td><code>set_render_mode_params(x, y, z, w)</code></td><td>Per-mode tuning parameters</td></tr>
 </tbody>
 </table>
 </div>
 <p>These overrides are applied each frame and combine with the scene’s <code>[post_process]</code> baseline settings. Useful for dynamic effects like speed vignetting, boost bloom, or exposure flashes.</p>
+<p><strong>All of these are sticky except <code>set_render_mode</code>.</strong> Set an override once and
+it persists until you change it. The render mode is the deliberate exception:
+it is cleared the frame your script stops calling it, so a crashed or
+hot-reloaded script cannot strand the world inside an effect. Call it every
+frame the effect is active. See
+<a href="#render-modes">Post-Processing: Render Modes</a>.</p>
 <h3 id="audio-filter-api"><a class="header" href="#audio-filter-api">Audio Filter API</a></h3>
 <div class="table-wrapper">
 <table>
@@ -6215,7 +6762,7 @@ cd android
 <pre><code class="language-bash"># Test your touch-enabled game on desktop
 flint play scenes/main.scene.toml --schemas schemas
 </code></pre>
-<h2 id="debugging"><a class="header" href="#debugging">Debugging</a></h2>
+<h2 id="debugging-1"><a class="header" href="#debugging-1">Debugging</a></h2>
 <h3 id="logcat"><a class="header" href="#logcat">Logcat</a></h3>
 <p>All <code>log::info!</code>, <code>log::warn!</code>, and <code>log::error!</code> calls from Rust appear in Android logcat with the tag <code>flint</code>:</p>
 <pre><code class="language-bash">adb logcat -s flint:*
@@ -6291,9 +6838,13 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (repeatable; later paths override earlier). Default: <code>schemas</code></td></tr>
 <tr><td><code>--fullscreen</code></td><td>Launch in fullscreen mode</td></tr>
 <tr><td><code>--input-config &lt;path&gt;</code></td><td>Input config overlay path (highest priority, overrides all other layers)</td></tr>
+<tr><td><code>--music-volume &lt;f32&gt;</code></td><td>Initial gain for the <code>music</code> mixer bus</td></tr>
+<tr><td><code>--sfx-volume &lt;f32&gt;</code></td><td>Initial gain for the <code>sfx</code> mixer bus</td></tr>
 </tbody>
 </table>
 </div>
+<p><code>--music-volume 0</code> is the quickest way to audition a scene’s sound design
+without its score. See <a href="#mixer-buses">Audio: Mixer Buses</a>.</p>
 <h3 id="player-controls-defaults"><a class="header" href="#player-controls-defaults">Player Controls (Defaults)</a></h3>
 <p>These are the built-in defaults. Games can override any binding via input config files (see <a href="#input-system">Physics and Runtime: Input System</a>).</p>
 <div class="table-wrapper">
@@ -6312,6 +6863,7 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><td>1 / 2</td><td>Select weapon slot</td></tr>
 <tr><td>Escape</td><td>Release cursor / Exit</td></tr>
 <tr><td>F1</td><td>Cycle debug rendering mode (PBR → Wireframe → Normals → Depth → UV → Unlit → Metal/Rough)</td></tr>
+<tr><td>F3</td><td>Toggle debug panels (see below)</td></tr>
 <tr><td>F4</td><td>Toggle shadows</td></tr>
 <tr><td>F5</td><td>Toggle bloom</td></tr>
 <tr><td>F6</td><td>Toggle post-processing pipeline</td></tr>
@@ -6320,6 +6872,34 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 </table>
 </div>
 <p>Gamepad controllers are also supported when connected. Bindings for gamepad buttons and axes can be configured in input config TOML files.</p>
+<h3 id="debug-panels-f3"><a class="header" href="#debug-panels-f3">Debug Panels (F3)</a></h3>
+<p><code>F3</code> opens live tuning panels for whichever systems the current scene actually
+uses. Each panel is created <strong>only when its driving component is present</strong>, so a
+scene with no ocean never sees an ocean panel and a scene with no panels at all
+logs a note instead. Panels are fold-open headers distributed across up to three
+size-balanced columns.</p>
+<p>Built-in panels:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Panel</th><th>Component</th><th>Controls</th></tr>
+</thead>
+<tbody>
+<tr><td>Ocean Debug</td><td><code>ocean</code></td><td>Wave spectrum, colors, foam, contact foam, cel band edges, clarity/turbidity, grid, CPU/GPU parity probe</td></tr>
+<tr><td>Day / Time</td><td><code>time_of_day</code></td><td>Clock readout, 0–24 h scrub slider, preset hours, natural-advance toggle, day counter, day length (with the effective ramped length), sun path tilt</td></tr>
+<tr><td>Camera</td><td><code>camera_tuning</code></td><td>Vertical FOV</td></tr>
+<tr><td>Grass Debug</td><td><code>grass</code></td><td>Density, height, wind, LOD distances</td></tr>
+</tbody>
+</table>
+</div>
+<p>Edits apply live through the world’s components. <strong>Commit to File</strong> writes the
+current values back into the scene TOML, so a tuning session ends as a diff
+rather than as notes. Values a game script owns each frame (a day counter, a
+published factor) are deliberately never committed.</p>
+<p>Games can add their own panels for their own components; unknown panels simply
+take a default size weight in the column layout.</p>
+<p><code>Escape</code> releases the mouse so panels can be clicked; clicking the world
+recaptures it.</p>
 <p>The <code>play</code> command requires the scene to have a <code>player</code> archetype entity with a <code>character_controller</code> component. Physics colliders on other entities define the walkable geometry.</p>
 <h3 id="game-project-pattern"><a class="header" href="#game-project-pattern">Game Project Pattern</a></h3>
 <p>Games that define their own schemas, scripts, and assets use multiple <code>--schemas</code> paths. Game projects typically live in their own repositories with the engine included as a git subtree at <code>engine/</code>. The engine schemas come first, then the game-specific schemas overlay on top:</p>
@@ -6373,10 +6953,21 @@ flint render scene.toml -o shot.png --distance 20 --pitch 30 --yaw 45 --target 0
 <tr><td><code>--fog-density &lt;f32&gt;</code></td><td><code>0.02</code></td><td>Fog density (0 = disabled)</td></tr>
 <tr><td><code>--fog-color &lt;r,g,b&gt;</code></td><td><code>0.7,0.75,0.82</code></td><td>Fog color</td></tr>
 <tr><td><code>--fog-height-falloff &lt;f32&gt;</code></td><td><code>0.1</code></td><td>Fog height falloff</td></tr>
+<tr><td><code>--render-mode &lt;n&gt;</code></td><td><code>0</code></td><td>Stylized render mode: 1 Matrix, 2 blood, 3 drunk, 4 Tron, 5 underwater</td></tr>
+<tr><td><code>--mode-mix &lt;f32&gt;</code></td><td><code>0.0</code></td><td>Render mode blend strength, 0–1</td></tr>
+<tr><td><code>--mode-params &lt;x,y,z,w&gt;</code></td><td><code>0,0,0,0</code></td><td>Per-mode parameters (see <a href="#render-modes">Render Modes</a>)</td></tr>
 <tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Schemas directory (repeatable)</td></tr>
 </tbody>
 </table>
 </div>
+<blockquote>
+<p><strong><code>flint render</code> runs no scripts.</strong> Anything your game drives from a script —
+a render mode, a time of day, a floating hull, an animated character — will
+not happen. The render-mode flags exist precisely so a stylized frame can be
+captured without one. For script-driven world state, bake a fixture scene
+with the values you want; for animation, note that skinned meshes render at
+<strong>bind pose</strong> headlessly.</p>
+</blockquote>
 <h2 id="the-edit-command"><a class="header" href="#the-edit-command">The <code>edit</code> Command</a></h2>
 <p>Unified interactive editor that auto-detects file type and opens the appropriate tool:</p>
 <pre><code class="language-bash">flint edit levels/demo.scene.toml              # Scene viewer (hot-reload)
@@ -7353,6 +7944,13 @@ default_style = "medieval_tavern"
 <li>Refraction for glass and water (screen-space distortion)</li>
 <li>Depth peeling or weighted-blended OIT for overlapping transparencies</li>
 </ul>
+<blockquote>
+<p>Partly delivered. The <a href="#ocean">ocean</a> pipeline already does a grab
+pass with screen-space refraction, per-channel absorption and turbidity, and
+<a href="#render-modes">render mode 5</a> handles being
+underwater. What remains here is the <em>general</em> case: sorted alpha blending
+and an <code>opacity</code> material field for glass, shields and smoke.</p>
+</blockquote>
 <h2 id="script-modules--shared-code"><a class="header" href="#script-modules--shared-code">Script Modules &amp; Shared Code</a></h2>
 <p><strong>Priority: High</strong></p>
 <p>As games grow beyond a handful of scripts, there’s no way to share utility functions. Every <code>.rhai</code> file is isolated — common code (damage formulas, inventory helpers, math utilities) gets copy-pasted across scripts. This is the biggest developer-productivity bottleneck for larger projects.</p>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["GRAVITY","MAX_WAVES"],"struct":["GerstnerWave","OceanParams","WaveSpectrum"]};

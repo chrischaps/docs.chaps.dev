@@ -1,5 +1,5 @@
 (function() {
-    var implementors = Object.fromEntries([["flint_core",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.93.1/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"struct\" href=\"flint_core/struct.EntityId.html\" title=\"struct flint_core::EntityId\">EntityId</a>"]]]]);
+    var implementors = Object.fromEntries([["flint_core",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.92.0/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"struct\" href=\"flint_core/struct.EntityId.html\" title=\"struct flint_core::EntityId\">EntityId</a>"]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {

@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
+        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-81699b98.js";
+            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-7d06c78c.js"></script>
+        <script src="../toc-ddc7ede1.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -415,6 +415,76 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2 --volumetric-density 
 <li><strong>Vignette</strong> — darkens screen edges for a cinematic look</li>
 </ol>
 <p>When post-processing is disabled (via <code>--no-postprocess</code> or F6), the shader handles tonemapping and gamma internally. This dual-path design ensures backward compatibility with scenes that don’t use post-processing.</p>
+<h2 id="render-modes"><a class="header" href="#render-modes">Render Modes</a></h2>
+<p>Render modes are whole-screen stylizations that branch <strong>after ACES tonemapping
+and before vignette</strong>. They are not debug views: they are a supported way to
+make the world visibly stop being itself for a while.</p>
+<p><img src="../images/render-mode-tron.png" alt="Tron render mode"></p>
+<p><em>Mode 4 over an ocean scene: depth-reconstructed world grid, Sobel edges on
+depth and luminance.</em></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Name</th><th>What it does</th></tr>
+</thead>
+<tbody>
+<tr><td>0</td><td>None</td><td>Normal output.</td></tr>
+<tr><td>1</td><td>Matrix</td><td>Procedural dot-matrix glyphs per 8×12 px cell. Brightness <em>and</em> density track scene luminance, with per-column rain heads.</td></tr>
+<tr><td>2</td><td>Blood</td><td>Palette remap. Ocean scenes recolor through the ocean shader too, so the water is genuinely a different sea rather than a red filter over a blue one.</td></tr>
+<tr><td>3</td><td>Drunk</td><td>Pre-sample UV sway warping the whole composite chain, plus a ghosting double-tap.</td></tr>
+<tr><td>4</td><td>Tron</td><td>Depth Sobel + luminance edges in cyan over a dimmed scene, with a world-space grid reconstructed from depth so it rides real geometry.</td></tr>
+<tr><td>5</td><td>Underwater</td><td>Masks per pixel against a <strong>waterline plane</strong>, not a patch mask. Banded murk absorption, a wobbled foam lip on the line, light shafts, Snell-window brightening.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Four uniforms carry the state: <code>render_mode</code>, <code>mode_mix</code> (0..1 blend),
+<code>mode_time</code>, and a <code>mode_params</code> vec4 whose meaning is per-mode.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th><code>mode_params</code></th></tr>
+</thead>
+<tbody>
+<tr><td>1–4</td><td><code>x</code> = bleed-mask scale, <code>y</code> = mask style (0 = fbm patches, 1 = radial iris), <code>z</code> = rate, <code>w</code> = spare</td></tr>
+<tr><td>5</td><td><code>x</code> = signed eye depth in meters (+ = submerged), <code>y</code> = sea energy 0..1, <code>z</code> = daylight 0..1, <code>w</code> = bioluminescence 0..1</td></tr>
+</tbody>
+</table>
+</div>
+<p>Modes 1–4 fade in through an fbm <strong>bleed mask</strong> whose threshold sweeps across
+the noise span, so patch coverage grows with <code>mode_mix</code> and pins to full
+coverage at 1. Mode 5 ignores the mask entirely — being underwater is a fact
+about where your eye is, not a patch that spreads.</p>
+<h3 id="from-scripts"><a class="header" href="#from-scripts">From scripts</a></h3>
+<pre><code class="language-rhai">set_render_mode(4, 0.85);                  // mode, mix
+set_render_mode_params(3.0, 0.0, 6.0, 0.0);
+</code></pre>
+<p><strong><code>set_render_mode</code> is transient, and it is the only post-process override that
+is.</strong> Every other override — exposure, bloom, fog, chromatic aberration — is
+sticky: set it once and it persists. The render mode is zeroed the frame your
+script <em>stops calling it</em>.</p>
+<p>That asymmetry is deliberate. A sticky render mode plus a script that crashed,
+hot-reloaded, or was disabled mid-effect would leave the world permanently
+inside a hallucination with no way out. Instead, a dead script means a healed
+world. The cost is that you must call it every frame the effect is active:</p>
+<pre><code class="language-rhai">fn on_update() {
+    let m = current_mix();          // your own envelope
+    if m &gt; 0.001 {
+        set_render_mode(active_mode, m);
+    }
+    // stop calling -&gt; the engine restores the world by itself
+}
+</code></pre>
+<p>Sticky effects a mode borrows (FOV, radial blur, chromatic aberration) are
+<em>not</em> covered by this, so zero them yourself when your effect ends.</p>
+<h3 id="headless"><a class="header" href="#headless">Headless</a></h3>
+<pre><code class="language-bash">flint render scene.toml --schemas schemas \
+  --render-mode 4 --mode-mix 1.0 --mode-params 3,0,6,0
+</code></pre>
+<p>Since <code>flint render</code> runs no scripts, these flags <strong>are</strong> the fixture — there
+is no script to drive the mode for you.</p>
+<p>One practical note: modes 1 and 4 key off scene luminance, so they read best
+in daylight even if your game schedules them at night. A night scene renders
+the Matrix mode nearly black.</p>
 <h2 id="design-decisions"><a class="header" href="#design-decisions">Design Decisions</a></h2>
 <ul>
 <li><strong>Rgba16Float</strong> for the HDR buffer provides sufficient precision for bloom extraction without the memory cost of Rgba32Float</li>
@@ -435,7 +505,7 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2 --volumetric-density 
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../concepts/rendering.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../concepts/ocean.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -449,7 +519,7 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2 --volumetric-density 
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../concepts/rendering.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../concepts/ocean.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

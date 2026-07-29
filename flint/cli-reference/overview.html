@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
+        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-81699b98.js";
+            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-7d06c78c.js"></script>
+        <script src="../toc-ddc7ede1.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -228,9 +228,13 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><td><code>--schemas &lt;path&gt;</code></td><td>Path to schemas directory (repeatable; later paths override earlier). Default: <code>schemas</code></td></tr>
 <tr><td><code>--fullscreen</code></td><td>Launch in fullscreen mode</td></tr>
 <tr><td><code>--input-config &lt;path&gt;</code></td><td>Input config overlay path (highest priority, overrides all other layers)</td></tr>
+<tr><td><code>--music-volume &lt;f32&gt;</code></td><td>Initial gain for the <code>music</code> mixer bus</td></tr>
+<tr><td><code>--sfx-volume &lt;f32&gt;</code></td><td>Initial gain for the <code>sfx</code> mixer bus</td></tr>
 </tbody>
 </table>
 </div>
+<p><code>--music-volume 0</code> is the quickest way to audition a scene’s sound design
+without its score. See <a href="../concepts/audio.html#mixer-buses">Audio: Mixer Buses</a>.</p>
 <h3 id="player-controls-defaults"><a class="header" href="#player-controls-defaults">Player Controls (Defaults)</a></h3>
 <p>These are the built-in defaults. Games can override any binding via input config files (see <a href="../concepts/physics-and-runtime.html#input-system">Physics and Runtime: Input System</a>).</p>
 <div class="table-wrapper">
@@ -249,6 +253,7 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><td>1 / 2</td><td>Select weapon slot</td></tr>
 <tr><td>Escape</td><td>Release cursor / Exit</td></tr>
 <tr><td>F1</td><td>Cycle debug rendering mode (PBR → Wireframe → Normals → Depth → UV → Unlit → Metal/Rough)</td></tr>
+<tr><td>F3</td><td>Toggle debug panels (see below)</td></tr>
 <tr><td>F4</td><td>Toggle shadows</td></tr>
 <tr><td>F5</td><td>Toggle bloom</td></tr>
 <tr><td>F6</td><td>Toggle post-processing pipeline</td></tr>
@@ -257,6 +262,34 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 </table>
 </div>
 <p>Gamepad controllers are also supported when connected. Bindings for gamepad buttons and axes can be configured in input config TOML files.</p>
+<h3 id="debug-panels-f3"><a class="header" href="#debug-panels-f3">Debug Panels (F3)</a></h3>
+<p><code>F3</code> opens live tuning panels for whichever systems the current scene actually
+uses. Each panel is created <strong>only when its driving component is present</strong>, so a
+scene with no ocean never sees an ocean panel and a scene with no panels at all
+logs a note instead. Panels are fold-open headers distributed across up to three
+size-balanced columns.</p>
+<p>Built-in panels:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Panel</th><th>Component</th><th>Controls</th></tr>
+</thead>
+<tbody>
+<tr><td>Ocean Debug</td><td><code>ocean</code></td><td>Wave spectrum, colors, foam, contact foam, cel band edges, clarity/turbidity, grid, CPU/GPU parity probe</td></tr>
+<tr><td>Day / Time</td><td><code>time_of_day</code></td><td>Clock readout, 0–24 h scrub slider, preset hours, natural-advance toggle, day counter, day length (with the effective ramped length), sun path tilt</td></tr>
+<tr><td>Camera</td><td><code>camera_tuning</code></td><td>Vertical FOV</td></tr>
+<tr><td>Grass Debug</td><td><code>grass</code></td><td>Density, height, wind, LOD distances</td></tr>
+</tbody>
+</table>
+</div>
+<p>Edits apply live through the world’s components. <strong>Commit to File</strong> writes the
+current values back into the scene TOML, so a tuning session ends as a diff
+rather than as notes. Values a game script owns each frame (a day counter, a
+published factor) are deliberately never committed.</p>
+<p>Games can add their own panels for their own components; unknown panels simply
+take a default size weight in the column layout.</p>
+<p><code>Escape</code> releases the mouse so panels can be clicked; clicking the world
+recaptures it.</p>
 <p>The <code>play</code> command requires the scene to have a <code>player</code> archetype entity with a <code>character_controller</code> component. Physics colliders on other entities define the walkable geometry.</p>
 <h3 id="game-project-pattern"><a class="header" href="#game-project-pattern">Game Project Pattern</a></h3>
 <p>Games that define their own schemas, scripts, and assets use multiple <code>--schemas</code> paths. Game projects typically live in their own repositories with the engine included as a git subtree at <code>engine/</code>. The engine schemas come first, then the game-specific schemas overlay on top:</p>
@@ -310,10 +343,21 @@ flint render scene.toml -o shot.png --distance 20 --pitch 30 --yaw 45 --target 0
 <tr><td><code>--fog-density &lt;f32&gt;</code></td><td><code>0.02</code></td><td>Fog density (0 = disabled)</td></tr>
 <tr><td><code>--fog-color &lt;r,g,b&gt;</code></td><td><code>0.7,0.75,0.82</code></td><td>Fog color</td></tr>
 <tr><td><code>--fog-height-falloff &lt;f32&gt;</code></td><td><code>0.1</code></td><td>Fog height falloff</td></tr>
+<tr><td><code>--render-mode &lt;n&gt;</code></td><td><code>0</code></td><td>Stylized render mode: 1 Matrix, 2 blood, 3 drunk, 4 Tron, 5 underwater</td></tr>
+<tr><td><code>--mode-mix &lt;f32&gt;</code></td><td><code>0.0</code></td><td>Render mode blend strength, 0–1</td></tr>
+<tr><td><code>--mode-params &lt;x,y,z,w&gt;</code></td><td><code>0,0,0,0</code></td><td>Per-mode parameters (see <a href="../concepts/post-processing.html#render-modes">Render Modes</a>)</td></tr>
 <tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Schemas directory (repeatable)</td></tr>
 </tbody>
 </table>
 </div>
+<blockquote>
+<p><strong><code>flint render</code> runs no scripts.</strong> Anything your game drives from a script —
+a render mode, a time of day, a floating hull, an animated character — will
+not happen. The render-mode flags exist precisely so a stylized frame can be
+captured without one. For script-driven world state, bake a fixture scene
+with the values you want; for animation, note that skinned meshes render at
+<strong>bind pose</strong> headlessly.</p>
+</blockquote>
 <h2 id="the-edit-command"><a class="header" href="#the-edit-command">The <code>edit</code> Command</a></h2>
 <p>Unified interactive editor that auto-detects file type and opens the appropriate tool:</p>
 <pre><code class="language-bash">flint edit levels/demo.scene.toml              # Scene viewer (hot-reload)

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["amplitude_to_db"],"struct":["AudioEngine"]};
+window.SIDEBAR_ITEMS = {"enum":["Bus"],"fn":["amplitude_to_db"],"struct":["AudioEngine"]};

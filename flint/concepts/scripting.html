@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
+        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-81699b98.js";
+            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-7d06c78c.js"></script>
+        <script src="../toc-ddc7ede1.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -305,11 +305,17 @@ enabled = true
 <tr><td><code>play_sound(name)</code></td><td>Play a non-spatial sound at default volume</td></tr>
 <tr><td><code>play_sound(name, volume)</code></td><td>Play a non-spatial sound at the given volume (0.0–1.0)</td></tr>
 <tr><td><code>play_sound_at(name, x, y, z, volume)</code></td><td>Play a spatial sound at a 3D position</td></tr>
+<tr><td><code>play_sound_at(name, x, y, z, volume, pitch)</code></td><td>As above, with a pitch multiplier</td></tr>
 <tr><td><code>stop_sound(name)</code></td><td>Stop a playing sound</td></tr>
 </tbody>
 </table>
 </div>
-<p>Sound names match the audio files loaded from the <code>audio/</code> directory (without extension).</p>
+<p>Sound names match the audio files loaded from the <code>audio/</code> directory (without extension). A one-shot naming a file that is not there fails silently — it logs a warning and plays nothing.</p>
+<p>Varying <code>pitch</code> slightly per trigger (say 0.9–1.1) is the cheapest way to stop a
+repeated one-shot sounding like a repeated one-shot.</p>
+<p>Spatial one-shot tracks attenuate to silence at 25 m. An event further away
+than that must use non-spatial <code>play_sound</code> with a hand-scaled volume, or it
+will simply not be heard.</p>
 <h3 id="animation-api"><a class="header" href="#animation-api">Animation API</a></h3>
 <p>Animation functions write directly to the <code>animator</code> component on the target entity. The <code>AnimationSync</code> system picks up changes on the next frame:</p>
 <div class="table-wrapper">
@@ -364,6 +370,48 @@ enabled = true
 </tbody>
 </table>
 </div>
+<h3 id="ocean-api"><a class="header" href="#ocean-api">Ocean API</a></h3>
+<p>Available when the scene has an <a href="ocean.html"><code>ocean</code></a> component. All coordinates
+are world-space; all queries are evaluated on the same clock the renderer used
+this frame, so what you sample is what is on screen.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ocean_height(x, z)</code></td><td><code>f64</code></td><td>Eulerian surface height in meters</td></tr>
+<tr><td><code>ocean_velocity_y(x, z)</code></td><td><code>f64</code></td><td>Vertical surface velocity in m/s (analytic ∂h/∂t)</td></tr>
+<tr><td><code>ocean_normal(x, z)</code></td><td><code>Map</code></td><td>Surface normal <code>#{x, y, z}</code></td></tr>
+</tbody>
+</table>
+</div>
+<pre><code class="language-rhai">// Float a hull on five probe points.
+let p = get_field(me, "transform", "position");
+let h = ocean_height(p.x, p.z);
+</code></pre>
+<p><code>ocean_velocity_y</code> is the impact signal: the <em>relative</em> approach speed between
+water and hull is what distinguishes a lap from a slam. Without a scene ocean
+these return 0 (and <code>#{0,1,0}</code>) rather than failing.</p>
+<p>A handful of probes per frame is cheap. Thousands are not.</p>
+<h3 id="input-and-cursor-api"><a class="header" href="#input-and-cursor-api">Input and Cursor API</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>any_input_just_pressed()</code></td><td><code>bool</code></td><td>True on the frame any key, mouse button, or gamepad button was pressed</td></tr>
+<tr><td><code>set_cursor_captured(captured)</code></td><td></td><td>Capture (hide + lock) or release the mouse cursor</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>any_input_just_pressed</code> reads <strong>raw</strong> presses and bypasses action maps
+entirely — it is for “press any key to continue”, where the whole point is that
+you do not care which key.</p>
+<p><code>set_cursor_captured(true)</code> is how a scene gets mouse-look without a
+character-controller player entity. The engine only captures automatically for
+scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
 <h3 id="event-api"><a class="header" href="#event-api">Event API</a></h3>
 <div class="table-wrapper">
 <table>
@@ -502,10 +550,23 @@ enabled = true
 <tr><td><code>set_vignette(intensity)</code></td><td>Set vignette intensity (0.0 = none, 1.0 = heavy)</td></tr>
 <tr><td><code>set_bloom_intensity(intensity)</code></td><td>Set bloom strength (0.0 = none)</td></tr>
 <tr><td><code>set_exposure(value)</code></td><td>Set exposure multiplier (1.0 = default)</td></tr>
+<tr><td><code>set_chromatic_aberration(amount)</code></td><td>Set chromatic aberration strength</td></tr>
+<tr><td><code>set_radial_blur(amount)</code></td><td>Set radial blur strength</td></tr>
+<tr><td><code>set_ssao_intensity(value)</code></td><td>Set SSAO intensity</td></tr>
+<tr><td><code>set_fog_density(value)</code></td><td>Set fog density</td></tr>
+<tr><td><code>set_fog_color(r, g, b)</code></td><td>Set fog color (linear 0–1)</td></tr>
+<tr><td><code>set_render_mode(mode, mix)</code></td><td>Stylized render mode (see below)</td></tr>
+<tr><td><code>set_render_mode_params(x, y, z, w)</code></td><td>Per-mode tuning parameters</td></tr>
 </tbody>
 </table>
 </div>
 <p>These overrides are applied each frame and combine with the scene’s <code>[post_process]</code> baseline settings. Useful for dynamic effects like speed vignetting, boost bloom, or exposure flashes.</p>
+<p><strong>All of these are sticky except <code>set_render_mode</code>.</strong> Set an override once and
+it persists until you change it. The render mode is the deliberate exception:
+it is cleared the frame your script stops calling it, so a crashed or
+hot-reloaded script cannot strand the world inside an effect. Call it every
+frame the effect is active. See
+<a href="post-processing.html#render-modes">Post-Processing: Render Modes</a>.</p>
 <h3 id="audio-filter-api"><a class="header" href="#audio-filter-api">Audio Filter API</a></h3>
 <div class="table-wrapper">
 <table>

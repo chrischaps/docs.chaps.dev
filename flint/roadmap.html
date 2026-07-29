@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="theme/css/custom-8d5049aa.css">
+        <link rel="stylesheet" href="theme/css/custom-a9d3dcc9.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-81699b98.js";
+            window.path_to_searchindex_js = "searchindex-a4f50de0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7d06c78c.js"></script>
+        <script src="toc-ddc7ede1.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -225,6 +225,13 @@
 <li>Refraction for glass and water (screen-space distortion)</li>
 <li>Depth peeling or weighted-blended OIT for overlapping transparencies</li>
 </ul>
+<blockquote>
+<p>Partly delivered. The <a href="concepts/ocean.html">ocean</a> pipeline already does a grab
+pass with screen-space refraction, per-channel absorption and turbidity, and
+<a href="concepts/post-processing.html#render-modes">render mode 5</a> handles being
+underwater. What remains here is the <em>general</em> case: sorted alpha blending
+and an <code>opacity</code> material field for glass, shields and smoke.</p>
+</blockquote>
 <h2 id="script-modules--shared-code"><a class="header" href="#script-modules--shared-code">Script Modules &amp; Shared Code</a></h2>
 <p><strong>Priority: High</strong></p>
 <p>As games grow beyond a handful of scripts, there’s no way to share utility functions. Every <code>.rhai</code> file is isolated — common code (damage formulas, inventory helpers, math utilities) gets copy-pasted across scripts. This is the biggest developer-productivity bottleneck for larger projects.</p>

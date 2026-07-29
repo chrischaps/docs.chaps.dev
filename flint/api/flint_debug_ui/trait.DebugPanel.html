@@ -1,0 +1,96 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Common interface for debug overlay panels. The player app holds `Vec&#60;Box&#60;dyn DebugPanel&#62;&#62;` and renders them generically."><title>DebugPanel in flint_debug_ui - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="flint_debug_ui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">DebugPanel</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../flint_debug_ui/index.html">flint_<wbr>debug_<wbr>ui</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Debug<wbr>Panel</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.as_any" title="as_any">as_any</a></li><li><a href="#tymethod.as_any_mut" title="as_any_mut">as_any_mut</a></li><li><a href="#tymethod.clear_dirty" title="clear_dirty">clear_dirty</a></li><li><a href="#tymethod.is_dirty" title="is_dirty">is_dirty</a></li><li><a href="#tymethod.is_open" title="is_open">is_open</a></li><li><a href="#tymethod.name" title="name">name</a></li><li><a href="#tymethod.toggle" title="toggle">toggle</a></li><li><a href="#tymethod.ui" title="ui">ui</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate flint_<wbr>debug_<wbr>ui</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">flint_debug_ui</a></div><h1>Trait <span class="trait">Debug<wbr>Panel</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/flint_debug_ui/lib.rs.html#21-43">Source</a> </span></div><pre class="rust item-decl"><code>pub trait DebugPanel {
+    // Required methods
+    fn <a href="#tymethod.name" class="fn">name</a>(&amp;self) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.str.html">str</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.ui" class="fn">ui</a>(&amp;mut self, ui: &amp;mut Ui);
+<span class="item-spacer"></span>    fn <a href="#tymethod.is_open" class="fn">is_open</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.bool.html">bool</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.toggle" class="fn">toggle</a>(&amp;mut self);
+<span class="item-spacer"></span>    fn <a href="#tymethod.is_dirty" class="fn">is_dirty</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.bool.html">bool</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.clear_dirty" class="fn">clear_dirty</a>(&amp;mut self);
+<span class="item-spacer"></span>    fn <a href="#tymethod.as_any" class="fn">as_any</a>(&amp;self) -&gt; &amp;dyn <a class="trait" href="https://doc.rust-lang.org/1.92.0/core/any/trait.Any.html" title="trait core::any::Any">Any</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.as_any_mut" class="fn">as_any_mut</a>(&amp;mut self) -&gt; &amp;mut dyn <a class="trait" href="https://doc.rust-lang.org/1.92.0/core/any/trait.Any.html" title="trait core::any::Any">Any</a>;
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Common interface for debug overlay panels.
+The player app holds <code>Vec&lt;Box&lt;dyn DebugPanel&gt;&gt;</code> and renders them generically.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.name" class="method"><a class="src rightside" href="../src/flint_debug_ui/lib.rs.html#23">Source</a><h4 class="code-header">fn <a href="#tymethod.name" class="fn">name</a>(&amp;self) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.str.html">str</a></h4></section></summary><div class="docblock"><p>Panel identifier used as egui ID and display title.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.ui" class="method"><a class="src rightside" href="../src/flint_debug_ui/lib.rs.html#26">Source</a><h4 class="code-header">fn <a href="#tymethod.ui" class="fn">ui</a>(&amp;mut self, ui: &amp;mut Ui)</h4></section></summary><div class="docblock"><p>Render the panel contents into the provided egui Ui.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.is_open" class="method"><a class="src rightside" href="../src/flint_debug_ui/lib.rs.html#29">Source</a><h4 class="code-header">fn <a href="#tymethod.is_open" class="fn">is_open</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Whether the panel is currently visible.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.toggle" class="method"><a class="src rightside" href="../src/flint_debug_ui/lib.rs.html#32">Source</a><h4 class="code-header">fn <a href="#tymethod.toggle" class="fn">toggle</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>Toggle visibility.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.is_dirty" class="method"><a class="src rightside" href="../src/flint_debug_ui/lib.rs.html#35">Source</a><h4 class="code-header">fn <a href="#tymethod.is_dirty" class="fn">is_dirty</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns true if the panel has unapplied changes.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.clear_dirty" class="method"><a class="src rightside" href="../src/flint_debug_ui/lib.rs.html#38">Source</a><h4 class="code-header">fn <a href="#tymethod.clear_dirty" class="fn">clear_dirty</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>Clear the dirty flag after changes have been applied by the host.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.as_any" class="method"><a class="src rightside" href="../src/flint_debug_ui/lib.rs.html#41">Source</a><h4 class="code-header">fn <a href="#tymethod.as_any" class="fn">as_any</a>(&amp;self) -&gt; &amp;dyn <a class="trait" href="https://doc.rust-lang.org/1.92.0/core/any/trait.Any.html" title="trait core::any::Any">Any</a></h4></section></summary><div class="docblock"><p>Downcast support for accessing concrete panel types.</p>
+</div></details><section id="tymethod.as_any_mut" class="method"><a class="src rightside" href="../src/flint_debug_ui/lib.rs.html#42">Source</a><h4 class="code-header">fn <a href="#tymethod.as_any_mut" class="fn">as_any_mut</a>(&amp;mut self) -&gt; &amp;mut dyn <a class="trait" href="https://doc.rust-lang.org/1.92.0/core/any/trait.Any.html" title="trait core::any::Any">Any</a></h4></section></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-DebugPanel-for-CameraDebugPanel" class="impl"><a class="src rightside" href="../src/flint_debug_ui/camera_panel.rs.html#87-139">Source</a><a href="#impl-DebugPanel-for-CameraDebugPanel" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.DebugPanel.html" title="trait flint_debug_ui::DebugPanel">DebugPanel</a> for <a class="struct" href="struct.CameraDebugPanel.html" title="struct flint_debug_ui::CameraDebugPanel">CameraDebugPanel</a></h3></section><section id="impl-DebugPanel-for-DeadCalmDebugPanel" class="impl"><a class="src rightside" href="../src/flint_debug_ui/dead_calm_panel.rs.html#71-117">Source</a><a href="#impl-DebugPanel-for-DeadCalmDebugPanel" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.DebugPanel.html" title="trait flint_debug_ui::DebugPanel">DebugPanel</a> for <a class="struct" href="struct.DeadCalmDebugPanel.html" title="struct flint_debug_ui::DeadCalmDebugPanel">DeadCalmDebugPanel</a></h3></section><section id="impl-DebugPanel-for-GrassDebugPanel" class="impl"><a class="src rightside" href="../src/flint_debug_ui/grass_panel.rs.html#192-323">Source</a><a href="#impl-DebugPanel-for-GrassDebugPanel" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.DebugPanel.html" title="trait flint_debug_ui::DebugPanel">DebugPanel</a> for <a class="struct" href="struct.GrassDebugPanel.html" title="struct flint_debug_ui::GrassDebugPanel">GrassDebugPanel</a></h3></section><section id="impl-DebugPanel-for-OceanDebugPanel" class="impl"><a class="src rightside" href="../src/flint_debug_ui/ocean_panel.rs.html#261-565">Source</a><a href="#impl-DebugPanel-for-OceanDebugPanel" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.DebugPanel.html" title="trait flint_debug_ui::DebugPanel">DebugPanel</a> for <a class="struct" href="struct.OceanDebugPanel.html" title="struct flint_debug_ui::OceanDebugPanel">OceanDebugPanel</a></h3></section><section id="impl-DebugPanel-for-RealityDebugPanel" class="impl"><a class="src rightside" href="../src/flint_debug_ui/reality_panel.rs.html#164-350">Source</a><a href="#impl-DebugPanel-for-RealityDebugPanel" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.DebugPanel.html" title="trait flint_debug_ui::DebugPanel">DebugPanel</a> for <a class="struct" href="struct.RealityDebugPanel.html" title="struct flint_debug_ui::RealityDebugPanel">RealityDebugPanel</a></h3></section><section id="impl-DebugPanel-for-TimeOfDayDebugPanel" class="impl"><a class="src rightside" href="../src/flint_debug_ui/tod_panel.rs.html#171-312">Source</a><a href="#impl-DebugPanel-for-TimeOfDayDebugPanel" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.DebugPanel.html" title="trait flint_debug_ui::DebugPanel">DebugPanel</a> for <a class="struct" href="struct.TimeOfDayDebugPanel.html" title="struct flint_debug_ui::TimeOfDayDebugPanel">TimeOfDayDebugPanel</a></h3></section><section id="impl-DebugPanel-for-VisitorDebugPanel" class="impl"><a class="src rightside" href="../src/flint_debug_ui/visitor_panel.rs.html#60-95">Source</a><a href="#impl-DebugPanel-for-VisitorDebugPanel" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.DebugPanel.html" title="trait flint_debug_ui::DebugPanel">DebugPanel</a> for <a class="struct" href="struct.VisitorDebugPanel.html" title="struct flint_debug_ui::VisitorDebugPanel">VisitorDebugPanel</a></h3></section><section id="impl-DebugPanel-for-WeatherDebugPanel" class="impl"><a class="src rightside" href="../src/flint_debug_ui/weather_panel.rs.html#163-325">Source</a><a href="#impl-DebugPanel-for-WeatherDebugPanel" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.DebugPanel.html" title="trait flint_debug_ui::DebugPanel">DebugPanel</a> for <a class="struct" href="struct.WeatherDebugPanel.html" title="struct flint_debug_ui::WeatherDebugPanel">WeatherDebugPanel</a></h3></section></div><script src="../trait.impl/flint_debug_ui/trait.DebugPanel.js" async></script></section></div></main></body></html>

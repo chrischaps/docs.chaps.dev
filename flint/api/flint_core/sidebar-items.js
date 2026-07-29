@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["FlintError"],"fn":["mat4_mul"],"mod":["callbacks","components","events","spline","toml_util"],"struct":["Color","ContentHash","EntityId","Transform","Vec3"],"type":["Result"]};
+window.SIDEBAR_ITEMS = {"enum":["FlintError"],"fn":["mat4_mul"],"mod":["callbacks","components","events","ocean","spline","toml_util"],"struct":["Color","ContentHash","EntityId","Transform","Vec3"],"type":["Result"]};

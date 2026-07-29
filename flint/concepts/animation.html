@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
+        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-81699b98.js";
+            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-7d06c78c.js"></script>
+        <script src="../toc-ddc7ede1.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -305,6 +305,51 @@ blend_target = "walk"      # Crossfade into this clip
 blend_duration = 0.3       # Over 0.3 seconds
 </code></pre>
 <p>Blending uses slerp for rotation quaternions and lerp for translation/scale, producing smooth pose interpolation.</p>
+<p><strong>The engine clears <code>blend_target</code> when the crossfade completes.</strong> It is a
+request, not a state — once the fade lands, the field is retired and the clip
+you faded into becomes the plain <code>clip</code>. Scripts must not treat a non-empty
+<code>blend_target</code> as “currently blending to X” beyond the fade, and must not
+re-assert it every frame: a target that never retires re-arms its own crossfade
+forever, and the clip plays only its first <code>blend_duration</code> seconds on loop.</p>
+<p>Calling <code>blend_to</code> with the clip that is <strong>already playing</strong> is a deliberate
+restart, not a no-op. That is what lets a held key chain discrete steps —
+each press re-triggers the same clip from the top.</p>
+<blockquote>
+<p><code>flint edit &lt;model.glb&gt;</code> plays clips directly and never goes through the
+blend path, so a clip that previews correctly can still be broken in play.
+Verify crossfades in <code>flint play</code>.</p>
+</blockquote>
+<h3 id="additive-layers"><a class="header" href="#additive-layers">Additive Layers</a></h3>
+<p>An additive layer runs a second clip on its own clock and composes it <em>onto</em>
+the base pose, as a delta from rest, on keyed joints only:</p>
+<pre><code class="language-toml">[entities.character.animator]
+clip = "idle"
+layer_clip = "breathe"     # loops independently
+layer_weight = 1.0         # live dial: 0 = off
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>layer_clip</code></td><td>string</td><td>“”</td><td>Additive layer clip</td></tr>
+<tr><td><code>layer_weight</code></td><td>f32</td><td>1.0</td><td>Layer strength (0 = off)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Because the layer only touches joints it actually keys, a breathing or
+weight-shift layer authored on the spine leaves the legs entirely to the base
+clip. And because it is composed after blending, <strong>the layer survives base
+crossfades</strong> — the character keeps breathing through the transition from idle
+to walk rather than holding its breath for 0.3 seconds.</p>
+<p><code>layer_weight</code> is a live dial, so fading a layer in and out is a single field
+write.</p>
+<h3 id="rest-poses"><a class="header" href="#rest-poses">Rest Poses</a></h3>
+<p>Pose buffers are seeded from the glTF <strong>bind-local TRS</strong>, not from identity.
+This matters for sparse clips: a clip that keys only an arm would otherwise
+collapse every un-keyed limb onto its parent, and your character would fold up
+the moment it played.</p>
 <h3 id="skeleton-schema"><a class="header" href="#skeleton-schema">Skeleton Schema</a></h3>
 <p>The <code>skeleton</code> component references a glTF skin:</p>
 <pre><code class="language-toml">[entities.character.skeleton]
@@ -324,8 +369,10 @@ skin = "Armature"           # Name of the glTF skin
 <tr><td><code>autoplay</code></td><td>bool</td><td>false</td><td>Start playing on scene load</td></tr>
 <tr><td><code>loop</code></td><td>bool</td><td>true</td><td>Loop when the clip ends</td></tr>
 <tr><td><code>speed</code></td><td>f32</td><td>1.0</td><td>Playback speed (-10.0 to 10.0)</td></tr>
-<tr><td><code>blend_target</code></td><td>string</td><td>“”</td><td>Clip to crossfade into</td></tr>
+<tr><td><code>blend_target</code></td><td>string</td><td>“”</td><td>Clip to crossfade into (cleared by the engine when the fade completes)</td></tr>
 <tr><td><code>blend_duration</code></td><td>f32</td><td>0.3</td><td>Crossfade duration in seconds</td></tr>
+<tr><td><code>layer_clip</code></td><td>string</td><td>“”</td><td>Additive layer clip</td></tr>
+<tr><td><code>layer_weight</code></td><td>f32</td><td>1.0</td><td>Additive layer strength (0 = off)</td></tr>
 </tbody>
 </table>
 </div>

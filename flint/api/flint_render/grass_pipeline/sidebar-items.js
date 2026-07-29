@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["BLADE_INDEX_COUNT","MAX_GRASS_ENTITIES"],"fn":["generate_blade_mesh"],"struct":["GrassComputeUniforms","GrassEntityPosition","GrassInstanceGpu","GrassPipeline","GrassRenderUniforms","GrassVertex"]};

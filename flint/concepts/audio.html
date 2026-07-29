@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
+        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-81699b98.js";
+            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-7d06c78c.js"></script>
+        <script src="../toc-ddc7ede1.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -190,6 +190,30 @@
 <p>The listener position and orientation are updated each frame to match the first-person camera, so sounds pan and attenuate as you move through the scene.</p>
 <h2 id="ambient-loops"><a class="header" href="#ambient-loops">Ambient Loops</a></h2>
 <p>Non-spatial sounds play on the main audio track at constant volume regardless of listener position. Set <code>spatial = false</code> on an <code>audio_source</code> to use this mode — useful for background music, ambient atmosphere, and UI sounds.</p>
+<h2 id="mixer-buses"><a class="header" href="#mixer-buses">Mixer Buses</a></h2>
+<p>Every sound routes through one of two buses — <code>music</code> and <code>sfx</code> — both children
+of Kira’s main track:</p>
+<pre><code>main  ──┬── music     (audio_source.bus = "music")
+        └── sfx       (everything else, including all one-shots)
+</code></pre>
+<p>Opt a source into the music bus in the scene:</p>
+<pre><code class="language-toml">[entities.score.audio_source]
+file = "audio/theme_night.ogg"
+bus = "music"
+loop = true
+autoplay = true
+</code></pre>
+<p>Initial gains come from the CLI:</p>
+<pre><code class="language-bash">flint play scene.toml --music-volume 0.8 --sfx-volume 1.0
+flint play scene.toml --music-volume 0     # mute the score, keep the world
+</code></pre>
+<p><strong>Bus gain multiplies underneath per-sound volume.</strong> A script crossfading
+between two music beds keeps working at any bus gain, and a player who has
+turned the music down does not have their fades overridden.</p>
+<p>The master low-pass applies to both buses, so <code>set_audio_lowpass</code> muffles the
+entire mix — score included — which is what you want when the effect is
+“something is between you and the world” rather than “the sfx got quieter”.</p>
+<p>One-shots (<code>play_sound</code>, <code>play_sound_at</code>) are always sfx.</p>
 <h2 id="audio-schemas"><a class="header" href="#audio-schemas">Audio Schemas</a></h2>
 <p>Three component schemas define audio behavior:</p>
 <p><strong>audio_source</strong> (<code>audio_source.toml</code>) — a sound attached to an entity:</p>
@@ -207,9 +231,15 @@
 <tr><td><code>min_distance</code></td><td>f32</td><td>1.0</td><td>Distance at full volume</td></tr>
 <tr><td><code>max_distance</code></td><td>f32</td><td>25.0</td><td>Distance at silence</td></tr>
 <tr><td><code>autoplay</code></td><td>bool</td><td>true</td><td>Start playing on scene load</td></tr>
+<tr><td><code>bus</code></td><td>string</td><td><code>"sfx"</code></td><td>Mixer bus: <code>"sfx"</code> or <code>"music"</code></td></tr>
 </tbody>
 </table>
 </div>
+<blockquote>
+<p><strong>Looping component sources must keep <code>autoplay = true</code>.</strong> Components have no
+play/stop API — scripts can only fade their volume. If you need a sound that
+starts on cue, use a one-shot instead.</p>
+</blockquote>
 <p><strong>audio_listener</strong> (<code>audio_listener.toml</code>) — marks which entity receives audio:</p>
 <div class="table-wrapper">
 <table>
@@ -250,7 +280,7 @@ set_field(engine_sound, "audio_source", "volume", 0.3 + rpm_ratio * 0.7);
 <h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
 <p>The audio system has three main components:</p>
 <ul>
-<li><strong>AudioEngine</strong> — wraps Kira’s <code>AudioManager</code>, handles sound file loading, listener positioning, and spatial track creation. Sounds route through spatial tracks for 3D positioning or the main track for ambient playback.</li>
+<li><strong>AudioEngine</strong> — wraps Kira’s <code>AudioManager</code>, handles sound file loading, listener positioning, and spatial track creation. Sounds route through spatial tracks for 3D positioning, or through a mixer bus for non-positional playback.</li>
 <li><strong>AudioSync</strong> — bridges TOML <code>audio_source</code> components to Kira spatial tracks. Discovers new audio entities each frame and updates spatial positions from entity transforms.</li>
 <li><strong>AudioTrigger</strong> — maps game events (collisions, interactions) to <code>AudioCommand</code>s that play sounds at specific positions.</li>
 </ul>

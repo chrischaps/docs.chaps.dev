@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["OCEAN_GRID_CELLS"],"fn":["create_dummy_grab_texture","generate_ocean_grid"],"struct":["OceanPipeline","OceanUniformsGpu","OceanVertex","OceanVisuals"]};

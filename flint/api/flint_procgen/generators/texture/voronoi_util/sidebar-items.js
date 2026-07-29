@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["dist_sq","generate_seed_points","lerp","lloyds_relaxation"],"struct":["SpatialGrid"]};

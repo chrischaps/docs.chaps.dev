@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["brush","chunk","heightmap","procgen","spec","splatgen","terrain"]};
+window.SIDEBAR_ITEMS = {"mod":["brush","chunk","grass_config","heightmap","procgen","spec","splatgen","terrain"]};
