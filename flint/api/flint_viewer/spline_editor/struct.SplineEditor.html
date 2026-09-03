@@ -99,7 +99,7 @@
 </div></details><details class="toggle method-toggle" open><summary><section id="method.save" class="method"><a class="src rightside" href="../../src/flint_viewer/spline_editor.rs.html#202-208">Source</a><h4 class="code-header">pub fn <a href="#method.save" class="fn">save</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.92.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.unit.html">()</a>, <a class="struct" href="https://doc.rust-lang.org/1.92.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Save the spline to its file path.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.pick" class="method"><a class="src rightside" href="../../src/flint_viewer/spline_editor.rs.html#212-232">Source</a><h4 class="code-header">pub fn <a href="#method.pick" class="fn">pick</a>(
     &amp;self,
-    camera: &amp;Camera,
+    camera: &amp;<a class="struct" href="../../flint_render/camera/struct.Camera.html" title="struct flint_render::camera::Camera">Camera</a>,
     screen_size: [<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.array.html">2</a>],
     mouse_x: <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>,
     mouse_y: <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>,
@@ -107,14 +107,14 @@
 Returns (index, world_distance_to_ray) if within threshold.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.update_hover" class="method"><a class="src rightside" href="../../src/flint_viewer/spline_editor.rs.html#235-246">Source</a><h4 class="code-header">pub fn <a href="#method.update_hover" class="fn">update_hover</a>(
     &amp;mut self,
-    camera: &amp;Camera,
+    camera: &amp;<a class="struct" href="../../flint_render/camera/struct.Camera.html" title="struct flint_render::camera::Camera">Camera</a>,
     screen_size: [<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.array.html">2</a>],
     mouse_x: <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>,
     mouse_y: <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>,
 )</h4></section></summary><div class="docblock"><p>Update hovered state from mouse position.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.handle_drag" class="method"><a class="src rightside" href="../../src/flint_viewer/spline_editor.rs.html#249-303">Source</a><h4 class="code-header">pub fn <a href="#method.handle_drag" class="fn">handle_drag</a>(
     &amp;mut self,
-    camera: &amp;Camera,
+    camera: &amp;<a class="struct" href="../../flint_render/camera/struct.Camera.html" title="struct flint_render::camera::Camera">Camera</a>,
     screen_size: [<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.array.html">2</a>],
     mouse_x: <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>,
     mouse_y: <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>,
@@ -123,7 +123,7 @@ Returns (index, world_distance_to_ray) if within threshold.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.draw_overlay" class="method"><a class="src rightside" href="../../src/flint_viewer/spline_editor.rs.html#319-403">Source</a><h4 class="code-header">pub fn <a href="#method.draw_overlay" class="fn">draw_overlay</a>(
     &amp;self,
     painter: &amp;Painter,
-    camera: &amp;Camera,
+    camera: &amp;<a class="struct" href="../../flint_render/camera/struct.Camera.html" title="struct flint_render::camera::Camera">Camera</a>,
     screen_size: [<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a>; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.array.html">2</a>],
 )</h4></section></summary><div class="docblock"><p>Draw the spline overlay (curve + control points) on the egui painter.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.track_length" class="method"><a class="src rightside" href="../../src/flint_viewer/spline_editor.rs.html#406-423">Source</a><h4 class="code-header">pub fn <a href="#method.track_length" class="fn">track_length</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.f32.html">f32</a></h4></section></summary><div class="docblock"><p>Compute track length from sampled curve.</p>

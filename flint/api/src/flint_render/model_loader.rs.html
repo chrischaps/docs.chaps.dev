@@ -666,17 +666,22 @@
 <a href=#590 id=590 data-nosnippet>590</a>                }
 <a href=#591 id=591 data-nosnippet>591</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(companion_path) = resolve_texture_path(config, <span class="kw-2">&amp;</span>companion_name) {
 <a href=#592 id=592 data-nosnippet>592</a>                    loaded.insert(companion_name.clone());
-<a href=#593 id=593 data-nosnippet>593</a>                    <span class="kw">match </span>renderer.load_texture_file(device, queue, <span class="kw-2">&amp;</span>companion_name, <span class="kw-2">&amp;</span>companion_path) {
-<a href=#594 id=594 data-nosnippet>594</a>                        <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) =&gt; {
-<a href=#595 id=595 data-nosnippet>595</a>                            <span class="macro">println!</span>(<span class="string">"Loaded texture: {}"</span>, companion_name);
-<a href=#596 id=596 data-nosnippet>596</a>                        }
-<a href=#597 id=597 data-nosnippet>597</a>                        <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) =&gt; {}
-<a href=#598 id=598 data-nosnippet>598</a>                        <span class="prelude-val">Err</span>(e) =&gt; {
-<a href=#599 id=599 data-nosnippet>599</a>                            <span class="macro">tracing::warn!</span>(<span class="string">"Failed to load texture '{}': {}"</span>, companion_name, e);
-<a href=#600 id=600 data-nosnippet>600</a>                        }
-<a href=#601 id=601 data-nosnippet>601</a>                    }
-<a href=#602 id=602 data-nosnippet>602</a>                }
-<a href=#603 id=603 data-nosnippet>603</a>            }
-<a href=#604 id=604 data-nosnippet>604</a>        }
-<a href=#605 id=605 data-nosnippet>605</a>    }
-<a href=#606 id=606 data-nosnippet>606</a>}</code></pre></div></section></main></body></html>
+<a href=#593 id=593 data-nosnippet>593</a>                    <span class="kw">match </span>renderer.load_texture_file(
+<a href=#594 id=594 data-nosnippet>594</a>                        device,
+<a href=#595 id=595 data-nosnippet>595</a>                        queue,
+<a href=#596 id=596 data-nosnippet>596</a>                        <span class="kw-2">&amp;</span>companion_name,
+<a href=#597 id=597 data-nosnippet>597</a>                        <span class="kw-2">&amp;</span>companion_path,
+<a href=#598 id=598 data-nosnippet>598</a>                    ) {
+<a href=#599 id=599 data-nosnippet>599</a>                        <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) =&gt; {
+<a href=#600 id=600 data-nosnippet>600</a>                            <span class="macro">println!</span>(<span class="string">"Loaded texture: {}"</span>, companion_name);
+<a href=#601 id=601 data-nosnippet>601</a>                        }
+<a href=#602 id=602 data-nosnippet>602</a>                        <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) =&gt; {}
+<a href=#603 id=603 data-nosnippet>603</a>                        <span class="prelude-val">Err</span>(e) =&gt; {
+<a href=#604 id=604 data-nosnippet>604</a>                            <span class="macro">tracing::warn!</span>(<span class="string">"Failed to load texture '{}': {}"</span>, companion_name, e);
+<a href=#605 id=605 data-nosnippet>605</a>                        }
+<a href=#606 id=606 data-nosnippet>606</a>                    }
+<a href=#607 id=607 data-nosnippet>607</a>                }
+<a href=#608 id=608 data-nosnippet>608</a>            }
+<a href=#609 id=609 data-nosnippet>609</a>        }
+<a href=#610 id=610 data-nosnippet>610</a>    }
+<a href=#611 id=611 data-nosnippet>611</a>}</code></pre></div></section></main></body></html>

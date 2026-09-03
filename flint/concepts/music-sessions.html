@@ -1,0 +1,460 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Music Sessions - Flint Engine</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Documentation for the Flint CLI-first, AI-agent-optimized 3D game engine">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "coal";
+            const default_dark_theme = "coal";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-c3ee08a0.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Flint Engine</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/chrischaps/flint" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="music-sessions"><a class="header" href="#music-sessions">Music Sessions</a></h1>
+<p>A music session turns a scene into a rhythm-driven space: a fixed set of stems plays sample-locked on the audio clock, a beatmap chart says what the player’s controller should be doing on each beat, and the world’s audio and visuals come apart or re-gather as one thing depending on how well the two agree. The machinery lives in two engine crates, <code>flint-music</code> and <code>flint-input-capture</code>, and is switched on per scene by a <code>music_session</code> component. It grew out of Starchild but nothing in it is game-specific: any scene with a suite manifest and a chart can run one.</p>
+<p>The design rule throughout is “linear composition, adaptive playback”: the music is authored once as a suite, and the engine adapts <em>how it is played back</em>, never what it is.</p>
+<h2 id="the-crates"><a class="header" href="#the-crates">The Crates</a></h2>
+<p><strong><code>flint-music</code></strong> is the data-contract and judgment layer. It parses suite manifests and charts, validates them against each other and against the stem files, keeps musical time (tempo map, conductor), judges input against the chart, integrates the result into a single coherence value, drives the six-bus stem mixer through the disintegration ladder, sequences reintegration after a full fail, records and replays sessions, and renders a scripted session offline to WAV. It never touches a gamepad.</p>
+<p><strong><code>flint-input-capture</code></strong> owns the gamepad on a dedicated thread polling at 1 kHz (default), far above frame rate, so pulse timing resolves at millisecond granularity instead of once per frame. Every event is stamped with a <em>compensated suite sample</em>: the bridged audio-clock sample minus the total judgment offset (measured output latency plus tap calibration), so the event carries the musical moment the player was responding to. On Windows the crate uses gilrs on the XInput backend rather than the default (ADR 0011, gilrs XInput backend), because the default backend delivers nothing to console applications.</p>
+<p>Neither crate is optional at build time. The player links both; without an audio device or a gamepad the session simply degrades, as described below.</p>
+<h2 id="verb-space"><a class="header" href="#verb-space">Verb Space</a></h2>
+<p>Charts never see buttons. The capture thread maps physical controls onto a small <strong>verb space</strong>, and the chart is written in those verbs:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Verb</th><th>Kind</th><th>Range</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>lean</code></td><td>continuous, vec2</td><td>[-1, 1]</td><td>Left stick. The primary tracking channel.</td></tr>
+<tr><td><code>sway</code></td><td>continuous, vec2</td><td>[-1, 1]</td><td>Right stick.</td></tr>
+<tr><td><code>pressure_l</code> / <code>pressure_r</code></td><td>continuous, scalar</td><td>[0, 1]</td><td>Trigger depth.</td></tr>
+<tr><td><code>pulse</code></td><td>discrete</td><td></td><td>The one plain beat hit (South button).</td></tr>
+<tr><td><code>press</code></td><td>discrete</td><td></td><td>Rising onset of a trigger squeeze; depth is judged from the pressure stream, never carried on the event.</td></tr>
+<tr><td><code>flick</code></td><td>discrete, with direction</td><td></td><td>Right stick goes from quiet to hard deflection within a beat-scale instant.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Which of these the pad produces is a <strong>verb map</strong> (ADR 0030, full verb map capture):</p>
+<ul>
+<li><code>prototype</code> (default): left stick is <code>lean</code>; South button <em>or</em> right trigger is <code>pulse</code>. Byte-identical to the earliest builds.</li>
+<li><code>full</code>: left stick is <code>lean</code>, South is <code>pulse</code>, triggers become <code>pressure_l</code>/<code>pressure_r</code> streams with <code>press</code> onsets, right stick becomes <code>sway</code> plus the flick detector. The right trigger no longer emits a plain pulse.</li>
+</ul>
+<p>Select it with <code>input_map</code> on the component or <code>--input-map</code> on the CLI harnesses.</p>
+<h2 id="suite-manifest-and-chart"><a class="header" href="#suite-manifest-and-chart">Suite Manifest and Chart</a></h2>
+<p>A suite is two TOML files, both carrying <code>schema_version = 0</code>.</p>
+<p>The <strong>manifest</strong> (<code>*.suite.toml</code>) describes the music:</p>
+<pre><code class="language-toml">schema_version = 0
+
+[suite]
+id = "prologue"
+title = "Prologue"
+
+[audio]
+sample_rate = 48000
+
+[[tempo]]
+sample = 0
+bpm = 96.0
+time_signature = [4, 4]
+
+[[sections]]
+name = "intro"
+start_sample = 0
+pulse_window_ms = 90.0
+
+[reintegration]
+re_entry_sections = ["intro", "verse"]
+lead_bus = "home_theme"
+reassembly_bars = 4
+
+[buses.foundation]
+file = "stems/foundation.wav"
+[buses.harmony]
+file = "stems/harmony.wav"
+[buses.texture]
+silent = true
+</code></pre>
+<p>The bus set is fixed at six: <code>foundation</code>, <code>harmony</code>, <code>world_voice</code>, <code>home_theme</code>, <code>child_motif</code>, <code>texture</code>. <code>home_theme</code> and <code>child_motif</code> are the <em>motif</em> buses and must stay isolated (never share a file with another bus). Optional <code>[[degraded_alternates]]</code> entries name a pre-composed degraded take for a bus over a sample range (ADR 0032, degraded alternate playback).</p>
+<p>The <strong>chart</strong> (<code>*.chart.toml</code>) says what the player should do, in beats:</p>
+<ul>
+<li><code>[[curves]]</code> keys: <code>channel</code>, <code>beat</code>, <code>value</code> (one or two numbers), <code>interp</code> in <code>linear</code> | <code>hold</code> | <code>smooth</code>.</li>
+<li><code>[[pulses]]</code>: <code>beat</code>, <code>kind</code> in <code>pulse</code> | <code>press</code> | <code>flick</code>, optional <code>window_ms</code>, <code>strength</code>, <code>direction</code>.</li>
+<li><code>[[cues]]</code>: <code>beat</code>, <code>cue</code> name, optional <code>params</code> table. Cues reach scripts through <code>conducted_cues()</code> (ADR 0033, cue params and conducted cues).</li>
+<li><code>[[intensity]]</code> keys: <code>beat</code>, <code>value</code>.</li>
+</ul>
+<p>Both parsers are shape-tolerant on purpose. Unknown bus names, channels or kinds parse fine and are reported by <code>flint validate-suite</code> as coded issues; only structurally unreadable input fails to parse.</p>
+<h2 id="the-music_session-component"><a class="header" href="#the-music_session-component">The <code>music_session</code> Component</a></h2>
+<p>Add the component to any entity in the scene. Its schema file lives in the <em>game’s</em> <code>schemas/components/</code> directory, not in the engine’s, so the engine reads it by name and validates the fields itself:</p>
+<pre><code class="language-toml">[entities.conductor.music_session]
+manifest = "music/prologue.suite.toml"
+chart = "music/prologue.chart.toml"
+lean_mode = "arrival"
+input_map = "full"
+ladder_config = "config/ladder.toml"
+bars = 64
+quit_on_finish = false
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>manifest</code></td><td>string</td><td>required</td><td>Suite manifest, relative to the game root</td></tr>
+<tr><td><code>chart</code></td><td>string</td><td>required</td><td>Beatmap chart</td></tr>
+<tr><td><code>lean_mode</code></td><td>string</td><td><code>"arrival"</code></td><td><code>arrival</code> judges gross motion toward beat-anchored targets (ADR 0013, arrival lean mode); <code>track</code> judges the stick against the curve on a fine grid</td></tr>
+<tr><td><code>input_map</code></td><td>string</td><td><code>"prototype"</code></td><td>Verb map, <code>prototype</code> or <code>full</code></td></tr>
+<tr><td><code>coherence_config</code></td><td>string</td><td><code>config/coherence.toml</code> if present</td><td>Explicit path must load; the default is optional</td></tr>
+<tr><td><code>ladder_config</code></td><td>string</td><td><code>config/ladder.toml</code> if present</td><td>Same contract</td></tr>
+<tr><td><code>gradient_config</code></td><td>string</td><td><code>config/gradient.toml</code> if present</td><td>Same contract; absent means inert</td></tr>
+<tr><td><code>haptics_config</code></td><td>string</td><td><code>config/haptics.toml</code> if present</td><td>Same contract; absent never emits an event</td></tr>
+<tr><td><code>bars</code></td><td>integer</td><td>play the suite out</td><td>Stop after this many bars</td></tr>
+<tr><td><code>quit_on_finish</code></td><td>bool</td><td><code>false</code></td><td>Exit the player when the session finishes (ADR 0036)</td></tr>
+<tr><td><code>tuning_config</code></td><td>string</td><td></td><td>Parsed and logged, not yet read</td></tr>
+<tr><td><code>bindings</code></td><td>string</td><td></td><td>Declarative only. The script named here must be loaded through an ordinary <code>script</code> component; the session warns if the file does not exist</td></tr>
+</tbody>
+</table>
+</div>
+<p>Paths are resolved against the game root (the scene’s <code>base_dir</code>), the same place <code>scripts/</code> and <code>audio/</code> live.</p>
+<h2 id="lifecycle"><a class="header" href="#lifecycle">Lifecycle</a></h2>
+<ol>
+<li><strong>Shared audio manager.</strong> The session opens on the player’s existing Kira manager rather than its own (ADR 0017, shared audio manager). Stems and <code>audio_source</code> sounds share one device, one clock. If there is no audio device the session is skipped with a console notice and everything else in the scene runs.</li>
+<li><strong>Timing offsets.</strong> Measured output latency and tap calibration are read from the newest files under <code>logs/latency/</code> in the game root. Missing values are announced loudly on the console: run the latency harness for the former and <code>flint calibrate</code> for the latter.</li>
+<li><strong>Gamepad handoff.</strong> The capture thread takes the pad for the session’s duration (ADR 0018, gilrs handoff and InputState downsample). The same event stream is down-sampled into the ordinary <code>InputState</code> so <code>is_action_pressed</code> and friends keep working frame-quantised, with a pulse press released on the <em>next</em> tick so edge detection sees a full down/up pair.</li>
+<li><strong>Teardown</strong> fades the stems over 50 ms and restores the scene’s authored post-processing values.</li>
+</ol>
+<blockquote>
+<p><strong>While a session is active only <code>lean</code> and <code>pulse</code> reach <code>InputState</code>.</strong> Every other pad control is dropped inside the capture crate. Keyboard input stays on winit throughout. This is an accepted gap of ADR 0018; design your session scenes so that nothing else needs the pad.</p>
+</blockquote>
+<p>The session ticks once per frame from the player’s frame loop. Each tick drains capture events, judges them, advances coherence, observes the ladder, runs the reintegration sequencer, applies the resolved mixer state, and publishes a <code>ConductedSnapshot</code> for scripts.</p>
+<h2 id="coherence"><a class="header" href="#coherence">Coherence</a></h2>
+<p>Everything downstream sees one number in [0, 1] (ADR 0010, coherence model). It is a leaky integrator with asymmetric, bar-denominated time constants: the continuous tracking signal sets a per-step target and the value eases toward it, rising with <code>rise_bars</code> and falling with <code>fall_bars</code>. Judged pulses enter as bounded impulses: a hit nudges up by how clean it was, a miss down by <code>miss_penalty</code>, a spurious pulse by <code>spurious_penalty</code> (default 0, because this is flow, not evaluation). The <code>sway</code> and pressure channels have weights that default to 0, so an unmodified config produces bit-identical values on any chart. All of it is plain <code>f64</code> arithmetic in a fixed order: same records in, same value out. Every knob is in <code>config/coherence.toml</code> and reloadable mid-session.</p>
+<h2 id="the-ladder"><a class="header" href="#the-ladder">The Ladder</a></h2>
+<p>The disintegration ladder (ADR 0015, disintegration ladder config) is ordered rungs, each with a coherence threshold and a full description of the degraded state. It is data, <code>config/ladder.toml</code>, hot-reloadable:</p>
+<pre><code class="language-toml">schema_version = 0
+arm_above = 0.8
+
+[[rungs]]
+name = "haze"
+enter_below = 0.6
+exit_above = 0.7
+ramp_ms = 350.0
+[rungs.audio]
+lpf_hz = 4000.0
+thin_db = { texture = -6.0 }
+[rungs.visual]
+desaturate = 0.3
+
+[[rungs]]
+name = "dropout"
+enter_below = 0.3
+exit_above = 0.45
+[rungs.audio]
+drop = ["texture"]
+warble_depth_semitones = 0.3
+warble_rate_hz = 1.5
+[rungs.visual]
+chromatic = 0.5
+blur = 0.4
+
+[full_fail]
+enter_below = 0.15
+exit_above = 0.25
+hold_ms = 1500.0
+
+[seam]
+fade_ms = 30.0
+rewind_beats = 4.0
+rewind_drop_semitones = -30.0
+pickup_beats = 2.0
+lead_in_beats = 0.0
+</code></pre>
+<p>Rules the ladder keeps:</p>
+<ul>
+<li><strong>Rung parameters are absolute.</strong> A deeper rung states the whole degraded state; it does not stack on the rung above.</li>
+<li><strong>Hysteresis is in the thresholds.</strong> <code>enter_below</code> is lower than <code>exit_above</code>, so a noisy value at a boundary never flickers the world.</li>
+<li><strong>Protected buses.</strong> Only <code>texture</code>, <code>world_voice</code> and <code>harmony</code> can be thinned or dropped. <code>foundation</code> and the two motif buses are never touched by gain or dropout. The low-pass applies to every non-motif bus, foundation included: filtering the whole world is the woozy intent, silencing its pulse is not.</li>
+<li><strong>Arming.</strong> The ladder arms only once coherence first reaches <code>arm_above</code>; the world can only come apart after it has first cohered.</li>
+<li><strong>One writer.</strong> The resolved <code>LadderParams</code> for the current rung is the single source of truth. The audio half is applied as idempotent Kira tweens on the mixer; the visual half rides on the frame to the post-processing stack.</li>
+</ul>
+<h2 id="full-fail-and-reintegration"><a class="header" href="#full-fail-and-reintegration">Full Fail and Reintegration</a></h2>
+<p>Below <code>full_fail.enter_below</code>, held for <code>hold_ms</code>, the reintegration sequencer takes over (ADR 0014, reintegration seam mechanism). The state machine is <code>Playing → Failing → Reassembling → Playing</code>:</p>
+<ol>
+<li><strong>Rewind.</strong> For <code>seam.rewind_beats</code> the whole world spins down like a record played backwards, a playback-rate ramp on every stem landing at <code>rewind_drop_semitones</code>, mirrored visually. The gesture is measured in beats so it starts on a beat and ends exactly at the seam.</li>
+<li><strong>Pickup.</strong> In the last <code>pickup_beats</code> before the seam the lead bus plays the re-entry material winding up from the spin-down rate to full speed, arriving on the re-entry downbeat.</li>
+<li><strong>Seam.</strong> On the next reachable bar line the old timeline fades out over <code>fade_ms</code> (an envelope, not a cut) and every stem re-plays sample-locked from the previous re-entry section. The lead motif bus enters at full level; the rest enter at -60 dB. With <code>lead_in_beats</code> above 0 (validated 0..8, default 0) the ensemble re-enters that many beats <em>before</em> the checkpoint downbeat, so the player gets a “3, 4, go” of prep time.</li>
+<li><strong>Reassembly.</strong> Over the manifest’s <code>reassembly_bars</code> the entering buses ramp in and the ladder runs in reverse, lerping from the deepest rung back to clean, so the world re-gathers as one thing.</li>
+</ol>
+<p>Coherence is not reset. A player still absent after reassembly fails again, which is the designed loop; only the debounce restarts. Input is never interrupted and the judge is rewound at the seam.</p>
+<h2 id="audio-gradient-and-haptics"><a class="header" href="#audio-gradient-and-haptics">Audio Gradient and Haptics</a></h2>
+<p>Two optional drivers sit beside the ladder, both pure evaluators that feed the same single mixer writer:</p>
+<ul>
+<li><strong>Gradient</strong> (ADR 0024, error-driven audio gradient; <code>config/gradient.toml</code>). <em>Tune</em>: lean error drives the depth of a zero-mean pitch LFO on one degradable bus, so off the lean the voice wavers and on it the voice settles. <em>Sink</em>: at stick-neutral the mix thins by per-bus gain trims. Scripts are read-only toward audio by design; the gradient never goes through Rhai.</li>
+<li><strong>Haptics</strong> (ADR 0026, haptic entrainment architecture; <code>config/haptics.toml</code>). Pre-beat tick, pulse-landing thump, rewind grind, pickup ticks. The driver is event-shaped: it never sees coherence or lean error, because a buzz-when-wrong reads as punishment. Motor writes happen in <code>flint-input-capture</code>’s rumble engine over direct XInput (ADR 0025, rumble spike direct XInput), fired early by a feel-tuned lead.</li>
+</ul>
+<h2 id="post-processing-integration"><a class="header" href="#post-processing-integration">Post-Processing Integration</a></h2>
+<p>The rung’s visual half maps onto three <a href="post-processing.html">post-processing</a> fields (ADR 0021, post-stack desaturation and blur mapping): <code>blur</code> becomes radial blur scaled by 0.6, <code>chromatic</code> and <code>desaturate</code> map 1:1. Each frame the session writes <code>authored + rung × scale</code> into any slot a script has <em>not</em> overridden, so script overrides win, preroll leaves the world untouched, and a ladder that recovers to clean restores the authored look. The F4 menu’s “Freeze script post overrides” switch stops these stamps so panel edits stick while tuning.</p>
+<h2 id="scripts"><a class="header" href="#scripts">Scripts</a></h2>
+<p>A running session publishes a <code>ConductedSnapshot</code> every frame and the <code>conducted_*</code> family in <a href="scripting.html">Scripting</a> reads it (ADR 0020, conducted parameters script surface): <code>conducted_lean()</code>, <code>conducted_target()</code>, <code>conducted_next_target()</code>, <code>conducted_next_pulse()</code>, <code>conducted_coherence()</code>, <code>conducted_beat_phase()</code>, <code>conducted_bar()</code>, <code>conducted_section()</code>, <code>conducted_pulses()</code>, <code>conducted_cues()</code>, <code>conducted_desaturate()</code>, <code>conducted_blur()</code>, <code>conducted_chromatic()</code>, <code>conducted_reassembly()</code>, <code>conducted_rewind()</code>, <code>conducted_no_input()</code>, <code>conducted_preroll()</code>. With no session running the snapshot is neutral (coherence and reassembly 1.0, lookaheads effectively infinite), so a script binding <code>1 - conducted_coherence()</code> to fog shows nothing.</p>
+<p>Scripts are read-only toward the session. Nothing in Rhai can change a bus gain, a rung, or the chart.</p>
+<h2 id="recording-replay-and-offline-render"><a class="header" href="#recording-replay-and-offline-render">Recording, Replay and Offline Render</a></h2>
+<p>Every judgment is logged, and the input stream can be recorded to <code>logs/sessions/&lt;name&gt;.session.jsonl</code>: one JSON header line (suite, chart, sample rate, both offsets, config snapshots) then one event per line, each stamped with its compensated suite sample. Because the stamp is already musical time, <code>flint replay-chart</code> feeds the identical judgment and coherence code with no clock, no audio and no gamepad, and produces the same numbers. Synthetic profiles (<code>perfect</code>, <code>late:&lt;ms&gt;</code>, <code>neglect</code>) generate a stream from the chart alone. <code>flint render-suite</code> plays a scripted <code>*.events.toml</code> (bus gain, low-pass and detune changes at <code>bar:N</code>, <code>beat:F</code> or <code>sample:N</code> times) through the real scheduler and mixer into a WAV, deterministically.</p>
+<h2 id="debug-surfaces"><a class="header" href="#debug-surfaces">Debug Surfaces</a></h2>
+<p>All of these compile only with the player’s <code>debug-hud</code> cargo feature (on by default) and never ship in the felt experience:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Surface</th></tr>
+</thead>
+<tbody>
+<tr><td><code>`</code> (backquote)</td><td><strong>Music Guide</strong>: upcoming pulse, press and flick windows with a countdown, per-channel targets beside the live stick and trigger state (ADR 0035, music guide debug panel)</td></tr>
+<tr><td><code>\</code> (backslash)</td><td><strong>Manifest Map</strong>: a full-width bottom strip of the whole suite, with sections, bar ruler, tempo changes, re-entry points, a playhead and this run’s judged pulses and seams (ADR 0037)</td></tr>
+<tr><td><code>F9</code></td><td><strong>Force fail</strong>: trigger the full rewind, seam and reassembly without playing down to it. Routed through the ordinary trigger path so it exercises the real failure code</td></tr>
+</tbody>
+</table>
+</div>
+<p>With no gamepad visible, a debug-hud build arms a <strong>keyboard fallback</strong> (ADR 0064, debug keyboard input fallback): arrow keys are <code>lean</code>, Space is <code>pulse</code>. Prototype verbs only; it is a plumbing check, not a feel surface.</p>
+<h2 id="workflow"><a class="header" href="#workflow">Workflow</a></h2>
+<p>The CLI harnesses form a pipeline; each is documented in the <a href="../cli-reference/music.html">Music CLI reference</a>:</p>
+<ol>
+<li><code>flint validate-suite</code> cross-checks manifest, chart and stem files.</li>
+<li><code>flint play-suite</code> plays the stems sample-locked with a console readout of position and per-bus state.</li>
+<li><code>flint calibrate</code> records the player’s median tap offset to <code>logs/latency/</code>.</li>
+<li><code>flint play-chart</code> runs the full reactive loop with live capture; <code>--window</code> adds wordless visual cues, <code>--record</code> writes a session file.</li>
+<li><code>flint replay-chart</code> re-judges a recorded or synthetic session headlessly.</li>
+<li><code>flint render-suite</code> renders a scripted session to WAV for listening tests and automated evidence.</li>
+</ol>
+<p>Once the suite plays well in the harness, the <code>music_session</code> component brings the same session into <code>flint play</code>.</p>
+<h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
+<ul>
+<li><a href="audio.html">Audio</a>: the two-bus <code>flint-audio</code> mixer the session shares a device with</li>
+<li><a href="post-processing.html">Post-Processing</a>: the fields the ladder drives</li>
+<li><a href="scripting.html">Scripting</a>: the <code>conducted_*</code> surface</li>
+<li><a href="../guides/debug-panels.html">Debug Panels</a>: how the Music Guide and Manifest Map fit the panel system</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../concepts/audio.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../concepts/animation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../concepts/audio.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../concepts/animation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

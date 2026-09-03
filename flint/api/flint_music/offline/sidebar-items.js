@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["render_offline","render_offline_with","write_wav"],"struct":["OfflineBackend","OfflineBackendSettings","OfflineRenderConfig","RenderResult"]};

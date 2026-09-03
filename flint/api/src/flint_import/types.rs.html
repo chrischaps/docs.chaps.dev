@@ -288,92 +288,96 @@
 <a href=#212 id=212 data-nosnippet>212</a>    <span class="kw">pub </span>time: f32,
 <a href=#213 id=213 data-nosnippet>213</a>    <span class="doccomment">/// 3 floats for translation/scale, 4 for rotation (quaternion xyzw)
 <a href=#214 id=214 data-nosnippet>214</a>    </span><span class="kw">pub </span>value: Vec&lt;f32&gt;,
-<a href=#215 id=215 data-nosnippet>215</a>}
-<a href=#216 id=216 data-nosnippet>216</a>
-<a href=#217 id=217 data-nosnippet>217</a><span class="doccomment">/// An animation channel targeting a specific joint property
-<a href=#218 id=218 data-nosnippet>218</a></span><span class="attr">#[derive(Debug, Clone)]
-<a href=#219 id=219 data-nosnippet>219</a></span><span class="kw">pub struct </span>ImportedChannel {
-<a href=#220 id=220 data-nosnippet>220</a>    <span class="kw">pub </span>joint_index: usize,
-<a href=#221 id=221 data-nosnippet>221</a>    <span class="kw">pub </span>property: JointProperty,
-<a href=#222 id=222 data-nosnippet>222</a>    <span class="kw">pub </span>interpolation: String,
-<a href=#223 id=223 data-nosnippet>223</a>    <span class="kw">pub </span>keyframes: Vec&lt;ImportedKeyframe&gt;,
-<a href=#224 id=224 data-nosnippet>224</a>}
-<a href=#225 id=225 data-nosnippet>225</a>
-<a href=#226 id=226 data-nosnippet>226</a><span class="doccomment">/// A complete skeletal animation clip
-<a href=#227 id=227 data-nosnippet>227</a></span><span class="attr">#[derive(Debug, Clone)]
-<a href=#228 id=228 data-nosnippet>228</a></span><span class="kw">pub struct </span>ImportedSkeletalClip {
-<a href=#229 id=229 data-nosnippet>229</a>    <span class="kw">pub </span>name: String,
-<a href=#230 id=230 data-nosnippet>230</a>    <span class="kw">pub </span>duration: f32,
-<a href=#231 id=231 data-nosnippet>231</a>    <span class="kw">pub </span>channels: Vec&lt;ImportedChannel&gt;,
-<a href=#232 id=232 data-nosnippet>232</a>}
-<a href=#233 id=233 data-nosnippet>233</a>
-<a href=#234 id=234 data-nosnippet>234</a><span class="comment">// --- Node-level animation import types ---
-<a href=#235 id=235 data-nosnippet>235</a>
-<a href=#236 id=236 data-nosnippet>236</a></span><span class="doccomment">/// An animation channel targeting a specific node's transform property
-<a href=#237 id=237 data-nosnippet>237</a></span><span class="attr">#[derive(Debug, Clone)]
-<a href=#238 id=238 data-nosnippet>238</a></span><span class="kw">pub struct </span>ImportedNodeChannel {
-<a href=#239 id=239 data-nosnippet>239</a>    <span class="kw">pub </span>node_index: usize,       <span class="comment">// index into ImportResult.nodes
-<a href=#240 id=240 data-nosnippet>240</a>    </span><span class="kw">pub </span>node_name: String,       <span class="comment">// for entity name resolution at runtime
-<a href=#241 id=241 data-nosnippet>241</a>    </span><span class="kw">pub </span>property: JointProperty, <span class="comment">// reuse Translation/Rotation/Scale
-<a href=#242 id=242 data-nosnippet>242</a>    </span><span class="kw">pub </span>interpolation: String,
-<a href=#243 id=243 data-nosnippet>243</a>    <span class="kw">pub </span>keyframes: Vec&lt;ImportedKeyframe&gt;,
-<a href=#244 id=244 data-nosnippet>244</a>}
-<a href=#245 id=245 data-nosnippet>245</a>
-<a href=#246 id=246 data-nosnippet>246</a><span class="doccomment">/// A complete node-level animation clip (non-skeletal transform animation)
-<a href=#247 id=247 data-nosnippet>247</a></span><span class="attr">#[derive(Debug, Clone)]
-<a href=#248 id=248 data-nosnippet>248</a></span><span class="kw">pub struct </span>ImportedNodeClip {
-<a href=#249 id=249 data-nosnippet>249</a>    <span class="kw">pub </span>name: String,
-<a href=#250 id=250 data-nosnippet>250</a>    <span class="kw">pub </span>duration: f32,
-<a href=#251 id=251 data-nosnippet>251</a>    <span class="kw">pub </span>channels: Vec&lt;ImportedNodeChannel&gt;,
-<a href=#252 id=252 data-nosnippet>252</a>}
-<a href=#253 id=253 data-nosnippet>253</a>
-<a href=#254 id=254 data-nosnippet>254</a><span class="doccomment">/// A node from the glTF scene graph, preserving transform hierarchy
-<a href=#255 id=255 data-nosnippet>255</a></span><span class="attr">#[derive(Debug, Clone)]
-<a href=#256 id=256 data-nosnippet>256</a></span><span class="kw">pub struct </span>ImportedNode {
-<a href=#257 id=257 data-nosnippet>257</a>    <span class="kw">pub </span>name: String,
-<a href=#258 id=258 data-nosnippet>258</a>    <span class="kw">pub </span>translation: [f32; <span class="number">3</span>],
-<a href=#259 id=259 data-nosnippet>259</a>    <span class="kw">pub </span>rotation: [f32; <span class="number">4</span>], <span class="comment">// quaternion [x, y, z, w]
-<a href=#260 id=260 data-nosnippet>260</a>    </span><span class="kw">pub </span>scale: [f32; <span class="number">3</span>],
-<a href=#261 id=261 data-nosnippet>261</a>    <span class="kw">pub </span>mesh_primitive_indices: Vec&lt;usize&gt;, <span class="comment">// indices into ImportResult.meshes
-<a href=#262 id=262 data-nosnippet>262</a>    </span><span class="kw">pub </span>children: Vec&lt;usize&gt;,               <span class="comment">// indices into ImportResult.nodes
-<a href=#263 id=263 data-nosnippet>263</a>    </span><span class="kw">pub </span>skin_index: <span class="prelude-ty">Option</span>&lt;usize&gt;,
-<a href=#264 id=264 data-nosnippet>264</a>}
-<a href=#265 id=265 data-nosnippet>265</a>
-<a href=#266 id=266 data-nosnippet>266</a><span class="doccomment">/// An imported texture
-<a href=#267 id=267 data-nosnippet>267</a></span><span class="attr">#[derive(Debug, Clone)]
-<a href=#268 id=268 data-nosnippet>268</a></span><span class="kw">pub struct </span>ImportedTexture {
-<a href=#269 id=269 data-nosnippet>269</a>    <span class="kw">pub </span>name: String,
-<a href=#270 id=270 data-nosnippet>270</a>    <span class="kw">pub </span>width: u32,
-<a href=#271 id=271 data-nosnippet>271</a>    <span class="kw">pub </span>height: u32,
-<a href=#272 id=272 data-nosnippet>272</a>    <span class="kw">pub </span>format: String,
-<a href=#273 id=273 data-nosnippet>273</a>    <span class="kw">pub </span>data: Vec&lt;u8&gt;,
-<a href=#274 id=274 data-nosnippet>274</a>}
-<a href=#275 id=275 data-nosnippet>275</a>
-<a href=#276 id=276 data-nosnippet>276</a><span class="doccomment">/// glTF alpha rendering mode
-<a href=#277 id=277 data-nosnippet>277</a></span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-<a href=#278 id=278 data-nosnippet>278</a></span><span class="kw">pub enum </span>AlphaMode {
-<a href=#279 id=279 data-nosnippet>279</a>    <span class="doccomment">/// Fully opaque (default)
-<a href=#280 id=280 data-nosnippet>280</a>    </span>Opaque,
-<a href=#281 id=281 data-nosnippet>281</a>    <span class="doccomment">/// Binary alpha test (discard below cutoff)
-<a href=#282 id=282 data-nosnippet>282</a>    </span>Mask,
-<a href=#283 id=283 data-nosnippet>283</a>    <span class="doccomment">/// Alpha blending
-<a href=#284 id=284 data-nosnippet>284</a>    </span>Blend,
-<a href=#285 id=285 data-nosnippet>285</a>}
-<a href=#286 id=286 data-nosnippet>286</a>
-<a href=#287 id=287 data-nosnippet>287</a><span class="doccomment">/// An imported PBR material
-<a href=#288 id=288 data-nosnippet>288</a></span><span class="attr">#[derive(Debug, Clone)]
-<a href=#289 id=289 data-nosnippet>289</a></span><span class="kw">pub struct </span>ImportedMaterial {
-<a href=#290 id=290 data-nosnippet>290</a>    <span class="kw">pub </span>name: String,
-<a href=#291 id=291 data-nosnippet>291</a>    <span class="kw">pub </span>base_color: [f32; <span class="number">4</span>],
-<a href=#292 id=292 data-nosnippet>292</a>    <span class="kw">pub </span>metallic: f32,
-<a href=#293 id=293 data-nosnippet>293</a>    <span class="kw">pub </span>roughness: f32,
-<a href=#294 id=294 data-nosnippet>294</a>    <span class="kw">pub </span>base_color_texture: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">pub </span>normal_texture: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#296 id=296 data-nosnippet>296</a>    <span class="kw">pub </span>metallic_roughness_texture: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#297 id=297 data-nosnippet>297</a>    <span class="doccomment">/// When true, the shader reads per-vertex color instead of the uniform base_color.
-<a href=#298 id=298 data-nosnippet>298</a>    </span><span class="kw">pub </span>use_vertex_color: bool,
-<a href=#299 id=299 data-nosnippet>299</a>    <span class="doccomment">/// Alpha rendering mode from glTF
-<a href=#300 id=300 data-nosnippet>300</a>    </span><span class="kw">pub </span>alpha_mode: AlphaMode,
-<a href=#301 id=301 data-nosnippet>301</a>    <span class="doccomment">/// Alpha cutoff for Mask mode (default 0.5)
-<a href=#302 id=302 data-nosnippet>302</a>    </span><span class="kw">pub </span>alpha_cutoff: f32,
-<a href=#303 id=303 data-nosnippet>303</a>}</code></pre></div></section></main></body></html>
+<a href=#215 id=215 data-nosnippet>215</a>    <span class="doccomment">/// Incoming tangent (CUBICSPLINE only; empty otherwise). Same arity as `value`.
+<a href=#216 id=216 data-nosnippet>216</a>    </span><span class="kw">pub </span>in_tangent: Vec&lt;f32&gt;,
+<a href=#217 id=217 data-nosnippet>217</a>    <span class="doccomment">/// Outgoing tangent (CUBICSPLINE only; empty otherwise). Same arity as `value`.
+<a href=#218 id=218 data-nosnippet>218</a>    </span><span class="kw">pub </span>out_tangent: Vec&lt;f32&gt;,
+<a href=#219 id=219 data-nosnippet>219</a>}
+<a href=#220 id=220 data-nosnippet>220</a>
+<a href=#221 id=221 data-nosnippet>221</a><span class="doccomment">/// An animation channel targeting a specific joint property
+<a href=#222 id=222 data-nosnippet>222</a></span><span class="attr">#[derive(Debug, Clone)]
+<a href=#223 id=223 data-nosnippet>223</a></span><span class="kw">pub struct </span>ImportedChannel {
+<a href=#224 id=224 data-nosnippet>224</a>    <span class="kw">pub </span>joint_index: usize,
+<a href=#225 id=225 data-nosnippet>225</a>    <span class="kw">pub </span>property: JointProperty,
+<a href=#226 id=226 data-nosnippet>226</a>    <span class="kw">pub </span>interpolation: String,
+<a href=#227 id=227 data-nosnippet>227</a>    <span class="kw">pub </span>keyframes: Vec&lt;ImportedKeyframe&gt;,
+<a href=#228 id=228 data-nosnippet>228</a>}
+<a href=#229 id=229 data-nosnippet>229</a>
+<a href=#230 id=230 data-nosnippet>230</a><span class="doccomment">/// A complete skeletal animation clip
+<a href=#231 id=231 data-nosnippet>231</a></span><span class="attr">#[derive(Debug, Clone)]
+<a href=#232 id=232 data-nosnippet>232</a></span><span class="kw">pub struct </span>ImportedSkeletalClip {
+<a href=#233 id=233 data-nosnippet>233</a>    <span class="kw">pub </span>name: String,
+<a href=#234 id=234 data-nosnippet>234</a>    <span class="kw">pub </span>duration: f32,
+<a href=#235 id=235 data-nosnippet>235</a>    <span class="kw">pub </span>channels: Vec&lt;ImportedChannel&gt;,
+<a href=#236 id=236 data-nosnippet>236</a>}
+<a href=#237 id=237 data-nosnippet>237</a>
+<a href=#238 id=238 data-nosnippet>238</a><span class="comment">// --- Node-level animation import types ---
+<a href=#239 id=239 data-nosnippet>239</a>
+<a href=#240 id=240 data-nosnippet>240</a></span><span class="doccomment">/// An animation channel targeting a specific node's transform property
+<a href=#241 id=241 data-nosnippet>241</a></span><span class="attr">#[derive(Debug, Clone)]
+<a href=#242 id=242 data-nosnippet>242</a></span><span class="kw">pub struct </span>ImportedNodeChannel {
+<a href=#243 id=243 data-nosnippet>243</a>    <span class="kw">pub </span>node_index: usize,       <span class="comment">// index into ImportResult.nodes
+<a href=#244 id=244 data-nosnippet>244</a>    </span><span class="kw">pub </span>node_name: String,       <span class="comment">// for entity name resolution at runtime
+<a href=#245 id=245 data-nosnippet>245</a>    </span><span class="kw">pub </span>property: JointProperty, <span class="comment">// reuse Translation/Rotation/Scale
+<a href=#246 id=246 data-nosnippet>246</a>    </span><span class="kw">pub </span>interpolation: String,
+<a href=#247 id=247 data-nosnippet>247</a>    <span class="kw">pub </span>keyframes: Vec&lt;ImportedKeyframe&gt;,
+<a href=#248 id=248 data-nosnippet>248</a>}
+<a href=#249 id=249 data-nosnippet>249</a>
+<a href=#250 id=250 data-nosnippet>250</a><span class="doccomment">/// A complete node-level animation clip (non-skeletal transform animation)
+<a href=#251 id=251 data-nosnippet>251</a></span><span class="attr">#[derive(Debug, Clone)]
+<a href=#252 id=252 data-nosnippet>252</a></span><span class="kw">pub struct </span>ImportedNodeClip {
+<a href=#253 id=253 data-nosnippet>253</a>    <span class="kw">pub </span>name: String,
+<a href=#254 id=254 data-nosnippet>254</a>    <span class="kw">pub </span>duration: f32,
+<a href=#255 id=255 data-nosnippet>255</a>    <span class="kw">pub </span>channels: Vec&lt;ImportedNodeChannel&gt;,
+<a href=#256 id=256 data-nosnippet>256</a>}
+<a href=#257 id=257 data-nosnippet>257</a>
+<a href=#258 id=258 data-nosnippet>258</a><span class="doccomment">/// A node from the glTF scene graph, preserving transform hierarchy
+<a href=#259 id=259 data-nosnippet>259</a></span><span class="attr">#[derive(Debug, Clone)]
+<a href=#260 id=260 data-nosnippet>260</a></span><span class="kw">pub struct </span>ImportedNode {
+<a href=#261 id=261 data-nosnippet>261</a>    <span class="kw">pub </span>name: String,
+<a href=#262 id=262 data-nosnippet>262</a>    <span class="kw">pub </span>translation: [f32; <span class="number">3</span>],
+<a href=#263 id=263 data-nosnippet>263</a>    <span class="kw">pub </span>rotation: [f32; <span class="number">4</span>], <span class="comment">// quaternion [x, y, z, w]
+<a href=#264 id=264 data-nosnippet>264</a>    </span><span class="kw">pub </span>scale: [f32; <span class="number">3</span>],
+<a href=#265 id=265 data-nosnippet>265</a>    <span class="kw">pub </span>mesh_primitive_indices: Vec&lt;usize&gt;, <span class="comment">// indices into ImportResult.meshes
+<a href=#266 id=266 data-nosnippet>266</a>    </span><span class="kw">pub </span>children: Vec&lt;usize&gt;,               <span class="comment">// indices into ImportResult.nodes
+<a href=#267 id=267 data-nosnippet>267</a>    </span><span class="kw">pub </span>skin_index: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+<a href=#268 id=268 data-nosnippet>268</a>}
+<a href=#269 id=269 data-nosnippet>269</a>
+<a href=#270 id=270 data-nosnippet>270</a><span class="doccomment">/// An imported texture
+<a href=#271 id=271 data-nosnippet>271</a></span><span class="attr">#[derive(Debug, Clone)]
+<a href=#272 id=272 data-nosnippet>272</a></span><span class="kw">pub struct </span>ImportedTexture {
+<a href=#273 id=273 data-nosnippet>273</a>    <span class="kw">pub </span>name: String,
+<a href=#274 id=274 data-nosnippet>274</a>    <span class="kw">pub </span>width: u32,
+<a href=#275 id=275 data-nosnippet>275</a>    <span class="kw">pub </span>height: u32,
+<a href=#276 id=276 data-nosnippet>276</a>    <span class="kw">pub </span>format: String,
+<a href=#277 id=277 data-nosnippet>277</a>    <span class="kw">pub </span>data: Vec&lt;u8&gt;,
+<a href=#278 id=278 data-nosnippet>278</a>}
+<a href=#279 id=279 data-nosnippet>279</a>
+<a href=#280 id=280 data-nosnippet>280</a><span class="doccomment">/// glTF alpha rendering mode
+<a href=#281 id=281 data-nosnippet>281</a></span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+<a href=#282 id=282 data-nosnippet>282</a></span><span class="kw">pub enum </span>AlphaMode {
+<a href=#283 id=283 data-nosnippet>283</a>    <span class="doccomment">/// Fully opaque (default)
+<a href=#284 id=284 data-nosnippet>284</a>    </span>Opaque,
+<a href=#285 id=285 data-nosnippet>285</a>    <span class="doccomment">/// Binary alpha test (discard below cutoff)
+<a href=#286 id=286 data-nosnippet>286</a>    </span>Mask,
+<a href=#287 id=287 data-nosnippet>287</a>    <span class="doccomment">/// Alpha blending
+<a href=#288 id=288 data-nosnippet>288</a>    </span>Blend,
+<a href=#289 id=289 data-nosnippet>289</a>}
+<a href=#290 id=290 data-nosnippet>290</a>
+<a href=#291 id=291 data-nosnippet>291</a><span class="doccomment">/// An imported PBR material
+<a href=#292 id=292 data-nosnippet>292</a></span><span class="attr">#[derive(Debug, Clone)]
+<a href=#293 id=293 data-nosnippet>293</a></span><span class="kw">pub struct </span>ImportedMaterial {
+<a href=#294 id=294 data-nosnippet>294</a>    <span class="kw">pub </span>name: String,
+<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">pub </span>base_color: [f32; <span class="number">4</span>],
+<a href=#296 id=296 data-nosnippet>296</a>    <span class="kw">pub </span>metallic: f32,
+<a href=#297 id=297 data-nosnippet>297</a>    <span class="kw">pub </span>roughness: f32,
+<a href=#298 id=298 data-nosnippet>298</a>    <span class="kw">pub </span>base_color_texture: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#299 id=299 data-nosnippet>299</a>    <span class="kw">pub </span>normal_texture: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#300 id=300 data-nosnippet>300</a>    <span class="kw">pub </span>metallic_roughness_texture: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#301 id=301 data-nosnippet>301</a>    <span class="doccomment">/// When true, the shader reads per-vertex color instead of the uniform base_color.
+<a href=#302 id=302 data-nosnippet>302</a>    </span><span class="kw">pub </span>use_vertex_color: bool,
+<a href=#303 id=303 data-nosnippet>303</a>    <span class="doccomment">/// Alpha rendering mode from glTF
+<a href=#304 id=304 data-nosnippet>304</a>    </span><span class="kw">pub </span>alpha_mode: AlphaMode,
+<a href=#305 id=305 data-nosnippet>305</a>    <span class="doccomment">/// Alpha cutoff for Mask mode (default 0.5)
+<a href=#306 id=306 data-nosnippet>306</a>    </span><span class="kw">pub </span>alpha_cutoff: f32,
+<a href=#307 id=307 data-nosnippet>307</a>}</code></pre></div></section></main></body></html>

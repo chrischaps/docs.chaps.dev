@@ -1,0 +1,138 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="One chart play-through, front-end agnostic: the reactive loop the Phase 2/3 harnesses run (chart-eval → judgment → coherence → ladder → reintegration sequencer → mixer), hosted here so any binary — the CLI harness, the windowed feel harness, the player app — can drive it (ADR 0016)."><title>flint_music::chart_session - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="flint_music" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module chart_session</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../flint_music/index.html">flint_<wbr>music</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module chart_<wbr>session</a></h2><h3><a href="#reexports">Module Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate flint_<wbr>music</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">flint_music</a></div><h1>Module <span>chart_<wbr>session</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/flint_music/chart_session.rs.html#1-1859">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>One chart play-through, front-end agnostic: the reactive loop the Phase 2/3
+harnesses run (chart-eval → judgment → coherence → ladder → reintegration
+sequencer → mixer), hosted here so any binary — the CLI harness, the
+windowed feel harness, the player app — can drive it (ADR 0016).</p>
+<p>Two layers:</p>
+<ul>
+<li><a href="struct.ChartCore.html" title="struct flint_music::chart_session::ChartCore"><code>ChartCore</code></a> is the player-free loop body shared by the live session and
+the offline reactive render: it owns judgment, coherence, the ladder and
+reintegration sequencer, and the judgment log, and steps them against any
+<a href="../session/struct.SuiteSession.html" title="struct flint_music::session::SuiteSession"><code>SuiteSession</code></a> — a realtime one or the offline renderer’s.</li>
+<li><a href="struct.ChartSession.html" title="struct flint_music::chart_session::ChartSession"><code>ChartSession</code></a> is a live play-through: <code>ChartCore</code> plus a running
+<a href="../session/struct.SuiteSession.html" title="struct flint_music::session::SuiteSession"><code>SuiteSession</code></a>, the clock bridge, and the input-event receiver. The
+audio manager is either owned (the CLI path, <a href="struct.ChartSession.html#method.open" title="associated function flint_music::chart_session::ChartSession::open"><code>ChartSession::open</code></a>) or
+borrowed from a host for the duration of <code>start</code> (the player path,
+<a href="struct.ChartSession.html#method.open_shared" title="associated function flint_music::chart_session::ChartSession::open_shared"><code>ChartSession::open_shared</code></a> — ADR 0017’s one-manager rule).
+Input arrives as a plain channel of <a href="../input_stream/enum.InputEvent.html" title="enum flint_music::input_stream::InputEvent"><code>InputEvent</code></a>s; this crate never
+touches the gamepad backend (the capture thread lives upstream and its
+handle is parked here only as an opaque guard so teardown order holds).</li>
+</ul>
+<p>Front ends print; this module returns pre-formatted notice lines and
+structured events instead of writing to stdout.</p>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt id="reexport.BarMark"><code>pub use crate::timeline::<a class="struct" href="../timeline/struct.BarMark.html" title="struct flint_music::timeline::BarMark">BarMark</a>;</code></dt><dt id="reexport.PulseMark"><code>pub use crate::timeline::<a class="struct" href="../timeline/struct.PulseMark.html" title="struct flint_music::timeline::PulseMark">PulseMark</a>;</code></dt><dt id="reexport.SeamMark"><code>pub use crate::timeline::<a class="struct" href="../timeline/struct.SeamMark.html" title="struct flint_music::timeline::SeamMark">SeamMark</a>;</code></dt><dt id="reexport.SeamMarkKind"><code>pub use crate::timeline::<a class="enum" href="../timeline/enum.SeamMarkKind.html" title="enum flint_music::timeline::SeamMarkKind">SeamMarkKind</a>;</code></dt><dt id="reexport.TempoMark"><code>pub use crate::timeline::<a class="struct" href="../timeline/struct.TempoMark.html" title="struct flint_music::timeline::TempoMark">TempoMark</a>;</code></dt><dt id="reexport.TimelineFrame"><code>pub use crate::timeline::<a class="struct" href="../timeline/struct.TimelineFrame.html" title="struct flint_music::timeline::TimelineFrame">TimelineFrame</a>;</code></dt><dt id="reexport.TimelineMap"><code>pub use crate::timeline::<a class="struct" href="../timeline/struct.TimelineMap.html" title="struct flint_music::timeline::TimelineMap">TimelineMap</a>;</code></dt><dt id="reexport.TimelineSection"><code>pub use crate::timeline::<a class="struct" href="../timeline/struct.TimelineSection.html" title="struct flint_music::timeline::TimelineSection">TimelineSection</a>;</code></dt></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.ChartCore.html" title="struct flint_music::chart_session::ChartCore">Chart<wbr>Core</a></dt><dd>The loop body shared by the live harness, the offline reactive render, and
+(eventually) the player app: everything one play-through owns <em>except</em> the
+audio backend and the input source. Callers feed it events and a
+<a href="../session/struct.SuiteSession.html" title="struct flint_music::session::SuiteSession"><code>SuiteSession</code></a>; it judges, integrates coherence, drives the ladder and
+reintegration sequencer, and writes the judgment log.</dd><dt><a class="struct" href="struct.ChartSession.html" title="struct flint_music::chart_session::ChartSession">Chart<wbr>Session</a></dt><dd>Everything one live play-through owns, front-end agnostic. A front end
+calls <a href="struct.ChartSession.html#method.tick" title="method flint_music::chart_session::ChartSession::tick"><code>ChartSession::tick</code></a> at its own cadence (the audio clock is the
+master clock — ticking merely drains queues and advances judgment), plus
+<a href="struct.ChartSession.html#method.reload_config" title="method flint_music::chart_session::ChartSession::reload_config"><code>ChartSession::reload_config</code></a> / <a href="struct.ChartSession.html#method.finish" title="method flint_music::chart_session::ChartSession::finish"><code>ChartSession::finish</code></a> on its own
+input gestures.</dd><dt><a class="struct" href="struct.ChartSessionConfig.html" title="struct flint_music::chart_session::ChartSessionConfig">Chart<wbr>Session<wbr>Config</a></dt><dd>How to open a <a href="struct.ChartSession.html" title="struct flint_music::chart_session::ChartSession"><code>ChartSession</code></a>. Paths are caller-resolved; the latency and
+calibration offsets come from the caller too (see <a href="fn.latest_latency_ms.html" title="fn flint_music::chart_session::latest_latency_ms"><code>latest_latency_ms</code></a> /
+<a href="fn.latest_calibration_ms.html" title="fn flint_music::chart_session::latest_calibration_ms"><code>latest_calibration_ms</code></a>) so the caller can also configure its input
+source with the same numbers.</dd><dt><a class="struct" href="struct.ConductedCue.html" title="struct flint_music::chart_session::ConductedCue">Conducted<wbr>Cue</a></dt><dd>One cue fired this frame (ADR 0033): the chart’s free-form <code>params</code> table
+rides along for the Rhai binding. <code>age_s</code> is suite seconds since the
+cue’s authored beat (normally &lt; one frame; larger only when judgment
+catches up after a stall).</dd><dt><a class="struct" href="struct.ConductedFrame.html" title="struct flint_music::chart_session::ConductedFrame">Conducted<wbr>Frame</a></dt><dd>The per-frame conducted-parameters snapshot (ADR 0020): what scene
+bindings and the harness window draw from. No numbers reach the player’s
+screen — these drive glows, breathing, and world motion, not meters.</dd><dt><a class="struct" href="struct.ConductedPulse.html" title="struct flint_music::chart_session::ConductedPulse">Conducted<wbr>Pulse</a></dt><dd>One pulse judged this frame (ADR 0020). <code>sample</code> is the suite sample the
+judgment record carries (hit/spurious: the press; miss: the window close);
+<code>age_s</code> is seconds between that sample and the frame’s position.</dd><dt><a class="struct" href="struct.FinishSummary.html" title="struct flint_music::chart_session::FinishSummary">Finish<wbr>Summary</a></dt><dd>End-of-run tallies, formatted by the front end.</dd><dt><a class="struct" href="struct.GuideFrame.html" title="struct flint_music::chart_session::GuideFrame">Guide<wbr>Frame</a></dt><dd>Per-frame debug-guide snapshot (ADR 0035): the input the chart expects
+that <a href="struct.ConductedFrame.html" title="struct flint_music::chart_session::ConductedFrame"><code>ConductedFrame</code></a> does not already carry.</dd><dt><a class="struct" href="struct.GuideWindow.html" title="struct flint_music::chart_session::GuideWindow">Guide<wbr>Window</a></dt><dd>One upcoming (or currently open) pulse window, for the debug guide
+(ADR 0035). This is judgment-shaped data by design — it exists so a dev
+can learn what the chart wants; it must never reach the player-facing
+world (the no-gamified-UI rule).</dd><dt><a class="struct" href="struct.ResolvedCue.html" title="struct flint_music::chart_session::ResolvedCue">Resolved<wbr>Cue</a></dt><dd>A chart cue resolved to samples (ADR 0033), attached to the core via
+<a href="struct.ChartCore.html#method.set_cues" title="method flint_music::chart_session::ChartCore::set_cues"><code>ChartCore::set_cues</code></a>.</dd><dt><a class="struct" href="struct.TickOutcome.html" title="struct flint_music::chart_session::TickOutcome">Tick<wbr>Outcome</a></dt><dd>One <a href="struct.ChartSession.html#method.tick" title="method flint_music::chart_session::ChartSession::tick"><code>ChartSession::tick</code></a>’s outcome: the run state plus notice lines for
+the front end to print verbatim (pulse echoes, sequencer events, the
+per-bar status line). No notice ever carries gameplay judgment for the
+player’s eyes — these are dev-harness surfaces.</dd><dt><a class="struct" href="struct.TimingOffsets.html" title="struct flint_music::chart_session::TimingOffsets">Timing<wbr>Offsets</a></dt><dd>Resolved judgment-timing offsets plus the notice lines describing where
+they came from. One resolver for every live front end (CLI harness and
+player) so their startup diagnostics can never drift apart again; each
+front end prints the lines through its own sink/prefix.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.CoherenceSource.html" title="enum flint_music::chart_session::CoherenceSource">Coherence<wbr>Source</a></dt><dd>Where a resolved coherence config came from — the front end formats its
+own notice from this (live and replay word theirs differently).</dd><dt><a class="enum" href="enum.PulseKind.html" title="enum flint_music::chart_session::PulseKind">Pulse<wbr>Kind</a></dt><dd>How one judged pulse resolved, for scene bindings. Distinct from the
+chart’s verb-space <code>kind</code> (which stays “pulse” for now).</dd><dt><a class="enum" href="enum.Tick.html" title="enum flint_music::chart_session::Tick">Tick</a></dt></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.DEFAULT_COHERENCE_CONFIG.html" title="constant flint_music::chart_session::DEFAULT_COHERENCE_CONFIG">DEFAULT_<wbr>COHERENCE_<wbr>CONFIG</a></dt><dd>Default config paths, relative to the session base dir — the one place
+they are spelled (open resolution and reload both go through the values
+resolved here).</dd><dt><a class="constant" href="constant.DEFAULT_GRADIENT_CONFIG.html" title="constant flint_music::chart_session::DEFAULT_GRADIENT_CONFIG">DEFAULT_<wbr>GRADIENT_<wbr>CONFIG</a></dt><dt><a class="constant" href="constant.DEFAULT_HAPTICS_CONFIG.html" title="constant flint_music::chart_session::DEFAULT_HAPTICS_CONFIG">DEFAULT_<wbr>HAPTICS_<wbr>CONFIG</a></dt><dt><a class="constant" href="constant.DEFAULT_LADDER_CONFIG.html" title="constant flint_music::chart_session::DEFAULT_LADDER_CONFIG">DEFAULT_<wbr>LADDER_<wbr>CONFIG</a></dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.judgment_offset_samples.html" title="fn flint_music::chart_session::judgment_offset_samples">judgment_<wbr>offset_<wbr>samples</a></dt><dd>Total judgment offset (measured output latency + tap calibration) in
+samples — the number the input capture subtracts at the stamp. One
+definition so the CLI harness and the player app can never disagree.</dd><dt><a class="fn" href="fn.latest_calibration_ms.html" title="fn flint_music::chart_session::latest_calibration_ms">latest_<wbr>calibration_<wbr>ms</a></dt><dd>Newest tap-to-beat calibration: <code>(file_name, median_ms)</code>. Positive =
+the player’s taps land late relative to the latency-compensated grid.</dd><dt><a class="fn" href="fn.latest_latency_ms.html" title="fn flint_music::chart_session::latest_latency_ms">latest_<wbr>latency_<wbr>ms</a></dt><dd>Newest output-latency measurement: <code>(file_name, ms)</code>. Prefers the
+loopback mean, falling back to the driver-reported mean.</dd><dt><a class="fn" href="fn.lean_mode_name.html" title="fn flint_music::chart_session::lean_mode_name">lean_<wbr>mode_<wbr>name</a></dt><dt><a class="fn" href="fn.parse_lean_mode.html" title="fn flint_music::chart_session::parse_lean_mode">parse_<wbr>lean_<wbr>mode</a></dt><dd>Shared by play-chart and replay-chart so live and offline judge alike.</dd><dt><a class="fn" href="fn.resolve_coherence_config.html" title="fn flint_music::chart_session::resolve_coherence_config">resolve_<wbr>coherence_<wbr>config</a></dt><dd>Resolution chain: explicit path (must load) &gt; session-header snapshot &gt;
+<code>&lt;base_dir&gt;/config/coherence.toml</code> when present &gt; built-in defaults.</dd><dt><a class="fn" href="fn.resolve_cues.html" title="fn flint_music::chart_session::resolve_cues">resolve_<wbr>cues</a></dt><dd>Resolve a chart’s cues against the conductor, sorted by sample.</dd><dt><a class="fn" href="fn.resolve_timing_offsets.html" title="fn flint_music::chart_session::resolve_timing_offsets">resolve_<wbr>timing_<wbr>offsets</a></dt><dd>Read the newest committed latency measurement and tap calibration from
+<code>&lt;base_dir&gt;/logs/latency/</code> (see <a href="fn.latest_latency_ms.html" title="fn flint_music::chart_session::latest_latency_ms"><code>latest_latency_ms</code></a> /
+<a href="fn.latest_calibration_ms.html" title="fn flint_music::chart_session::latest_calibration_ms"><code>latest_calibration_ms</code></a>) and describe the outcome.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.VisualFrame.html" title="type flint_music::chart_session::VisualFrame">Visual<wbr>Frame</a></dt><dd>The pre-ADR-0020 name, kept so existing front ends read naturally.</dd></dl></section></div></main></body></html>

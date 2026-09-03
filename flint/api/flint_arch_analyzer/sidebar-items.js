@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["analyze","find_workspace_root","main"],"mod":["cargo_parser","metrics","model","source_parser"]};

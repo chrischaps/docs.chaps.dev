@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["ClipPlaybackState"]};
+window.SIDEBAR_ITEMS = {"enum":["LayerMode"],"struct":["AnimLayer","ClipPlaybackState"]};

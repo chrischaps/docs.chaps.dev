@@ -1,0 +1,235 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\flint-music\src\analysis.rs`."><title>analysis.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="flint_music" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">flint_music/</div>analysis.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Programmatic ears: pure analysis functions over rendered audio buffers.
+<a href=#2 id=2 data-nosnippet>2</a>//!
+<a href=#3 id=3 data-nosnippet>3</a>//! These are the assertions the offline render harness makes available —
+<a href=#4 id=4 data-nosnippet>4</a>//! per-tone envelopes (Goertzel), level-transition location, and click
+<a href=#5 id=5 data-nosnippet>5</a>//! detection — so seam and scheduling checks are automated tests instead of
+<a href=#6 id=6 data-nosnippet>6</a>//! listening tasks. All functions take interleaved stereo f32 as produced by
+<a href=#7 id=7 data-nosnippet>7</a>//! [`crate::offline::render_offline`], where index 0 = suite sample 0.
+<a href=#8 id=8 data-nosnippet>8</a>
+<a href=#9 id=9 data-nosnippet>9</a>/// Power of a single frequency over `[from, to)` (suite samples), via the
+<a href=#10 id=10 data-nosnippet>10</a>/// Goertzel algorithm on the mono sum. Cheap: one pass, no FFT.
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">pub fn </span>goertzel_power(
+<a href=#12 id=12 data-nosnippet>12</a>    interleaved: <span class="kw-2">&amp;</span>[f32],
+<a href=#13 id=13 data-nosnippet>13</a>    sample_rate: u32,
+<a href=#14 id=14 data-nosnippet>14</a>    freq: f64,
+<a href=#15 id=15 data-nosnippet>15</a>    from: usize,
+<a href=#16 id=16 data-nosnippet>16</a>    to: usize,
+<a href=#17 id=17 data-nosnippet>17</a>) -&gt; f64 {
+<a href=#18 id=18 data-nosnippet>18</a>    <span class="kw">let </span>frames = interleaved.len() / <span class="number">2</span>;
+<a href=#19 id=19 data-nosnippet>19</a>    <span class="kw">let </span>(from, to) = (from.min(frames), to.min(frames));
+<a href=#20 id=20 data-nosnippet>20</a>    <span class="kw">if </span>to &lt;= from {
+<a href=#21 id=21 data-nosnippet>21</a>        <span class="kw">return </span><span class="number">0.0</span>;
+<a href=#22 id=22 data-nosnippet>22</a>    }
+<a href=#23 id=23 data-nosnippet>23</a>    <span class="kw">let </span>n = to - from;
+<a href=#24 id=24 data-nosnippet>24</a>    <span class="kw">let </span>w = std::f64::consts::TAU * freq / sample_rate <span class="kw">as </span>f64;
+<a href=#25 id=25 data-nosnippet>25</a>    <span class="kw">let </span>coeff = <span class="number">2.0 </span>* w.cos();
+<a href=#26 id=26 data-nosnippet>26</a>    <span class="kw">let </span>(<span class="kw-2">mut </span>s1, <span class="kw-2">mut </span>s2) = (<span class="number">0.0f64</span>, <span class="number">0.0</span>);
+<a href=#27 id=27 data-nosnippet>27</a>    <span class="kw">for </span>i <span class="kw">in </span>from..to {
+<a href=#28 id=28 data-nosnippet>28</a>        <span class="kw">let </span>x = (interleaved[i * <span class="number">2</span>] + interleaved[i * <span class="number">2 </span>+ <span class="number">1</span>]) <span class="kw">as </span>f64 * <span class="number">0.5</span>;
+<a href=#29 id=29 data-nosnippet>29</a>        <span class="kw">let </span>s0 = x + coeff * s1 - s2;
+<a href=#30 id=30 data-nosnippet>30</a>        s2 = s1;
+<a href=#31 id=31 data-nosnippet>31</a>        s1 = s0;
+<a href=#32 id=32 data-nosnippet>32</a>    }
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="kw">let </span>power = s1 * s1 + s2 * s2 - coeff * s1 * s2;
+<a href=#34 id=34 data-nosnippet>34</a>    power / (n <span class="kw">as </span>f64 * n <span class="kw">as </span>f64 / <span class="number">4.0</span>) <span class="comment">// normalize ~ amplitude^2
+<a href=#35 id=35 data-nosnippet>35</a></span>}
+<a href=#36 id=36 data-nosnippet>36</a>
+<a href=#37 id=37 data-nosnippet>37</a><span class="doccomment">/// Per-window power of one frequency along the whole buffer: element `i`
+<a href=#38 id=38 data-nosnippet>38</a>/// covers suite samples `[i*window, (i+1)*window)`.
+<a href=#39 id=39 data-nosnippet>39</a></span><span class="kw">pub fn </span>tone_envelope(interleaved: <span class="kw-2">&amp;</span>[f32], sample_rate: u32, freq: f64, window: usize) -&gt; Vec&lt;f64&gt; {
+<a href=#40 id=40 data-nosnippet>40</a>    <span class="kw">let </span>frames = interleaved.len() / <span class="number">2</span>;
+<a href=#41 id=41 data-nosnippet>41</a>    (<span class="number">0</span>..frames / window)
+<a href=#42 id=42 data-nosnippet>42</a>        .map(|i| goertzel_power(interleaved, sample_rate, freq, i * window, (i + <span class="number">1</span>) * window))
+<a href=#43 id=43 data-nosnippet>43</a>        .collect()
+<a href=#44 id=44 data-nosnippet>44</a>}
+<a href=#45 id=45 data-nosnippet>45</a>
+<a href=#46 id=46 data-nosnippet>46</a><span class="doccomment">/// Locate level transitions of one tone: suite samples where its windowed
+<a href=#47 id=47 data-nosnippet>47</a>/// power first crosses below (drop) or above (rise) the midpoint between the
+<a href=#48 id=48 data-nosnippet>48</a>/// local levels on either side. Resolution is one window.
+<a href=#49 id=49 data-nosnippet>49</a></span><span class="kw">pub fn </span>find_tone_transitions(envelope: <span class="kw-2">&amp;</span>[f64], window: usize) -&gt; Vec&lt;(i64, TransitionKind)&gt; {
+<a href=#50 id=50 data-nosnippet>50</a>    <span class="comment">// Reference level: median-ish via max of the envelope.
+<a href=#51 id=51 data-nosnippet>51</a>    </span><span class="kw">let </span>peak = envelope.iter().cloned().fold(<span class="number">0.0f64</span>, f64::max);
+<a href=#52 id=52 data-nosnippet>52</a>    <span class="kw">if </span>peak &lt;= <span class="number">0.0 </span>{
+<a href=#53 id=53 data-nosnippet>53</a>        <span class="kw">return </span><span class="macro">vec!</span>[];
+<a href=#54 id=54 data-nosnippet>54</a>    }
+<a href=#55 id=55 data-nosnippet>55</a>    <span class="kw">let </span>hi = peak * <span class="number">0.5</span>; <span class="comment">// above = "on"
+<a href=#56 id=56 data-nosnippet>56</a>    </span><span class="kw">let </span>lo = peak * <span class="number">0.01</span>; <span class="comment">// below = "off" (-20 dB)
+<a href=#57 id=57 data-nosnippet>57</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="kw">let </span><span class="kw-2">mut </span>state_on = envelope.first().map(|<span class="kw-2">&amp;</span>e| e &gt; hi).unwrap_or(<span class="bool-val">false</span>);
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">for </span>(i, <span class="kw-2">&amp;</span>e) <span class="kw">in </span>envelope.iter().enumerate() {
+<a href=#60 id=60 data-nosnippet>60</a>        <span class="kw">if </span>state_on &amp;&amp; e &lt; lo {
+<a href=#61 id=61 data-nosnippet>61</a>            state_on = <span class="bool-val">false</span>;
+<a href=#62 id=62 data-nosnippet>62</a>            out.push(((i * window) <span class="kw">as </span>i64, TransitionKind::Drop));
+<a href=#63 id=63 data-nosnippet>63</a>        } <span class="kw">else if </span>!state_on &amp;&amp; e &gt; hi {
+<a href=#64 id=64 data-nosnippet>64</a>            state_on = <span class="bool-val">true</span>;
+<a href=#65 id=65 data-nosnippet>65</a>            out.push(((i * window) <span class="kw">as </span>i64, TransitionKind::Rise));
+<a href=#66 id=66 data-nosnippet>66</a>        }
+<a href=#67 id=67 data-nosnippet>67</a>    }
+<a href=#68 id=68 data-nosnippet>68</a>    out
+<a href=#69 id=69 data-nosnippet>69</a>}
+<a href=#70 id=70 data-nosnippet>70</a>
+<a href=#71 id=71 data-nosnippet>71</a><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+<a href=#72 id=72 data-nosnippet>72</a></span><span class="kw">pub enum </span>TransitionKind {
+<a href=#73 id=73 data-nosnippet>73</a>    Drop,
+<a href=#74 id=74 data-nosnippet>74</a>    Rise,
+<a href=#75 id=75 data-nosnippet>75</a>}
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a><span class="doccomment">/// Max per-channel sample-to-sample step — the cheap click/discontinuity
+<a href=#78 id=78 data-nosnippet>78</a>/// detector. Scripted changes always ramp (&gt;= a few ms), so any step above
+<a href=#79 id=79 data-nosnippet>79</a>/// the content's natural slew is a genuine discontinuity.
+<a href=#80 id=80 data-nosnippet>80</a></span><span class="kw">pub fn </span>max_step(interleaved: <span class="kw-2">&amp;</span>[f32]) -&gt; f32 {
+<a href=#81 id=81 data-nosnippet>81</a>    <span class="kw">let </span><span class="kw-2">mut </span>max = <span class="number">0.0f32</span>;
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">for </span>ch <span class="kw">in </span><span class="number">0</span>..<span class="number">2 </span>{
+<a href=#83 id=83 data-nosnippet>83</a>        <span class="kw">let </span><span class="kw-2">mut </span>prev: <span class="prelude-ty">Option</span>&lt;f32&gt; = <span class="prelude-val">None</span>;
+<a href=#84 id=84 data-nosnippet>84</a>        <span class="kw">for </span>frame <span class="kw">in </span>interleaved.chunks_exact(<span class="number">2</span>) {
+<a href=#85 id=85 data-nosnippet>85</a>            <span class="kw">let </span>x = frame[ch];
+<a href=#86 id=86 data-nosnippet>86</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = prev {
+<a href=#87 id=87 data-nosnippet>87</a>                max = max.max((x - p).abs());
+<a href=#88 id=88 data-nosnippet>88</a>            }
+<a href=#89 id=89 data-nosnippet>89</a>            prev = <span class="prelude-val">Some</span>(x);
+<a href=#90 id=90 data-nosnippet>90</a>        }
+<a href=#91 id=91 data-nosnippet>91</a>    }
+<a href=#92 id=92 data-nosnippet>92</a>    max
+<a href=#93 id=93 data-nosnippet>93</a>}
+<a href=#94 id=94 data-nosnippet>94</a>
+<a href=#95 id=95 data-nosnippet>95</a><span class="doccomment">/// Peak absolute sample value.
+<a href=#96 id=96 data-nosnippet>96</a></span><span class="kw">pub fn </span>peak(interleaved: <span class="kw-2">&amp;</span>[f32]) -&gt; f32 {
+<a href=#97 id=97 data-nosnippet>97</a>    interleaved.iter().fold(<span class="number">0.0f32</span>, |m, <span class="kw-2">&amp;</span>x| m.max(x.abs()))
+<a href=#98 id=98 data-nosnippet>98</a>}
+<a href=#99 id=99 data-nosnippet>99</a>
+<a href=#100 id=100 data-nosnippet>100</a><span class="attr">#[cfg(test)]
+<a href=#101 id=101 data-nosnippet>101</a></span><span class="kw">mod </span>tests {
+<a href=#102 id=102 data-nosnippet>102</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#103 id=103 data-nosnippet>103</a>
+<a href=#104 id=104 data-nosnippet>104</a>    <span class="attr">#[test]
+<a href=#105 id=105 data-nosnippet>105</a>    </span><span class="kw">fn </span>goertzel_finds_its_tone() {
+<a href=#106 id=106 data-nosnippet>106</a>        <span class="kw">let </span>sr = <span class="number">48_000u32</span>;
+<a href=#107 id=107 data-nosnippet>107</a>        <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
+<a href=#108 id=108 data-nosnippet>108</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..sr <span class="kw">as </span>usize {
+<a href=#109 id=109 data-nosnippet>109</a>            <span class="kw">let </span>t = i <span class="kw">as </span>f64 / sr <span class="kw">as </span>f64;
+<a href=#110 id=110 data-nosnippet>110</a>            <span class="kw">let </span>v = (std::f64::consts::TAU * <span class="number">1000.0 </span>* t).sin() <span class="kw">as </span>f32 * <span class="number">0.5</span>;
+<a href=#111 id=111 data-nosnippet>111</a>            buf.push(v);
+<a href=#112 id=112 data-nosnippet>112</a>            buf.push(v);
+<a href=#113 id=113 data-nosnippet>113</a>        }
+<a href=#114 id=114 data-nosnippet>114</a>        <span class="kw">let </span>on = goertzel_power(<span class="kw-2">&amp;</span>buf, sr, <span class="number">1000.0</span>, <span class="number">0</span>, <span class="number">48_000</span>);
+<a href=#115 id=115 data-nosnippet>115</a>        <span class="kw">let </span>off = goertzel_power(<span class="kw-2">&amp;</span>buf, sr, <span class="number">3000.0</span>, <span class="number">0</span>, <span class="number">48_000</span>);
+<a href=#116 id=116 data-nosnippet>116</a>        <span class="macro">assert!</span>(on &gt; <span class="number">0.2</span>, <span class="string">"tone power {on}"</span>);
+<a href=#117 id=117 data-nosnippet>117</a>        <span class="macro">assert!</span>(off &lt; on / <span class="number">1000.0</span>, <span class="string">"off-tone power {off} vs {on}"</span>);
+<a href=#118 id=118 data-nosnippet>118</a>    }
+<a href=#119 id=119 data-nosnippet>119</a>
+<a href=#120 id=120 data-nosnippet>120</a>    <span class="attr">#[test]
+<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="kw">fn </span>transitions_locate_a_gated_tone() {
+<a href=#122 id=122 data-nosnippet>122</a>        <span class="kw">let </span>sr = <span class="number">48_000u32</span>;
+<a href=#123 id=123 data-nosnippet>123</a>        <span class="kw">let </span>window = <span class="number">64usize</span>;
+<a href=#124 id=124 data-nosnippet>124</a>        <span class="comment">// 1 kHz tone, silent in the middle third [16000, 32000).
+<a href=#125 id=125 data-nosnippet>125</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
+<a href=#126 id=126 data-nosnippet>126</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">48_000usize </span>{
+<a href=#127 id=127 data-nosnippet>127</a>            <span class="kw">let </span>t = i <span class="kw">as </span>f64 / sr <span class="kw">as </span>f64;
+<a href=#128 id=128 data-nosnippet>128</a>            <span class="kw">let </span>amp = <span class="kw">if </span>(<span class="number">16_000</span>..<span class="number">32_000</span>).contains(<span class="kw-2">&amp;</span>i) {
+<a href=#129 id=129 data-nosnippet>129</a>                <span class="number">0.0
+<a href=#130 id=130 data-nosnippet>130</a>            </span>} <span class="kw">else </span>{
+<a href=#131 id=131 data-nosnippet>131</a>                <span class="number">0.5
+<a href=#132 id=132 data-nosnippet>132</a>            </span>};
+<a href=#133 id=133 data-nosnippet>133</a>            <span class="kw">let </span>v = (std::f64::consts::TAU * <span class="number">1000.0 </span>* t).sin() <span class="kw">as </span>f32 * amp <span class="kw">as </span>f32;
+<a href=#134 id=134 data-nosnippet>134</a>            buf.push(v);
+<a href=#135 id=135 data-nosnippet>135</a>            buf.push(v);
+<a href=#136 id=136 data-nosnippet>136</a>        }
+<a href=#137 id=137 data-nosnippet>137</a>        <span class="kw">let </span>env = tone_envelope(<span class="kw-2">&amp;</span>buf, sr, <span class="number">1000.0</span>, window);
+<a href=#138 id=138 data-nosnippet>138</a>        <span class="kw">let </span>tr = find_tone_transitions(<span class="kw-2">&amp;</span>env, window);
+<a href=#139 id=139 data-nosnippet>139</a>        <span class="macro">assert_eq!</span>(tr.len(), <span class="number">2</span>, <span class="string">"{tr:?}"</span>);
+<a href=#140 id=140 data-nosnippet>140</a>        <span class="macro">assert_eq!</span>(tr[<span class="number">0</span>].<span class="number">1</span>, TransitionKind::Drop);
+<a href=#141 id=141 data-nosnippet>141</a>        <span class="macro">assert!</span>(
+<a href=#142 id=142 data-nosnippet>142</a>            (tr[<span class="number">0</span>].<span class="number">0 </span>- <span class="number">16_000</span>).unsigned_abs() <span class="kw">as </span>usize &lt;= <span class="number">2 </span>* window,
+<a href=#143 id=143 data-nosnippet>143</a>            <span class="string">"{tr:?}"
+<a href=#144 id=144 data-nosnippet>144</a>        </span>);
+<a href=#145 id=145 data-nosnippet>145</a>        <span class="macro">assert_eq!</span>(tr[<span class="number">1</span>].<span class="number">1</span>, TransitionKind::Rise);
+<a href=#146 id=146 data-nosnippet>146</a>        <span class="macro">assert!</span>(
+<a href=#147 id=147 data-nosnippet>147</a>            (tr[<span class="number">1</span>].<span class="number">0 </span>- <span class="number">32_000</span>).unsigned_abs() <span class="kw">as </span>usize &lt;= <span class="number">2 </span>* window,
+<a href=#148 id=148 data-nosnippet>148</a>            <span class="string">"{tr:?}"
+<a href=#149 id=149 data-nosnippet>149</a>        </span>);
+<a href=#150 id=150 data-nosnippet>150</a>    }
+<a href=#151 id=151 data-nosnippet>151</a>
+<a href=#152 id=152 data-nosnippet>152</a>    <span class="attr">#[test]
+<a href=#153 id=153 data-nosnippet>153</a>    </span><span class="kw">fn </span>max_step_catches_a_click() {
+<a href=#154 id=154 data-nosnippet>154</a>        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0.0f32</span>; <span class="number">2000</span>];
+<a href=#155 id=155 data-nosnippet>155</a>        <span class="macro">assert!</span>(max_step(<span class="kw-2">&amp;</span>buf) == <span class="number">0.0</span>);
+<a href=#156 id=156 data-nosnippet>156</a>        buf[<span class="number">1000</span>] = <span class="number">0.9</span>; <span class="comment">// hard discontinuity on the left channel
+<a href=#157 id=157 data-nosnippet>157</a>        </span><span class="macro">assert!</span>(max_step(<span class="kw-2">&amp;</span>buf) &gt;= <span class="number">0.9</span>);
+<a href=#158 id=158 data-nosnippet>158</a>    }
+<a href=#159 id=159 data-nosnippet>159</a>}</code></pre></div></section></main></body></html>

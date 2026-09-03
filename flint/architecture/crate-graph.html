@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,51 +179,49 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="crate-dependency-graph"><a class="header" href="#crate-dependency-graph">Crate Dependency Graph</a></h1>
-<p>This page shows how Flint’s twenty-three crates depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
+<p>This page shows how Flint’s twenty-six crates (plus the <code>tools/arch-analyzer</code> workspace member) depend on each other. Dependencies flow downward — higher crates depend on lower ones, never the reverse.</p>
 <h2 id="dependency-diagram"><a class="header" href="#dependency-diagram">Dependency Diagram</a></h2>
-<pre><code>          ┌─────────────┐                ┌──────────────┐
-          │  flint-cli  │                │ flint-player │
-          │  (binary)   │                │   (binary)   │
-          └──────┬──────┘                └──────┬───────┘
-                 │                              │
-    ┌────┬───┬──┴──┬────┬────┬─────┐   ┌───┬───┴───┬───┬───┬───┬───┐
-    │    │   │     │    │    │     │   │   │       │   │   │   │   │
-    ▼    │   ▼     ▼    ▼    ▼     ▼   ▼   ▼       ▼   │   │   │   │
- ┌──────┐│┌─────┐┌────┐│ ┌─────┐┌────────┐┌────────┐┌────────┐│   │
- │viewer│││scene││qry ││ │const││asset-gen││runtime ││physics ││   │
- └──┬───┘│└──┬──┘└─┬──┘│ └──┬──┘└───┬────┘└───┬────┘└───┬────┘│   │
-    │    │   │     │   │    │       │          │         │     │   │
-    │    ▼   │     │   │    │       │          │         │     ▼   │
-    │ ┌──────────┐ │   │    │       │          │         │  ┌─────────┐
-    ├►│  render  │◄┘   │    │       │          │         ├─►│ script  │
-    │ └────┬─────┘     │    │       │          │         │  └────┬────┘
-    │      │           │    │       │          │         │       │
-    │      │           │    │       │          │         ▼       ▼
-    │      │           │    │       │          │      ┌─────────────┐
-    │      │           │    │       │          │      │audio  anim  │
-    │      ▼           │    │       │          │      └──────┬──────┘
-    │ ┌──────────┐     │   ┌┘      │          │             │
-    │ │  import  │     │   │       │          │             │
-    │ └────┬─────┘     │   │       │          │             │
-    │      │           ▼   ▼       ▼          ▼             ▼
-    │      │    ┌──────────────────────────────────────────────────┐
-    │      │    │              flint-ecs                            │
-    │      │    │  (hecs wrapper, stable IDs, hierarchy)           │
-    │      │    └────────────────┬─────────────────────────────────┘
-    │      │                    │
-    │      │                    ▼
-    │      │             ┌──────────────┐
-    │      │             │ flint-schema │
-    │      │             └──────┬───────┘
-    │      │                    │
-    │      ▼                    ▼
-    │ ┌──────────┐  ┌─────────────────────────────────────┐
-    │ │  asset   │  │            flint-core                │
-    │ └────┬─────┘  │ (EntityId, Vec3, Transform, Hash)   │
-    │      │        └─────────────────────────────────────┘
-    │      │                    ▲
-    └──────┴────────────────────┘
+<pre><code>                     ┌─────────────┐
+                     │  flint-cli  │  (binary; also embeds the player)
+                     └──────┬──────┘
+                            │
+      ┌──────┬──────┬───────┼────────┬──────────┬───────────┐
+      ▼      ▼      ▼       ▼        ▼          ▼           ▼
+  ┌──────┐┌─────┐┌──────┐┌────────┐┌────────┐┌───────┐┌────────────┐
+  │viewer││query││const ││asset-gen││procgen ││ music ││flint-player│ (binary)
+  └──┬───┘└──┬──┘└──┬───┘└───┬────┘└───┬────┘└──┬────┘└─────┬──────┘
+     │       │      │        │         │        │           │
+     ▼       │      │        │         │        ▼           │
+  ┌────────┐ │      │        │         │ ┌─────────────┐    │
+  │debug-ui│◄┼──────┼────────┼─────────┼─┤input-capture│◄───┤  (player → debug-ui is optional)
+  └──┬─────┘ │      │        │         │ └─────────────┘    │
+     │       │      │        │         │                    │
+     ▼       │      │        │         │   ┌────────┬───────┼────────┬──────────┐
+  ┌────────┐ │      │        │         │   ▼        ▼       ▼        ▼          ▼
+  │ render │◄┼──────┼────────┼─────────┼───────────────────────────────────────────┐
+  └──┬──┬──┘ │      │        │         │ ┌──────┐┌───────┐┌────────┐┌─────────┐┌─────────┐
+     │  │    │      │        │         │ │script││physics││ audio  ││animation││particles│
+     │  ▼    │      │        │         │ └──┬───┘└───┬───┘└───┬────┘└────┬────┘└────┬────┘
+  ┌────────┐ │      │        │         │    └────────┴────────┴──────────┴──────────┘
+  │terrain │ │      │        │         │                       │
+  └───┬────┘ │      │        │         │                       ▼
+      │      │      │        │         │                 ┌───────────┐
+      ▼      ▼      ▼        ▼         ▼                 │  runtime  │
+  ┌──────┐┌────────────────────────────────────────┐     └─────┬─────┘
+  │scene ││                 flint-ecs               │◄──────────┘
+  └──┬───┘│      (hecs wrapper, stable IDs)        │
+     │    └──────────────────┬──────────────────────┘
+     │                       ▼
+     │                ┌──────────────┐        ┌────────┐        ┌────────┐
+     └───────────────►│ flint-schema │        │ import │───────►│ asset  │
+                      └──────┬───────┘        └───┬────┘        └───┬────┘
+                             ▼                    ▼                 ▼
+                      ┌─────────────────────────────────────────────┐
+                      │                  flint-core                  │
+                      │       (EntityId, Vec3, Transform, Hash)      │
+                      └─────────────────────────────────────────────┘
 </code></pre>
+<p>The long arrow into <code>render</code> comes from the player (top right) and from <code>viewer</code> and <code>debug-ui</code>; the systems row beneath it (<code>script</code>, <code>physics</code>, <code>audio</code>, <code>animation</code>, <code>particles</code>) does not depend on <code>render</code>. Some edges are left out for legibility (every crate reaches <code>flint-core</code>; <code>render</code>, <code>animation</code>, <code>viewer</code> and <code>asset-gen</code> reach <code>import</code>; <code>render</code> reaches <code>scene</code>; <code>terrain</code> also feeds <code>debug-ui</code>). The table below is complete.</p>
 <h2 id="dependency-details"><a class="header" href="#dependency-details">Dependency Details</a></h2>
 <div class="table-wrapper">
 <table>
@@ -232,28 +230,32 @@
 </thead>
 <tbody>
 <tr><td><code>flint-core</code></td><td><em>(none)</em></td><td>all other crates</td></tr>
-<tr><td><code>flint-schema</code></td><td>core</td><td>ecs, constraint</td></tr>
-<tr><td><code>flint-ecs</code></td><td>core, schema</td><td>scene, query, render, constraint, runtime, physics, audio, animation, viewer, player, cli</td></tr>
-<tr><td><code>flint-asset</code></td><td>core</td><td>import, cli</td></tr>
-<tr><td><code>flint-import</code></td><td>core, asset</td><td>render, animation, viewer, cli, player</td></tr>
+<tr><td><code>flint-schema</code></td><td>core</td><td>ecs, scene, constraint, viewer, player, cli, android</td></tr>
+<tr><td><code>flint-ecs</code></td><td>core, schema</td><td>scene, query, render, constraint, runtime, physics, audio, animation, particles, script, viewer, player, cli, android</td></tr>
+<tr><td><code>flint-asset</code></td><td>core</td><td>import, asset-gen, player, cli</td></tr>
+<tr><td><code>flint-import</code></td><td>core, asset</td><td>render, animation, asset-gen, viewer, player, cli</td></tr>
 <tr><td><code>flint-query</code></td><td>core, ecs</td><td>constraint, cli</td></tr>
-<tr><td><code>flint-scene</code></td><td>core, ecs, schema</td><td>viewer, player, cli</td></tr>
+<tr><td><code>flint-scene</code></td><td>core, ecs, schema</td><td>render, debug-ui, viewer, player, cli, android</td></tr>
 <tr><td><code>flint-constraint</code></td><td>core, ecs, schema, query</td><td>viewer, cli</td></tr>
-<tr><td><code>flint-render</code></td><td>core, ecs, import</td><td>viewer, player, cli</td></tr>
-<tr><td><code>flint-runtime</code></td><td>core, ecs</td><td>physics, audio, animation, player</td></tr>
-<tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>script, player</td></tr>
+<tr><td><code>flint-terrain</code></td><td>core</td><td>render, debug-ui, player, cli</td></tr>
+<tr><td><code>flint-render</code></td><td>core, ecs, scene, import, terrain</td><td>debug-ui, viewer, player, cli</td></tr>
+<tr><td><code>flint-debug-ui</code></td><td>core, render, terrain, scene</td><td>viewer, player (optional, <code>debug-hud</code> feature)</td></tr>
+<tr><td><code>flint-runtime</code></td><td>core, ecs</td><td>physics, audio, animation, particles, script, player, cli</td></tr>
+<tr><td><code>flint-physics</code></td><td>core, ecs, runtime</td><td>script, player, cli</td></tr>
 <tr><td><code>flint-audio</code></td><td>core, ecs, runtime</td><td>player</td></tr>
-<tr><td><code>flint-animation</code></td><td>core, ecs, import, runtime</td><td>player</td></tr>
+<tr><td><code>flint-music</code></td><td>core</td><td>input-capture, player, cli</td></tr>
+<tr><td><code>flint-input-capture</code></td><td>core, music</td><td>player, cli</td></tr>
+<tr><td><code>flint-animation</code></td><td>core, ecs, import, runtime</td><td>script, player, cli</td></tr>
 <tr><td><code>flint-particles</code></td><td>core, ecs, runtime</td><td>player</td></tr>
-<tr><td><code>flint-script</code></td><td>core, ecs, runtime, physics</td><td>player</td></tr>
-<tr><td><code>flint-terrain</code></td><td>core</td><td>player</td></tr>
+<tr><td><code>flint-script</code></td><td>core, ecs, runtime, physics, animation</td><td>player</td></tr>
 <tr><td><code>flint-asset-gen</code></td><td>core, asset, import</td><td>cli</td></tr>
-<tr><td><code>flint-procgen</code></td><td>core</td><td>cli, player, procgen-ai</td></tr>
-<tr><td><code>flint-procgen-ai</code></td><td>core, procgen</td><td>cli</td></tr>
-<tr><td><code>flint-viewer</code></td><td>core, ecs, scene, schema, render, import, constraint</td><td>cli</td></tr>
-<tr><td><code>flint-player</code></td><td>core, schema, ecs, scene, render, runtime, physics, audio, animation, particles, script, import, asset, terrain, procgen</td><td><em>(binary entry point)</em></td></tr>
-<tr><td><code>flint-android</code></td><td>player</td><td><em>(binary entry point, excluded from default members)</em></td></tr>
-<tr><td><code>flint-cli</code></td><td>all crates</td><td><em>(binary entry point)</em></td></tr>
+<tr><td><code>flint-procgen</code></td><td>core</td><td>procgen-ai, player, cli</td></tr>
+<tr><td><code>flint-procgen-ai</code></td><td>procgen</td><td><em>(tool-time only; not a default member)</em></td></tr>
+<tr><td><code>flint-viewer</code></td><td>core, ecs, scene, schema, render, debug-ui, import, constraint</td><td>cli</td></tr>
+<tr><td><code>flint-player</code></td><td>core, asset, schema, ecs, scene, render, runtime, physics, import, audio, music, input-capture, animation, particles, terrain, script, procgen, debug-ui (optional)</td><td>cli, android</td></tr>
+<tr><td><code>flint-android</code></td><td>player, scene, schema, ecs</td><td><em>(binary entry point, excluded from default members)</em></td></tr>
+<tr><td><code>flint-cli</code></td><td>core, schema, ecs, scene, query, render, constraint, asset, asset-gen, import, animation, runtime, physics, player, terrain, procgen, viewer, music, input-capture</td><td><em>(binary entry point)</em></td></tr>
+<tr><td><code>flint-arch-analyzer</code> (<code>tools/</code>)</td><td><em>(no engine crates)</em></td><td><em>(standalone tool; not a default member)</em></td></tr>
 </tbody>
 </table>
 </div>
@@ -264,13 +266,14 @@
 <li><strong>Core</strong> — fundamental types (<code>flint-core</code>)</li>
 <li><strong>Schema</strong> — data definitions (<code>flint-schema</code>)</li>
 <li><strong>Storage</strong> — entity and asset management (<code>flint-ecs</code>, <code>flint-asset</code>)</li>
-<li><strong>Logic</strong> — query, scene, constraint, import, asset-gen, procgen, procgen-ai</li>
-<li><strong>Systems</strong> — render, runtime, physics, audio, animation, particles, script, terrain</li>
-<li><strong>Applications</strong> — viewer, player, android</li>
+<li><strong>Logic</strong> — query, scene, constraint, import, asset-gen, procgen, procgen-ai, music</li>
+<li><strong>Systems</strong> — render, terrain, runtime, physics, audio, input-capture, animation, particles, script</li>
+<li><strong>Tooling overlays</strong> — debug-ui (panels over the renderer), viewer</li>
+<li><strong>Applications</strong> — player, android</li>
 <li><strong>Interface</strong> — CLI binary (<code>flint-cli</code>), player binary (<code>flint-player</code>)</li>
 </ol>
-<p><strong>Two entry points.</strong> The CLI binary (<code>flint-cli</code>) serves scene authoring and validation workflows. The player binary (<code>flint-player</code>) serves interactive gameplay. Both share the same underlying crate hierarchy.</p>
-<p><strong>Mostly independent subsystems.</strong> The constraint, asset, physics, audio, animation, particles, asset generation, and render systems don’t depend on each other. The one exception is <code>flint-script</code>, which depends on <code>flint-physics</code> for raycasting and camera direction access. This means most subsystems can be built and tested in isolation.</p>
+<p><strong>Two entry points.</strong> The CLI binary (<code>flint-cli</code>) serves scene authoring, validation, and the rhythm-game tooling (<code>play-chart</code>, <code>replay-chart</code>, <code>render-suite</code>). The player binary (<code>flint-player</code>) serves interactive gameplay, and <code>flint-cli</code> embeds it so <code>flint play</code> and <code>flint-player</code> run the same code. Both share the same underlying crate hierarchy.</p>
+<p><strong>Mostly independent subsystems.</strong> The constraint, asset, physics, audio, particles, asset generation, and render systems don’t depend on each other. The exceptions are deliberate: <code>flint-script</code> depends on <code>flint-physics</code> (raycasts, camera direction) and <code>flint-animation</code> (layer and sequence bindings); <code>flint-input-capture</code> depends on <code>flint-music</code> for the <code>InputEvent</code> type and clock bridge; <code>flint-render</code> depends on <code>flint-terrain</code> for the shared vertex format and on <code>flint-scene</code> for the post-process and environment definitions; and <code>flint-debug-ui</code> depends on <code>flint-render</code> because its panels mirror and write through to renderer state. Most subsystems can still be built and tested in isolation.</p>
 <h2 id="external-dependencies"><a class="header" href="#external-dependencies">External Dependencies</a></h2>
 <p>Key third-party crates used across the workspace:</p>
 <div class="table-wrapper">
@@ -286,16 +289,25 @@
 <tr><td><code>wgpu</code></td><td>flint-render, flint-viewer, flint-player</td><td>GPU abstraction layer</td></tr>
 <tr><td><code>winit</code></td><td>flint-render, flint-viewer, flint-runtime, flint-player</td><td>Window and input management</td></tr>
 <tr><td><code>rapier3d</code></td><td>flint-physics</td><td>3D physics simulation</td></tr>
-<tr><td><code>kira</code></td><td>flint-audio</td><td>Spatial audio engine</td></tr>
+<tr><td><code>kira</code></td><td>flint-audio, flint-music</td><td>Spatial audio engine; stem playback and the six-bus mixer</td></tr>
 <tr><td><code>glam</code></td><td>flint-audio</td><td>Vec3/Quat types for Kira spatial positioning (via mint interop)</td></tr>
-<tr><td><code>egui</code></td><td>flint-viewer</td><td>Immediate-mode GUI framework</td></tr>
+<tr><td><code>symphonia</code></td><td>flint-music</td><td>Stem decoding for validation and offline rendering</td></tr>
+<tr><td><code>hound</code></td><td>flint-music</td><td>WAV output for <code>flint render-suite</code></td></tr>
+<tr><td><code>egui</code></td><td>flint-viewer, flint-player, flint-cli, flint-debug-ui</td><td>Immediate-mode GUI framework (inspector, HUD, debug panels)</td></tr>
+<tr><td><code>egui-snarl</code></td><td>flint-cli</td><td>Node graph widget for the texture pipeline editor</td></tr>
+<tr><td><code>rfd</code></td><td>flint-cli</td><td>Native file dialogs in the editors</td></tr>
 <tr><td><code>clap</code></td><td>flint-cli, flint-player</td><td>Command-line argument parsing</td></tr>
 <tr><td><code>thiserror</code></td><td>all library crates</td><td>Error derive macros</td></tr>
 <tr><td><code>sha2</code></td><td>flint-core, flint-asset</td><td>SHA-256 hashing</td></tr>
 <tr><td><code>gltf</code></td><td>flint-import</td><td>glTF file parsing (meshes, materials, skins, animations)</td></tr>
 <tr><td><code>crossbeam</code></td><td>flint-physics</td><td>Channel-based event collection (Rapier)</td></tr>
 <tr><td><code>rhai</code></td><td>flint-script</td><td>Embedded scripting language</td></tr>
-<tr><td><code>gilrs</code></td><td>flint-player</td><td>Gamepad input (buttons, axes, multi-controller)</td></tr>
+<tr><td><code>gilrs</code></td><td>flint-player, flint-input-capture</td><td>Gamepad input (buttons, axes, multi-controller)</td></tr>
+<tr><td><code>gilrs-core</code></td><td>flint-input-capture</td><td>Direct 1 kHz polling and XInput rumble</td></tr>
+<tr><td><code>noise</code></td><td>flint-procgen, flint-terrain</td><td>Perlin / simplex / Worley noise</td></tr>
+<tr><td><code>rand</code>, <code>rand_chacha</code></td><td>flint-procgen, flint-procgen-ai, flint-terrain</td><td>Seeded, reproducible randomness</td></tr>
+<tr><td><code>bimap</code></td><td>flint-ecs</td><td>The <code>EntityId</code> ↔ hecs <code>Entity</code> map</td></tr>
+<tr><td><code>syn</code></td><td>flint-arch-analyzer</td><td>Rust source parsing for the architecture analyzer</td></tr>
 <tr><td><code>ureq</code></td><td>flint-asset-gen</td><td>HTTP client for AI provider APIs</td></tr>
 <tr><td><code>uuid</code></td><td>flint-asset-gen</td><td>Unique job identifiers</td></tr>
 </tbody>

@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -276,8 +276,9 @@ speed = 1.0
 <ol>
 <li><strong>Import</strong> — <code>flint-import</code> extracts the skeleton (joint hierarchy, inverse bind matrices) and animation clips (per-joint keyframe channels) from glTF files</li>
 <li><strong>Evaluate</strong> — each frame, <code>flint-animation</code> samples the current clip time to produce local joint poses, walks the bone hierarchy to compute global transforms, and multiplies by inverse bind matrices to get final bone matrices</li>
-<li><strong>Render</strong> — bone matrices are uploaded to a GPU storage buffer. The skinned vertex shader transforms each vertex by its weighted bone influences</li>
+<li><strong>Render</strong> — bone matrices are uploaded to a per-entity GPU storage buffer. The skinned vertex shader transforms each vertex by its weighted bone influences. Because each entity owns its buffer, two entities instancing the same skinned asset animate independently: a crowd of the same model no longer shows whichever skeleton uploaded last.</li>
 </ol>
+<p>The importer handles all three glTF interpolation modes. <code>CUBICSPLINE</code> samplers store three outputs per timestamp (<code>in_tangent</code>, <code>value</code>, <code>out_tangent</code>) and are consumed as triples; a sampler with fewer than <code>3 x timestamps</code> outputs warns and degrades to <code>LINEAR</code>. Rotation tracks are also made hemisphere-continuous at clip load: Blender exports adjacent keys as <code>q</code> then <code>-q</code> on large joint rotations, and the Hermite curve between them would collapse through zero and snap the joint. Such keys (value and both tangents) are negated so the curve stays on one side of the sphere.</p>
 <h3 id="skinned-vertices"><a class="header" href="#skinned-vertices">Skinned Vertices</a></h3>
 <p>Skeletal meshes use a separate <code>SkinnedVertex</code> type with 6 attributes (vs. 4 for static geometry), avoiding 32 bytes of wasted bone data on every static vertex in the scene:</p>
 <div class="table-wrapper">
@@ -319,32 +320,169 @@ each press re-triggers the same clip from the top.</p>
 blend path, so a clip that previews correctly can still be broken in play.
 Verify crossfades in <code>flint play</code>.</p>
 </blockquote>
-<h3 id="additive-layers"><a class="header" href="#additive-layers">Additive Layers</a></h3>
-<p>An additive layer runs a second clip on its own clock and composes it <em>onto</em>
-the base pose, as a delta from rest, on keyed joints only:</p>
-<pre><code class="language-toml">[entities.character.animator]
-clip = "idle"
-layer_clip = "breathe"     # loops independently
-layer_weight = 1.0         # live dial: 0 = off
+<h3 id="animation-layers"><a class="header" href="#animation-layers">Animation Layers</a></h3>
+<p>Layers run extra clips on their own clocks and compose them onto the base
+pose, <strong>in array order, after any crossfade</strong>. Each layer has a weight, a
+mode, and an optional bone mask:</p>
+<pre><code class="language-toml">[entities.starthing.animator]
+clip = "WalkCycle"
+layers = [
+  { clip = "StarCower", weight = 1.0, mode = "additive", mask = "head" },
+]
 </code></pre>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+<tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>layer_clip</code></td><td>string</td><td>“”</td><td>Additive layer clip</td></tr>
-<tr><td><code>layer_weight</code></td><td>f32</td><td>1.0</td><td>Layer strength (0 = off)</td></tr>
+<tr><td><code>clip</code></td><td>string</td><td>“”</td><td>Clip to play on this layer (empty = inactive slot; indices stay stable)</td></tr>
+<tr><td><code>weight</code></td><td>f32</td><td>1.0</td><td>Live dial, 0 = off</td></tr>
+<tr><td><code>mode</code></td><td>string</td><td>“additive”</td><td><code>additive</code> or <code>override</code> (see below)</td></tr>
+<tr><td><code>mask</code></td><td>string</td><td>“”</td><td>Root joint name; the layer only touches that joint and its descendants. <strong>A name that is not in the skeleton masks out every joint</strong>, so a typo makes the layer contribute nothing rather than everything</td></tr>
+<tr><td><code>speed</code></td><td>f32</td><td>1.0</td><td>Multiplier on the entity’s base speed</td></tr>
+<tr><td><code>fade_target</code></td><td>f32</td><td>—</td><td>Weight to ramp toward (see the fade section below)</td></tr>
+<tr><td><code>fade_duration</code></td><td>f32</td><td>0.0</td><td>Seconds for the ramp; the engine zeroes it when the ramp lands</td></tr>
 </tbody>
 </table>
 </div>
-<p>Because the layer only touches joints it actually keys, a breathing or
-weight-shift layer authored on the spine leaves the legs entirely to the base
-clip. And because it is composed after blending, <strong>the layer survives base
-crossfades</strong> — the character keeps breathing through the transition from idle
-to walk rather than holding its breath for 0.3 seconds.</p>
-<p><code>layer_weight</code> is a live dial, so fading a layer in and out is a single field
-write.</p>
+<p>Layer indices run from <code>0</code> to <code>254</code>; the script API silently ignores anything at <code>255</code> or above (layer IDs travel as a byte in runtime bookkeeping).</p>
+<p><strong>Additive</strong> layers contribute each keyed joint’s <em>delta from rest</em>, scaled
+by weight. They suit overlays authored as “rest plus a gesture” — a breathing
+chest, the starthing’s cowering star-arms. <strong>Override</strong> layers blend each
+keyed joint <em>toward the clip’s pose</em> by weight — “upper body aims while the
+legs keep walking”, usually paired with a mask like <code>mask = "spine"</code>.</p>
+<p>Either way a layer only touches joints its clip actually keys (composing
+identity onto an un-keyed joint would corrupt one whose rest rotation is not
+identity), and because layers are composed after blending, <strong>they survive
+base crossfades</strong> — the character keeps breathing through the transition from
+idle to walk rather than holding its breath for 0.3 seconds.</p>
+<p>Layers are ordered: an additive layer under an override is replaced where the
+override keys; an additive layer on top of an override adds to it.</p>
+<p>The older single-layer fields still work and are treated as <code>layers[0]</code>:</p>
+<pre><code class="language-toml">layer_clip = "breathe"     # legacy alias for layers = [{ clip = "breathe", weight = ... }]
+layer_weight = 1.0
+</code></pre>
+<p>When <code>layers</code> is non-empty it wins and the legacy pair is ignored. The script
+API (<code>set_anim_layer</code> &amp; co.) migrates the legacy pair into <code>layers[0]</code> the
+first time it touches an entity.</p>
+<h4 id="previewing-layers"><a class="header" href="#previewing-layers">Previewing layers</a></h4>
+<p><code>flint edit &lt;model.gltf&gt;</code> has a <strong>Layers</strong> stack under the timeline: add rows,
+pick a clip per layer, drag weights (they work while paused), flip
+Add/Over, choose a mask joint, and solo/mute rows. The <strong>Skeleton colour</strong>
+combo under <em>View</em> paints the armature overlay and the node tree:</p>
+<ul>
+<li><strong>Last writer</strong> — yellow = base clip, one colour per layer, grey = rest pose</li>
+<li><strong>L<em>n</em> weight</strong> — grey → layer colour by the weight that layer applied</li>
+<li><strong>L<em>n</em> mask</strong> / <strong>L<em>n</em> keyed joints</strong> — which bones the mask / clip reaches</li>
+</ul>
+<p>Hover a joint in the node tree for a per-layer breakdown. The same setup can
+be rendered headlessly:</p>
+<pre><code class="language-bash">flint edit models/starthing.gltf --render out.png --clip WalkCycle --layer StarCower:1.0:head
+# --layer clip[:weight[:mask[:mode]]], repeatable, in order
+</code></pre>
+<h4 id="layer-fades"><a class="header" href="#layer-fades">Layer fades</a></h4>
+<p>A layer’s <code>weight</code> is a live dial, so a script that sets it pops the pose. To
+ramp instead, set <code>fade_target</code> and <code>fade_duration</code> on the layer table (or call
+<code>fade_anim_layer(entity, index, weight, seconds)</code>). The engine owns the weight
+while the ramp runs: it writes the ramped value back to <code>layers[i].weight</code>
+every frame and zeroes <code>fade_duration</code> when it arrives, so the next
+<code>sync_from_world</code> doesn’t re-arm it — the same contract as <code>blend_target</code>. Any
+plain <code>set_anim_layer_weight</code> cancels a ramp in flight. The previewer’s Layers
+row shows <code>→ target (seconds left)</code> while a fade runs.</p>
+<h3 id="sequences"><a class="header" href="#sequences">Sequences</a></h3>
+<p>A <code>*.sequence.toml</code> is a list of timestamped animator events — everything the
+script API can do to an <code>animator</code>, written down with times so it can be
+played, scrubbed and rendered identically in the previewer and the player:</p>
+<pre><code class="language-toml">name = "starthing_showcase"
+# duration = 6.0   # optional; default = last event time + its transition
+loop = false
+
+[[events]]
+time = 0.0
+kind = "blend"            # crossfade the base clip (duration 0 = hard cut)
+clip = "BreathingIdle"
+duration = 0.0
+
+[[events]]
+time = 1.5
+kind = "blend"
+clip = "WalkCycle"
+duration = 0.4
+
+[[events]]
+time = 2.5
+kind = "layer"            # set a layer slot; omitted keys keep their value
+index = 0
+clip = "StarCower"
+mode = "additive"
+mask = "head"
+weight = 1.0
+fade = 0.3                # ramp the weight over 0.3 s (omit = instant)
+
+[[events]]
+time = 4.0
+kind = "speed"
+value = 1.3
+
+[[events]]
+time = 5.5
+kind = "layer"
+index = 0
+weight = 0.0
+fade = 0.4
+
+[[events]]
+time = 6.0
+kind = "cue"              # named marker for scripts
+name = "done"
+</code></pre>
+<p>Event kinds: <code>blend { clip, duration }</code>, <code>layer { index, clip?, weight?, fade, mode?, mask? }</code>, <code>speed { value }</code>, <code>cue { name }</code>. Events are sorted by time
+(stable, so same-time events keep authored order) and each fires exactly once
+when the playhead reaches its time. Sequences run before the
+skeletal tier each frame, so their writes land the same frame.</p>
+<p>A looping sequence fires everything up to <code>min(time, duration)</code>, then wraps,
+re-arms every event (including those at <code>t = 0</code>) and fires from zero again,
+repeating while the frame still overruns. A large <code>dt</code> therefore neither skips
+events nor delays the next pass by a frame: a 1 s loop with a cue at 0.8 s,
+advanced by 0.5 then 0.6, fires <code>start, tail, start</code>. A looping sequence whose
+resolved duration is zero is rejected at load (<code>looping sequence has zero duration</code>); a non-looping one with only <code>t = 0</code> events fires them and completes
+on its first advance.</p>
+<p>Base-clip changes always go through <code>blend_target</code> (a tracked skeletal entity
+never re-reads <code>clip</code>); a <code>duration</code> of 0 is clamped to 1 ms because the
+crossfade path ignores non-positive durations.</p>
+<h4 id="previewing-a-sequence"><a class="header" href="#previewing-a-sequence">Previewing a sequence</a></h4>
+<pre><code class="language-bash">flint edit models/starthing.gltf --sequence animations/starthing_showcase.sequence.toml
+flint edit models/starthing.gltf --sequence animations/starthing_showcase.sequence.toml \
+    --render t3.png --anim-time 3.0        # headless: pose at t = 3 s
+</code></pre>
+<p>The bottom panel gains a <strong>Sequence</strong> section: play/pause (P), <strong>Restart</strong>
+(R / Home), a <strong>Loop</strong> toggle (<code>--sequence-loop</code> sets it from the CLI; ticking it after the end restarts), a seek slider, and a marker strip with one tick per
+event (orange = blend, layer colour = layer, grey = speed, cyan = cue; dim =
+not yet fired; hover for details, click to seek). Seeking and <code>--anim-time</code>
+both <strong>replay</strong> the sequence from <code>t = 0</code> in 1/120 s steps after restoring the
+animator to its pre-sequence state, so the pose at any time is deterministic —
+rendering the same <code>--anim-time</code> twice yields identical pixels. Cues fired
+during playback print <code>[sequence] cue '&lt;name&gt;' at &lt;t&gt;s</code>.</p>
+<h4 id="sequences-at-runtime"><a class="header" href="#sequences-at-runtime">Sequences at runtime</a></h4>
+<p>The player loads every <code>*.sequence.toml</code> from the scene’s <code>animations/</code>
+directory (or <code>../animations/</code>) and registers it by <code>name</code>. Scripts start one
+with <code>play_sequence(entity, name)</code> and stop it with <code>stop_sequence(entity)</code>;
+both just write <code>animator.sequence</code>, so a scene can also autoplay one:</p>
+<pre><code class="language-toml">[entities.hero.animator]
+clip = "Idle"
+playing = true
+sequence = "intro_bow"
+</code></pre>
+<p>When a non-looping sequence ends the engine clears <code>animator.sequence</code>, so
+<code>play_sequence</code> with the same name is a fresh start. Cues reach the owning
+entity’s script:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn on_sequence_cue(sequence, cue) {
+    if cue == "done" { play_sequence(self_entity(), "idle_loop"); }
+}
+<span class="boring">}</span></code></pre>
 <h3 id="rest-poses"><a class="header" href="#rest-poses">Rest Poses</a></h3>
 <p>Pose buffers are seeded from the glTF <strong>bind-local TRS</strong>, not from identity.
 This matters for sparse clips: a clip that keys only an arm would otherwise
@@ -371,8 +509,10 @@ skin = "Armature"           # Name of the glTF skin
 <tr><td><code>speed</code></td><td>f32</td><td>1.0</td><td>Playback speed (-10.0 to 10.0)</td></tr>
 <tr><td><code>blend_target</code></td><td>string</td><td>“”</td><td>Clip to crossfade into (cleared by the engine when the fade completes)</td></tr>
 <tr><td><code>blend_duration</code></td><td>f32</td><td>0.3</td><td>Crossfade duration in seconds</td></tr>
-<tr><td><code>layer_clip</code></td><td>string</td><td>“”</td><td>Additive layer clip</td></tr>
-<tr><td><code>layer_weight</code></td><td>f32</td><td>1.0</td><td>Additive layer strength (0 = off)</td></tr>
+<tr><td><code>layers</code></td><td>array of tables</td><td>[]</td><td>Animation layers <code>{ clip, weight, mode, mask, speed, fade_target, fade_duration }</code>, composed in order</td></tr>
+<tr><td><code>sequence</code></td><td>string</td><td>“”</td><td>Name of a <code>*.sequence.toml</code> from the scene’s <code>animations/</code> directory driving this animator. Set by <code>play_sequence()</code>, cleared by the engine when a non-looping sequence finishes</td></tr>
+<tr><td><code>layer_clip</code></td><td>string</td><td>“”</td><td>Legacy alias for <code>layers[0]</code> (additive, unmasked)</td></tr>
+<tr><td><code>layer_weight</code></td><td>f32</td><td>1.0</td><td>Legacy alias for <code>layers[0].weight</code></td></tr>
 </tbody>
 </table>
 </div>
@@ -396,6 +536,13 @@ skin = "Armature"           # Name of the glTF skin
 <tr><td><code>stop_clip(entity_id)</code></td><td>Stop the current animation</td></tr>
 <tr><td><code>blend_to(entity_id, clip, duration)</code></td><td>Crossfade to another clip over the given duration</td></tr>
 <tr><td><code>set_anim_speed(entity_id, speed)</code></td><td>Set animation playback speed</td></tr>
+<tr><td><code>set_anim_layer(entity_id, index, clip, weight)</code></td><td>Play <code>clip</code> on a layer (additive, unmasked)</td></tr>
+<tr><td><code>set_anim_layer_ex(entity_id, index, clip, weight, mode, mask)</code></td><td>Same with <code>"additive"</code>/<code>"override"</code> and a root-joint mask</td></tr>
+<tr><td><code>set_anim_layer_weight(entity_id, index, weight)</code></td><td>Set a layer’s weight instantly (cancels a fade)</td></tr>
+<tr><td><code>fade_anim_layer(entity_id, index, weight, seconds)</code></td><td>Ramp a layer’s weight over <code>seconds</code></td></tr>
+<tr><td><code>clear_anim_layer(entity_id, index)</code></td><td>Leave an inactive slot</td></tr>
+<tr><td><code>play_sequence(entity_id, name)</code> / <code>stop_sequence(entity_id)</code></td><td>Drive the animator from a <code>*.sequence.toml</code></td></tr>
+<tr><td><code>on_sequence_cue(sequence, cue)</code></td><td>Callback: a sequence passed a <code>cue</code> event</td></tr>
 </tbody>
 </table>
 </div>
@@ -425,7 +572,7 @@ fn on_init() {
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../concepts/audio.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../concepts/music-sessions.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -439,7 +586,7 @@ fn on_init() {
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../concepts/audio.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../concepts/music-sessions.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

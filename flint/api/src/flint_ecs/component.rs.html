@@ -349,8 +349,10 @@
 <a href=#273 id=273 data-nosnippet>273</a>
 <a href=#274 id=274 data-nosnippet>274</a>        <span class="macro">assert!</span>(comps.has(<span class="string">"stats"</span>));
 <a href=#275 id=275 data-nosnippet>275</a>        <span class="macro">assert_eq!</span>(
-<a href=#276 id=276 data-nosnippet>276</a>            comps.get_field(<span class="string">"stats"</span>, <span class="string">"strength"</span>).and_then(|v| v.as_integer()),
-<a href=#277 id=277 data-nosnippet>277</a>            <span class="prelude-val">Some</span>(<span class="number">18</span>)
-<a href=#278 id=278 data-nosnippet>278</a>        );
-<a href=#279 id=279 data-nosnippet>279</a>    }
-<a href=#280 id=280 data-nosnippet>280</a>}</code></pre></div></section></main></body></html>
+<a href=#276 id=276 data-nosnippet>276</a>            comps
+<a href=#277 id=277 data-nosnippet>277</a>                .get_field(<span class="string">"stats"</span>, <span class="string">"strength"</span>)
+<a href=#278 id=278 data-nosnippet>278</a>                .and_then(|v| v.as_integer()),
+<a href=#279 id=279 data-nosnippet>279</a>            <span class="prelude-val">Some</span>(<span class="number">18</span>)
+<a href=#280 id=280 data-nosnippet>280</a>        );
+<a href=#281 id=281 data-nosnippet>281</a>    }
+<a href=#282 id=282 data-nosnippet>282</a>}</code></pre></div></section></main></body></html>

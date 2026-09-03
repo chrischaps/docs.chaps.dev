@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["JointProperty"],"struct":["JointKeyframe","JointTrack","SkeletalClip"]};
+window.SIDEBAR_ITEMS = {"enum":["JointProperty"],"fn":["make_rotation_track_continuous"],"struct":["JointKeyframe","JointTrack","SkeletalClip"]};

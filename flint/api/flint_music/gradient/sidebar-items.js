@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["GradientConfig","GradientDriver","GradientOffsets","TuneConfig"]};

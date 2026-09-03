@@ -372,174 +372,193 @@
 <a href=#296 id=296 data-nosnippet>296</a>    </span><span class="kw">pub fn </span>from_file(path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
 <a href=#297 id=297 data-nosnippet>297</a>        <span class="kw">let </span>content = std::fs::read_to_string(path)
 <a href=#298 id=298 data-nosnippet>298</a>            .map_err(|e| <span class="macro">format!</span>(<span class="string">"Failed to read '{}': {}"</span>, path.display(), e))<span class="question-mark">?</span>;
-<a href=#299 id=299 data-nosnippet>299</a>        toml::from_str(<span class="kw-2">&amp;</span>content)
-<a href=#300 id=300 data-nosnippet>300</a>            .map_err(|e| <span class="macro">format!</span>(<span class="string">"Failed to parse '{}': {}"</span>, path.display(), e))
-<a href=#301 id=301 data-nosnippet>301</a>    }
-<a href=#302 id=302 data-nosnippet>302</a>
-<a href=#303 id=303 data-nosnippet>303</a>    <span class="doccomment">/// Save the spec to a `.terrain.toml` file.
-<a href=#304 id=304 data-nosnippet>304</a>    </span><span class="kw">pub fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
-<a href=#305 id=305 data-nosnippet>305</a>        <span class="kw">let </span>content = toml::to_string_pretty(<span class="self">self</span>)
-<a href=#306 id=306 data-nosnippet>306</a>            .map_err(|e| <span class="macro">format!</span>(<span class="string">"Failed to serialize: {}"</span>, e))<span class="question-mark">?</span>;
-<a href=#307 id=307 data-nosnippet>307</a>        std::fs::write(path, content)
-<a href=#308 id=308 data-nosnippet>308</a>            .map_err(|e| <span class="macro">format!</span>(<span class="string">"Failed to write '{}': {}"</span>, path.display(), e))
-<a href=#309 id=309 data-nosnippet>309</a>    }
-<a href=#310 id=310 data-nosnippet>310</a>
-<a href=#311 id=311 data-nosnippet>311</a>    <span class="doccomment">/// Create a minimal default spec.
-<a href=#312 id=312 data-nosnippet>312</a>    </span><span class="kw">pub fn </span>default_spec(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
-<a href=#313 id=313 data-nosnippet>313</a>        <span class="self">Self </span>{
-<a href=#314 id=314 data-nosnippet>314</a>            meta: MetaConfig {
-<a href=#315 id=315 data-nosnippet>315</a>                name: name.to_string(),
-<a href=#316 id=316 data-nosnippet>316</a>                version: <span class="string">"1.0.0"</span>.to_string(),
-<a href=#317 id=317 data-nosnippet>317</a>            },
-<a href=#318 id=318 data-nosnippet>318</a>            seed: SeedConfig::default(),
-<a href=#319 id=319 data-nosnippet>319</a>            geometry: GeometryConfig::default(),
-<a href=#320 id=320 data-nosnippet>320</a>            textures: TextureConfig::default(),
-<a href=#321 id=321 data-nosnippet>321</a>            height_layers: <span class="macro">vec!</span>[HeightLayer::Noise(NoiseLayer {
-<a href=#322 id=322 data-nosnippet>322</a>                noise_type: NoiseType::Perlin,
-<a href=#323 id=323 data-nosnippet>323</a>                octaves: <span class="number">6</span>,
-<a href=#324 id=324 data-nosnippet>324</a>                frequency: <span class="number">2.0</span>,
-<a href=#325 id=325 data-nosnippet>325</a>                lacunarity: <span class="number">2.0</span>,
-<a href=#326 id=326 data-nosnippet>326</a>                persistence: <span class="number">0.5</span>,
-<a href=#327 id=327 data-nosnippet>327</a>                amplitude: <span class="number">1.0</span>,
-<a href=#328 id=328 data-nosnippet>328</a>                blend: BlendMode::Add,
-<a href=#329 id=329 data-nosnippet>329</a>            })],
-<a href=#330 id=330 data-nosnippet>330</a>            splat_rules: Vec::new(),
-<a href=#331 id=331 data-nosnippet>331</a>            grass: <span class="prelude-val">None</span>,
-<a href=#332 id=332 data-nosnippet>332</a>        }
-<a href=#333 id=333 data-nosnippet>333</a>    }
-<a href=#334 id=334 data-nosnippet>334</a>
-<a href=#335 id=335 data-nosnippet>335</a>    <span class="doccomment">/// Get layer texture paths as a 4-element array.
-<a href=#336 id=336 data-nosnippet>336</a>    </span><span class="kw">pub fn </span>layer_paths(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [String; <span class="number">4</span>] {
-<a href=#337 id=337 data-nosnippet>337</a>        [
-<a href=#338 id=338 data-nosnippet>338</a>            <span class="self">self</span>.textures.layers.layer0.as_ref().map(|l| l.path.clone()).unwrap_or_default(),
-<a href=#339 id=339 data-nosnippet>339</a>            <span class="self">self</span>.textures.layers.layer1.as_ref().map(|l| l.path.clone()).unwrap_or_default(),
-<a href=#340 id=340 data-nosnippet>340</a>            <span class="self">self</span>.textures.layers.layer2.as_ref().map(|l| l.path.clone()).unwrap_or_default(),
-<a href=#341 id=341 data-nosnippet>341</a>            <span class="self">self</span>.textures.layers.layer3.as_ref().map(|l| l.path.clone()).unwrap_or_default(),
-<a href=#342 id=342 data-nosnippet>342</a>        ]
-<a href=#343 id=343 data-nosnippet>343</a>    }
-<a href=#344 id=344 data-nosnippet>344</a>}
-<a href=#345 id=345 data-nosnippet>345</a>
-<a href=#346 id=346 data-nosnippet>346</a><span class="attr">#[cfg(test)]
-<a href=#347 id=347 data-nosnippet>347</a></span><span class="kw">mod </span>tests {
-<a href=#348 id=348 data-nosnippet>348</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#349 id=349 data-nosnippet>349</a>
-<a href=#350 id=350 data-nosnippet>350</a>    <span class="attr">#[test]
-<a href=#351 id=351 data-nosnippet>351</a>    </span><span class="kw">fn </span>round_trip_serialize() {
-<a href=#352 id=352 data-nosnippet>352</a>        <span class="kw">let </span>spec = TerrainSpec::default_spec(<span class="string">"test_hills"</span>);
-<a href=#353 id=353 data-nosnippet>353</a>        <span class="kw">let </span>toml_str = toml::to_string_pretty(<span class="kw-2">&amp;</span>spec).unwrap();
-<a href=#354 id=354 data-nosnippet>354</a>        <span class="kw">let </span>parsed: TerrainSpec = toml::from_str(<span class="kw-2">&amp;</span>toml_str).unwrap();
-<a href=#355 id=355 data-nosnippet>355</a>
-<a href=#356 id=356 data-nosnippet>356</a>        <span class="macro">assert_eq!</span>(parsed.meta.name, <span class="string">"test_hills"</span>);
-<a href=#357 id=357 data-nosnippet>357</a>        <span class="macro">assert_eq!</span>(parsed.geometry.width, <span class="number">256.0</span>);
-<a href=#358 id=358 data-nosnippet>358</a>        <span class="macro">assert_eq!</span>(parsed.height_layers.len(), <span class="number">1</span>);
-<a href=#359 id=359 data-nosnippet>359</a>    }
-<a href=#360 id=360 data-nosnippet>360</a>
-<a href=#361 id=361 data-nosnippet>361</a>    <span class="attr">#[test]
-<a href=#362 id=362 data-nosnippet>362</a>    </span><span class="kw">fn </span>parse_minimal_spec() {
-<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">let </span>toml_str = <span class="string">r#"
-<a href=#364 id=364 data-nosnippet>364</a>[meta]
-<a href=#365 id=365 data-nosnippet>365</a>name = "minimal"
-<a href=#366 id=366 data-nosnippet>366</a>
-<a href=#367 id=367 data-nosnippet>367</a>[[height_layers]]
-<a href=#368 id=368 data-nosnippet>368</a>op = "noise"
-<a href=#369 id=369 data-nosnippet>369</a>"#</span>;
-<a href=#370 id=370 data-nosnippet>370</a>        <span class="kw">let </span>spec: TerrainSpec = toml::from_str(toml_str).unwrap();
-<a href=#371 id=371 data-nosnippet>371</a>        <span class="macro">assert_eq!</span>(spec.meta.name, <span class="string">"minimal"</span>);
-<a href=#372 id=372 data-nosnippet>372</a>        <span class="macro">assert_eq!</span>(spec.geometry.resolution, <span class="number">256</span>); <span class="comment">// default
-<a href=#373 id=373 data-nosnippet>373</a>        </span><span class="macro">assert_eq!</span>(spec.height_layers.len(), <span class="number">1</span>);
-<a href=#374 id=374 data-nosnippet>374</a>    }
-<a href=#375 id=375 data-nosnippet>375</a>
-<a href=#376 id=376 data-nosnippet>376</a>    <span class="attr">#[test]
-<a href=#377 id=377 data-nosnippet>377</a>    </span><span class="kw">fn </span>parse_all_layer_types() {
-<a href=#378 id=378 data-nosnippet>378</a>        <span class="kw">let </span>toml_str = <span class="string">r#"
-<a href=#379 id=379 data-nosnippet>379</a>[meta]
-<a href=#380 id=380 data-nosnippet>380</a>name = "all_layers"
-<a href=#381 id=381 data-nosnippet>381</a>
-<a href=#382 id=382 data-nosnippet>382</a>[[height_layers]]
-<a href=#383 id=383 data-nosnippet>383</a>op = "noise"
-<a href=#384 id=384 data-nosnippet>384</a>noise_type = "ridged"
-<a href=#385 id=385 data-nosnippet>385</a>octaves = 4
-<a href=#386 id=386 data-nosnippet>386</a>frequency = 3.0
-<a href=#387 id=387 data-nosnippet>387</a>
-<a href=#388 id=388 data-nosnippet>388</a>[[height_layers]]
-<a href=#389 id=389 data-nosnippet>389</a>op = "flatten"
-<a href=#390 id=390 data-nosnippet>390</a>height = 0.2
-<a href=#391 id=391 data-nosnippet>391</a>mode = "above"
-<a href=#392 id=392 data-nosnippet>392</a>
-<a href=#393 id=393 data-nosnippet>393</a>[[height_layers]]
-<a href=#394 id=394 data-nosnippet>394</a>op = "erosion"
-<a href=#395 id=395 data-nosnippet>395</a>kind = "hydraulic"
-<a href=#396 id=396 data-nosnippet>396</a>iterations = 100
-<a href=#397 id=397 data-nosnippet>397</a>
-<a href=#398 id=398 data-nosnippet>398</a>[[splat_rules]]
-<a href=#399 id=399 data-nosnippet>399</a>layer = 0
-<a href=#400 id=400 data-nosnippet>400</a>height_min = 0.0
-<a href=#401 id=401 data-nosnippet>401</a>height_max = 0.5
-<a href=#402 id=402 data-nosnippet>402</a>"#</span>;
-<a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">let </span>spec: TerrainSpec = toml::from_str(toml_str).unwrap();
-<a href=#404 id=404 data-nosnippet>404</a>        <span class="macro">assert_eq!</span>(spec.height_layers.len(), <span class="number">3</span>);
-<a href=#405 id=405 data-nosnippet>405</a>        <span class="macro">assert_eq!</span>(spec.splat_rules.len(), <span class="number">1</span>);
+<a href=#299 id=299 data-nosnippet>299</a>        toml::from_str(<span class="kw-2">&amp;</span>content).map_err(|e| <span class="macro">format!</span>(<span class="string">"Failed to parse '{}': {}"</span>, path.display(), e))
+<a href=#300 id=300 data-nosnippet>300</a>    }
+<a href=#301 id=301 data-nosnippet>301</a>
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="doccomment">/// Save the spec to a `.terrain.toml` file.
+<a href=#303 id=303 data-nosnippet>303</a>    </span><span class="kw">pub fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
+<a href=#304 id=304 data-nosnippet>304</a>        <span class="kw">let </span>content =
+<a href=#305 id=305 data-nosnippet>305</a>            toml::to_string_pretty(<span class="self">self</span>).map_err(|e| <span class="macro">format!</span>(<span class="string">"Failed to serialize: {}"</span>, e))<span class="question-mark">?</span>;
+<a href=#306 id=306 data-nosnippet>306</a>        std::fs::write(path, content)
+<a href=#307 id=307 data-nosnippet>307</a>            .map_err(|e| <span class="macro">format!</span>(<span class="string">"Failed to write '{}': {}"</span>, path.display(), e))
+<a href=#308 id=308 data-nosnippet>308</a>    }
+<a href=#309 id=309 data-nosnippet>309</a>
+<a href=#310 id=310 data-nosnippet>310</a>    <span class="doccomment">/// Create a minimal default spec.
+<a href=#311 id=311 data-nosnippet>311</a>    </span><span class="kw">pub fn </span>default_spec(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+<a href=#312 id=312 data-nosnippet>312</a>        <span class="self">Self </span>{
+<a href=#313 id=313 data-nosnippet>313</a>            meta: MetaConfig {
+<a href=#314 id=314 data-nosnippet>314</a>                name: name.to_string(),
+<a href=#315 id=315 data-nosnippet>315</a>                version: <span class="string">"1.0.0"</span>.to_string(),
+<a href=#316 id=316 data-nosnippet>316</a>            },
+<a href=#317 id=317 data-nosnippet>317</a>            seed: SeedConfig::default(),
+<a href=#318 id=318 data-nosnippet>318</a>            geometry: GeometryConfig::default(),
+<a href=#319 id=319 data-nosnippet>319</a>            textures: TextureConfig::default(),
+<a href=#320 id=320 data-nosnippet>320</a>            height_layers: <span class="macro">vec!</span>[HeightLayer::Noise(NoiseLayer {
+<a href=#321 id=321 data-nosnippet>321</a>                noise_type: NoiseType::Perlin,
+<a href=#322 id=322 data-nosnippet>322</a>                octaves: <span class="number">6</span>,
+<a href=#323 id=323 data-nosnippet>323</a>                frequency: <span class="number">2.0</span>,
+<a href=#324 id=324 data-nosnippet>324</a>                lacunarity: <span class="number">2.0</span>,
+<a href=#325 id=325 data-nosnippet>325</a>                persistence: <span class="number">0.5</span>,
+<a href=#326 id=326 data-nosnippet>326</a>                amplitude: <span class="number">1.0</span>,
+<a href=#327 id=327 data-nosnippet>327</a>                blend: BlendMode::Add,
+<a href=#328 id=328 data-nosnippet>328</a>            })],
+<a href=#329 id=329 data-nosnippet>329</a>            splat_rules: Vec::new(),
+<a href=#330 id=330 data-nosnippet>330</a>            grass: <span class="prelude-val">None</span>,
+<a href=#331 id=331 data-nosnippet>331</a>        }
+<a href=#332 id=332 data-nosnippet>332</a>    }
+<a href=#333 id=333 data-nosnippet>333</a>
+<a href=#334 id=334 data-nosnippet>334</a>    <span class="doccomment">/// Get layer texture paths as a 4-element array.
+<a href=#335 id=335 data-nosnippet>335</a>    </span><span class="kw">pub fn </span>layer_paths(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [String; <span class="number">4</span>] {
+<a href=#336 id=336 data-nosnippet>336</a>        [
+<a href=#337 id=337 data-nosnippet>337</a>            <span class="self">self</span>.textures
+<a href=#338 id=338 data-nosnippet>338</a>                .layers
+<a href=#339 id=339 data-nosnippet>339</a>                .layer0
+<a href=#340 id=340 data-nosnippet>340</a>                .as_ref()
+<a href=#341 id=341 data-nosnippet>341</a>                .map(|l| l.path.clone())
+<a href=#342 id=342 data-nosnippet>342</a>                .unwrap_or_default(),
+<a href=#343 id=343 data-nosnippet>343</a>            <span class="self">self</span>.textures
+<a href=#344 id=344 data-nosnippet>344</a>                .layers
+<a href=#345 id=345 data-nosnippet>345</a>                .layer1
+<a href=#346 id=346 data-nosnippet>346</a>                .as_ref()
+<a href=#347 id=347 data-nosnippet>347</a>                .map(|l| l.path.clone())
+<a href=#348 id=348 data-nosnippet>348</a>                .unwrap_or_default(),
+<a href=#349 id=349 data-nosnippet>349</a>            <span class="self">self</span>.textures
+<a href=#350 id=350 data-nosnippet>350</a>                .layers
+<a href=#351 id=351 data-nosnippet>351</a>                .layer2
+<a href=#352 id=352 data-nosnippet>352</a>                .as_ref()
+<a href=#353 id=353 data-nosnippet>353</a>                .map(|l| l.path.clone())
+<a href=#354 id=354 data-nosnippet>354</a>                .unwrap_or_default(),
+<a href=#355 id=355 data-nosnippet>355</a>            <span class="self">self</span>.textures
+<a href=#356 id=356 data-nosnippet>356</a>                .layers
+<a href=#357 id=357 data-nosnippet>357</a>                .layer3
+<a href=#358 id=358 data-nosnippet>358</a>                .as_ref()
+<a href=#359 id=359 data-nosnippet>359</a>                .map(|l| l.path.clone())
+<a href=#360 id=360 data-nosnippet>360</a>                .unwrap_or_default(),
+<a href=#361 id=361 data-nosnippet>361</a>        ]
+<a href=#362 id=362 data-nosnippet>362</a>    }
+<a href=#363 id=363 data-nosnippet>363</a>}
+<a href=#364 id=364 data-nosnippet>364</a>
+<a href=#365 id=365 data-nosnippet>365</a><span class="attr">#[cfg(test)]
+<a href=#366 id=366 data-nosnippet>366</a></span><span class="kw">mod </span>tests {
+<a href=#367 id=367 data-nosnippet>367</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#368 id=368 data-nosnippet>368</a>
+<a href=#369 id=369 data-nosnippet>369</a>    <span class="attr">#[test]
+<a href=#370 id=370 data-nosnippet>370</a>    </span><span class="kw">fn </span>round_trip_serialize() {
+<a href=#371 id=371 data-nosnippet>371</a>        <span class="kw">let </span>spec = TerrainSpec::default_spec(<span class="string">"test_hills"</span>);
+<a href=#372 id=372 data-nosnippet>372</a>        <span class="kw">let </span>toml_str = toml::to_string_pretty(<span class="kw-2">&amp;</span>spec).unwrap();
+<a href=#373 id=373 data-nosnippet>373</a>        <span class="kw">let </span>parsed: TerrainSpec = toml::from_str(<span class="kw-2">&amp;</span>toml_str).unwrap();
+<a href=#374 id=374 data-nosnippet>374</a>
+<a href=#375 id=375 data-nosnippet>375</a>        <span class="macro">assert_eq!</span>(parsed.meta.name, <span class="string">"test_hills"</span>);
+<a href=#376 id=376 data-nosnippet>376</a>        <span class="macro">assert_eq!</span>(parsed.geometry.width, <span class="number">256.0</span>);
+<a href=#377 id=377 data-nosnippet>377</a>        <span class="macro">assert_eq!</span>(parsed.height_layers.len(), <span class="number">1</span>);
+<a href=#378 id=378 data-nosnippet>378</a>    }
+<a href=#379 id=379 data-nosnippet>379</a>
+<a href=#380 id=380 data-nosnippet>380</a>    <span class="attr">#[test]
+<a href=#381 id=381 data-nosnippet>381</a>    </span><span class="kw">fn </span>parse_minimal_spec() {
+<a href=#382 id=382 data-nosnippet>382</a>        <span class="kw">let </span>toml_str = <span class="string">r#"
+<a href=#383 id=383 data-nosnippet>383</a>[meta]
+<a href=#384 id=384 data-nosnippet>384</a>name = "minimal"
+<a href=#385 id=385 data-nosnippet>385</a>
+<a href=#386 id=386 data-nosnippet>386</a>[[height_layers]]
+<a href=#387 id=387 data-nosnippet>387</a>op = "noise"
+<a href=#388 id=388 data-nosnippet>388</a>"#</span>;
+<a href=#389 id=389 data-nosnippet>389</a>        <span class="kw">let </span>spec: TerrainSpec = toml::from_str(toml_str).unwrap();
+<a href=#390 id=390 data-nosnippet>390</a>        <span class="macro">assert_eq!</span>(spec.meta.name, <span class="string">"minimal"</span>);
+<a href=#391 id=391 data-nosnippet>391</a>        <span class="macro">assert_eq!</span>(spec.geometry.resolution, <span class="number">256</span>); <span class="comment">// default
+<a href=#392 id=392 data-nosnippet>392</a>        </span><span class="macro">assert_eq!</span>(spec.height_layers.len(), <span class="number">1</span>);
+<a href=#393 id=393 data-nosnippet>393</a>    }
+<a href=#394 id=394 data-nosnippet>394</a>
+<a href=#395 id=395 data-nosnippet>395</a>    <span class="attr">#[test]
+<a href=#396 id=396 data-nosnippet>396</a>    </span><span class="kw">fn </span>parse_all_layer_types() {
+<a href=#397 id=397 data-nosnippet>397</a>        <span class="kw">let </span>toml_str = <span class="string">r#"
+<a href=#398 id=398 data-nosnippet>398</a>[meta]
+<a href=#399 id=399 data-nosnippet>399</a>name = "all_layers"
+<a href=#400 id=400 data-nosnippet>400</a>
+<a href=#401 id=401 data-nosnippet>401</a>[[height_layers]]
+<a href=#402 id=402 data-nosnippet>402</a>op = "noise"
+<a href=#403 id=403 data-nosnippet>403</a>noise_type = "ridged"
+<a href=#404 id=404 data-nosnippet>404</a>octaves = 4
+<a href=#405 id=405 data-nosnippet>405</a>frequency = 3.0
 <a href=#406 id=406 data-nosnippet>406</a>
-<a href=#407 id=407 data-nosnippet>407</a>        <span class="kw">match </span><span class="kw-2">&amp;</span>spec.height_layers[<span class="number">0</span>] {
-<a href=#408 id=408 data-nosnippet>408</a>            HeightLayer::Noise(n) =&gt; {
-<a href=#409 id=409 data-nosnippet>409</a>                <span class="macro">assert_eq!</span>(n.noise_type, NoiseType::Ridged);
-<a href=#410 id=410 data-nosnippet>410</a>                <span class="macro">assert_eq!</span>(n.octaves, <span class="number">4</span>);
-<a href=#411 id=411 data-nosnippet>411</a>            }
-<a href=#412 id=412 data-nosnippet>412</a>            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Expected noise layer"</span>),
-<a href=#413 id=413 data-nosnippet>413</a>        }
-<a href=#414 id=414 data-nosnippet>414</a>        <span class="kw">match </span><span class="kw-2">&amp;</span>spec.height_layers[<span class="number">1</span>] {
-<a href=#415 id=415 data-nosnippet>415</a>            HeightLayer::Flatten(f) =&gt; <span class="macro">assert_eq!</span>(f.mode, FlattenMode::Above),
-<a href=#416 id=416 data-nosnippet>416</a>            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Expected flatten layer"</span>),
-<a href=#417 id=417 data-nosnippet>417</a>        }
-<a href=#418 id=418 data-nosnippet>418</a>        <span class="kw">match </span><span class="kw-2">&amp;</span>spec.height_layers[<span class="number">2</span>] {
-<a href=#419 id=419 data-nosnippet>419</a>            HeightLayer::Erosion(e) =&gt; <span class="macro">assert_eq!</span>(e.kind, ErosionKind::Hydraulic),
-<a href=#420 id=420 data-nosnippet>420</a>            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Expected erosion layer"</span>),
-<a href=#421 id=421 data-nosnippet>421</a>        }
-<a href=#422 id=422 data-nosnippet>422</a>    }
-<a href=#423 id=423 data-nosnippet>423</a>
-<a href=#424 id=424 data-nosnippet>424</a>    <span class="attr">#[test]
-<a href=#425 id=425 data-nosnippet>425</a>    </span><span class="kw">fn </span>parse_spec_with_grass() {
-<a href=#426 id=426 data-nosnippet>426</a>        <span class="kw">let </span>toml_str = <span class="string">r#"
-<a href=#427 id=427 data-nosnippet>427</a>[meta]
-<a href=#428 id=428 data-nosnippet>428</a>name = "grassy_hills"
-<a href=#429 id=429 data-nosnippet>429</a>
-<a href=#430 id=430 data-nosnippet>430</a>[grass]
-<a href=#431 id=431 data-nosnippet>431</a>enabled = true
-<a href=#432 id=432 data-nosnippet>432</a>density = 12.0
-<a href=#433 id=433 data-nosnippet>433</a>max_distance = 100.0
-<a href=#434 id=434 data-nosnippet>434</a>blade_height = 0.6
-<a href=#435 id=435 data-nosnippet>435</a>wind_strength = 0.2
-<a href=#436 id=436 data-nosnippet>436</a>density_source = "splat"
-<a href=#437 id=437 data-nosnippet>437</a>density_layer = 0
-<a href=#438 id=438 data-nosnippet>438</a>density_threshold = 0.15
-<a href=#439 id=439 data-nosnippet>439</a>"#</span>;
-<a href=#440 id=440 data-nosnippet>440</a>        <span class="kw">let </span>spec: TerrainSpec = toml::from_str(toml_str).unwrap();
-<a href=#441 id=441 data-nosnippet>441</a>        <span class="kw">let </span>grass = spec.grass.expect(<span class="string">"grass section should be present"</span>);
-<a href=#442 id=442 data-nosnippet>442</a>        <span class="macro">assert!</span>(grass.enabled);
-<a href=#443 id=443 data-nosnippet>443</a>        <span class="macro">assert_eq!</span>(grass.density, <span class="number">12.0</span>);
-<a href=#444 id=444 data-nosnippet>444</a>        <span class="macro">assert_eq!</span>(grass.max_distance, <span class="number">100.0</span>);
-<a href=#445 id=445 data-nosnippet>445</a>        <span class="macro">assert_eq!</span>(grass.blade_height, <span class="number">0.6</span>);
-<a href=#446 id=446 data-nosnippet>446</a>        <span class="macro">assert_eq!</span>(grass.wind_strength, <span class="number">0.2</span>);
-<a href=#447 id=447 data-nosnippet>447</a>        <span class="macro">assert_eq!</span>(grass.density_layer, <span class="number">0</span>);
-<a href=#448 id=448 data-nosnippet>448</a>        <span class="macro">assert_eq!</span>(grass.density_threshold, <span class="number">0.15</span>);
-<a href=#449 id=449 data-nosnippet>449</a>    }
-<a href=#450 id=450 data-nosnippet>450</a>
-<a href=#451 id=451 data-nosnippet>451</a>    <span class="attr">#[test]
-<a href=#452 id=452 data-nosnippet>452</a>    </span><span class="kw">fn </span>spec_without_grass_has_none() {
-<a href=#453 id=453 data-nosnippet>453</a>        <span class="kw">let </span>spec = TerrainSpec::default_spec(<span class="string">"no_grass"</span>);
-<a href=#454 id=454 data-nosnippet>454</a>        <span class="macro">assert!</span>(spec.grass.is_none());
-<a href=#455 id=455 data-nosnippet>455</a>    }
-<a href=#456 id=456 data-nosnippet>456</a>
-<a href=#457 id=457 data-nosnippet>457</a>    <span class="attr">#[test]
-<a href=#458 id=458 data-nosnippet>458</a>    </span><span class="kw">fn </span>save_and_load_round_trip() {
-<a href=#459 id=459 data-nosnippet>459</a>        <span class="kw">let </span>spec = TerrainSpec::default_spec(<span class="string">"save_test"</span>);
-<a href=#460 id=460 data-nosnippet>460</a>        <span class="kw">let </span>tmp = std::env::temp_dir().join(<span class="string">"flint_test_spec.terrain.toml"</span>);
-<a href=#461 id=461 data-nosnippet>461</a>        spec.save(<span class="kw-2">&amp;</span>tmp).unwrap();
-<a href=#462 id=462 data-nosnippet>462</a>
-<a href=#463 id=463 data-nosnippet>463</a>        <span class="kw">let </span>loaded = TerrainSpec::from_file(<span class="kw-2">&amp;</span>tmp).unwrap();
-<a href=#464 id=464 data-nosnippet>464</a>        <span class="macro">assert_eq!</span>(loaded.meta.name, <span class="string">"save_test"</span>);
-<a href=#465 id=465 data-nosnippet>465</a>        <span class="macro">assert_eq!</span>(loaded.seed.value, <span class="number">42</span>);
-<a href=#466 id=466 data-nosnippet>466</a>
-<a href=#467 id=467 data-nosnippet>467</a>        <span class="kw">let _ </span>= std::fs::remove_file(<span class="kw-2">&amp;</span>tmp);
+<a href=#407 id=407 data-nosnippet>407</a>[[height_layers]]
+<a href=#408 id=408 data-nosnippet>408</a>op = "flatten"
+<a href=#409 id=409 data-nosnippet>409</a>height = 0.2
+<a href=#410 id=410 data-nosnippet>410</a>mode = "above"
+<a href=#411 id=411 data-nosnippet>411</a>
+<a href=#412 id=412 data-nosnippet>412</a>[[height_layers]]
+<a href=#413 id=413 data-nosnippet>413</a>op = "erosion"
+<a href=#414 id=414 data-nosnippet>414</a>kind = "hydraulic"
+<a href=#415 id=415 data-nosnippet>415</a>iterations = 100
+<a href=#416 id=416 data-nosnippet>416</a>
+<a href=#417 id=417 data-nosnippet>417</a>[[splat_rules]]
+<a href=#418 id=418 data-nosnippet>418</a>layer = 0
+<a href=#419 id=419 data-nosnippet>419</a>height_min = 0.0
+<a href=#420 id=420 data-nosnippet>420</a>height_max = 0.5
+<a href=#421 id=421 data-nosnippet>421</a>"#</span>;
+<a href=#422 id=422 data-nosnippet>422</a>        <span class="kw">let </span>spec: TerrainSpec = toml::from_str(toml_str).unwrap();
+<a href=#423 id=423 data-nosnippet>423</a>        <span class="macro">assert_eq!</span>(spec.height_layers.len(), <span class="number">3</span>);
+<a href=#424 id=424 data-nosnippet>424</a>        <span class="macro">assert_eq!</span>(spec.splat_rules.len(), <span class="number">1</span>);
+<a href=#425 id=425 data-nosnippet>425</a>
+<a href=#426 id=426 data-nosnippet>426</a>        <span class="kw">match </span><span class="kw-2">&amp;</span>spec.height_layers[<span class="number">0</span>] {
+<a href=#427 id=427 data-nosnippet>427</a>            HeightLayer::Noise(n) =&gt; {
+<a href=#428 id=428 data-nosnippet>428</a>                <span class="macro">assert_eq!</span>(n.noise_type, NoiseType::Ridged);
+<a href=#429 id=429 data-nosnippet>429</a>                <span class="macro">assert_eq!</span>(n.octaves, <span class="number">4</span>);
+<a href=#430 id=430 data-nosnippet>430</a>            }
+<a href=#431 id=431 data-nosnippet>431</a>            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Expected noise layer"</span>),
+<a href=#432 id=432 data-nosnippet>432</a>        }
+<a href=#433 id=433 data-nosnippet>433</a>        <span class="kw">match </span><span class="kw-2">&amp;</span>spec.height_layers[<span class="number">1</span>] {
+<a href=#434 id=434 data-nosnippet>434</a>            HeightLayer::Flatten(f) =&gt; <span class="macro">assert_eq!</span>(f.mode, FlattenMode::Above),
+<a href=#435 id=435 data-nosnippet>435</a>            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Expected flatten layer"</span>),
+<a href=#436 id=436 data-nosnippet>436</a>        }
+<a href=#437 id=437 data-nosnippet>437</a>        <span class="kw">match </span><span class="kw-2">&amp;</span>spec.height_layers[<span class="number">2</span>] {
+<a href=#438 id=438 data-nosnippet>438</a>            HeightLayer::Erosion(e) =&gt; <span class="macro">assert_eq!</span>(e.kind, ErosionKind::Hydraulic),
+<a href=#439 id=439 data-nosnippet>439</a>            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Expected erosion layer"</span>),
+<a href=#440 id=440 data-nosnippet>440</a>        }
+<a href=#441 id=441 data-nosnippet>441</a>    }
+<a href=#442 id=442 data-nosnippet>442</a>
+<a href=#443 id=443 data-nosnippet>443</a>    <span class="attr">#[test]
+<a href=#444 id=444 data-nosnippet>444</a>    </span><span class="kw">fn </span>parse_spec_with_grass() {
+<a href=#445 id=445 data-nosnippet>445</a>        <span class="kw">let </span>toml_str = <span class="string">r#"
+<a href=#446 id=446 data-nosnippet>446</a>[meta]
+<a href=#447 id=447 data-nosnippet>447</a>name = "grassy_hills"
+<a href=#448 id=448 data-nosnippet>448</a>
+<a href=#449 id=449 data-nosnippet>449</a>[grass]
+<a href=#450 id=450 data-nosnippet>450</a>enabled = true
+<a href=#451 id=451 data-nosnippet>451</a>density = 12.0
+<a href=#452 id=452 data-nosnippet>452</a>max_distance = 100.0
+<a href=#453 id=453 data-nosnippet>453</a>blade_height = 0.6
+<a href=#454 id=454 data-nosnippet>454</a>wind_strength = 0.2
+<a href=#455 id=455 data-nosnippet>455</a>density_source = "splat"
+<a href=#456 id=456 data-nosnippet>456</a>density_layer = 0
+<a href=#457 id=457 data-nosnippet>457</a>density_threshold = 0.15
+<a href=#458 id=458 data-nosnippet>458</a>"#</span>;
+<a href=#459 id=459 data-nosnippet>459</a>        <span class="kw">let </span>spec: TerrainSpec = toml::from_str(toml_str).unwrap();
+<a href=#460 id=460 data-nosnippet>460</a>        <span class="kw">let </span>grass = spec.grass.expect(<span class="string">"grass section should be present"</span>);
+<a href=#461 id=461 data-nosnippet>461</a>        <span class="macro">assert!</span>(grass.enabled);
+<a href=#462 id=462 data-nosnippet>462</a>        <span class="macro">assert_eq!</span>(grass.density, <span class="number">12.0</span>);
+<a href=#463 id=463 data-nosnippet>463</a>        <span class="macro">assert_eq!</span>(grass.max_distance, <span class="number">100.0</span>);
+<a href=#464 id=464 data-nosnippet>464</a>        <span class="macro">assert_eq!</span>(grass.blade_height, <span class="number">0.6</span>);
+<a href=#465 id=465 data-nosnippet>465</a>        <span class="macro">assert_eq!</span>(grass.wind_strength, <span class="number">0.2</span>);
+<a href=#466 id=466 data-nosnippet>466</a>        <span class="macro">assert_eq!</span>(grass.density_layer, <span class="number">0</span>);
+<a href=#467 id=467 data-nosnippet>467</a>        <span class="macro">assert_eq!</span>(grass.density_threshold, <span class="number">0.15</span>);
 <a href=#468 id=468 data-nosnippet>468</a>    }
-<a href=#469 id=469 data-nosnippet>469</a>}</code></pre></div></section></main></body></html>
+<a href=#469 id=469 data-nosnippet>469</a>
+<a href=#470 id=470 data-nosnippet>470</a>    <span class="attr">#[test]
+<a href=#471 id=471 data-nosnippet>471</a>    </span><span class="kw">fn </span>spec_without_grass_has_none() {
+<a href=#472 id=472 data-nosnippet>472</a>        <span class="kw">let </span>spec = TerrainSpec::default_spec(<span class="string">"no_grass"</span>);
+<a href=#473 id=473 data-nosnippet>473</a>        <span class="macro">assert!</span>(spec.grass.is_none());
+<a href=#474 id=474 data-nosnippet>474</a>    }
+<a href=#475 id=475 data-nosnippet>475</a>
+<a href=#476 id=476 data-nosnippet>476</a>    <span class="attr">#[test]
+<a href=#477 id=477 data-nosnippet>477</a>    </span><span class="kw">fn </span>save_and_load_round_trip() {
+<a href=#478 id=478 data-nosnippet>478</a>        <span class="kw">let </span>spec = TerrainSpec::default_spec(<span class="string">"save_test"</span>);
+<a href=#479 id=479 data-nosnippet>479</a>        <span class="kw">let </span>tmp = std::env::temp_dir().join(<span class="string">"flint_test_spec.terrain.toml"</span>);
+<a href=#480 id=480 data-nosnippet>480</a>        spec.save(<span class="kw-2">&amp;</span>tmp).unwrap();
+<a href=#481 id=481 data-nosnippet>481</a>
+<a href=#482 id=482 data-nosnippet>482</a>        <span class="kw">let </span>loaded = TerrainSpec::from_file(<span class="kw-2">&amp;</span>tmp).unwrap();
+<a href=#483 id=483 data-nosnippet>483</a>        <span class="macro">assert_eq!</span>(loaded.meta.name, <span class="string">"save_test"</span>);
+<a href=#484 id=484 data-nosnippet>484</a>        <span class="macro">assert_eq!</span>(loaded.seed.value, <span class="number">42</span>);
+<a href=#485 id=485 data-nosnippet>485</a>
+<a href=#486 id=486 data-nosnippet>486</a>        <span class="kw">let _ </span>= std::fs::remove_file(<span class="kw-2">&amp;</span>tmp);
+<a href=#487 id=487 data-nosnippet>487</a>    }
+<a href=#488 id=488 data-nosnippet>488</a>}</code></pre></div></section></main></body></html>

@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -204,6 +204,7 @@ archetype = "room"
 <tr><td><code>version</code></td><td>yes</td><td>Format version (currently “1.0”)</td></tr>
 <tr><td><code>description</code></td><td>no</td><td>Optional description</td></tr>
 <tr><td><code>input_config</code></td><td>no</td><td>Path or name of an input config file for this scene (see <a href="physics-and-runtime.html#input-system">Input System</a>)</td></tr>
+<tr><td><code>preload_audio</code></td><td>no</td><td>Default <code>true</code>. When <code>false</code>, the player skips the blanket preload of every file under <code>audio/</code> at scene load, so a scene with a large audio folder starts instantly. Sounds named by <code>audio_source</code> components and music-session stems still load through their own paths; only the convenience preload for script-triggered sounds is skipped (ADR 0066, scene audio preload opt-out). See <a href="audio.html#preloading">Audio</a>.</td></tr>
 </tbody>
 </table>
 </div>
@@ -243,9 +244,14 @@ open_angle = 90.0
 <ol>
 <li>The TOML is parsed into a scene structure</li>
 <li>Each entity definition creates an ECS entity with a stable <code>EntityId</code></li>
+<li>If the entity names an archetype, the archetype’s <code>defaults</code> are written in first for every component the entity did not author itself</li>
+<li>Each authored component is validated against its component schema. Failures are <strong>warnings, not errors</strong>: the loader logs <code>[scene] entity '&lt;name&gt;' component '&lt;comp&gt;': &lt;reason&gt;</code> through <code>tracing</code> and keeps going. Without a tracing subscriber you will not see them, so a scene that loads is not necessarily a scene that validates. Run <code>flint validate</code> for an authoritative answer.</li>
+<li>The authored data is merged field-by-field into whatever the archetype put there (see <a href="schemas.html">Schemas</a>)</li>
+<li>For every component the entity explicitly lists, any field that has a <code>default</code> in its component schema and is still unset is filled in. Defaults are applied only to components the entity wrote a table for, not to archetype-required components it left out entirely, and validation in step 4 ran on the authored data <em>before</em> defaults landed, so a missing required field still warns even though a default will fill it.</li>
 <li>Parent-child relationships are established</li>
 <li>The entity ID counter is adjusted to be above any existing ID (preventing collisions on subsequent creates)</li>
 </ol>
+<p>Step 6 is why scripts can read <code>get_field(id, "item", "enabled")</code> and get a bool rather than <code>()</code> even when the scene author never wrote the field.</p>
 <p>When a scene is saved:</p>
 <ol>
 <li>All entities are serialized to their TOML representation</li>
@@ -253,7 +259,7 @@ open_angle = 90.0
 <li>Parent references use entity names (not internal IDs)</li>
 </ol>
 <h2 id="reload-behavior"><a class="header" href="#reload-behavior">Reload Behavior</a></h2>
-<p>Scene reload is a full re-parse. When <code>flint serve --watch</code> detects a file change:</p>
+<p>Scene reload is a full re-parse. When <code>flint edit --watch</code> detects a file change:</p>
 <ol>
 <li>The entire scene file is re-read and re-parsed</li>
 <li>The old world state is replaced with the new one</li>

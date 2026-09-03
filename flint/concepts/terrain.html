@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -295,6 +295,62 @@ texture_tile = 16.0
 </tbody>
 </table>
 </div>
+<h2 id="grass"><a class="header" href="#grass">Grass</a></h2>
+<p>Terrain can carry a GPU-instanced grass layer. Blades are scattered by a compute shader, drawn as crossed quads with wind sway and bend-on-contact, and cast into the two nearest shadow cascades. Nothing is authored by hand: density comes from the splat map, so grass grows exactly where the grass layer is painted.</p>
+<p><img src="../images/grass-meadow.png" alt="Rolling meadow with instanced grass"></p>
+<p><em>The Rolling Meadow demo: stylised grass driven by the splat map’s red channel, with golden-hour lighting.</em></p>
+<p>Grass is a block of dotted keys on the same <code>terrain</code> component:</p>
+<pre><code class="language-toml">[entities.ground.terrain]
+heightmap = "terrain/heightmap.png"
+splat_map = "terrain/splatmap.png"
+width = 384.0
+depth = 384.0
+"grass.enabled" = true
+"grass.density" = 50.0
+"grass.max_distance" = 100.0
+"grass.fade_start" = 70.0
+"grass.blade_height" = 0.43
+"grass.color_base" = [0.12, 0.42, 0.08]
+"grass.color_tip" = [0.35, 0.72, 0.18]
+"grass.wind_direction" = [0.8, 0.0, 0.6]
+"grass.wind_strength" = 0.09
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>grass.enabled</code></td><td>bool</td><td>false</td><td>Turn the grass layer on</td></tr>
+<tr><td><code>grass.density</code></td><td>f32</td><td>8.0</td><td>Blades per square metre</td></tr>
+<tr><td><code>grass.max_distance</code></td><td>f32</td><td>80.0</td><td>Distance from the camera at which grass stops</td></tr>
+<tr><td><code>grass.fade_start</code></td><td>f32</td><td>60.0</td><td>Distance where probabilistic thinning begins</td></tr>
+<tr><td><code>grass.blade_width</code></td><td>f32</td><td>0.08</td><td>Blade width in metres</td></tr>
+<tr><td><code>grass.blade_height</code></td><td>f32</td><td>0.4</td><td>Base blade height in metres</td></tr>
+<tr><td><code>grass.height_variation</code></td><td>f32</td><td>0.3</td><td>Random height scale, 0 to 1</td></tr>
+<tr><td><code>grass.color_base</code></td><td>vec3</td><td>[0.15, 0.45, 0.1]</td><td>Colour at the root, linear RGB</td></tr>
+<tr><td><code>grass.color_tip</code></td><td>vec3</td><td>[0.3, 0.7, 0.15]</td><td>Colour at the tip</td></tr>
+<tr><td><code>grass.color_dry</code></td><td>vec3</td><td>[0.55, 0.5, 0.2]</td><td>Dry tint mixed in per blade</td></tr>
+<tr><td><code>grass.dry_amount</code></td><td>f32</td><td>0.15</td><td>How much of the field is dry, 0 to 1</td></tr>
+<tr><td><code>grass.wind_direction</code></td><td>vec3</td><td>[1.0, 0.0, 0.3]</td><td>Wind direction in the XZ plane</td></tr>
+<tr><td><code>grass.wind_speed</code></td><td>f32</td><td>1.0</td><td>Sway frequency multiplier</td></tr>
+<tr><td><code>grass.wind_strength</code></td><td>f32</td><td>0.15</td><td>Maximum sway displacement in metres</td></tr>
+<tr><td><code>grass.bend_radius</code></td><td>f32</td><td>2.0</td><td>Radius around an entity within which blades bend away</td></tr>
+<tr><td><code>grass.bend_strength</code></td><td>f32</td><td>0.8</td><td>How far they bend, 0 to 1</td></tr>
+<tr><td><code>grass.density_source</code></td><td>string</td><td>“splat”</td><td><code>splat</code> reads the splat map; <code>map</code> is reserved for a dedicated density texture</td></tr>
+<tr><td><code>grass.density_layer</code></td><td>i32</td><td>0</td><td>Which splat channel drives density (0 = R, 1 = G, 2 = B, 3 = A)</td></tr>
+<tr><td><code>grass.density_threshold</code></td><td>f32</td><td>0.1</td><td>Minimum splat weight before a blade may spawn</td></tr>
+</tbody>
+</table>
+</div>
+<p>How it works, per frame:</p>
+<ol>
+<li>A <strong>compute pass</strong> walks a grid whose spacing is <code>1 / sqrt(density)</code>, samples the splat map’s <code>density_layer</code> at each cell, skips cells under <code>density_threshold</code>, applies a probabilistic falloff between <code>fade_start</code> and <code>max_distance</code>, and writes a 32-byte instance (position on the heightmap, rotation, height scale, packed tint) into a storage buffer.</li>
+<li>A <strong>render pass</strong> draws one shared blade mesh per instance. The vertex shader sways blades by a time-driven wind term and pushes them away from up to eight entity positions within <code>bend_radius</code>; the fragment shader blends <code>color_base</code> to <code>color_tip</code> along the blade, mixes in <code>color_dry</code>, and shades with the same lighting levers and PCSS shadows as other geometry. The player feeds the camera position as the bend entity.</li>
+<li>The <strong>shadow pass</strong> renders the instances into the nearest two cascades, so grass darkens the ground under it.</li>
+</ol>
+<p>The pipeline participates in MSAA when the player runs with <code>--msaa 4</code>, and grass appears in <code>flint render</code> snapshots at time zero, so the wind is frozen but the field is fully populated.</p>
+<p>The <strong>Grass Debug</strong> panel (<code>F3</code> in the player, see <a href="../guides/debug-panels.html">Debug Panels</a>) exposes every field above live and can commit them back to the scene file, which is how the meadow demo’s numbers were found.</p>
 <h2 id="physics-collision"><a class="header" href="#physics-collision">Physics Collision</a></h2>
 <p>Terrain automatically gets a <strong>trimesh physics collider</strong> via Rapier. The mesh geometry is exported as vertices and triangle indices, then registered as a fixed (immovable) rigid body. This means:</p>
 <ul>
@@ -342,7 +398,7 @@ texture_tile = 16.0
 <p>The terrain system is split across crates to maintain clean dependency boundaries:</p>
 <ul>
 <li><strong><code>flint-terrain</code></strong> — pure data crate (no GPU dependency). Generates chunked mesh geometry from heightmap data. Outputs raw positions, normals, UVs, and indices.</li>
-<li><strong><code>flint-render</code></strong> — <code>TerrainPipeline</code> and <code>terrain_shader.wgsl</code>. Assembles GPU vertex buffers from terrain data, handles splat-map texture blending and PBR lighting.</li>
+<li><strong><code>flint-render</code></strong> — <code>TerrainPipeline</code> and <code>terrain_shader.wgsl</code>. Assembles GPU vertex buffers from terrain data, handles splat-map texture blending and PBR lighting. <code>GrassPipeline</code> with <code>grass_compute.wgsl</code> and <code>grass_render.wgsl</code> owns the grass layer; <code>flint-terrain</code> only holds its <code>GrassConfig</code>.</li>
 <li><strong><code>flint-physics</code></strong> — reuses existing <code>register_static_trimesh()</code> for collision. No terrain-specific physics code needed.</li>
 <li><strong><code>flint-script</code></strong> — <code>terrain_height(x, z)</code> Rhai function via callback pattern.</li>
 </ul>
@@ -350,7 +406,7 @@ texture_tile = 16.0
 <h2 id="limitations"><a class="header" href="#limitations">Limitations</a></h2>
 <ul>
 <li><strong>One terrain per scene</strong> — currently only the first terrain entity is loaded</li>
-<li><strong>No LOD</strong> — all chunks render at full resolution regardless of distance</li>
+<li><strong>No mesh LOD</strong> — all chunks render at full resolution regardless of distance (chunks outside the camera frustum are culled; grass thins with distance)</li>
 <li><strong>No runtime deformation</strong> — terrain is static after loading</li>
 <li><strong>CPU-side simulation</strong> — no GPU compute for terrain generation</li>
 <li><strong>Fixed PBR parameters</strong> — metallic and roughness are uniform across the entire terrain surface</li>

@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-ddc7ede1.js"></script>
+        <script src="toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,17 +179,18 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="contributing"><a class="header" href="#contributing">Contributing</a></h1>
-<p>All five phases of Flint are complete. Contributions are welcome in these areas:</p>
+<p>The five numbered engine phases (ECS, constraints, PBR rendering, runtime, AI assets) are long complete. Since then the engine has grown by feature programmes tracked in numbered Architecture Decision Records (ADRs 0001-0067, kept in the Starchild game repo) rather than phases: the ocean and sky pipelines, render modes, the music-session runtime, the clay-look shading levers, the consolidated F4 render menu, animation layers and sequences, and the player-app decomposition. Contributions are welcome in these areas:</p>
 <ul>
 <li><strong>Bug reports</strong> — file issues on GitHub</li>
 <li><strong>Schema definitions</strong> — new component and archetype schemas</li>
 <li><strong>Documentation</strong> — improvements to this guide</li>
-<li><strong>Test coverage</strong> — additional unit and integration tests (217 tests across 18 crates)</li>
+<li><strong>Test coverage</strong> — additional unit and integration tests (1,107 tests across the 24 default workspace crates; 6 ignored)</li>
 <li><strong>Constraint kinds</strong> — new validation rule types</li>
 <li><strong>Physics</strong> — additional collider shapes, improved character controller behavior</li>
 <li><strong>Rendering</strong> — post-processing effects, LOD, additional debug views</li>
-<li><strong>Audio</strong> — additional audio formats, reverb zones, music system</li>
-<li><strong>Animation</strong> — blend trees, additive blending, animation state machines</li>
+<li><strong>Audio</strong> — additional audio formats, reverb zones</li>
+<li><strong>Music sessions</strong> — chart authoring tools, more verb maps, ladder and seam tuning</li>
+<li><strong>Animation</strong> — blend trees, animation state machines</li>
 <li><strong>Scripting</strong> — new Rhai API functions, script debugging tools, performance profiling</li>
 <li><strong>AI generation</strong> — new provider integrations, improved style validation, prompt engineering</li>
 </ul>
@@ -203,11 +204,15 @@ cargo fmt --check
 </code></pre>
 <h2 id="running-the-demo"><a class="header" href="#running-the-demo">Running the Demo</a></h2>
 <pre><code class="language-bash"># Scene viewer with hot-reload
-cargo run --bin flint -- serve demo/phase4_runtime.scene.toml --watch
+cargo run --bin flint -- edit demo/phase4_runtime.scene.toml --watch
 
 # First-person walkable scene
 cargo run --bin flint -- play demo/phase4_runtime.scene.toml
+
+# Headless snapshot (the primary validation tool for agents)
+cargo run --release --bin flint -- render demo/showcase_tavern.scene.toml -o tavern.png --schemas schemas
 </code></pre>
+<p>Release builds are strongly recommended for <code>render</code>, <code>play</code>, and the full test suite; debug builds of <code>flint-cli</code> need the 8 MB main-thread stack that <code>.cargo/config.toml</code> links on Windows.</p>
 <h2 id="code-style"><a class="header" href="#code-style">Code Style</a></h2>
 <ul>
 <li>Run <code>cargo fmt</code> before committing</li>
@@ -217,11 +222,12 @@ cargo run --bin flint -- play demo/phase4_runtime.scene.toml
 <li>Prefer explicit over clever; readability over brevity</li>
 </ul>
 <h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
-<p>The project is an 18-crate Cargo workspace. See the <a href="architecture/overview.html">Architecture Overview</a> and <a href="architecture/crate-graph.html">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
+<p>The project is a 27-member Cargo workspace: 26 crates under <code>crates/</code> plus the <code>tools/arch-analyzer</code> static analyzer. See the <a href="architecture/overview.html">Architecture Overview</a> and <a href="architecture/crate-graph.html">Crate Dependency Graph</a> for how the crates relate to each other. Key principles:</p>
 <ul>
 <li>Dependencies flow in one direction (binary crates at the top, <code>flint-core</code> at the bottom)</li>
 <li>Components are dynamic <code>toml::Value</code>, not Rust types — schemas are runtime data</li>
-<li>Two entry points: <code>flint-cli</code> (scene authoring) and <code>flint-player</code> (interactive gameplay)</li>
+<li>Two entry points: <code>flint-cli</code> (scene authoring and rhythm tooling) and <code>flint-player</code> (interactive gameplay), with the CLI embedding the player</li>
+<li>Debug surfaces (F3 scene panels, F4 Rendering &amp; Effects) live in <code>flint-debug-ui</code> behind the player’s default-on <code>debug-hud</code> feature; feature-off builds must still compile</li>
 </ul>
 
                     </main>

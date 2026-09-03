@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-ddc7ede1.js"></script>
+        <script src="toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -203,9 +203,17 @@
 <tr><td><code>flint asset generate &lt;type&gt;</code></td><td>AI asset generation (texture, model, audio)</td></tr>
 <tr><td><code>flint asset import &lt;file&gt;</code></td><td>Import file into asset catalog</td></tr>
 <tr><td><code>flint prefab view &lt;template&gt;</code></td><td>Preview a prefab template in the viewer</td></tr>
+<tr><td><code>flint validate-suite &lt;manifest&gt;</code></td><td>Validate a music suite manifest (<code>--chart</code> to cross-check)</td></tr>
+<tr><td><code>flint play-suite &lt;manifest&gt;</code></td><td>Play a suite’s stems, no judgment</td></tr>
+<tr><td><code>flint calibrate &lt;manifest&gt;</code></td><td>Tap-to-beat latency calibration</td></tr>
+<tr><td><code>flint play-chart &lt;manifest&gt; --chart &lt;chart&gt;</code></td><td>Play a chart with live gamepad capture (<code>--record</code>, <code>--window</code>)</td></tr>
+<tr><td><code>flint replay-chart &lt;manifest&gt; --chart &lt;chart&gt;</code></td><td>Replay a recorded or synthetic session headless</td></tr>
+<tr><td><code>flint render-suite &lt;manifest&gt; -o out.wav</code></td><td>Render a scripted suite session to WAV</td></tr>
+<tr><td><code>flint spike-rumble</code></td><td>Time the gamepad rumble paths</td></tr>
 </tbody>
 </table>
 </div>
+<p>Music commands are detailed in <a href="cli-reference/music.html">Music Commands</a>.</p>
 <h2 id="keyboard-shortcuts"><a class="header" href="#keyboard-shortcuts">Keyboard Shortcuts</a></h2>
 <h3 id="player-flint-play"><a class="header" href="#player-flint-play">Player (<code>flint play</code>)</a></h3>
 <div class="table-wrapper">
@@ -222,16 +230,17 @@
 <tr><td>Left Click</td><td>Fire</td></tr>
 <tr><td>R</td><td>Reload</td></tr>
 <tr><td>1 / 2</td><td>Weapon slots</td></tr>
-<tr><td>F1</td><td>Cycle debug mode (PBR → Wireframe → Normals → Depth → UV → Unlit → Metal/Rough)</td></tr>
-<tr><td>F3</td><td>Toggle debug panels (ocean, day/time, camera, grass — only those the scene uses)</td></tr>
-<tr><td>F4</td><td>Toggle shadows</td></tr>
-<tr><td>F5</td><td>Toggle bloom</td></tr>
-<tr><td>F6</td><td>Toggle post-processing pipeline</td></tr>
+<tr><td>F2</td><td>Toggle render stats overlay</td></tr>
+<tr><td>F3</td><td>Toggle scene debug panels (ocean, day/time, camera, grass, weather… — only those the scene uses; never the F4 menu)</td></tr>
+<tr><td>F4</td><td>Toggle the <strong>Rendering &amp; Effects</strong> menu (all render/post toggles and parameters, debug shading mode, shadows, lighting levers)</td></tr>
+<tr><td>F9</td><td>Force a music-session full-fail (debug builds, session running)</td></tr>
+<tr><td><code>`</code> / <code>\</code></td><td>Music Guide overlay / Manifest Map strip (debug builds, session running)</td></tr>
 <tr><td>F11</td><td>Toggle fullscreen</td></tr>
-<tr><td>Escape</td><td>Release cursor / Exit</td></tr>
 </tbody>
 </table>
 </div>
+<p>The old per-effect keys (F1 debug mode, F4 shadows, F5 bloom, F6 post) are gone; everything is in the F4 menu.
+| Escape | Release cursor / Exit |</p>
 <h3 id="scene-viewer-flint-edit-scenetoml"><a class="header" href="#scene-viewer-flint-edit-scenetoml">Scene Viewer (<code>flint edit &lt;scene.toml&gt;</code>)</a></h3>
 <div class="table-wrapper">
 <table>
@@ -243,13 +252,16 @@
 <tr><td>Left-drag</td><td>Orbit camera (or drag gizmo)</td></tr>
 <tr><td>Right-drag</td><td>Pan camera</td></tr>
 <tr><td>Scroll</td><td>Zoom</td></tr>
+<tr><td>W/A/S/D, Q/E</td><td>Orbit, zoom out/in (no entity selected)</td></tr>
+<tr><td>W / E / R</td><td>Gizmo mode: translate / rotate / scale (entity selected)</td></tr>
+<tr><td>Space</td><td>Return to the scene’s authored <code>[camera]</code> framing</td></tr>
+<tr><td>O, <code>[</code> / <code>]</code></td><td>Toggle auto-orbit, slower / faster</td></tr>
 <tr><td>Ctrl+S</td><td>Save scene</td></tr>
 <tr><td>Ctrl+Z</td><td>Undo position change</td></tr>
 <tr><td>Ctrl+Shift+Z</td><td>Redo position change</td></tr>
-<tr><td>F1</td><td>Cycle debug mode</td></tr>
-<tr><td>F2</td><td>Toggle wireframe overlay</td></tr>
+<tr><td>F2</td><td>Toggle render stats</td></tr>
 <tr><td>F3</td><td>Toggle normal arrows</td></tr>
-<tr><td>F4</td><td>Toggle shadows</td></tr>
+<tr><td>F4</td><td>Toggle the <strong>Rendering &amp; Effects</strong> menu</td></tr>
 </tbody>
 </table>
 </div>
@@ -273,6 +285,8 @@
 </tbody>
 </table>
 </div>
+<h3 id="rendering--effects-menu-f4-player-and-viewer"><a class="header" href="#rendering--effects-menu-f4-player-and-viewer">Rendering &amp; Effects Menu (F4, player and viewer)</a></h3>
+<p>One panel for everything the old F-keys flipped. Sections: <strong>Post chain</strong> (enable, exposure, vignette, chromatic aberration, radial blur, desaturate; player-only “freeze script post overrides”), <strong>SSAO</strong> (radius, intensity, bias, samples), <strong>Depth of field</strong> (strength, focus distance, range; viewer adds DoF-follow-selection), <strong>Fog</strong> and height fog, <strong>Bloom</strong> with film grain and FXAA, <strong>Kuwahara</strong>, <strong>Render mode</strong> (none / Matrix / blood / drunk / Tron / underwater, mix, params), <strong>Dither / Volumetric</strong>, <strong>Shadows</strong> (enable, resolution — rebuilds the shadow pass), <strong>Lighting</strong> (ambient sky/ground, diffuse wrap, Oren-Nayar, sheen, reset), <strong>Camera</strong> (vertical FOV), <strong>Shading</strong> (debug mode combo). The viewer also has an authored-vs-viewer-default post switch.</p>
 <h3 id="file-type-auto-detection-flint-edit"><a class="header" href="#file-type-auto-detection-flint-edit">File Type Auto-Detection (<code>flint edit</code>)</a></h3>
 <div class="table-wrapper">
 <table>
@@ -340,6 +354,32 @@ bloom_threshold = 1.0
 vignette_enabled = true
 vignette_intensity = 0.3
 exposure = 1.0
+ssao_samples = 16               # 1-64; 16 is ~4x cheaper than the default 64
+desaturate = 0.0                # 0 = full colour, 1 = ash-grey
+dof_strength = 0.0              # 0 = sharp
+dof_focus_distance = 10.0       # view metres
+dof_focus_range = 5.0
+kuwahara_enabled = false        # painterly pre-pass
+film_grain = 0.0                # 0.02-0.05 is subtle
+grade_lift = [0.0, 0.0, 0.0]    # after ACES; neutral 0,0,0
+grade_gamma = [1.0, 1.0, 1.0]
+grade_gain = [1.0, 1.0, 1.0]
+fxaa = false                    # off by default so pixel gates stay single-path
+</code></pre>
+<h3 id="lighting-levers"><a class="header" href="#lighting-levers">Lighting Levers</a></h3>
+<pre><code class="language-toml">[environment]
+ambient_sky = [0.35, 0.40, 0.50]
+ambient_ground = [0.18, 0.14, 0.10]
+diffuse_wrap = 0.3      # 0 = legacy sharp terminator
+oren_nayar = 0.7        # 0 = Lambert
+sheen_color = [1.0, 0.9, 0.8]
+sheen_strength = 0.15   # keep &lt;= ~0.3
+</code></pre>
+<h3 id="authored-camera"><a class="header" href="#authored-camera">Authored Camera</a></h3>
+<pre><code class="language-toml">[camera]
+position = [0, 4, 12]
+target = [0, 1, 0]
+fov = 60.0
 </code></pre>
 <h3 id="ui-layout"><a class="header" href="#ui-layout">UI Layout</a></h3>
 <pre><code class="language-toml"># ui/hud.ui.toml
@@ -420,7 +460,15 @@ position = [0, 0, 0]
 <tr><td><code>is_action_just_pressed(action)</code></td><td><code>bool</code></td><td>Check if action pressed this frame</td></tr>
 <tr><td><code>delta_time()</code></td><td><code>f64</code></td><td>Seconds since last frame</td></tr>
 <tr><td><code>play_sound(name)</code></td><td>—</td><td>Play a sound effect</td></tr>
+<tr><td><code>set_dof(strength)</code> / <code>set_dof_focus(dist, range)</code></td><td>—</td><td>Drive depth of field from a script</td></tr>
+<tr><td><code>set_desaturation(amount)</code></td><td>—</td><td>Drain colour toward ash-grey (0–1)</td></tr>
+<tr><td><code>set_camera_roll(radians)</code></td><td>—</td><td>Roll the camera about its view axis</td></tr>
+<tr><td><code>conducted_lean()</code> / <code>conducted_coherence()</code></td><td><code>#{x,y}</code> / <code>f64</code></td><td>Read the running music session (neutral values when none)</td></tr>
 <tr><td><code>play_clip(id, clip)</code></td><td>—</td><td>Play an animation clip</td></tr>
+<tr><td><code>set_anim_layer(id, idx, clip, w)</code></td><td>—</td><td>Play a clip on an animation layer</td></tr>
+<tr><td><code>set_anim_layer_weight(id, idx, w)</code></td><td>—</td><td>Set a layer’s weight instantly</td></tr>
+<tr><td><code>fade_anim_layer(id, idx, w, secs)</code></td><td>—</td><td>Ramp a layer’s weight over <code>secs</code></td></tr>
+<tr><td><code>play_sequence(id, name)</code> / <code>stop_sequence(id)</code></td><td>—</td><td>Drive the animator from <code>animations/*.sequence.toml</code> (cues → <code>on_sequence_cue</code>)</td></tr>
 <tr><td><code>raycast(ox,oy,oz, dx,dy,dz, dist)</code></td><td><code>Map</code>/<code>()</code></td><td>Cast a ray, get hit info</td></tr>
 <tr><td><code>move_character(id, dx, dy, dz)</code></td><td><code>#{x,y,z,grounded}</code></td><td>Collision-corrected movement</td></tr>
 <tr><td><code>spawn_entity(name)</code></td><td><code>i64</code></td><td>Create a new entity</td></tr>
@@ -450,6 +498,16 @@ flint render scene.toml -o depth.png --debug-mode depth
 # Post-processing control
 flint render scene.toml -o bloom.png --bloom-intensity 0.08
 flint render scene.toml -o raw.png --no-postprocess
+flint render scene.toml -o dof.png --dof 0.6 --dof-focus 8 --dof-range 3
+flint render scene.toml -o graded.png --grade-lift 0.03,0.02,0.015 --grade-gain 1.04,1,0.94 --film-grain 0.03
+flint render scene.toml -o drained.png --desaturate 0.85
+
+# Anti-aliasing and lighting levers (both default off; ADR 0058 / 0048)
+flint render scene.toml -o smooth.png --msaa 4 --fxaa
+flint render scene.toml -o clay.png --oren-nayar 0.7 --sheen-strength 0.15 --sheen-color 1,0.9,0.8
+
+# Cheaper SSAO for quick iteration
+flint render scene.toml -o fast.png --ssao-samples 16
 </code></pre>
 
                     </main>

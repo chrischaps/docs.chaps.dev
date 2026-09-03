@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["RumbleCommand"],"fn":["haptic_sink","spike_rumble"],"struct":["Burst","CallStats","RumbleEngine","RumbleSpikeReport","RumbleStats"],"type":["MotorState"]};

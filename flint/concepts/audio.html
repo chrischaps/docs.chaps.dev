@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -190,9 +190,16 @@
 <p>The listener position and orientation are updated each frame to match the first-person camera, so sounds pan and attenuate as you move through the scene.</p>
 <h2 id="ambient-loops"><a class="header" href="#ambient-loops">Ambient Loops</a></h2>
 <p>Non-spatial sounds play on the main audio track at constant volume regardless of listener position. Set <code>spatial = false</code> on an <code>audio_source</code> to use this mode — useful for background music, ambient atmosphere, and UI sounds.</p>
+<h2 id="preloading"><a class="header" href="#preloading">Preloading</a></h2>
+<p>At scene load the player loads every file named by an <code>audio_source</code> component, then preloads every audio file it finds under <code>audio/</code> (searching the scene directory, then its parent, the game root) so that <code>play_sound("name")</code> from a script never stalls on decode. A scene with a large stem library pays for that in load time. Opt out per scene:</p>
+<pre><code class="language-toml">[scene]
+name = "Silent Corridor"
+preload_audio = false
+</code></pre>
+<p>With <code>preload_audio = false</code> only <code>audio_source</code> files load, and <a href="music-sessions.html">music sessions</a> resolve their stems through their own path. The default is <code>true</code> (ADR 0066, scene audio preload opt-out).</p>
 <h2 id="mixer-buses"><a class="header" href="#mixer-buses">Mixer Buses</a></h2>
-<p>Every sound routes through one of two buses — <code>music</code> and <code>sfx</code> — both children
-of Kira’s main track:</p>
+<p>Every ordinary sound routes through one of two buses — <code>music</code> and <code>sfx</code> — both children
+of Kira’s main track. (A running <a href="music-sessions.html">music session</a> adds its own six-bus stem mixer on the same device; that mixer is owned by <code>flint-music</code>, not by <code>audio_source</code>, and is described on its own page.)</p>
 <pre><code>main  ──┬── music     (audio_source.bus = "music")
         └── sfx       (everything else, including all one-shots)
 </code></pre>
@@ -214,6 +221,12 @@ turned the music down does not have their fades overridden.</p>
 entire mix — score included — which is what you want when the effect is
 “something is between you and the world” rather than “the sfx got quieter”.</p>
 <p>One-shots (<code>play_sound</code>, <code>play_sound_at</code>) are always sfx.</p>
+<h2 id="music-sessions"><a class="header" href="#music-sessions">Music Sessions</a></h2>
+<p>A scene that carries a <code>music_session</code> component turns the audio engine into the host for a rhythm-driven chart: <code>flint-music</code> opens a <code>ChartSession</code> on the <strong>same</strong> Kira manager the ordinary buses use (ADR 0017, shared audio manager), so the world’s sounds and the suite’s stems mix together and one master low-pass muffles both. For the length of the session the gamepad is handed to a 1 kHz capture thread that stamps every stick and button event with the audio clock (ADR 0018, gamepad handoff).</p>
+<blockquote>
+<p><strong>While a session is active, only the lean stick and the pulse button reach <code>InputState</code>.</strong> Every other gamepad control is consumed by the capture thread; keyboard input still flows through winit as normal. Scripts that need the pad for anything else during a chart should read the <a href="scripting.html#conducted-parameters-api">conducted parameters</a> instead.</p>
+</blockquote>
+<p>The component, its configuration files, the ladder and reintegration mechanics, and the seven <code>flint</code> subcommands that go with it are on the <a href="music-sessions.html">Music Sessions</a> page.</p>
 <h2 id="audio-schemas"><a class="header" href="#audio-schemas">Audio Schemas</a></h2>
 <p>Three component schemas define audio behavior:</p>
 <p><strong>audio_source</strong> (<code>audio_source.toml</code>) — a sound attached to an entity:</p>
@@ -353,7 +366,7 @@ fn on_interact() {
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../concepts/animation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../concepts/music-sessions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -367,7 +380,7 @@ fn on_interact() {
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../concepts/animation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../concepts/music-sessions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

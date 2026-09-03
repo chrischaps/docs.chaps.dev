@@ -586,66 +586,107 @@
 <a href=#510 id=510 data-nosnippet>510</a>    bone_world_positions: <span class="kw-2">&amp;</span>[[f32; <span class="number">3</span>]],
 <a href=#511 id=511 data-nosnippet>511</a>    bone_parents: <span class="kw-2">&amp;</span>[<span class="prelude-ty">Option</span>&lt;usize&gt;],
 <a href=#512 id=512 data-nosnippet>512</a>) -&gt; Mesh {
-<a href=#513 id=513 data-nosnippet>513</a>    <span class="kw">let </span>yellow = [<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>];
-<a href=#514 id=514 data-nosnippet>514</a>    <span class="kw">let </span>red = [<span class="number">1.0</span>, <span class="number">0.2</span>, <span class="number">0.2</span>, <span class="number">1.0</span>];
-<a href=#515 id=515 data-nosnippet>515</a>    <span class="kw">let </span>green = [<span class="number">0.2</span>, <span class="number">1.0</span>, <span class="number">0.2</span>, <span class="number">1.0</span>];
-<a href=#516 id=516 data-nosnippet>516</a>    <span class="kw">let </span>blue = [<span class="number">0.2</span>, <span class="number">0.2</span>, <span class="number">1.0</span>, <span class="number">1.0</span>];
-<a href=#517 id=517 data-nosnippet>517</a>
-<a href=#518 id=518 data-nosnippet>518</a>    <span class="kw">let </span><span class="kw-2">mut </span>verts = Vec::new();
-<a href=#519 id=519 data-nosnippet>519</a>    <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::new();
-<a href=#520 id=520 data-nosnippet>520</a>    <span class="kw">let </span><span class="kw-2">mut </span>idx = <span class="number">0u32</span>;
-<a href=#521 id=521 data-nosnippet>521</a>
-<a href=#522 id=522 data-nosnippet>522</a>    <span class="kw">let </span>axis_len = <span class="number">0.05</span>;
-<a href=#523 id=523 data-nosnippet>523</a>
-<a href=#524 id=524 data-nosnippet>524</a>    <span class="kw">for </span>(i, pos) <span class="kw">in </span>bone_world_positions.iter().enumerate() {
-<a href=#525 id=525 data-nosnippet>525</a>        <span class="comment">// Bone-to-parent line (yellow)
-<a href=#526 id=526 data-nosnippet>526</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = bone_parents[i] {
-<a href=#527 id=527 data-nosnippet>527</a>            <span class="kw">let </span>parent_pos = bone_world_positions[parent];
-<a href=#528 id=528 data-nosnippet>528</a>            verts.push(Vertex {
-<a href=#529 id=529 data-nosnippet>529</a>                position: parent_pos,
-<a href=#530 id=530 data-nosnippet>530</a>                normal: [<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
-<a href=#531 id=531 data-nosnippet>531</a>                color: yellow,
-<a href=#532 id=532 data-nosnippet>532</a>                uv: [<span class="number">0.0</span>, <span class="number">0.0</span>],
-<a href=#533 id=533 data-nosnippet>533</a>            });
-<a href=#534 id=534 data-nosnippet>534</a>            verts.push(Vertex {
-<a href=#535 id=535 data-nosnippet>535</a>                position: <span class="kw-2">*</span>pos,
-<a href=#536 id=536 data-nosnippet>536</a>                normal: [<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
-<a href=#537 id=537 data-nosnippet>537</a>                color: yellow,
-<a href=#538 id=538 data-nosnippet>538</a>                uv: [<span class="number">0.0</span>, <span class="number">0.0</span>],
-<a href=#539 id=539 data-nosnippet>539</a>            });
-<a href=#540 id=540 data-nosnippet>540</a>            indices.push(idx);
-<a href=#541 id=541 data-nosnippet>541</a>            indices.push(idx + <span class="number">1</span>);
-<a href=#542 id=542 data-nosnippet>542</a>            idx += <span class="number">2</span>;
-<a href=#543 id=543 data-nosnippet>543</a>        }
-<a href=#544 id=544 data-nosnippet>544</a>
-<a href=#545 id=545 data-nosnippet>545</a>        <span class="comment">// Small axis cross at joint position
-<a href=#546 id=546 data-nosnippet>546</a>        </span><span class="kw">for </span>(axis_offset, color) <span class="kw">in </span>[
-<a href=#547 id=547 data-nosnippet>547</a>            ([axis_len, <span class="number">0.0</span>, <span class="number">0.0</span>], red),
-<a href=#548 id=548 data-nosnippet>548</a>            ([<span class="number">0.0</span>, axis_len, <span class="number">0.0</span>], green),
-<a href=#549 id=549 data-nosnippet>549</a>            ([<span class="number">0.0</span>, <span class="number">0.0</span>, axis_len], blue),
-<a href=#550 id=550 data-nosnippet>550</a>        ] {
-<a href=#551 id=551 data-nosnippet>551</a>            <span class="kw">let </span>tip = [
-<a href=#552 id=552 data-nosnippet>552</a>                pos[<span class="number">0</span>] + axis_offset[<span class="number">0</span>],
-<a href=#553 id=553 data-nosnippet>553</a>                pos[<span class="number">1</span>] + axis_offset[<span class="number">1</span>],
-<a href=#554 id=554 data-nosnippet>554</a>                pos[<span class="number">2</span>] + axis_offset[<span class="number">2</span>],
-<a href=#555 id=555 data-nosnippet>555</a>            ];
-<a href=#556 id=556 data-nosnippet>556</a>            verts.push(Vertex {
-<a href=#557 id=557 data-nosnippet>557</a>                position: <span class="kw-2">*</span>pos,
-<a href=#558 id=558 data-nosnippet>558</a>                normal: [<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
-<a href=#559 id=559 data-nosnippet>559</a>                color,
-<a href=#560 id=560 data-nosnippet>560</a>                uv: [<span class="number">0.0</span>, <span class="number">0.0</span>],
-<a href=#561 id=561 data-nosnippet>561</a>            });
-<a href=#562 id=562 data-nosnippet>562</a>            verts.push(Vertex {
-<a href=#563 id=563 data-nosnippet>563</a>                position: tip,
-<a href=#564 id=564 data-nosnippet>564</a>                normal: [<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
-<a href=#565 id=565 data-nosnippet>565</a>                color,
-<a href=#566 id=566 data-nosnippet>566</a>                uv: [<span class="number">0.0</span>, <span class="number">0.0</span>],
-<a href=#567 id=567 data-nosnippet>567</a>            });
-<a href=#568 id=568 data-nosnippet>568</a>            indices.push(idx);
-<a href=#569 id=569 data-nosnippet>569</a>            indices.push(idx + <span class="number">1</span>);
-<a href=#570 id=570 data-nosnippet>570</a>            idx += <span class="number">2</span>;
-<a href=#571 id=571 data-nosnippet>571</a>        }
-<a href=#572 id=572 data-nosnippet>572</a>    }
-<a href=#573 id=573 data-nosnippet>573</a>
-<a href=#574 id=574 data-nosnippet>574</a>    Mesh { vertices: verts, indices }
-<a href=#575 id=575 data-nosnippet>575</a>}</code></pre></div></section></main></body></html>
+<a href=#513 id=513 data-nosnippet>513</a>    <span class="kw">let </span>yellow = <span class="macro">vec!</span>[[<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>]; bone_world_positions.len()];
+<a href=#514 id=514 data-nosnippet>514</a>    generate_skeleton_lines_colored(bone_world_positions, bone_parents, <span class="kw-2">&amp;</span>yellow)
+<a href=#515 id=515 data-nosnippet>515</a>}
+<a href=#516 id=516 data-nosnippet>516</a>
+<a href=#517 id=517 data-nosnippet>517</a><span class="doccomment">/// Like [`generate_skeleton_lines`], but each bone line takes the colour
+<a href=#518 id=518 data-nosnippet>518</a>/// of its child joint (`joint_colors[i]`, RGBA). Missing entries fall back
+<a href=#519 id=519 data-nosnippet>519</a>/// to yellow. Lets callers paint "which layer drives this bone".
+<a href=#520 id=520 data-nosnippet>520</a></span><span class="kw">pub fn </span>generate_skeleton_lines_colored(
+<a href=#521 id=521 data-nosnippet>521</a>    bone_world_positions: <span class="kw-2">&amp;</span>[[f32; <span class="number">3</span>]],
+<a href=#522 id=522 data-nosnippet>522</a>    bone_parents: <span class="kw-2">&amp;</span>[<span class="prelude-ty">Option</span>&lt;usize&gt;],
+<a href=#523 id=523 data-nosnippet>523</a>    joint_colors: <span class="kw-2">&amp;</span>[[f32; <span class="number">4</span>]],
+<a href=#524 id=524 data-nosnippet>524</a>) -&gt; Mesh {
+<a href=#525 id=525 data-nosnippet>525</a>    <span class="kw">let </span>yellow = [<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>];
+<a href=#526 id=526 data-nosnippet>526</a>    <span class="kw">let </span>red = [<span class="number">1.0</span>, <span class="number">0.2</span>, <span class="number">0.2</span>, <span class="number">1.0</span>];
+<a href=#527 id=527 data-nosnippet>527</a>    <span class="kw">let </span>green = [<span class="number">0.2</span>, <span class="number">1.0</span>, <span class="number">0.2</span>, <span class="number">1.0</span>];
+<a href=#528 id=528 data-nosnippet>528</a>    <span class="kw">let </span>blue = [<span class="number">0.2</span>, <span class="number">0.2</span>, <span class="number">1.0</span>, <span class="number">1.0</span>];
+<a href=#529 id=529 data-nosnippet>529</a>
+<a href=#530 id=530 data-nosnippet>530</a>    <span class="kw">let </span><span class="kw-2">mut </span>verts = Vec::new();
+<a href=#531 id=531 data-nosnippet>531</a>    <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::new();
+<a href=#532 id=532 data-nosnippet>532</a>    <span class="kw">let </span><span class="kw-2">mut </span>idx = <span class="number">0u32</span>;
+<a href=#533 id=533 data-nosnippet>533</a>
+<a href=#534 id=534 data-nosnippet>534</a>    <span class="kw">let </span>axis_len = <span class="number">0.025</span>;
+<a href=#535 id=535 data-nosnippet>535</a>    <span class="kw">let </span>ring_radius = <span class="number">0.005</span>;
+<a href=#536 id=536 data-nosnippet>536</a>    <span class="kw">let </span>ring_segments = <span class="number">12u32</span>;
+<a href=#537 id=537 data-nosnippet>537</a>
+<a href=#538 id=538 data-nosnippet>538</a>    <span class="kw">for </span>(i, pos) <span class="kw">in </span>bone_world_positions.iter().enumerate() {
+<a href=#539 id=539 data-nosnippet>539</a>        <span class="kw">let </span>bone_color = joint_colors.get(i).copied().unwrap_or(yellow);
+<a href=#540 id=540 data-nosnippet>540</a>        <span class="comment">// Bone-to-parent line
+<a href=#541 id=541 data-nosnippet>541</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = bone_parents[i] {
+<a href=#542 id=542 data-nosnippet>542</a>            <span class="kw">let </span>parent_pos = bone_world_positions[parent];
+<a href=#543 id=543 data-nosnippet>543</a>            verts.push(Vertex {
+<a href=#544 id=544 data-nosnippet>544</a>                position: parent_pos,
+<a href=#545 id=545 data-nosnippet>545</a>                normal: [<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
+<a href=#546 id=546 data-nosnippet>546</a>                color: bone_color,
+<a href=#547 id=547 data-nosnippet>547</a>                uv: [<span class="number">0.0</span>, <span class="number">0.0</span>],
+<a href=#548 id=548 data-nosnippet>548</a>            });
+<a href=#549 id=549 data-nosnippet>549</a>            verts.push(Vertex {
+<a href=#550 id=550 data-nosnippet>550</a>                position: <span class="kw-2">*</span>pos,
+<a href=#551 id=551 data-nosnippet>551</a>                normal: [<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
+<a href=#552 id=552 data-nosnippet>552</a>                color: bone_color,
+<a href=#553 id=553 data-nosnippet>553</a>                uv: [<span class="number">0.0</span>, <span class="number">0.0</span>],
+<a href=#554 id=554 data-nosnippet>554</a>            });
+<a href=#555 id=555 data-nosnippet>555</a>            indices.push(idx);
+<a href=#556 id=556 data-nosnippet>556</a>            indices.push(idx + <span class="number">1</span>);
+<a href=#557 id=557 data-nosnippet>557</a>            idx += <span class="number">2</span>;
+<a href=#558 id=558 data-nosnippet>558</a>        }
+<a href=#559 id=559 data-nosnippet>559</a>
+<a href=#560 id=560 data-nosnippet>560</a>        <span class="comment">// Small axis cross at joint position
+<a href=#561 id=561 data-nosnippet>561</a>        </span><span class="kw">for </span>(axis_offset, color) <span class="kw">in </span>[
+<a href=#562 id=562 data-nosnippet>562</a>            ([axis_len, <span class="number">0.0</span>, <span class="number">0.0</span>], red),
+<a href=#563 id=563 data-nosnippet>563</a>            ([<span class="number">0.0</span>, axis_len, <span class="number">0.0</span>], green),
+<a href=#564 id=564 data-nosnippet>564</a>            ([<span class="number">0.0</span>, <span class="number">0.0</span>, axis_len], blue),
+<a href=#565 id=565 data-nosnippet>565</a>        ] {
+<a href=#566 id=566 data-nosnippet>566</a>            <span class="kw">let </span>tip = [
+<a href=#567 id=567 data-nosnippet>567</a>                pos[<span class="number">0</span>] + axis_offset[<span class="number">0</span>],
+<a href=#568 id=568 data-nosnippet>568</a>                pos[<span class="number">1</span>] + axis_offset[<span class="number">1</span>],
+<a href=#569 id=569 data-nosnippet>569</a>                pos[<span class="number">2</span>] + axis_offset[<span class="number">2</span>],
+<a href=#570 id=570 data-nosnippet>570</a>            ];
+<a href=#571 id=571 data-nosnippet>571</a>            verts.push(Vertex {
+<a href=#572 id=572 data-nosnippet>572</a>                position: <span class="kw-2">*</span>pos,
+<a href=#573 id=573 data-nosnippet>573</a>                normal: [<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
+<a href=#574 id=574 data-nosnippet>574</a>                color,
+<a href=#575 id=575 data-nosnippet>575</a>                uv: [<span class="number">0.0</span>, <span class="number">0.0</span>],
+<a href=#576 id=576 data-nosnippet>576</a>            });
+<a href=#577 id=577 data-nosnippet>577</a>            verts.push(Vertex {
+<a href=#578 id=578 data-nosnippet>578</a>                position: tip,
+<a href=#579 id=579 data-nosnippet>579</a>                normal: [<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
+<a href=#580 id=580 data-nosnippet>580</a>                color,
+<a href=#581 id=581 data-nosnippet>581</a>                uv: [<span class="number">0.0</span>, <span class="number">0.0</span>],
+<a href=#582 id=582 data-nosnippet>582</a>            });
+<a href=#583 id=583 data-nosnippet>583</a>            indices.push(idx);
+<a href=#584 id=584 data-nosnippet>584</a>            indices.push(idx + <span class="number">1</span>);
+<a href=#585 id=585 data-nosnippet>585</a>            idx += <span class="number">2</span>;
+<a href=#586 id=586 data-nosnippet>586</a>        }
+<a href=#587 id=587 data-nosnippet>587</a>
+<a href=#588 id=588 data-nosnippet>588</a>        <span class="comment">// Small wire sphere (three axis-aligned rings) marking the joint
+<a href=#589 id=589 data-nosnippet>589</a>        </span><span class="kw">for </span>plane <span class="kw">in </span><span class="number">0</span>..<span class="number">3 </span>{
+<a href=#590 id=590 data-nosnippet>590</a>            <span class="kw">let </span>first = idx;
+<a href=#591 id=591 data-nosnippet>591</a>            <span class="kw">for </span>k <span class="kw">in </span><span class="number">0</span>..ring_segments {
+<a href=#592 id=592 data-nosnippet>592</a>                <span class="kw">let </span>a = k <span class="kw">as </span>f32 / ring_segments <span class="kw">as </span>f32 * std::f32::consts::TAU;
+<a href=#593 id=593 data-nosnippet>593</a>                <span class="kw">let </span>(c, s) = (a.cos() * ring_radius, a.sin() * ring_radius);
+<a href=#594 id=594 data-nosnippet>594</a>                <span class="kw">let </span>offset = <span class="kw">match </span>plane {
+<a href=#595 id=595 data-nosnippet>595</a>                    <span class="number">0 </span>=&gt; [<span class="number">0.0</span>, c, s],
+<a href=#596 id=596 data-nosnippet>596</a>                    <span class="number">1 </span>=&gt; [c, <span class="number">0.0</span>, s],
+<a href=#597 id=597 data-nosnippet>597</a>                    <span class="kw">_ </span>=&gt; [c, s, <span class="number">0.0</span>],
+<a href=#598 id=598 data-nosnippet>598</a>                };
+<a href=#599 id=599 data-nosnippet>599</a>                verts.push(Vertex {
+<a href=#600 id=600 data-nosnippet>600</a>                    position: [pos[<span class="number">0</span>] + offset[<span class="number">0</span>], pos[<span class="number">1</span>] + offset[<span class="number">1</span>], pos[<span class="number">2</span>] + offset[<span class="number">2</span>]],
+<a href=#601 id=601 data-nosnippet>601</a>                    normal: [<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
+<a href=#602 id=602 data-nosnippet>602</a>                    color: bone_color,
+<a href=#603 id=603 data-nosnippet>603</a>                    uv: [<span class="number">0.0</span>, <span class="number">0.0</span>],
+<a href=#604 id=604 data-nosnippet>604</a>                });
+<a href=#605 id=605 data-nosnippet>605</a>                indices.push(first + k);
+<a href=#606 id=606 data-nosnippet>606</a>                indices.push(first + (k + <span class="number">1</span>) % ring_segments);
+<a href=#607 id=607 data-nosnippet>607</a>            }
+<a href=#608 id=608 data-nosnippet>608</a>            idx += ring_segments;
+<a href=#609 id=609 data-nosnippet>609</a>        }
+<a href=#610 id=610 data-nosnippet>610</a>    }
+<a href=#611 id=611 data-nosnippet>611</a>
+<a href=#612 id=612 data-nosnippet>612</a>    Mesh {
+<a href=#613 id=613 data-nosnippet>613</a>        vertices: verts,
+<a href=#614 id=614 data-nosnippet>614</a>        indices,
+<a href=#615 id=615 data-nosnippet>615</a>    }
+<a href=#616 id=616 data-nosnippet>616</a>}</code></pre></div></section></main></body></html>

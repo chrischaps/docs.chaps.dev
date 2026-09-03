@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -225,6 +225,10 @@ enabled = true
 <tr><td><code>on_action</code></td><td><code>fn on_action(action_name)</code></td><td>When an input action fires (e.g., <code>"jump"</code>, <code>"interact"</code>)</td></tr>
 <tr><td><code>on_interact</code></td><td><code>fn on_interact()</code></td><td>When the player presses Interact near this entity</td></tr>
 <tr><td><code>on_draw_ui</code></td><td><code>fn on_draw_ui()</code></td><td>Every frame after <code>on_update</code>, for 2D HUD draw commands</td></tr>
+<tr><td><code>on_collision_exit</code></td><td><code>fn on_collision_exit(other_id)</code></td><td>When a contact with another entity ends</td></tr>
+<tr><td><code>on_scene_enter</code> / <code>on_scene_exit</code></td><td><code>fn on_scene_enter()</code></td><td>Around scene transitions (see <a href="#scene-transition-api">Scene Transition API</a>)</td></tr>
+<tr><td><code>on_sequence_cue</code></td><td><code>fn on_sequence_cue(sequence, cue)</code></td><td>An animation sequence passed a <code>cue</code> event (see <a href="animation.html#sequences">Animation</a>)</td></tr>
+<tr><td><code>on_animation_end</code></td><td><code>fn on_animation_end(clip)</code></td><td>A <code>once</code> sprite clip finished (see <a href="sprites-2d.html">2D Sprites</a>)</td></tr>
 </tbody>
 </table>
 </div>
@@ -328,9 +332,17 @@ will simply not be heard.</p>
 <tr><td><code>stop_clip(entity_id)</code></td><td>Stop the current animation</td></tr>
 <tr><td><code>blend_to(entity_id, clip, duration)</code></td><td>Crossfade to another clip over the given duration</td></tr>
 <tr><td><code>set_anim_speed(entity_id, speed)</code></td><td>Set animation playback speed</td></tr>
+<tr><td><code>set_anim_layer(entity_id, index, clip, weight)</code></td><td>Play <code>clip</code> on layer <code>index</code> (additive, unmasked) at <code>weight</code></td></tr>
+<tr><td><code>set_anim_layer_ex(entity_id, index, clip, weight, mode, mask)</code></td><td>Same, with <code>"additive"</code>/<code>"override"</code> and a root-joint mask</td></tr>
+<tr><td><code>set_anim_layer_weight(entity_id, index, weight)</code></td><td>Set a layer’s weight instantly (cancels a fade)</td></tr>
+<tr><td><code>fade_anim_layer(entity_id, index, weight, seconds)</code></td><td>Ramp a layer’s weight over <code>seconds</code> (engine writes the ramp back each frame)</td></tr>
+<tr><td><code>play_sequence(entity_id, name)</code></td><td>Play a <code>*.sequence.toml</code> (timestamped blend/layer/speed/cue events) on this animator</td></tr>
+<tr><td><code>stop_sequence(entity_id)</code></td><td>Stop the active sequence</td></tr>
+<tr><td><code>clear_anim_layer(entity_id, index)</code></td><td>Deactivate a layer (slot kept so indices stay stable)</td></tr>
 </tbody>
 </table>
 </div>
+<p>Weights are floats — write <code>0.5</code>, never <code>0</code> (Rhai does not coerce ints).</p>
 <h3 id="coordinate-system"><a class="header" href="#coordinate-system">Coordinate System</a></h3>
 <p>Flint uses a <strong>Y-up, right-handed</strong> coordinate system:</p>
 <ul>
@@ -454,6 +466,9 @@ scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
 <tr><td><code>set_camera_position(x, y, z)</code></td><td>—</td><td>Override camera position from script</td></tr>
 <tr><td><code>set_camera_target(x, y, z)</code></td><td>—</td><td>Override camera look-at target from script</td></tr>
 <tr><td><code>set_camera_fov(fov)</code></td><td>—</td><td>Override camera field of view (degrees) from script</td></tr>
+<tr><td><code>set_camera_orthographic(enabled)</code></td><td>—</td><td>Switch the camera between orthographic and perspective projection</td></tr>
+<tr><td><code>set_camera_ortho_height(height)</code></td><td>—</td><td>Orthographic half-height in world units</td></tr>
+<tr><td><code>set_camera_roll(radians)</code></td><td>—</td><td>Roll the camera about its view axis (ADR 0022, camera roll override)</td></tr>
 </tbody>
 </table>
 </div>
@@ -510,6 +525,52 @@ scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
     }
 }
 <span class="boring">}</span></code></pre>
+<h4 id="2d-physics"><a class="header" href="#2d-physics">2D Physics</a></h4>
+<p>For sprite games the physics world is a flat plane. These mirror the 3D calls above:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>set_velocity_2d(id, vx, vy)</code></td><td>—</td><td>Set a 2D body’s velocity (deferred command, applied after the script batch)</td></tr>
+<tr><td><code>get_velocity_2d(id)</code></td><td><code>Map</code> or <code>()</code></td><td>Current velocity as <code>#{vx, vy}</code>, or <code>()</code> if the entity has no 2D body</td></tr>
+<tr><td><code>overlap_rect(x, y, w, h)</code></td><td><code>Array</code></td><td>IDs of every entity whose collider overlaps the rectangle</td></tr>
+<tr><td><code>raycast_2d(ox, oy, dx, dy, max_dist)</code></td><td><code>Map</code> or <code>()</code></td><td><code>#{entity, distance, point_x, point_y, normal_x, normal_y}</code> or <code>()</code></td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="2d-camera"><a class="header" href="#2d-camera">2D Camera</a></h4>
+<p>A follow camera with deadzone and smoothing, plus a stackable shake. All positions are world units on the sprite plane; the camera sits at <code>z = 10</code> looking down <code>-z</code> so every sprite layer stays in front of it.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>camera_follow(id, offset_x, offset_y, speed, deadzone_w, deadzone_h)</code></td><td>—</td><td>Track an entity each frame: the camera only moves when the target leaves the deadzone rectangle, then eases toward it with frame-rate-independent smoothing at <code>speed</code>. Applies any active shake</td></tr>
+<tr><td><code>camera_follow_position()</code></td><td><code>Map</code></td><td>Current smoothed follow position as <code>#{x, y}</code></td></tr>
+<tr><td><code>camera_follow_set(x, y)</code></td><td>—</td><td>Teleport the follow position (use on scene enter or respawn to avoid a long ease)</td></tr>
+<tr><td><code>camera_shake(amplitude, frequency, decay)</code></td><td>—</td><td>Start or stack a shake. Amplitude takes the max of current and new; frequency in Hz; amplitude decays exponentially at <code>decay</code> per second</td></tr>
+<tr><td><code>camera_shake_stop()</code></td><td>—</td><td>Cancel the shake immediately</td></tr>
+<tr><td><code>camera_apply_shake()</code></td><td>—</td><td>Advance and apply the shake to a camera you position yourself with <code>set_camera_position</code> (not needed when <code>camera_follow</code> is in use)</td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="chunks"><a class="header" href="#chunks">Chunks</a></h4>
+<p>Large 2D worlds stream in <code>.chunk.toml</code> files at runtime:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>load_chunk(path, offset_x, offset_y, chunk_id)</code></td><td>—</td><td>Load a chunk file, translating its entities by the offset, under a name you choose</td></tr>
+<tr><td><code>unload_chunk(chunk_id)</code></td><td>—</td><td>Despawn every entity that chunk loaded</td></tr>
+<tr><td><code>is_chunk_loaded(chunk_id)</code></td><td><code>bool</code></td><td>Whether that chunk is currently resident</td></tr>
+</tbody>
+</table>
+</div>
 <h3 id="spline-api"><a class="header" href="#spline-api">Spline API</a></h3>
 <p>Query spline entities for path-following, track layouts, and procedural placement:</p>
 <div class="table-wrapper">
@@ -520,6 +581,8 @@ scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
 <tbody>
 <tr><td><code>spline_closest_point(spline_id, x, y, z)</code></td><td><code>Map</code> or <code>()</code></td><td>Nearest point on spline to query position. Returns <code>#{t, x, y, z, dist_sq}</code></td></tr>
 <tr><td><code>spline_sample_at(spline_id, t)</code></td><td><code>Map</code> or <code>()</code></td><td>Sample spline at parameter <code>t</code> (0.0–1.0). Returns <code>#{x, y, z, fwd_x, fwd_y, fwd_z, right_x, right_y, right_z}</code></td></tr>
+<tr><td><code>spline_is_gap(spline_id, t)</code></td><td><code>bool</code></td><td>Whether <code>t</code> falls inside one of the spline’s authored gaps (<code>gap_starts</code> / <code>gap_ends</code> in <code>spline_data</code>; ranges may wrap past 1.0)</td></tr>
+<tr><td><code>spline_gap_at(spline_id, t)</code></td><td><code>Map</code> or <code>()</code></td><td>The gap containing <code>t</code> as <code>#{start_t, end_t}</code>, or <code>()</code> if <code>t</code> is on solid track</td></tr>
 </tbody>
 </table>
 </div>
@@ -557,6 +620,9 @@ scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
 <tr><td><code>set_fog_color(r, g, b)</code></td><td>Set fog color (linear 0–1)</td></tr>
 <tr><td><code>set_render_mode(mode, mix)</code></td><td>Stylized render mode (see below)</td></tr>
 <tr><td><code>set_render_mode_params(x, y, z, w)</code></td><td>Per-mode tuning parameters</td></tr>
+<tr><td><code>set_desaturation(amount)</code></td><td>Desaturate toward ash grey (0 = full colour, 1 = grey; ADR 0021)</td></tr>
+<tr><td><code>set_dof(strength)</code></td><td>Depth-of-field defocus strength (0 = sharp, 1 = full blur)</td></tr>
+<tr><td><code>set_dof_focus(distance, range)</code></td><td>Focus plane distance and half-width, in view metres</td></tr>
 </tbody>
 </table>
 </div>
@@ -567,6 +633,43 @@ it is cleared the frame your script stops calling it, so a crashed or
 hot-reloaded script cannot strand the world inside an effect. Call it every
 frame the effect is active. See
 <a href="post-processing.html#render-modes">Post-Processing: Render Modes</a>.</p>
+<h3 id="conducted-parameters-api"><a class="header" href="#conducted-parameters-api">Conducted Parameters API</a></h3>
+<p>When a scene carries a <a href="music-sessions.html"><code>music_session</code></a> component, the player fills a per-frame snapshot of the session’s state and exposes it to every script through these getters (ADR 0020, conducted-parameters script surface). Without a session every getter returns a neutral value: a clean, settled world with <code>coherence</code> and <code>reassembly</code> at <code>1.0</code>, zero lean, and <code>1e6</code> beats until anything upcoming. Bindings written as <code>1 - conducted_coherence()</code> therefore show nothing when no music is running, and scripts never need to test for a session.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>conducted_lean()</code></td><td><code>#{x, y}</code></td><td>The player’s lean, both axes in <code>[-1, 1]</code></td></tr>
+<tr><td><code>conducted_target()</code></td><td><code>#{x, y}</code></td><td>The chart’s current lean target</td></tr>
+<tr><td><code>conducted_next_target()</code></td><td><code>#{x, y, beats}</code></td><td>The next authored lean key and suite beats until its anchor (ADR 0023). <code>beats = 1e6</code> and <code>x</code>/<code>y</code> = the current target when nothing is upcoming</td></tr>
+<tr><td><code>conducted_next_pulse()</code></td><td><code>#{beats, open}</code></td><td>Suite beats until the next judgment window’s anchor, and whether that window is open right now (a press would land)</td></tr>
+<tr><td><code>conducted_sway()</code></td><td><code>#{x, y}</code></td><td>Right-stick sway (zeros under the prototype input map)</td></tr>
+<tr><td><code>conducted_pressure_l()</code> / <code>conducted_pressure_r()</code></td><td><code>f64</code></td><td>Trigger depths in <code>[0, 1]</code> (zeros under the prototype map)</td></tr>
+<tr><td><code>conducted_coherence()</code></td><td><code>f64</code></td><td>The coherence integrator, <code>1.0</code> = fully in step</td></tr>
+<tr><td><code>conducted_beat()</code></td><td><code>f64</code></td><td>Suite beats from zero, accumulated across tempo changes</td></tr>
+<tr><td><code>conducted_beat_phase()</code> / <code>conducted_bar_phase()</code></td><td><code>f64</code></td><td><code>0..1</code> within the current beat / bar</td></tr>
+<tr><td><code>conducted_bar()</code></td><td><code>i64</code></td><td>Current bar number</td></tr>
+<tr><td><code>conducted_section()</code></td><td><code>String</code></td><td>Current section name, <code>""</code> when none</td></tr>
+<tr><td><code>conducted_pulses()</code></td><td><code>Array</code></td><td>Pulses judged this frame, each <code>#{age, err_ms, kind}</code> with <code>kind</code> one of <code>"hit"</code>, <code>"miss"</code>, <code>"spurious"</code>. Empty most frames</td></tr>
+<tr><td><code>conducted_cues()</code></td><td><code>Array</code></td><td>Chart cues fired this frame, each <code>#{name, age, params}</code> (ADR 0033). <code>params</code> is the cue’s flat table as floats, strings and bools; nested tables are dropped</td></tr>
+<tr><td><code>conducted_desaturate()</code> / <code>conducted_blur()</code> / <code>conducted_chromatic()</code></td><td><code>f64</code></td><td>Ladder visual ramps, <code>0</code> = clean</td></tr>
+<tr><td><code>conducted_reassembly()</code></td><td><code>f64</code></td><td><code>1</code> in normal play, <code>0</code> rising to <code>1</code> while re-gathering after a full fail</td></tr>
+<tr><td><code>conducted_rewind()</code></td><td><code>f64</code></td><td>Rewind-interlude progress, <code>0</code> = not rewinding</td></tr>
+<tr><td><code>conducted_no_input()</code></td><td><code>bool</code></td><td>The session has seen no input since the bar-2 check</td></tr>
+<tr><td><code>conducted_preroll()</code></td><td><code>bool</code></td><td>Still in the count-in; the world should stay untouched</td></tr>
+</tbody>
+</table>
+</div>
+<p>All scalars are <code>f64</code>, so compare and multiply with float literals. A typical binding reads the snapshot in <code>on_update</code> and writes a post-process override:</p>
+<pre><code class="language-rhai">fn on_update() {
+    let grey = conducted_desaturate();
+    set_desaturation(grey);
+    let p = conducted_next_pulse();
+    if p.open { set_vignette(0.4); } else { set_vignette(0.2); }
+}
+</code></pre>
 <h3 id="audio-filter-api"><a class="header" href="#audio-filter-api">Audio Filter API</a></h3>
 <div class="table-wrapper">
 <table>
@@ -676,6 +779,21 @@ frame the effect is active. See
 </tbody>
 </table>
 </div>
+<p>Older scenes place HUD elements as entities with <code>screen_anchor</code>, <code>ui_text</code> and <code>ui_fill</code> components instead of a UI document. Those are driven with entity-level setters:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>set_text(entity_id, text)</code></td><td>Write <code>ui_text.text</code></td></tr>
+<tr><td><code>set_text_color(entity_id, r, g, b, a)</code></td><td>Write <code>ui_text.color</code></td></tr>
+<tr><td><code>ui_set_value(entity_id, value)</code></td><td>Write <code>ui_fill.value</code> (a 0–1 bar fill)</td></tr>
+<tr><td><code>set_anchor(entity_id, anchor)</code></td><td>Write <code>screen_anchor.anchor</code> (<code>"top-left"</code> through <code>"bottom-right"</code>)</td></tr>
+<tr><td><code>set_anchor_offset(entity_id, x, y)</code></td><td>Write <code>screen_anchor.offset_x</code> / <code>offset_y</code></td></tr>
+</tbody>
+</table>
+</div>
 <p>UI documents are defined with paired <code>.ui.toml</code> (layout) and <code>.style.toml</code> (styling) files, following an HTML/CSS/JS-like separation of concerns. See <a href="../formats/overview.html">File Formats</a> for the format specification.</p>
 <h3 id="ui-draw-api"><a class="header" href="#ui-draw-api">UI Draw API</a></h3>
 <p>The draw API lets scripts render 2D overlays each frame via the <code>on_draw_ui()</code> callback. Draw commands are issued in screen-space coordinates (logical points, not physical pixels) and rendered by the engine through egui.</p>
@@ -688,12 +806,16 @@ frame the effect is active. See
 <tbody>
 <tr><td><code>draw_text(x, y, text, size, r, g, b, a)</code></td><td>Draw text at position</td></tr>
 <tr><td><code>draw_text_ex(x, y, text, size, r, g, b, a, layer)</code></td><td>Draw text with explicit layer</td></tr>
+<tr><td><code>draw_text_stroked(x, y, text, size, r, g, b, a, stroke_r, stroke_g, stroke_b, stroke_a, stroke_width)</code></td><td>Text with an outline stroke behind it</td></tr>
 <tr><td><code>draw_rect(x, y, w, h, r, g, b, a)</code></td><td>Draw filled rectangle</td></tr>
 <tr><td><code>draw_rect_ex(x, y, w, h, r, g, b, a, rounding, layer)</code></td><td>Filled rectangle with corner rounding and layer</td></tr>
 <tr><td><code>draw_rect_outline(x, y, w, h, r, g, b, a, thickness)</code></td><td>Rectangle outline</td></tr>
 <tr><td><code>draw_circle(x, y, radius, r, g, b, a)</code></td><td>Draw filled circle</td></tr>
+<tr><td><code>draw_circle_ex(x, y, radius, r, g, b, a, layer)</code></td><td>Filled circle with explicit layer</td></tr>
 <tr><td><code>draw_circle_outline(x, y, radius, r, g, b, a, thickness)</code></td><td>Circle outline</td></tr>
+<tr><td><code>draw_circle_outline_ex(x, y, radius, r, g, b, a, thickness, layer)</code></td><td>Circle outline with explicit layer</td></tr>
 <tr><td><code>draw_line(x1, y1, x2, y2, r, g, b, a, thickness)</code></td><td>Draw a line segment</td></tr>
+<tr><td><code>draw_line_ex(x1, y1, x2, y2, r, g, b, a, thickness, layer)</code></td><td>Line segment with explicit layer</td></tr>
 <tr><td><code>draw_sprite(x, y, w, h, name)</code></td><td>Draw a sprite image</td></tr>
 <tr><td><code>draw_sprite_ex(x, y, w, h, name, u0, v0, u1, v1, r, g, b, a, layer)</code></td><td>Sprite with custom UV coordinates, tint, and layer</td></tr>
 </tbody>
@@ -725,6 +847,22 @@ frame the effect is active. See
 <p>Coordinates are in <strong>egui logical points</strong>, not physical pixels. On high-DPI displays, logical points differ from pixels by the scale factor. Use <code>screen_width()</code> and <code>screen_height()</code> for layout calculations — they return the correct logical dimensions.</p>
 <h4 id="sprite-loading"><a class="header" href="#sprite-loading">Sprite Loading</a></h4>
 <p>Sprite names map to image files in the <code>sprites/</code> directory (without extension). Supported formats: PNG, JPG, BMP, TGA. Textures are lazy-loaded on first use and cached for subsequent frames.</p>
+<h3 id="sprite-api"><a class="header" href="#sprite-api">Sprite API</a></h3>
+<p>Runtime control of the <code>sprite</code> component on 2D entities (see <a href="sprites-2d.html">2D Sprites</a> for the component and clip formats):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>set_sprite_source_rect(entity_id, x, y, w, h)</code></td><td>Source rectangle in texture pixels (manual atlas frames)</td></tr>
+<tr><td><code>set_sprite_flip(entity_id, flip_x, flip_y)</code></td><td>Mirror horizontally / vertically</td></tr>
+<tr><td><code>set_sprite_tint(entity_id, r, g, b, a)</code></td><td>Multiply colour</td></tr>
+<tr><td><code>set_sprite_visible(entity_id, visible)</code></td><td>Show or hide without removing the component</td></tr>
+<tr><td><code>set_sprite_layer(entity_id, layer)</code> / <code>get_sprite_layer(entity_id)</code></td><td>Draw-order layer (integer; higher draws in front)</td></tr>
+</tbody>
+</table>
+</div>
 <h3 id="data-driven-ui-system"><a class="header" href="#data-driven-ui-system">Data-Driven UI System</a></h3>
 <p>For structured interfaces like menus, HUDs, and dialog boxes, Flint provides a data-driven UI system that separates layout, style, and logic into distinct files. The procedural <code>draw_*</code> API above continues to work alongside it for dynamic elements like minimaps or particle trails.</p>
 <p>The pattern is:</p>
@@ -1030,7 +1168,8 @@ events ────► ScriptEngine.process_events()
                 │                    │
                 ▼                    ▼
         ECS reads/writes      ScriptCommands
-        (via ScriptCallContext)  (PlaySound, FireEvent, Log)
+        (via ScriptCallContext)  (PlaySound, FireEvent, Log,
+                                  LoadScene, LoadChunk, SetVelocity2D, ...)
                                      │
 on_draw_ui ► ScriptEngine            ▼
                 │              PlayerApp processes
@@ -1044,6 +1183,7 @@ on_draw_ui ► ScriptEngine            ▼
           renders 2D overlay
 </code></pre>
 <p>Each entity gets its own Rhai <code>Scope</code>, preserving persistent variables between frames. The <code>Engine</code> is shared across all entities. World access happens through a <code>ScriptCallContext</code> that holds a raw pointer to the <code>FlintWorld</code> — valid only during the call batch, cleared immediately after.</p>
+<p>The context also carries the per-frame inputs the host fills before each batch: the <code>InputState</code> snapshot (actions, mouse, touch, swipes), the <code>ConductedSnapshot</code> from the music session (neutral when there is none), the set of loaded chunk IDs, and the camera follow / shake state. Setters such as <code>set_vignette</code> or <code>set_camera_roll</code> write <code>Option</code> overrides on the context that the player applies after the batch; <code>ScriptCommand</code> is the deferred-effect channel for anything that needs the world mutably (spawning, scene loads, chunk loads, 2D velocity). Chart cue parameters cross the boundary as a small <code>CueParam</code> enum (<code>Number</code>, <code>Text</code>, <code>Flag</code>) so <code>flint-script</code> never depends on <code>flint-music</code>.</p>
 <h2 id="example-combat-hud"><a class="header" href="#example-combat-hud">Example: Combat HUD</a></h2>
 <p>For game-specific UI, use a dedicated <code>hud_controller</code> entity with a <code>script</code> component. The entity has no physical presence in the world — it exists only to run the HUD script:</p>
 <pre><code class="language-toml">[entities.hud_controller]

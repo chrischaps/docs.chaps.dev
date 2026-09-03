@@ -517,18 +517,18 @@
 <a href=#441 id=441 data-nosnippet>441</a>) -&gt; f64 {
 <a href=#442 id=442 data-nosnippet>442</a>    <span class="kw">match </span>musgrave_type {
 <a href=#443 id=443 data-nosnippet>443</a>        MusgraveType::Fbm =&gt; musgrave_fbm(source, x, y, frequency, octaves, lacunarity, dimension),
-<a href=#444 id=444 data-nosnippet>444</a>        MusgraveType::Multifractal =&gt; {
-<a href=#445 id=445 data-nosnippet>445</a>            musgrave_multifractal(source, x, y, frequency, octaves, lacunarity, dimension, offset)
-<a href=#446 id=446 data-nosnippet>446</a>        }
+<a href=#444 id=444 data-nosnippet>444</a>        MusgraveType::Multifractal =&gt; musgrave_multifractal(
+<a href=#445 id=445 data-nosnippet>445</a>            source, x, y, frequency, octaves, lacunarity, dimension, offset,
+<a href=#446 id=446 data-nosnippet>446</a>        ),
 <a href=#447 id=447 data-nosnippet>447</a>        MusgraveType::RidgedMultifractal =&gt; musgrave_ridged(
 <a href=#448 id=448 data-nosnippet>448</a>            source, x, y, frequency, octaves, lacunarity, dimension, offset, gain,
 <a href=#449 id=449 data-nosnippet>449</a>        ),
 <a href=#450 id=450 data-nosnippet>450</a>        MusgraveType::HybridMultifractal =&gt; musgrave_hybrid(
 <a href=#451 id=451 data-nosnippet>451</a>            source, x, y, frequency, octaves, lacunarity, dimension, offset, gain,
 <a href=#452 id=452 data-nosnippet>452</a>        ),
-<a href=#453 id=453 data-nosnippet>453</a>        MusgraveType::HeteroTerrain =&gt; {
-<a href=#454 id=454 data-nosnippet>454</a>            musgrave_hetero(source, x, y, frequency, octaves, lacunarity, dimension, offset)
-<a href=#455 id=455 data-nosnippet>455</a>        }
+<a href=#453 id=453 data-nosnippet>453</a>        MusgraveType::HeteroTerrain =&gt; musgrave_hetero(
+<a href=#454 id=454 data-nosnippet>454</a>            source, x, y, frequency, octaves, lacunarity, dimension, offset,
+<a href=#455 id=455 data-nosnippet>455</a>        ),
 <a href=#456 id=456 data-nosnippet>456</a>    }
 <a href=#457 id=457 data-nosnippet>457</a>}
 <a href=#458 id=458 data-nosnippet>458</a>

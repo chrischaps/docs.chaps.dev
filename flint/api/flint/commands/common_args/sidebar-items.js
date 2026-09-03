@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["parse_debug_mode","parse_vec3","parse_vec4"],"struct":["ChartCommonArgs"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["HapticEvent","TickGrid"],"struct":["BurstCfg","HapticsConfig","HapticsDriver"]};

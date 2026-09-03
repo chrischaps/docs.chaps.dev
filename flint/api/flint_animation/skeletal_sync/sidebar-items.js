@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["SkeletalSync"],"type":["SkeletalPlaybackState"]};
+window.SIDEBAR_ITEMS = {"constant":["WRITER_BASE","WRITER_REST"],"struct":["LayerContribution","SkeletalSync"],"type":["SkeletalPlaybackState"]};

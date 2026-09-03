@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -256,7 +256,7 @@ components = ["transform", "door"]
 style = "hinged"
 locked = false
 </code></pre>
-<p>When you create an entity with <code>--archetype door</code>, Flint ensures it has the required components and fills in defaults for any missing values.</p>
+<p>When you create an entity with <code>--archetype door</code>, Flint ensures it has the required components and fills in defaults for any missing values. The scene loader does the same at load time: archetype defaults go in first, then the authored fields, then any component-schema <code>default</code> for a field the author left out (see <a href="scenes.html#loading-and-saving">Scenes</a>).</p>
 <p>Archetypes are not rigid types — an entity can have components beyond what its archetype specifies. The archetype defines the <em>minimum</em> set.</p>
 <h2 id="working-with-entities-via-cli"><a class="header" href="#working-with-entities-via-cli">Working with Entities via CLI</a></h2>
 <pre><code class="language-bash"># Create an entity

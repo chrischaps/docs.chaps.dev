@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["api","context","engine","sync","ui"],"struct":["ScriptSystem"]};
+window.SIDEBAR_ITEMS = {"mod":["api","context","engine","sync","ui"],"struct":["CameraOverrides","PostProcessOverrides","ScriptSystem"]};

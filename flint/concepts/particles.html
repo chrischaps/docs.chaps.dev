@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -228,10 +228,25 @@ autoplay = true
 <tr><td><code>point</code></td><td>(none)</td><td>All particles spawn at the emitter origin</td></tr>
 <tr><td><code>sphere</code></td><td><code>shape_radius</code></td><td>Random position within a sphere</td></tr>
 <tr><td><code>cone</code></td><td><code>shape_angle</code>, <code>shape_radius</code></td><td>Particles emit in a cone around <code>direction</code></td></tr>
-<tr><td><code>box</code></td><td><code>shape_extents</code></td><td>Random position within an axis-aligned box</td></tr>
+<tr><td><code>box</code></td><td><code>shape_extents</code>, <code>shape_axis_u</code>, <code>shape_axis_v</code></td><td>Random position within a box. Axis-aligned by default; give <code>shape_axis_u</code> and <code>shape_axis_v</code> world directions to orient it (see below)</td></tr>
 </tbody>
 </table>
 </div>
+<p>Every shape is translated by <code>shape_offset</code> before the emitter position is applied, so a trail can spawn a little behind the entity that owns it.</p>
+<h3 id="oriented-boxes"><a class="header" href="#oriented-boxes">Oriented Boxes</a></h3>
+<p>A box emitter can be rotated without rotating the entity (ADR 0061, prologue flight trails). <code>shape_extents.x</code> runs along <code>shape_axis_u</code>, <code>shape_extents.y</code> along <code>shape_axis_v</code>, and <code>shape_extents.z</code> along their cross product. The two axes are normalised and orthogonalised for you; if either is zero, or they are parallel, the box falls back to axis-aligned. Because both axes are live fields, a script can point the spawn slab along an entity’s lateral motion every frame:</p>
+<pre><code class="language-rhai">fn on_update() {
+    let me = self_entity();
+    let p = get_position(me);
+    let last = get_field(me, "trail_state", "last_pos");   // your own component
+    let dx = p.x - last.x;
+    let dz = p.z - last.z;
+    if dx * dx + dz * dz &gt; 0.0001 {
+        set_field(me, "particle_emitter", "shape_axis_u", [dx, 0.0, dz]);
+    }
+    set_field(me, "trail_state", "last_pos", #{ x: p.x, y: p.y, z: p.z });
+}
+</code></pre>
 <h2 id="blend-modes"><a class="header" href="#blend-modes">Blend Modes</a></h2>
 <div class="table-wrapper">
 <table>
@@ -302,7 +317,10 @@ autoplay = true          # Fire immediately
 <tr><td><code>shape_radius</code></td><td>f32</td><td>0.5</td><td>Radius for sphere/cone shapes</td></tr>
 <tr><td><code>shape_angle</code></td><td>f32</td><td>30.0</td><td>Half-angle for cone shape (degrees)</td></tr>
 <tr><td><code>shape_extents</code></td><td>vec3</td><td>[0.5,0.5,0.5]</td><td>Half-extents for box shape</td></tr>
-<tr><td><code>world_space</code></td><td>bool</td><td>true</td><td>Particles detach from emitter transform</td></tr>
+<tr><td><code>shape_offset</code></td><td>vec3</td><td>[0,0,0]</td><td>Spawn-region translation relative to the emitter position</td></tr>
+<tr><td><code>shape_axis_u</code></td><td>vec3</td><td>[0,0,0]</td><td>Box orientation: <code>extents.x</code> runs along this world direction (zero = axis-aligned)</td></tr>
+<tr><td><code>shape_axis_v</code></td><td>vec3</td><td>[0,0,0]</td><td>Box orientation: <code>extents.y</code> along this direction, <code>extents.z</code> along <code>u x v</code> (zero = axis-aligned)</td></tr>
+<tr><td><code>world_space</code></td><td>bool</td><td>true</td><td><code>true</code>: particles detach and stay where they were born. <code>false</code>: particles are simulated relative to the emitter and ride with it (resolved to world space when the instance buffer is packed)</td></tr>
 <tr><td><code>duration</code></td><td>f32</td><td>0.0</td><td>Emitter duration (0 = infinite)</td></tr>
 <tr><td><code>looping</code></td><td>bool</td><td>true</td><td>Loop when duration expires</td></tr>
 <tr><td><code>playing</code></td><td>bool</td><td>false</td><td>Current playback state</td></tr>
@@ -310,6 +328,10 @@ autoplay = true          # Fire immediately
 </tbody>
 </table>
 </div>
+<h3 id="live-fields"><a class="header" href="#live-fields">Live Fields</a></h3>
+<p>The particle system re-reads the component every frame, so a script can retune a running emitter with <code>set_field</code>. These fields take effect on the next frame without restarting the emitter:</p>
+<p><code>emission_rate</code>, <code>gravity</code>, <code>damping</code>, <code>size_start</code>, <code>size_end</code>, <code>color_start</code>, <code>color_end</code>, <code>blend_mode</code>, <code>texture</code>, <code>direction</code>, <code>spread</code>, <code>speed_min</code>, <code>speed_max</code>, <code>lifetime_min</code>, <code>lifetime_max</code>, <code>stretch</code>, <code>shape</code>, <code>shape_offset</code>, <code>shape_axis_u</code>, <code>shape_axis_v</code>.</p>
+<p>Everything else (<code>max_particles</code>, the sprite-sheet layout, <code>duration</code>, <code>looping</code>, <code>world_space</code>) is read when the emitter is created. Changing <code>playing</code> or <code>autoplay</code> starts or stops it, and a start resets the emitter clock.</p>
 <h2 id="scripting-integration"><a class="header" href="#scripting-integration">Scripting Integration</a></h2>
 <p>Particles can be controlled from <a href="scripting.html">Rhai scripts</a>:</p>
 <div class="table-wrapper">

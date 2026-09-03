@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["additive_blend","blend_poses"]};
+window.SIDEBAR_ITEMS = {"fn":["additive_blend","blend_joint","blend_poses"]};

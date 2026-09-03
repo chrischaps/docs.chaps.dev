@@ -136,145 +136,149 @@
 <a href=#60 id=60 data-nosnippet>60</a>                <span class="kw">let </span>h_weight = <span class="kw">if </span>h_range &gt; <span class="number">0.0 </span>{
 <a href=#61 id=61 data-nosnippet>61</a>                    <span class="kw">let </span>edge = h_range * <span class="number">0.1</span>;
 <a href=#62 id=62 data-nosnippet>62</a>                    <span class="kw">let </span>low_fade = ((h_norm - rule.height_min) / edge.max(<span class="number">0.001</span>)).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
-<a href=#63 id=63 data-nosnippet>63</a>                    <span class="kw">let </span>high_fade =
-<a href=#64 id=64 data-nosnippet>64</a>                        ((rule.height_max - h_norm) / edge.max(<span class="number">0.001</span>)).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
-<a href=#65 id=65 data-nosnippet>65</a>                    low_fade.min(high_fade)
-<a href=#66 id=66 data-nosnippet>66</a>                } <span class="kw">else </span>{
-<a href=#67 id=67 data-nosnippet>67</a>                    <span class="number">1.0
-<a href=#68 id=68 data-nosnippet>68</a>                </span>};
-<a href=#69 id=69 data-nosnippet>69</a>
-<a href=#70 id=70 data-nosnippet>70</a>                <span class="comment">// Slope weight
-<a href=#71 id=71 data-nosnippet>71</a>                </span><span class="kw">let </span>slope_weight = <span class="kw">if </span>rule.slope_max &gt; <span class="number">0.0 </span>{
-<a href=#72 id=72 data-nosnippet>72</a>                    (<span class="number">1.0 </span>- slope / rule.slope_max).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>)
-<a href=#73 id=73 data-nosnippet>73</a>                } <span class="kw">else </span>{
-<a href=#74 id=74 data-nosnippet>74</a>                    <span class="number">1.0
-<a href=#75 id=75 data-nosnippet>75</a>                </span>};
-<a href=#76 id=76 data-nosnippet>76</a>
-<a href=#77 id=77 data-nosnippet>77</a>                <span class="comment">// Noise modulation
-<a href=#78 id=78 data-nosnippet>78</a>                </span><span class="kw">let </span>noise_mod = <span class="kw">if </span>rule.noise_amount &gt; <span class="number">0.0 </span>{
-<a href=#79 id=79 data-nosnippet>79</a>                    <span class="kw">let </span>nx = u <span class="kw">as </span>f64 * rule.noise_scale <span class="kw">as </span>f64;
-<a href=#80 id=80 data-nosnippet>80</a>                    <span class="kw">let </span>ny = v <span class="kw">as </span>f64 * rule.noise_scale <span class="kw">as </span>f64;
-<a href=#81 id=81 data-nosnippet>81</a>                    <span class="kw">let </span>n = noise_gen.get([nx, ny]) <span class="kw">as </span>f32;
-<a href=#82 id=82 data-nosnippet>82</a>                    <span class="number">1.0 </span>+ n * rule.noise_amount
-<a href=#83 id=83 data-nosnippet>83</a>                } <span class="kw">else </span>{
-<a href=#84 id=84 data-nosnippet>84</a>                    <span class="number">1.0
-<a href=#85 id=85 data-nosnippet>85</a>                </span>};
-<a href=#86 id=86 data-nosnippet>86</a>
-<a href=#87 id=87 data-nosnippet>87</a>                <span class="kw">let </span>w = (h_weight * slope_weight * noise_mod).max(<span class="number">0.0</span>);
-<a href=#88 id=88 data-nosnippet>88</a>                weights[rule.layer <span class="kw">as </span>usize] += w;
-<a href=#89 id=89 data-nosnippet>89</a>            }
-<a href=#90 id=90 data-nosnippet>90</a>
-<a href=#91 id=91 data-nosnippet>91</a>            <span class="comment">// Normalize weights to sum = 255
-<a href=#92 id=92 data-nosnippet>92</a>            </span><span class="kw">let </span>total: f32 = weights.iter().sum();
-<a href=#93 id=93 data-nosnippet>93</a>            <span class="kw">let </span>idx = (py * splat_sz + px) * <span class="number">4</span>;
-<a href=#94 id=94 data-nosnippet>94</a>
-<a href=#95 id=95 data-nosnippet>95</a>            <span class="kw">if </span>total &gt; <span class="number">0.0 </span>{
-<a href=#96 id=96 data-nosnippet>96</a>                <span class="kw">for </span>c <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
-<a href=#97 id=97 data-nosnippet>97</a>                    data[idx + c] = ((weights[c] / total) * <span class="number">255.0</span>).round() <span class="kw">as </span>u8;
-<a href=#98 id=98 data-nosnippet>98</a>                }
-<a href=#99 id=99 data-nosnippet>99</a>            } <span class="kw">else </span>{
-<a href=#100 id=100 data-nosnippet>100</a>                <span class="comment">// Default: layer 0 = full
-<a href=#101 id=101 data-nosnippet>101</a>                </span>data[idx] = <span class="number">255</span>;
-<a href=#102 id=102 data-nosnippet>102</a>            }
-<a href=#103 id=103 data-nosnippet>103</a>        }
-<a href=#104 id=104 data-nosnippet>104</a>    }
-<a href=#105 id=105 data-nosnippet>105</a>
-<a href=#106 id=106 data-nosnippet>106</a>    data
-<a href=#107 id=107 data-nosnippet>107</a>}
-<a href=#108 id=108 data-nosnippet>108</a>
-<a href=#109 id=109 data-nosnippet>109</a><span class="kw">fn </span>sample_bilinear(heights: <span class="kw-2">&amp;</span>[f32], res: usize, u: f32, v: f32) -&gt; f32 {
-<a href=#110 id=110 data-nosnippet>110</a>    <span class="kw">let </span>u = u.clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
-<a href=#111 id=111 data-nosnippet>111</a>    <span class="kw">let </span>v = v.clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
-<a href=#112 id=112 data-nosnippet>112</a>
-<a href=#113 id=113 data-nosnippet>113</a>    <span class="kw">let </span>fx = u * (res - <span class="number">1</span>) <span class="kw">as </span>f32;
-<a href=#114 id=114 data-nosnippet>114</a>    <span class="kw">let </span>fy = v * (res - <span class="number">1</span>) <span class="kw">as </span>f32;
-<a href=#115 id=115 data-nosnippet>115</a>
-<a href=#116 id=116 data-nosnippet>116</a>    <span class="kw">let </span>x0 = (fx <span class="kw">as </span>usize).min(res - <span class="number">2</span>);
-<a href=#117 id=117 data-nosnippet>117</a>    <span class="kw">let </span>y0 = (fy <span class="kw">as </span>usize).min(res - <span class="number">2</span>);
-<a href=#118 id=118 data-nosnippet>118</a>    <span class="kw">let </span>x1 = x0 + <span class="number">1</span>;
-<a href=#119 id=119 data-nosnippet>119</a>    <span class="kw">let </span>y1 = y0 + <span class="number">1</span>;
-<a href=#120 id=120 data-nosnippet>120</a>
-<a href=#121 id=121 data-nosnippet>121</a>    <span class="kw">let </span>tx = fx - x0 <span class="kw">as </span>f32;
-<a href=#122 id=122 data-nosnippet>122</a>    <span class="kw">let </span>ty = fy - y0 <span class="kw">as </span>f32;
-<a href=#123 id=123 data-nosnippet>123</a>
-<a href=#124 id=124 data-nosnippet>124</a>    <span class="kw">let </span>h00 = heights[y0 * res + x0];
-<a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">let </span>h10 = heights[y0 * res + x1];
-<a href=#126 id=126 data-nosnippet>126</a>    <span class="kw">let </span>h01 = heights[y1 * res + x0];
-<a href=#127 id=127 data-nosnippet>127</a>    <span class="kw">let </span>h11 = heights[y1 * res + x1];
-<a href=#128 id=128 data-nosnippet>128</a>
-<a href=#129 id=129 data-nosnippet>129</a>    <span class="kw">let </span>h0 = h00 * (<span class="number">1.0 </span>- tx) + h10 * tx;
-<a href=#130 id=130 data-nosnippet>130</a>    <span class="kw">let </span>h1 = h01 * (<span class="number">1.0 </span>- tx) + h11 * tx;
-<a href=#131 id=131 data-nosnippet>131</a>
-<a href=#132 id=132 data-nosnippet>132</a>    h0 * (<span class="number">1.0 </span>- ty) + h1 * ty
-<a href=#133 id=133 data-nosnippet>133</a>}
-<a href=#134 id=134 data-nosnippet>134</a>
-<a href=#135 id=135 data-nosnippet>135</a><span class="kw">fn </span>compute_slope(
-<a href=#136 id=136 data-nosnippet>136</a>    heights: <span class="kw-2">&amp;</span>[f32],
-<a href=#137 id=137 data-nosnippet>137</a>    res: usize,
-<a href=#138 id=138 data-nosnippet>138</a>    u: f32,
-<a href=#139 id=139 data-nosnippet>139</a>    v: f32,
-<a href=#140 id=140 data-nosnippet>140</a>    width: f32,
-<a href=#141 id=141 data-nosnippet>141</a>    depth: f32,
-<a href=#142 id=142 data-nosnippet>142</a>    height_scale: f32,
-<a href=#143 id=143 data-nosnippet>143</a>) -&gt; f32 {
-<a href=#144 id=144 data-nosnippet>144</a>    <span class="kw">let </span>eps_u = <span class="number">1.0 </span>/ res <span class="kw">as </span>f32;
-<a href=#145 id=145 data-nosnippet>145</a>    <span class="kw">let </span>eps_v = <span class="number">1.0 </span>/ res <span class="kw">as </span>f32;
-<a href=#146 id=146 data-nosnippet>146</a>
-<a href=#147 id=147 data-nosnippet>147</a>    <span class="kw">let </span>h_left = sample_bilinear(heights, res, (u - eps_u).max(<span class="number">0.0</span>), v) * height_scale;
-<a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">let </span>h_right = sample_bilinear(heights, res, (u + eps_u).min(<span class="number">1.0</span>), v) * height_scale;
-<a href=#149 id=149 data-nosnippet>149</a>    <span class="kw">let </span>h_down = sample_bilinear(heights, res, u, (v - eps_v).max(<span class="number">0.0</span>)) * height_scale;
-<a href=#150 id=150 data-nosnippet>150</a>    <span class="kw">let </span>h_up = sample_bilinear(heights, res, u, (v + eps_v).min(<span class="number">1.0</span>)) * height_scale;
-<a href=#151 id=151 data-nosnippet>151</a>
-<a href=#152 id=152 data-nosnippet>152</a>    <span class="kw">let </span>dx = (h_right - h_left) / (<span class="number">2.0 </span>* eps_u * width);
-<a href=#153 id=153 data-nosnippet>153</a>    <span class="kw">let </span>dz = (h_up - h_down) / (<span class="number">2.0 </span>* eps_v * depth);
-<a href=#154 id=154 data-nosnippet>154</a>
-<a href=#155 id=155 data-nosnippet>155</a>    <span class="comment">// Slope = sin(angle) ≈ |gradient| / sqrt(1 + |gradient|²)
-<a href=#156 id=156 data-nosnippet>156</a>    </span><span class="kw">let </span>grad_sq = dx * dx + dz * dz;
-<a href=#157 id=157 data-nosnippet>157</a>    grad_sq.sqrt() / (<span class="number">1.0 </span>+ grad_sq).sqrt()
-<a href=#158 id=158 data-nosnippet>158</a>}
-<a href=#159 id=159 data-nosnippet>159</a>
-<a href=#160 id=160 data-nosnippet>160</a><span class="attr">#[cfg(test)]
-<a href=#161 id=161 data-nosnippet>161</a></span><span class="kw">mod </span>tests {
-<a href=#162 id=162 data-nosnippet>162</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#163 id=163 data-nosnippet>163</a>    <span class="kw">use </span><span class="kw">crate</span>::spec::SplatRule;
-<a href=#164 id=164 data-nosnippet>164</a>
-<a href=#165 id=165 data-nosnippet>165</a>    <span class="attr">#[test]
-<a href=#166 id=166 data-nosnippet>166</a>    </span><span class="kw">fn </span>height_based_rules() {
-<a href=#167 id=167 data-nosnippet>167</a>        <span class="kw">let </span>res = <span class="number">32</span>;
-<a href=#168 id=168 data-nosnippet>168</a>        <span class="comment">// Gradient from 0 to 1 along Y
-<a href=#169 id=169 data-nosnippet>169</a>        </span><span class="kw">let </span>heights: Vec&lt;f32&gt; = (<span class="number">0</span>..res * res)
-<a href=#170 id=170 data-nosnippet>170</a>            .map(|i| (i / res) <span class="kw">as </span>f32 / (res - <span class="number">1</span>) <span class="kw">as </span>f32)
-<a href=#171 id=171 data-nosnippet>171</a>            .collect();
-<a href=#172 id=172 data-nosnippet>172</a>
-<a href=#173 id=173 data-nosnippet>173</a>        <span class="kw">let </span>rules = <span class="macro">vec!</span>[
-<a href=#174 id=174 data-nosnippet>174</a>            SplatRule {
-<a href=#175 id=175 data-nosnippet>175</a>                layer: <span class="number">0</span>,
-<a href=#176 id=176 data-nosnippet>176</a>                height_min: <span class="number">0.0</span>,
-<a href=#177 id=177 data-nosnippet>177</a>                height_max: <span class="number">0.4</span>,
-<a href=#178 id=178 data-nosnippet>178</a>                slope_max: <span class="number">1.0</span>,
-<a href=#179 id=179 data-nosnippet>179</a>                noise_amount: <span class="number">0.0</span>,
-<a href=#180 id=180 data-nosnippet>180</a>                noise_scale: <span class="number">1.0</span>,
-<a href=#181 id=181 data-nosnippet>181</a>            },
-<a href=#182 id=182 data-nosnippet>182</a>            SplatRule {
-<a href=#183 id=183 data-nosnippet>183</a>                layer: <span class="number">1</span>,
-<a href=#184 id=184 data-nosnippet>184</a>                height_min: <span class="number">0.6</span>,
-<a href=#185 id=185 data-nosnippet>185</a>                height_max: <span class="number">1.0</span>,
-<a href=#186 id=186 data-nosnippet>186</a>                slope_max: <span class="number">1.0</span>,
-<a href=#187 id=187 data-nosnippet>187</a>                noise_amount: <span class="number">0.0</span>,
-<a href=#188 id=188 data-nosnippet>188</a>                noise_scale: <span class="number">1.0</span>,
-<a href=#189 id=189 data-nosnippet>189</a>            },
-<a href=#190 id=190 data-nosnippet>190</a>        ];
-<a href=#191 id=191 data-nosnippet>191</a>
-<a href=#192 id=192 data-nosnippet>192</a>        <span class="kw">let </span>splat = generate_splat_map(<span class="kw-2">&amp;</span>heights, res <span class="kw">as </span>u32, res <span class="kw">as </span>u32, <span class="kw-2">&amp;</span>rules, <span class="number">100.0</span>, <span class="number">100.0</span>, <span class="number">50.0</span>, <span class="number">42</span>);
-<a href=#193 id=193 data-nosnippet>193</a>
-<a href=#194 id=194 data-nosnippet>194</a>        <span class="comment">// Row 2 (height ~0.065): should be layer 0 (R channel)
-<a href=#195 id=195 data-nosnippet>195</a>        </span><span class="kw">let </span>low_row = <span class="number">2</span>;
-<a href=#196 id=196 data-nosnippet>196</a>        <span class="kw">let </span>low_idx = (low_row * res) * <span class="number">4</span>;
-<a href=#197 id=197 data-nosnippet>197</a>        <span class="macro">assert!</span>(splat[low_idx] &gt; <span class="number">0</span>, <span class="string">"Low rows should have layer 0 weight"</span>);
-<a href=#198 id=198 data-nosnippet>198</a>
-<a href=#199 id=199 data-nosnippet>199</a>        <span class="comment">// Row 30 (height ~0.97): should be layer 1 (G channel)
-<a href=#200 id=200 data-nosnippet>200</a>        </span><span class="kw">let </span>high_row = <span class="number">30</span>;
-<a href=#201 id=201 data-nosnippet>201</a>        <span class="kw">let </span>high_idx = (high_row * res) * <span class="number">4</span>;
-<a href=#202 id=202 data-nosnippet>202</a>        <span class="macro">assert!</span>(splat[high_idx + <span class="number">1</span>] &gt; <span class="number">0</span>, <span class="string">"High rows should have layer 1 weight"</span>);
-<a href=#203 id=203 data-nosnippet>203</a>    }
-<a href=#204 id=204 data-nosnippet>204</a>}</code></pre></div></section></main></body></html>
+<a href=#63 id=63 data-nosnippet>63</a>                    <span class="kw">let </span>high_fade = ((rule.height_max - h_norm) / edge.max(<span class="number">0.001</span>)).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#64 id=64 data-nosnippet>64</a>                    low_fade.min(high_fade)
+<a href=#65 id=65 data-nosnippet>65</a>                } <span class="kw">else </span>{
+<a href=#66 id=66 data-nosnippet>66</a>                    <span class="number">1.0
+<a href=#67 id=67 data-nosnippet>67</a>                </span>};
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a>                <span class="comment">// Slope weight
+<a href=#70 id=70 data-nosnippet>70</a>                </span><span class="kw">let </span>slope_weight = <span class="kw">if </span>rule.slope_max &gt; <span class="number">0.0 </span>{
+<a href=#71 id=71 data-nosnippet>71</a>                    (<span class="number">1.0 </span>- slope / rule.slope_max).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>)
+<a href=#72 id=72 data-nosnippet>72</a>                } <span class="kw">else </span>{
+<a href=#73 id=73 data-nosnippet>73</a>                    <span class="number">1.0
+<a href=#74 id=74 data-nosnippet>74</a>                </span>};
+<a href=#75 id=75 data-nosnippet>75</a>
+<a href=#76 id=76 data-nosnippet>76</a>                <span class="comment">// Noise modulation
+<a href=#77 id=77 data-nosnippet>77</a>                </span><span class="kw">let </span>noise_mod = <span class="kw">if </span>rule.noise_amount &gt; <span class="number">0.0 </span>{
+<a href=#78 id=78 data-nosnippet>78</a>                    <span class="kw">let </span>nx = u <span class="kw">as </span>f64 * rule.noise_scale <span class="kw">as </span>f64;
+<a href=#79 id=79 data-nosnippet>79</a>                    <span class="kw">let </span>ny = v <span class="kw">as </span>f64 * rule.noise_scale <span class="kw">as </span>f64;
+<a href=#80 id=80 data-nosnippet>80</a>                    <span class="kw">let </span>n = noise_gen.get([nx, ny]) <span class="kw">as </span>f32;
+<a href=#81 id=81 data-nosnippet>81</a>                    <span class="number">1.0 </span>+ n * rule.noise_amount
+<a href=#82 id=82 data-nosnippet>82</a>                } <span class="kw">else </span>{
+<a href=#83 id=83 data-nosnippet>83</a>                    <span class="number">1.0
+<a href=#84 id=84 data-nosnippet>84</a>                </span>};
+<a href=#85 id=85 data-nosnippet>85</a>
+<a href=#86 id=86 data-nosnippet>86</a>                <span class="kw">let </span>w = (h_weight * slope_weight * noise_mod).max(<span class="number">0.0</span>);
+<a href=#87 id=87 data-nosnippet>87</a>                weights[rule.layer <span class="kw">as </span>usize] += w;
+<a href=#88 id=88 data-nosnippet>88</a>            }
+<a href=#89 id=89 data-nosnippet>89</a>
+<a href=#90 id=90 data-nosnippet>90</a>            <span class="comment">// Normalize weights to sum = 255
+<a href=#91 id=91 data-nosnippet>91</a>            </span><span class="kw">let </span>total: f32 = weights.iter().sum();
+<a href=#92 id=92 data-nosnippet>92</a>            <span class="kw">let </span>idx = (py * splat_sz + px) * <span class="number">4</span>;
+<a href=#93 id=93 data-nosnippet>93</a>
+<a href=#94 id=94 data-nosnippet>94</a>            <span class="kw">if </span>total &gt; <span class="number">0.0 </span>{
+<a href=#95 id=95 data-nosnippet>95</a>                <span class="kw">for </span>c <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
+<a href=#96 id=96 data-nosnippet>96</a>                    data[idx + c] = ((weights[c] / total) * <span class="number">255.0</span>).round() <span class="kw">as </span>u8;
+<a href=#97 id=97 data-nosnippet>97</a>                }
+<a href=#98 id=98 data-nosnippet>98</a>            } <span class="kw">else </span>{
+<a href=#99 id=99 data-nosnippet>99</a>                <span class="comment">// Default: layer 0 = full
+<a href=#100 id=100 data-nosnippet>100</a>                </span>data[idx] = <span class="number">255</span>;
+<a href=#101 id=101 data-nosnippet>101</a>            }
+<a href=#102 id=102 data-nosnippet>102</a>        }
+<a href=#103 id=103 data-nosnippet>103</a>    }
+<a href=#104 id=104 data-nosnippet>104</a>
+<a href=#105 id=105 data-nosnippet>105</a>    data
+<a href=#106 id=106 data-nosnippet>106</a>}
+<a href=#107 id=107 data-nosnippet>107</a>
+<a href=#108 id=108 data-nosnippet>108</a><span class="kw">fn </span>sample_bilinear(heights: <span class="kw-2">&amp;</span>[f32], res: usize, u: f32, v: f32) -&gt; f32 {
+<a href=#109 id=109 data-nosnippet>109</a>    <span class="kw">let </span>u = u.clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#110 id=110 data-nosnippet>110</a>    <span class="kw">let </span>v = v.clamp(<span class="number">0.0</span>, <span class="number">1.0</span>);
+<a href=#111 id=111 data-nosnippet>111</a>
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">let </span>fx = u * (res - <span class="number">1</span>) <span class="kw">as </span>f32;
+<a href=#113 id=113 data-nosnippet>113</a>    <span class="kw">let </span>fy = v * (res - <span class="number">1</span>) <span class="kw">as </span>f32;
+<a href=#114 id=114 data-nosnippet>114</a>
+<a href=#115 id=115 data-nosnippet>115</a>    <span class="kw">let </span>x0 = (fx <span class="kw">as </span>usize).min(res - <span class="number">2</span>);
+<a href=#116 id=116 data-nosnippet>116</a>    <span class="kw">let </span>y0 = (fy <span class="kw">as </span>usize).min(res - <span class="number">2</span>);
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="kw">let </span>x1 = x0 + <span class="number">1</span>;
+<a href=#118 id=118 data-nosnippet>118</a>    <span class="kw">let </span>y1 = y0 + <span class="number">1</span>;
+<a href=#119 id=119 data-nosnippet>119</a>
+<a href=#120 id=120 data-nosnippet>120</a>    <span class="kw">let </span>tx = fx - x0 <span class="kw">as </span>f32;
+<a href=#121 id=121 data-nosnippet>121</a>    <span class="kw">let </span>ty = fy - y0 <span class="kw">as </span>f32;
+<a href=#122 id=122 data-nosnippet>122</a>
+<a href=#123 id=123 data-nosnippet>123</a>    <span class="kw">let </span>h00 = heights[y0 * res + x0];
+<a href=#124 id=124 data-nosnippet>124</a>    <span class="kw">let </span>h10 = heights[y0 * res + x1];
+<a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">let </span>h01 = heights[y1 * res + x0];
+<a href=#126 id=126 data-nosnippet>126</a>    <span class="kw">let </span>h11 = heights[y1 * res + x1];
+<a href=#127 id=127 data-nosnippet>127</a>
+<a href=#128 id=128 data-nosnippet>128</a>    <span class="kw">let </span>h0 = h00 * (<span class="number">1.0 </span>- tx) + h10 * tx;
+<a href=#129 id=129 data-nosnippet>129</a>    <span class="kw">let </span>h1 = h01 * (<span class="number">1.0 </span>- tx) + h11 * tx;
+<a href=#130 id=130 data-nosnippet>130</a>
+<a href=#131 id=131 data-nosnippet>131</a>    h0 * (<span class="number">1.0 </span>- ty) + h1 * ty
+<a href=#132 id=132 data-nosnippet>132</a>}
+<a href=#133 id=133 data-nosnippet>133</a>
+<a href=#134 id=134 data-nosnippet>134</a><span class="kw">fn </span>compute_slope(
+<a href=#135 id=135 data-nosnippet>135</a>    heights: <span class="kw-2">&amp;</span>[f32],
+<a href=#136 id=136 data-nosnippet>136</a>    res: usize,
+<a href=#137 id=137 data-nosnippet>137</a>    u: f32,
+<a href=#138 id=138 data-nosnippet>138</a>    v: f32,
+<a href=#139 id=139 data-nosnippet>139</a>    width: f32,
+<a href=#140 id=140 data-nosnippet>140</a>    depth: f32,
+<a href=#141 id=141 data-nosnippet>141</a>    height_scale: f32,
+<a href=#142 id=142 data-nosnippet>142</a>) -&gt; f32 {
+<a href=#143 id=143 data-nosnippet>143</a>    <span class="kw">let </span>eps_u = <span class="number">1.0 </span>/ res <span class="kw">as </span>f32;
+<a href=#144 id=144 data-nosnippet>144</a>    <span class="kw">let </span>eps_v = <span class="number">1.0 </span>/ res <span class="kw">as </span>f32;
+<a href=#145 id=145 data-nosnippet>145</a>
+<a href=#146 id=146 data-nosnippet>146</a>    <span class="kw">let </span>h_left = sample_bilinear(heights, res, (u - eps_u).max(<span class="number">0.0</span>), v) * height_scale;
+<a href=#147 id=147 data-nosnippet>147</a>    <span class="kw">let </span>h_right = sample_bilinear(heights, res, (u + eps_u).min(<span class="number">1.0</span>), v) * height_scale;
+<a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">let </span>h_down = sample_bilinear(heights, res, u, (v - eps_v).max(<span class="number">0.0</span>)) * height_scale;
+<a href=#149 id=149 data-nosnippet>149</a>    <span class="kw">let </span>h_up = sample_bilinear(heights, res, u, (v + eps_v).min(<span class="number">1.0</span>)) * height_scale;
+<a href=#150 id=150 data-nosnippet>150</a>
+<a href=#151 id=151 data-nosnippet>151</a>    <span class="kw">let </span>dx = (h_right - h_left) / (<span class="number">2.0 </span>* eps_u * width);
+<a href=#152 id=152 data-nosnippet>152</a>    <span class="kw">let </span>dz = (h_up - h_down) / (<span class="number">2.0 </span>* eps_v * depth);
+<a href=#153 id=153 data-nosnippet>153</a>
+<a href=#154 id=154 data-nosnippet>154</a>    <span class="comment">// Slope = sin(angle) ≈ |gradient| / sqrt(1 + |gradient|²)
+<a href=#155 id=155 data-nosnippet>155</a>    </span><span class="kw">let </span>grad_sq = dx * dx + dz * dz;
+<a href=#156 id=156 data-nosnippet>156</a>    grad_sq.sqrt() / (<span class="number">1.0 </span>+ grad_sq).sqrt()
+<a href=#157 id=157 data-nosnippet>157</a>}
+<a href=#158 id=158 data-nosnippet>158</a>
+<a href=#159 id=159 data-nosnippet>159</a><span class="attr">#[cfg(test)]
+<a href=#160 id=160 data-nosnippet>160</a></span><span class="kw">mod </span>tests {
+<a href=#161 id=161 data-nosnippet>161</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#162 id=162 data-nosnippet>162</a>    <span class="kw">use </span><span class="kw">crate</span>::spec::SplatRule;
+<a href=#163 id=163 data-nosnippet>163</a>
+<a href=#164 id=164 data-nosnippet>164</a>    <span class="attr">#[test]
+<a href=#165 id=165 data-nosnippet>165</a>    </span><span class="kw">fn </span>height_based_rules() {
+<a href=#166 id=166 data-nosnippet>166</a>        <span class="kw">let </span>res = <span class="number">32</span>;
+<a href=#167 id=167 data-nosnippet>167</a>        <span class="comment">// Gradient from 0 to 1 along Y
+<a href=#168 id=168 data-nosnippet>168</a>        </span><span class="kw">let </span>heights: Vec&lt;f32&gt; = (<span class="number">0</span>..res * res)
+<a href=#169 id=169 data-nosnippet>169</a>            .map(|i| (i / res) <span class="kw">as </span>f32 / (res - <span class="number">1</span>) <span class="kw">as </span>f32)
+<a href=#170 id=170 data-nosnippet>170</a>            .collect();
+<a href=#171 id=171 data-nosnippet>171</a>
+<a href=#172 id=172 data-nosnippet>172</a>        <span class="kw">let </span>rules = <span class="macro">vec!</span>[
+<a href=#173 id=173 data-nosnippet>173</a>            SplatRule {
+<a href=#174 id=174 data-nosnippet>174</a>                layer: <span class="number">0</span>,
+<a href=#175 id=175 data-nosnippet>175</a>                height_min: <span class="number">0.0</span>,
+<a href=#176 id=176 data-nosnippet>176</a>                height_max: <span class="number">0.4</span>,
+<a href=#177 id=177 data-nosnippet>177</a>                slope_max: <span class="number">1.0</span>,
+<a href=#178 id=178 data-nosnippet>178</a>                noise_amount: <span class="number">0.0</span>,
+<a href=#179 id=179 data-nosnippet>179</a>                noise_scale: <span class="number">1.0</span>,
+<a href=#180 id=180 data-nosnippet>180</a>            },
+<a href=#181 id=181 data-nosnippet>181</a>            SplatRule {
+<a href=#182 id=182 data-nosnippet>182</a>                layer: <span class="number">1</span>,
+<a href=#183 id=183 data-nosnippet>183</a>                height_min: <span class="number">0.6</span>,
+<a href=#184 id=184 data-nosnippet>184</a>                height_max: <span class="number">1.0</span>,
+<a href=#185 id=185 data-nosnippet>185</a>                slope_max: <span class="number">1.0</span>,
+<a href=#186 id=186 data-nosnippet>186</a>                noise_amount: <span class="number">0.0</span>,
+<a href=#187 id=187 data-nosnippet>187</a>                noise_scale: <span class="number">1.0</span>,
+<a href=#188 id=188 data-nosnippet>188</a>            },
+<a href=#189 id=189 data-nosnippet>189</a>        ];
+<a href=#190 id=190 data-nosnippet>190</a>
+<a href=#191 id=191 data-nosnippet>191</a>        <span class="kw">let </span>splat = generate_splat_map(
+<a href=#192 id=192 data-nosnippet>192</a>            <span class="kw-2">&amp;</span>heights, res <span class="kw">as </span>u32, res <span class="kw">as </span>u32, <span class="kw-2">&amp;</span>rules, <span class="number">100.0</span>, <span class="number">100.0</span>, <span class="number">50.0</span>, <span class="number">42</span>,
+<a href=#193 id=193 data-nosnippet>193</a>        );
+<a href=#194 id=194 data-nosnippet>194</a>
+<a href=#195 id=195 data-nosnippet>195</a>        <span class="comment">// Row 2 (height ~0.065): should be layer 0 (R channel)
+<a href=#196 id=196 data-nosnippet>196</a>        </span><span class="kw">let </span>low_row = <span class="number">2</span>;
+<a href=#197 id=197 data-nosnippet>197</a>        <span class="kw">let </span>low_idx = (low_row * res) * <span class="number">4</span>;
+<a href=#198 id=198 data-nosnippet>198</a>        <span class="macro">assert!</span>(splat[low_idx] &gt; <span class="number">0</span>, <span class="string">"Low rows should have layer 0 weight"</span>);
+<a href=#199 id=199 data-nosnippet>199</a>
+<a href=#200 id=200 data-nosnippet>200</a>        <span class="comment">// Row 30 (height ~0.97): should be layer 1 (G channel)
+<a href=#201 id=201 data-nosnippet>201</a>        </span><span class="kw">let </span>high_row = <span class="number">30</span>;
+<a href=#202 id=202 data-nosnippet>202</a>        <span class="kw">let </span>high_idx = (high_row * res) * <span class="number">4</span>;
+<a href=#203 id=203 data-nosnippet>203</a>        <span class="macro">assert!</span>(
+<a href=#204 id=204 data-nosnippet>204</a>            splat[high_idx + <span class="number">1</span>] &gt; <span class="number">0</span>,
+<a href=#205 id=205 data-nosnippet>205</a>            <span class="string">"High rows should have layer 1 weight"
+<a href=#206 id=206 data-nosnippet>206</a>        </span>);
+<a href=#207 id=207 data-nosnippet>207</a>    }
+<a href=#208 id=208 data-nosnippet>208</a>}</code></pre></div></section></main></body></html>

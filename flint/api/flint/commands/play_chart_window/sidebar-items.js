@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["SHADER","UNIFORM_SIZE"],"fn":["run_windowed"],"struct":["App","Gfx"]};

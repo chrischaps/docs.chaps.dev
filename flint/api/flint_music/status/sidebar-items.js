@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["coherence_meter","status_line","status_line_with_coherence"]};

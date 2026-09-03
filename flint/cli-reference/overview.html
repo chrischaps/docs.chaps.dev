@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -211,9 +211,17 @@
 <tr><td><code>flint render &lt;scene&gt;</code></td><td>Render a scene to PNG (headless)</td></tr>
 <tr><td><code>flint gen &lt;spec&gt;</code></td><td>Run a procedural generation spec to produce meshes or textures</td></tr>
 <tr><td><code>flint prefab view &lt;template&gt;</code></td><td>Preview a prefab template in the viewer</td></tr>
+<tr><td><code>flint validate-suite &lt;manifest&gt;</code></td><td>Validate a musical suite manifest and optional chart (<a href="music.html">music commands</a>)</td></tr>
+<tr><td><code>flint play-suite &lt;manifest&gt;</code></td><td>Play a suite’s stems sample-locked, no judgment</td></tr>
+<tr><td><code>flint calibrate &lt;manifest&gt;</code></td><td>Tap-to-beat latency calibration, written to <code>logs/latency/</code></td></tr>
+<tr><td><code>flint play-chart &lt;manifest&gt;</code></td><td>Play a suite against its chart with live gamepad capture</td></tr>
+<tr><td><code>flint replay-chart &lt;manifest&gt;</code></td><td>Replay a recorded or synthetic session through judgment, headless</td></tr>
+<tr><td><code>flint render-suite &lt;manifest&gt;</code></td><td>Render a scripted suite session to WAV, offline and deterministic</td></tr>
+<tr><td><code>flint spike-rumble</code></td><td>Time the gamepad rumble command paths</td></tr>
 </tbody>
 </table>
 </div>
+<p>The seven music commands are documented on their own page: <a href="music.html">Music Commands</a>.</p>
 <h2 id="the-play-command"><a class="header" href="#the-play-command">The <code>play</code> Command</a></h2>
 <p>Launch a scene as an interactive first-person experience with physics:</p>
 <pre><code class="language-bash">flint play demo/phase4_runtime.scene.toml
@@ -235,6 +243,9 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 </div>
 <p><code>--music-volume 0</code> is the quickest way to audition a scene’s sound design
 without its score. See <a href="../concepts/audio.html#mixer-buses">Audio: Mixer Buses</a>.</p>
+<p>The standalone <code>flint-player</code> binary takes the same flags plus <code>--msaa &lt;1|4&gt;</code>
+(default <code>1</code>) for multisample anti-aliasing of the scene passes; <code>flint play</code>
+does not expose <code>--msaa</code>.</p>
 <h3 id="player-controls-defaults"><a class="header" href="#player-controls-defaults">Player Controls (Defaults)</a></h3>
 <p>These are the built-in defaults. Games can override any binding via input config files (see <a href="../concepts/physics-and-runtime.html#input-system">Physics and Runtime: Input System</a>).</p>
 <div class="table-wrapper">
@@ -252,15 +263,17 @@ without its score. See <a href="../concepts/audio.html#mixer-buses">Audio: Mixer
 <tr><td>R</td><td>Reload</td></tr>
 <tr><td>1 / 2</td><td>Select weapon slot</td></tr>
 <tr><td>Escape</td><td>Release cursor / Exit</td></tr>
-<tr><td>F1</td><td>Cycle debug rendering mode (PBR → Wireframe → Normals → Depth → UV → Unlit → Metal/Rough)</td></tr>
-<tr><td>F3</td><td>Toggle debug panels (see below)</td></tr>
-<tr><td>F4</td><td>Toggle shadows</td></tr>
-<tr><td>F5</td><td>Toggle bloom</td></tr>
-<tr><td>F6</td><td>Toggle post-processing pipeline</td></tr>
+<tr><td>F2</td><td>Toggle the render stats overlay (FPS, frame time, draw stats)</td></tr>
+<tr><td>F3</td><td>Toggle the scene debug panels (see below); leaves the Rendering &amp; Effects panel alone</td></tr>
+<tr><td>F4</td><td>Toggle the <strong>Rendering &amp; Effects</strong> menu: every render and post-processing control, including debug shading mode, shadows, and the lighting levers</td></tr>
+<tr><td>F9</td><td>Force a music-session full-fail (debug builds only, needs a running session)</td></tr>
+<tr><td><code>`</code></td><td>Toggle the Music Guide overlay (debug builds only)</td></tr>
+<tr><td><code>\</code></td><td>Toggle the Manifest Map timeline strip (debug builds only)</td></tr>
 <tr><td>F11</td><td>Toggle fullscreen</td></tr>
 </tbody>
 </table>
 </div>
+<p>The per-effect F-keys of earlier releases (F1 debug mode, F4 shadows, F5 bloom, F6 post-processing and so on) are gone; all of those toggles and their parameters live in the F4 menu (see <a href="../concepts/post-processing.html#the-rendering--effects-menu-f4">Post-Processing: The Rendering &amp; Effects menu</a>). F9, <code>`</code> and <code>\</code> exist only when the player is built with the default <code>debug-hud</code> feature.</p>
 <p>Gamepad controllers are also supported when connected. Bindings for gamepad buttons and axes can be configured in input config TOML files.</p>
 <h3 id="debug-panels-f3"><a class="header" href="#debug-panels-f3">Debug Panels (F3)</a></h3>
 <p><code>F3</code> opens live tuning panels for whichever systems the current scene actually
@@ -279,9 +292,17 @@ size-balanced columns.</p>
 <tr><td>Day / Time</td><td><code>time_of_day</code></td><td>Clock readout, 0–24 h scrub slider, preset hours, natural-advance toggle, day counter, day length (with the effective ramped length), sun path tilt</td></tr>
 <tr><td>Camera</td><td><code>camera_tuning</code></td><td>Vertical FOV</td></tr>
 <tr><td>Grass Debug</td><td><code>grass</code></td><td>Density, height, wind, LOD distances</td></tr>
+<tr><td>Weather</td><td><code>weather</code></td><td>Read-only state/wind/sea, <code>forced_state</code> override, one-shot snap / lightning-strike buttons</td></tr>
+<tr><td>Reality</td><td><code>reality</code></td><td>Read-only active render-mode tear and mix, trigger-mode and end-now buttons, mix pin</td></tr>
+<tr><td>Visitor</td><td><code>raft_visitor</code></td><td>Read-only phase/day plus a trigger-visit button</td></tr>
+<tr><td>Dead Calm</td><td><code>dead_calm</code></td><td>Read-only phase/calm plus trigger and end-now buttons</td></tr>
+<tr><td>Rendering &amp; Effects</td><td>(always, when a renderer is active)</td><td>Post chain, SSAO, depth of field, fog, bloom, grade/grain/FXAA, Kuwahara, render mode, dither/volumetric, shadows and resolution, lighting levers, camera FOV, debug shading mode. Owned by <strong>F4</strong>, not F3</td></tr>
+<tr><td>Music Guide</td><td><code>music_session</code></td><td>Upcoming pulse/press/flick windows with countdown, per-channel targets beside the live stick and trigger state (<code>`</code>)</td></tr>
+<tr><td>Manifest Map</td><td><code>music_session</code></td><td>Full-width bottom strip: sections, bar ruler, tempo/meter changes, re-entry points, playhead and this run’s judged pulses and seams (<code>\</code>)</td></tr>
 </tbody>
 </table>
 </div>
+<p>The full roster and the <code>DebugPanel</code> trait are described in <a href="../guides/debug-panels.html">Debug Panels</a>.</p>
 <p>Edits apply live through the world’s components. <strong>Commit to File</strong> writes the
 current values back into the scene TOML, so a tuning session ends as a diff
 rather than as notes. Values a game script owns each frame (a day counter, a
@@ -333,16 +354,38 @@ flint render scene.toml -o shot.png --distance 20 --pitch 30 --yaw 45 --target 0
 <tr><td><code>--show-normals</code></td><td><code>false</code></td><td>Normal direction arrows</td></tr>
 <tr><td><code>--no-tonemapping</code></td><td><code>false</code></td><td>Raw linear output</td></tr>
 <tr><td><code>--no-shadows</code></td><td><code>false</code></td><td>Disable shadow mapping</td></tr>
-<tr><td><code>--shadow-resolution &lt;px&gt;</code></td><td><code>1024</code></td><td>Shadow map resolution per cascade</td></tr>
+<tr><td><code>--shadow-resolution &lt;px&gt;</code></td><td><code>2048</code></td><td>Shadow map resolution per cascade. A real control since the per-resolution texel upload (ADR 0049); earlier builds silently filtered as if 2048</td></tr>
+<tr><td><code>--msaa &lt;n&gt;</code></td><td><code>1</code></td><td>MSAA sample count for the scene passes: <code>1</code> (off) or <code>4</code>. Default 1 keeps headless pixel-diff gates single-sample (ADR 0058)</td></tr>
 <tr><td><code>--no-postprocess</code></td><td><code>false</code></td><td>Disable post-processing</td></tr>
 <tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td><code>0.04</code></td><td>Bloom strength</td></tr>
 <tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Bloom brightness threshold</td></tr>
 <tr><td><code>--exposure &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Exposure multiplier</td></tr>
 <tr><td><code>--ssao-radius &lt;f32&gt;</code></td><td><code>0.5</code></td><td>SSAO sample radius</td></tr>
 <tr><td><code>--ssao-intensity &lt;f32&gt;</code></td><td><code>1.0</code></td><td>SSAO intensity (0 = disabled)</td></tr>
+<tr><td><code>--ssao-samples &lt;n&gt;</code></td><td><code>64</code></td><td>SSAO hemisphere samples per pixel, 1–64; the kernel is strided so lower counts keep full radius coverage. <code>16</code> is ~4x cheaper</td></tr>
 <tr><td><code>--fog-density &lt;f32&gt;</code></td><td><code>0.02</code></td><td>Fog density (0 = disabled)</td></tr>
 <tr><td><code>--fog-color &lt;r,g,b&gt;</code></td><td><code>0.7,0.75,0.82</code></td><td>Fog color</td></tr>
-<tr><td><code>--fog-height-falloff &lt;f32&gt;</code></td><td><code>0.1</code></td><td>Fog height falloff</td></tr>
+<tr><td><code>--fog-height-falloff &lt;f32&gt;</code></td><td><code>0.1</code></td><td>Fog height falloff (enables height fog)</td></tr>
+<tr><td><code>--dither-intensity &lt;f32&gt;</code></td><td><code>0.03</code></td><td>Ordered dither strength (enables dither; 0 = disabled)</td></tr>
+<tr><td><code>--volumetric-density &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Volumetric light density (enables god rays)</td></tr>
+<tr><td><code>--volumetric-samples &lt;n&gt;</code></td><td><code>32</code></td><td>Volumetric ray-march sample count</td></tr>
+<tr><td><code>--desaturate &lt;f32&gt;</code></td><td><code>0</code></td><td>Drain colour toward ash-grey (0 = full colour, 1 = fully drained)</td></tr>
+<tr><td><code>--dof &lt;f32&gt;</code></td><td><code>0</code></td><td>Depth-of-field strength (0 = sharp, 1 = full defocus)</td></tr>
+<tr><td><code>--dof-focus &lt;f32&gt;</code></td><td><code>10.0</code></td><td>Focus plane distance in world units</td></tr>
+<tr><td><code>--dof-range &lt;f32&gt;</code></td><td><code>5.0</code></td><td>Focus half-width in world units</td></tr>
+<tr><td><code>--kuwahara-radius &lt;n&gt;</code></td><td><code>4</code></td><td>Kuwahara filter radius in pixels (enables Kuwahara)</td></tr>
+<tr><td><code>--kuwahara-sharpness &lt;f32&gt;</code></td><td><code>8.0</code></td><td>Kuwahara sector sharpness</td></tr>
+<tr><td><code>--kuwahara-hardness &lt;f32&gt;</code></td><td><code>8.0</code></td><td>Kuwahara sector hardness</td></tr>
+<tr><td><code>--kuwahara-anisotropy &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Kuwahara anisotropy (0 = isotropic, 1 = full)</td></tr>
+<tr><td><code>--film-grain &lt;f32&gt;</code></td><td><code>0</code></td><td>Animated film grain (0 = off; 0.02–0.05 is subtle)</td></tr>
+<tr><td><code>--grain-time &lt;s&gt;</code></td><td><code>0.0</code></td><td>Post time for grain and render-mode animation. Deterministic: two renders at the same value are identical</td></tr>
+<tr><td><code>--grade-lift &lt;r,g,b&gt;</code></td><td><code>0,0,0</code></td><td>Colour-grade lift (per-channel add after ACES)</td></tr>
+<tr><td><code>--grade-gamma &lt;r,g,b&gt;</code></td><td><code>1,1,1</code></td><td>Colour-grade gamma (per-channel curve)</td></tr>
+<tr><td><code>--grade-gain &lt;r,g,b&gt;</code></td><td><code>1,1,1</code></td><td>Colour-grade gain (per-channel multiply)</td></tr>
+<tr><td><code>--fxaa</code></td><td><code>false</code></td><td>Enable the FXAA anti-aliasing pass</td></tr>
+<tr><td><code>--oren-nayar &lt;f32&gt;</code></td><td><code>0</code></td><td>Oren-Nayar diffuse blend (0 = Lambert, 1 = full); see <a href="../concepts/lighting.html">Lighting</a></td></tr>
+<tr><td><code>--sheen-strength &lt;f32&gt;</code></td><td><code>0</code></td><td>Charlie-sheen rim strength (keep at or below about 0.3)</td></tr>
+<tr><td><code>--sheen-color &lt;r,g,b&gt;</code></td><td><code>1,1,1</code></td><td>Charlie-sheen rim tint</td></tr>
 <tr><td><code>--render-mode &lt;n&gt;</code></td><td><code>0</code></td><td>Stylized render mode: 1 Matrix, 2 blood, 3 drunk, 4 Tron, 5 underwater</td></tr>
 <tr><td><code>--mode-mix &lt;f32&gt;</code></td><td><code>0.0</code></td><td>Render mode blend strength, 0–1</td></tr>
 <tr><td><code>--mode-params &lt;x,y,z,w&gt;</code></td><td><code>0,0,0,0</code></td><td>Per-mode parameters (see <a href="../concepts/post-processing.html#render-modes">Render Modes</a>)</td></tr>
@@ -350,13 +393,16 @@ flint render scene.toml -o shot.png --distance 20 --pitch 30 --yaw 45 --target 0
 </tbody>
 </table>
 </div>
+<p>When no camera flags are given, the render starts from the scene’s <code>[camera]</code> block if it has one. The camera and post flags override the scene’s authored <code>[camera]</code> and <code>[post_process]</code> values.</p>
 <blockquote>
 <p><strong><code>flint render</code> runs no scripts.</strong> Anything your game drives from a script —
 a render mode, a time of day, a floating hull, an animated character — will
 not happen. The render-mode flags exist precisely so a stylized frame can be
 captured without one. For script-driven world state, bake a fixture scene
 with the values you want; for animation, note that skinned meshes render at
-<strong>bind pose</strong> headlessly.</p>
+<strong>bind pose</strong> headlessly. To capture a posed frame of a rigged model, use the
+model previewer instead: <code>flint edit model.glb --render out.png --anim-time 1.5</code>
+(optionally with <code>--clip</code>, <code>--layer</code> or <code>--sequence</code>).</p>
 </blockquote>
 <h2 id="the-edit-command"><a class="header" href="#the-edit-command">The <code>edit</code> Command</a></h2>
 <p>Unified interactive editor that auto-detects file type and opens the appropriate tool:</p>
@@ -397,7 +443,8 @@ flint edit terrain.terrain.toml                # Terrain editor
 <tr><td><code>--watch</code></td><td><code>false</code></td><td>Watch for file changes</td></tr>
 <tr><td><code>--seed &lt;u64&gt;</code></td><td>(auto)</td><td>Override seed (procgen)</td></tr>
 <tr><td><code>--no-inspector</code></td><td><code>false</code></td><td>Hide egui inspector (scene)</td></tr>
-<tr><td><code>--auto-orbit</code></td><td><code>false</code></td><td>Auto-orbit camera (model/procgen)</td></tr>
+<tr><td><code>--spline</code></td><td><code>false</code></td><td>Open the spline/track editor instead of the viewer (scene)</td></tr>
+<tr><td><code>--auto-orbit</code></td><td><code>false</code></td><td>Start with the turntable auto-orbit on (scene/model/procgen); toggle with <strong>O</strong>, speed with <code>[</code> / <code>]</code></td></tr>
 </tbody>
 </table>
 </div>
@@ -416,6 +463,10 @@ flint edit terrain.terrain.toml                # Terrain editor
 <tr><td><code>--no-animate</code></td><td><code>false</code></td><td>Disable animation playback</td></tr>
 <tr><td><code>--clip &lt;name&gt;</code></td><td>(none)</td><td>Start with a specific animation clip</td></tr>
 <tr><td><code>--anim-speed &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Animation playback speed multiplier</td></tr>
+<tr><td><code>--layer &lt;clip[:weight[:mask[:mode]]]&gt;</code></td><td>(none)</td><td>Add an animation layer; repeatable. <code>mode</code> is <code>additive</code> or <code>override</code>, <code>mask</code> a root joint name</td></tr>
+<tr><td><code>--sequence &lt;file.sequence.toml&gt;</code></td><td>(none)</td><td>Play a sequence of timestamped animator events</td></tr>
+<tr><td><code>--sequence-loop</code></td><td><code>false</code></td><td>Loop the sequence regardless of its <code>loop</code> setting</td></tr>
+<tr><td><code>--anim-time &lt;s&gt;</code></td><td>(none)</td><td>With <code>--render</code>: sample the animation (or replay the sequence) at this time</td></tr>
 <tr><td><code>--render &lt;path&gt;</code></td><td>(none)</td><td>Render to PNG instead of opening a window</td></tr>
 </tbody>
 </table>
@@ -431,17 +482,23 @@ flint edit terrain.terrain.toml                # Terrain editor
 <tr><td>Left-drag</td><td>Orbit camera (or drag gizmo if axis selected)</td></tr>
 <tr><td>Right-drag</td><td>Pan camera</td></tr>
 <tr><td>Scroll</td><td>Zoom</td></tr>
+<tr><td>W / A / S / D</td><td>Orbit camera (when no entity is selected)</td></tr>
+<tr><td>Q / E</td><td>Zoom out / in (when no entity is selected)</td></tr>
+<tr><td>W / E / R</td><td>Switch gizmo mode: translate / rotate / scale (while an entity is selected)</td></tr>
+<tr><td>Space</td><td>Return to the scene’s authored <code>[camera]</code> framing (viewer default if the scene has none)</td></tr>
+<tr><td>O</td><td>Toggle auto-orbit</td></tr>
+<tr><td><code>[</code> / <code>]</code></td><td>Slow down / speed up auto-orbit</td></tr>
 <tr><td>Ctrl+S</td><td>Save scene to disk</td></tr>
 <tr><td>Ctrl+Z</td><td>Undo position change</td></tr>
 <tr><td>Ctrl+Shift+Z</td><td>Redo position change</td></tr>
-<tr><td>Escape</td><td>Cancel gizmo drag</td></tr>
-<tr><td>F1</td><td>Cycle debug mode</td></tr>
-<tr><td>F2</td><td>Toggle wireframe overlay</td></tr>
+<tr><td>Escape</td><td>Cancel gizmo drag / exit</td></tr>
+<tr><td>F2</td><td>Toggle the render stats overlay</td></tr>
 <tr><td>F3</td><td>Toggle normal arrows</td></tr>
-<tr><td>F4</td><td>Toggle shadows</td></tr>
+<tr><td>F4</td><td>Toggle the <strong>Rendering &amp; Effects</strong> menu (all render and post toggles and parameters, debug shading mode, shadows, an authored-vs-viewer-default post switch, and DoF follow)</td></tr>
 </tbody>
 </table>
 </div>
+<p>The viewer applies the scene’s <code>[post_process]</code> block on load; the F4 menu’s “authored” switch flips between those values and the viewer defaults. The earlier F1 (debug mode), F2 (wireframe overlay) and F4 (shadows) keys were folded into the F4 menu.</p>
 <p>When an entity is selected, a <strong>translate gizmo</strong> appears with colored axis arrows (red = X, green = Y, blue = Z) and plane handles. Click and drag an axis or plane to move the entity. Position changes can be undone/redone and saved back to the scene file.</p>
 <h3 id="spline-editor-controls---spline"><a class="header" href="#spline-editor-controls---spline">Spline Editor Controls (<code>--spline</code>)</a></h3>
 <div class="table-wrapper">
@@ -465,7 +522,7 @@ flint edit terrain.terrain.toml                # Terrain editor
 </table>
 </div>
 <blockquote>
-<p><strong>Legacy aliases:</strong> <code>flint serve</code>, <code>flint preview</code>, <code>flint gen-preview</code>, <code>flint tex-edit</code>, <code>flint terrain-edit</code>, and <code>flint spline-edit</code> still work but route through <code>flint edit</code>.</p>
+<p><strong>Legacy aliases:</strong> <code>flint serve</code>, <code>flint preview</code>, <code>flint gen-preview</code>, <code>flint tex-edit</code>, <code>flint terrain-edit</code>, and <code>flint spline-edit</code> still work. They are hidden subcommands that open the same tools <code>flint edit</code> dispatches to; they are omitted from <code>flint --help</code>.</p>
 </blockquote>
 <h2 id="the-asset-generate-command"><a class="header" href="#the-asset-generate-command">The <code>asset generate</code> Command</a></h2>
 <p>Generate assets using AI providers:</p>
@@ -570,11 +627,11 @@ flint query "entities where archetype == 'door'" --scene levels/tavern.scene.tom
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../guides/android.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../guides/debug-panels.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../formats/overview.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../cli-reference/music.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -584,11 +641,11 @@ flint query "entities where archetype == 'door'" --scene levels/tavern.scene.tom
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../guides/android.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../guides/debug-panels.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../formats/overview.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../cli-reference/music.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

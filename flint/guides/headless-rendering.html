@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -183,9 +183,9 @@
 <h2 id="the-flint-render-command"><a class="header" href="#the-flint-render-command">The <code>flint render</code> Command</a></h2>
 <pre><code class="language-bash">flint render levels/tavern.scene.toml --output preview.png
 </code></pre>
-<p>This loads the scene, renders a single frame with PBR shading and shadows, and writes the result to a PNG file.</p>
+<p>This loads the scene, renders a single frame with PBR shading and shadows, applies the scene’s <code>[post_process]</code> block, and writes the result to a PNG file.</p>
 <h2 id="camera-options"><a class="header" href="#camera-options">Camera Options</a></h2>
-<p>Control the camera position with orbit-style parameters:</p>
+<p>If the scene has a <code>[camera]</code> block, the render starts from that authored framing. The orbit-style flags override it:</p>
 <pre><code class="language-bash">flint render levels/tavern.scene.toml \
     --output preview.png \
     --width 1920 --height 1080 \
@@ -202,18 +202,19 @@
 <tr><td><code>--output &lt;path&gt;</code></td><td><code>render.png</code></td><td>Output file path</td></tr>
 <tr><td><code>--width &lt;px&gt;</code></td><td>1920</td><td>Image width in pixels</td></tr>
 <tr><td><code>--height &lt;px&gt;</code></td><td>1080</td><td>Image height in pixels</td></tr>
-<tr><td><code>--distance &lt;units&gt;</code></td><td>(auto)</td><td>Camera distance from origin</td></tr>
-<tr><td><code>--yaw &lt;degrees&gt;</code></td><td>(auto)</td><td>Horizontal camera angle</td></tr>
-<tr><td><code>--pitch &lt;degrees&gt;</code></td><td>(auto)</td><td>Vertical camera angle</td></tr>
-<tr><td><code>--target &lt;x,y,z&gt;</code></td><td>(auto)</td><td>Camera look-at point (comma-separated)</td></tr>
-<tr><td><code>--fov &lt;degrees&gt;</code></td><td>(auto)</td><td>Field of view in degrees</td></tr>
+<tr><td><code>--distance &lt;units&gt;</code></td><td>scene <code>[camera]</code> or auto</td><td>Camera distance from the target</td></tr>
+<tr><td><code>--yaw &lt;degrees&gt;</code></td><td>scene <code>[camera]</code> or auto</td><td>Horizontal camera angle</td></tr>
+<tr><td><code>--pitch &lt;degrees&gt;</code></td><td>scene <code>[camera]</code> or auto</td><td>Vertical camera angle</td></tr>
+<tr><td><code>--target &lt;x,y,z&gt;</code></td><td>scene <code>[camera]</code> or auto</td><td>Camera look-at point (comma-separated)</td></tr>
+<tr><td><code>--fov &lt;degrees&gt;</code></td><td>scene <code>[camera]</code> or auto</td><td>Field of view in degrees</td></tr>
 <tr><td><code>--no-grid</code></td><td><code>false</code></td><td>Disable ground grid</td></tr>
 <tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Path to schemas directory (repeatable)</td></tr>
+<tr><td><code>--msaa &lt;1|4&gt;</code></td><td><code>1</code></td><td>Scene-pass MSAA sample count</td></tr>
 </tbody>
 </table>
 </div>
 <h2 id="post-processing-flags"><a class="header" href="#post-processing-flags">Post-Processing Flags</a></h2>
-<p>Control post-processing from the command line:</p>
+<p>Every <code>[post_process]</code> key has a flag. CLI values win over the scene block:</p>
 <pre><code class="language-bash"># Disable all post-processing (raw shader output)
 flint render scene.toml --no-postprocess --output raw.png
 
@@ -222,6 +223,10 @@ flint render scene.toml --bloom-intensity 0.08 --bloom-threshold 0.8
 
 # Adjust exposure
 flint render scene.toml --exposure 1.5
+
+# Cheaper SSAO, depth of field, a warm grade
+flint render scene.toml --ssao-samples 16 --dof 0.6 --dof-focus 10 --dof-range 5 \
+    --grade-lift 0.03,0.02,0.015 --grade-gain 1.04,1,0.94
 </code></pre>
 <div class="table-wrapper">
 <table>
@@ -233,6 +238,48 @@ flint render scene.toml --exposure 1.5
 <tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td><code>0.04</code></td><td>Bloom mix strength</td></tr>
 <tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Minimum brightness for bloom</td></tr>
 <tr><td><code>--exposure &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Exposure multiplier</td></tr>
+<tr><td><code>--ssao-radius &lt;f32&gt;</code></td><td><code>0.5</code></td><td>SSAO sample radius</td></tr>
+<tr><td><code>--ssao-intensity &lt;f32&gt;</code></td><td><code>1.0</code></td><td>SSAO strength (0 disables)</td></tr>
+<tr><td><code>--ssao-samples &lt;u32&gt;</code></td><td><code>64</code></td><td>SSAO samples per pixel, 1–64</td></tr>
+<tr><td><code>--fog-density &lt;f32&gt;</code></td><td><code>0.02</code></td><td>Fog density (enables fog; 0 disables)</td></tr>
+<tr><td><code>--fog-color &lt;r,g,b&gt;</code></td><td><code>0.7,0.75,0.82</code></td><td>Fog color</td></tr>
+<tr><td><code>--fog-height-falloff &lt;f32&gt;</code></td><td><code>0.1</code></td><td>Enables height fog with this falloff</td></tr>
+<tr><td><code>--volumetric-density &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Enables god rays with this density</td></tr>
+<tr><td><code>--volumetric-samples &lt;u32&gt;</code></td><td><code>32</code></td><td>Volumetric ray-march steps</td></tr>
+<tr><td><code>--dither-intensity &lt;f32&gt;</code></td><td><code>0.03</code></td><td>Enables ordered dither</td></tr>
+<tr><td><code>--desaturate &lt;f32&gt;</code></td><td><code>0</code></td><td>Desaturation toward ash grey, 0–1</td></tr>
+<tr><td><code>--dof &lt;f32&gt;</code></td><td><code>0</code></td><td>Depth-of-field strength</td></tr>
+<tr><td><code>--dof-focus &lt;f32&gt;</code></td><td><code>10.0</code></td><td>Focus plane distance, world units</td></tr>
+<tr><td><code>--dof-range &lt;f32&gt;</code></td><td><code>5.0</code></td><td>Focus half-width, world units</td></tr>
+<tr><td><code>--kuwahara-radius &lt;u32&gt;</code></td><td><code>4</code></td><td>Enables the Kuwahara filter with this radius</td></tr>
+<tr><td><code>--kuwahara-sharpness &lt;f32&gt;</code></td><td><code>8.0</code></td><td>Kuwahara sector sharpness</td></tr>
+<tr><td><code>--kuwahara-hardness &lt;f32&gt;</code></td><td><code>8.0</code></td><td>Kuwahara sector hardness</td></tr>
+<tr><td><code>--kuwahara-anisotropy &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Kuwahara anisotropy, 0–1</td></tr>
+<tr><td><code>--render-mode &lt;0-5&gt;</code></td><td><code>0</code></td><td>Stylized render mode</td></tr>
+<tr><td><code>--mode-mix &lt;f32&gt;</code></td><td><code>0</code></td><td>Render mode blend, 0–1</td></tr>
+<tr><td><code>--mode-params &lt;x,y,z,w&gt;</code></td><td><code>0,0,0,0</code></td><td>Per-mode parameters</td></tr>
+<tr><td><code>--film-grain &lt;f32&gt;</code></td><td><code>0</code></td><td>Film grain intensity</td></tr>
+<tr><td><code>--grain-time &lt;f32&gt;</code></td><td><code>0</code></td><td>Post time driving grain and mode animation</td></tr>
+<tr><td><code>--grade-lift &lt;r,g,b&gt;</code></td><td><code>0,0,0</code></td><td>Color grade lift</td></tr>
+<tr><td><code>--grade-gamma &lt;r,g,b&gt;</code></td><td><code>1,1,1</code></td><td>Color grade gamma</td></tr>
+<tr><td><code>--grade-gain &lt;r,g,b&gt;</code></td><td><code>1,1,1</code></td><td>Color grade gain</td></tr>
+<tr><td><code>--fxaa</code></td><td><code>false</code></td><td>Run the FXAA pass</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="lighting-flags"><a class="header" href="#lighting-flags">Lighting Flags</a></h2>
+<p>The <code>[environment]</code> shading levers can be overridden too; see <a href="../concepts/lighting.html">Lighting</a>.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--oren-nayar &lt;f32&gt;</code></td><td>scene or <code>0</code></td><td>Lambert to Oren-Nayar diffuse blend, 0–1</td></tr>
+<tr><td><code>--sheen-strength &lt;f32&gt;</code></td><td>scene or <code>0</code></td><td>Charlie-sheen rim strength (keep at or below about 0.3)</td></tr>
+<tr><td><code>--sheen-color &lt;r,g,b&gt;</code></td><td><code>1,1,1</code></td><td>Sheen tint</td></tr>
+<tr><td><code>--no-shadows</code></td><td><code>false</code></td><td>Disable shadow mapping (also disables volumetric light)</td></tr>
+<tr><td><code>--shadow-resolution &lt;px&gt;</code></td><td><code>2048</code></td><td>Shadow map resolution per cascade</td></tr>
 </tbody>
 </table>
 </div>
@@ -266,11 +313,19 @@ flint render scene.toml --no-tonemapping --output linear.png
 <tr><td><code>--wireframe-overlay</code></td><td><code>false</code></td><td>Draw wireframe edges over solid shading</td></tr>
 <tr><td><code>--show-normals</code></td><td><code>false</code></td><td>Draw face-normal direction arrows</td></tr>
 <tr><td><code>--no-tonemapping</code></td><td><code>false</code></td><td>Disable tonemapping for raw linear output</td></tr>
-<tr><td><code>--no-shadows</code></td><td><code>false</code></td><td>Disable shadow mapping</td></tr>
-<tr><td><code>--shadow-resolution &lt;px&gt;</code></td><td><code>1024</code></td><td>Shadow map resolution per cascade</td></tr>
 </tbody>
 </table>
 </div>
+<p>Both wireframe modes include skinned meshes, drawn in their bind pose.</p>
+<h2 id="determinism-and-the-gates"><a class="header" href="#determinism-and-the-gates">Determinism and the Gates</a></h2>
+<p><code>flint render</code> is built to be byte-stable so that pixel-diff gates can trust it. Identical scene, flags and GPU driver produce identical PNGs, with these caveats:</p>
+<ul>
+<li><strong>Time is pinned.</strong> Film grain and render-mode animation read a post time that headless render fixes at 0. Pass <code>--grain-time</code> to pick a different but equally repeatable frame; two renders at the same value match, different values differ.</li>
+<li><strong>MSAA and FXAA default off</strong> precisely so the default path stays single-sample and single-pass. Turn them on for hero shots, not for baselines.</li>
+<li><strong>Animation does not run.</strong> Skinned meshes render at bind pose. For a posed headless frame use the model previewer’s render mode instead: <code>flint edit model.glb --render out.png --anim-time 1.5</code>, or <code>--sequence file.sequence.toml --anim-time 2.0</code> to replay a timed sequence deterministically.</li>
+<li><strong>Particles start at t = 0</strong>, so emitters appear empty.</li>
+<li><strong>Cost levers are free to change</strong> without affecting geometry: <code>--ssao-samples 16</code> is roughly four times cheaper than the default 64 and usually indistinguishable on matte scenes (ADR 0052), which matters when a CI job renders dozens of frames.</li>
+</ul>
 <h2 id="ci-pipeline-integration"><a class="header" href="#ci-pipeline-integration">CI Pipeline Integration</a></h2>
 <p>Headless rendering works on machines without a display. Use it in CI to catch visual regressions:</p>
 <pre><code class="language-yaml"># Example GitHub Actions step
@@ -306,7 +361,7 @@ flint render scene.toml --no-tonemapping --output linear.png
 </code></pre>
 </li>
 </ol>
-<p>Since Flint’s renderer is deterministic for a given scene file and camera position, identical inputs produce identical outputs.</p>
+<p>Keep baselines on the default flags (no <code>--msaa</code>, no <code>--fxaa</code>, no <code>--grain-time</code>) so a lever you added for a hero shot never silently changes the gate.</p>
 <h2 id="rendering-multiple-views"><a class="header" href="#rendering-multiple-views">Rendering Multiple Views</a></h2>
 <p>Script multiple renders for different angles:</p>
 <pre><code class="language-bash">#!/bin/bash
@@ -322,15 +377,18 @@ done
 <h2 id="rendering-pipeline-details"><a class="header" href="#rendering-pipeline-details">Rendering Pipeline Details</a></h2>
 <p>Headless rendering uses the same wgpu PBR pipeline as the interactive viewer:</p>
 <ul>
-<li><strong>Cook-Torrance BRDF</strong> with roughness/metallic workflow</li>
-<li><strong>Cascaded shadow mapping</strong> for directional light shadows</li>
+<li><strong>Cook-Torrance BRDF</strong> with roughness/metallic workflow and the <code>[environment]</code> shading levers</li>
+<li><strong>Cascaded shadow mapping</strong> for directional light shadows, with PCSS when the light has an <code>angular_size</code></li>
 <li><strong>glTF mesh rendering</strong> with full material support</li>
-<li><strong>Skinned mesh rendering</strong> with bone matrix upload (for skeletal meshes)</li>
+<li><strong>Skinned mesh rendering</strong> at bind pose (no animation is evaluated headlessly)</li>
+<li><strong>The full post-processing chain</strong>, including Kuwahara and FXAA when enabled</li>
 </ul>
 <p>The only difference from interactive rendering is that the output goes to a texture-to-buffer copy instead of a swapchain surface.</p>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
 <li><a href="../concepts/rendering.html">Rendering</a> — the PBR rendering pipeline</li>
+<li><a href="../concepts/post-processing.html">Post-Processing</a> — what every flag above controls</li>
+<li><a href="../concepts/lighting.html">Lighting</a> — the light component and shading levers</li>
 <li><a href="ai-agent-workflow.html">AI Agent Workflow</a> — using headless renders for agent verification</li>
 <li><a href="../cli-reference/overview.html">CLI Reference</a> — full command options</li>
 </ul>

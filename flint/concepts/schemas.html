@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -200,25 +200,34 @@ open_angle = { type = "f32", default = 90.0, min = 0.0, max = 180.0 }
 <tbody>
 <tr><td><code>bool</code></td><td>Boolean</td><td><code>true</code> / <code>false</code></td></tr>
 <tr><td><code>i32</code></td><td>32-bit integer</td><td><code>42</code></td></tr>
+<tr><td><code>i64</code></td><td>64-bit integer</td><td><code>1700000000</code></td></tr>
 <tr><td><code>f32</code></td><td>32-bit float</td><td><code>3.14</code></td></tr>
+<tr><td><code>f64</code></td><td>64-bit float</td><td><code>3.14159265</code></td></tr>
 <tr><td><code>string</code></td><td>Text string</td><td><code>"hello"</code></td></tr>
+<tr><td><code>vec2</code></td><td>2D vector, validated as an array of floats</td><td><code>[0.5, 1.0]</code></td></tr>
 <tr><td><code>vec3</code></td><td>3D vector (array of 3 floats)</td><td><code>[1.0, 2.0, 3.0]</code></td></tr>
+<tr><td><code>vec4</code></td><td>4D vector, validated as an array of floats</td><td><code>[1.0, 0.5, 0.2, 1.0]</code></td></tr>
+<tr><td><code>color</code></td><td>RGB or RGBA color</td><td><code>[1.0, 0.8, 0.6]</code></td></tr>
+<tr><td><code>transform</code></td><td>Nested position / rotation / scale table</td><td>see <a href="#transform">Transform</a></td></tr>
 <tr><td><code>enum</code></td><td>One of a set of string values</td><td><code>"hinged"</code></td></tr>
+<tr><td><code>array</code></td><td>List of a given <code>element</code> type</td><td><code>["a", "b"]</code></td></tr>
 <tr><td><code>entity_ref</code></td><td>Reference to another entity by name</td><td><code>"main_hall"</code></td></tr>
 </tbody>
 </table>
 </div>
+<p><code>vec2</code> and <code>vec4</code> have no dedicated variant; the parser maps them to a float array so validation reports a bad value as “expected float array” rather than misreporting the field as a string. Any type name the parser does not recognise falls back to <code>string</code>.</p>
 <h3 id="field-constraints"><a class="header" href="#field-constraints">Field Constraints</a></h3>
 <p>Fields can include validation constraints:</p>
 <pre><code class="language-toml">open_angle = { type = "f32", default = 90.0, min = 0.0, max = 180.0 }
 required_key = { type = "entity_ref", optional = true }
 </code></pre>
 <ul>
-<li><code>default</code> — value used when not explicitly set</li>
+<li><code>default</code> — value used when not explicitly set. Defaults are consumed in two places: <code>flint entity create</code> writes them into the new entity, and the scene loader fills them into any component the entity lists but leaves partially specified (see <a href="scenes.html#loading-and-saving">Scenes: loading</a>). Scripts can therefore rely on a schema default existing at runtime.</li>
 <li><code>min</code> / <code>max</code> — numeric range bounds</li>
 <li><code>optional</code> — whether the field can be omitted (defaults to false)</li>
 <li><code>values</code> — valid options for enum types</li>
 </ul>
+<p>Validation runs in two modes. At scene load it is advisory: a field that fails its constraints is logged as a warning and the scene still loads. Under <code>flint validate</code> it is authoritative and the command reports every failure.</p>
 <h2 id="built-in-components"><a class="header" href="#built-in-components">Built-in Components</a></h2>
 <p>Flint ships with several built-in component schemas:</p>
 <h3 id="transform"><a class="header" href="#transform">Transform</a></h3>

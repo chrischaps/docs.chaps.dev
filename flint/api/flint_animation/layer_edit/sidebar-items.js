@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["edit_layer_table","fade_weight","set_weight"]};

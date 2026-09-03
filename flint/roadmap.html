@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-ddc7ede1.js"></script>
+        <script src="toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,16 +179,9 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="roadmap"><a class="header" href="#roadmap">Roadmap</a></h1>
-<p>Flint has a solid foundation — PBR rendering, physics, audio, animation, scripting, particles, post-processing, AI asset generation, and a shipped Doom-style FPS demo. The roadmap now focuses on the features needed to ship production games.</p>
-<h2 id="visual-scene-tweaking"><a class="header" href="#visual-scene-tweaking">Visual Scene Tweaking</a></h2>
-<p><strong>Priority: High</strong></p>
-<p>Flint’s core thesis is that scenes are <em>authored</em> by AI agents and code — not by dragging objects around a viewport. But AI-generated layouts often need human nudges: a light that’s slightly too far left, a prop that clips through a wall, a rotation that’s five degrees off. The goal isn’t a full scene editor — it’s a lightweight adjustment layer on top of the CLI-first workflow.</p>
-<ul>
-<li>Translate / rotate / scale gizmos for fine-tuning positions</li>
-<li>Property inspector for tweaking component values in-place</li>
-<li>Changes write back to the scene TOML (preserving AI-authored structure)</li>
-<li>Undo / redo for safe experimentation</li>
-</ul>
+<p>Flint has a solid foundation — PBR rendering, physics, audio, animation layers, scripting, particles, terrain and grass, ocean and sky, post-processing, music sessions, AI asset generation, and shipped game projects (a Doom-style FPS, FlintKart, Starchild). The roadmap now focuses on the features needed to ship production games.</p>
+<h2 id="visual-scene-tweaking-done"><a class="header" href="#visual-scene-tweaking-done"><del>Visual Scene Tweaking</del> Done</a></h2>
+<p>Flint’s core thesis is that scenes are <em>authored</em> by AI agents and code — not by dragging objects around a viewport. But AI-generated layouts often need human nudges. <code>flint edit</code> now provides that adjustment layer: translate / rotate / scale gizmos (W/E/R), a property inspector, TOML write-back that preserves the authored structure, undo / redo, and the F4 Rendering &amp; Effects menu for tuning post-processing and lighting levers live before committing them to the scene file.</p>
 <h2 id="frustum-culling--level-of-detail"><a class="header" href="#frustum-culling--level-of-detail">Frustum Culling &amp; Level of Detail</a></h2>
 <p><strong>Priority: High</strong></p>
 <p>Without visibility culling, every object renders every frame regardless of whether it’s on screen. This is the performance ceiling that blocks larger scenes.</p>
@@ -198,6 +191,12 @@
 <li>Mesh LOD switching by camera distance</li>
 <li>Optional texture streaming for large worlds</li>
 </ul>
+<blockquote>
+<p>Partly delivered. The renderer extracts a camera frustum every frame
+(<code>flint-render/src/frustum.rs</code>) and culls terrain chunks by AABB against it;
+grass has its own distance fade. Entity meshes are still drawn
+unconditionally, so per-object culling and LOD remain open.</p>
+</blockquote>
 <h2 id="navigation-mesh--pathfinding"><a class="header" href="#navigation-mesh--pathfinding">Navigation Mesh &amp; Pathfinding</a></h2>
 <p><strong>Priority: High</strong></p>
 <p>Every game with NPCs needs this. Currently enemies can only do simple raycast-based movement — entire genres are blocked without proper pathfinding.</p>
@@ -253,16 +252,8 @@ and an <code>opacity</code> material field for glass, shields and smoke.</p>
 <li>Multi-document support with handle-based load/unload</li>
 <li>Layout caching with automatic invalidation on screen resize</li>
 </ul>
-<h2 id="terrain-system"><a class="header" href="#terrain-system">Terrain System</a></h2>
-<p><strong>Priority: Medium-High</strong></p>
-<p>The engine excels at interior scenes — taverns, dungeons, arenas — but has no solution for outdoor environments. Height-field terrain is the single biggest genre-unlocking feature missing: open-world, exploration, RTS, and large-scale games all depend on it.</p>
-<ul>
-<li>Height-field terrain with chunk-based rendering</li>
-<li>Material splatting (blend grass, dirt, rock, snow by painted weight maps)</li>
-<li>Chunk LOD for draw-distance scaling</li>
-<li>Collision mesh generation for physics and character controller</li>
-<li>Script API: <code>get_terrain_height(x, z)</code> for grounding NPCs and objects</li>
-</ul>
+<h2 id="terrain-system-done"><a class="header" href="#terrain-system-done"><del>Terrain System</del> Done</a></h2>
+<p>Height-field terrain shipped with chunked rendering, RGBA splat-map blending, collision, a <code>terrain_height(x, z)</code> script query, a GPU grass system placed by splat density, and the <code>flint edit</code> terrain editor. See <a href="concepts/terrain.html">Terrain</a>. Chunk LOD by distance is the one bullet still open and folds into the culling / LOD item above.</p>
 <h2 id="audio-environment-zones"><a class="header" href="#audio-environment-zones">Audio Environment Zones</a></h2>
 <p><strong>Priority: Medium-High</strong></p>
 <p>Walking from a stone cathedral into an open field should <em>sound</em> different. The spatial audio system handles positioning well, but there’s no environmental modeling. This is the audio equivalent of reflection probes — a massive immersion jump for minimal complexity.</p>
@@ -313,17 +304,22 @@ and an <code>opacity</code> material field for glass, shields and smoke.</p>
 <li>Script API: <code>debug_line(from, to, color)</code>, <code>debug_box(center, size, color)</code>, <code>debug_sphere(center, radius, color)</code>, <code>debug_ray(origin, dir, length, color)</code></li>
 <li>Wireframe overlay rendered after scene, before HUD</li>
 <li>Auto-clear each frame (immediate-mode, like the 2D draw API)</li>
-<li>Toggle with a debug key (e.g. F10) — zero overhead when disabled</li>
+<li>Toggle from the F4 Rendering &amp; Effects menu — the per-feature F-keys were retired (ADR 0053) and the bare F-key space is spoken for</li>
 <li>Optional built-in modes: visualize physics colliders, trigger volumes, nav meshes</li>
 </ul>
+<blockquote>
+<p>The skeleton overlay in the model previewer and the wireframe debug modes
+(which now include skinned meshes) are the first pieces of this; a
+script-driven 3D line API is still open.</p>
+</blockquote>
 <h2 id="performance-profiler-overlay"><a class="header" href="#performance-profiler-overlay">Performance Profiler Overlay</a></h2>
 <p><strong>Priority: Medium</strong></p>
-<p>Targeted optimization requires knowing where time is spent. Currently there’s no visibility into the frame budget breakdown.</p>
+<p>Targeted optimization requires knowing where time is spent. F2 already shows frame time, FPS, draw stats and resolution in the player and viewer; what is missing is the breakdown.</p>
 <ul>
-<li>In-engine overlay: frame time, draw calls, triangle count, memory</li>
 <li>Per-system breakdown (render vs physics vs scripts vs audio)</li>
+<li>Triangle count and memory alongside the existing draw stats</li>
 <li>Frame time graph with spike detection</li>
-<li>Toggle with a debug key (e.g. F9)</li>
+<li>Lives on the existing F2 stats overlay or as an F4 menu section (F9 is taken by the music-session force-fail)</li>
 </ul>
 <h2 id="further-horizon"><a class="header" href="#further-horizon">Further Horizon</a></h2>
 <p>These are ideas under consideration, not committed plans:</p>

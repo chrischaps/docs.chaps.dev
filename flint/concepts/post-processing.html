@@ -28,7 +28,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/css/custom-a9d3dcc9.css">
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-a4f50de0.js";
+            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ddc7ede1.js"></script>
+        <script src="../toc-c3ee08a0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,19 +179,20 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="post-processing"><a class="header" href="#post-processing">Post-Processing</a></h1>
-<p>Flint includes an HDR post-processing pipeline that transforms the raw scene render into polished final output with bloom, SSAO, fog, volumetric lighting, tonemapping, and vignette effects.</p>
+<p>Flint includes an HDR post-processing pipeline that transforms the raw scene render into polished final output: bloom, SSAO, fog, volumetric lighting, depth of field, a painterly Kuwahara filter, color grading, film grain, tonemapping, vignette, FXAA, and whole-screen render modes.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
 <p>Instead of rendering directly to the screen, the scene is drawn to an intermediate <strong>HDR buffer</strong> (<code>Rgba16Float</code> format) that can store values brighter than 1.0. A series of fullscreen passes then process this buffer:</p>
-<pre><code>Scene render         SSAO        Volumetric    Bloom chain       Composite pass
-(PBR, skinned,   →  depth-based  shadow-based  downsample    →   exposure
- billboard,         AO texture   god rays      upsample          ACES tonemapping
- particles,                                                      gamma correction
- skybox)                                                         fog + vignette
-     ↓                  ↓            ↓              ↓                ↓
- Rgba16Float       AO texture   vol texture    bloom texture    sRGB surface
- HDR buffer        (darkening)  (light shafts) (bright halos)  (final output)
+<pre><code>Scene render        Depth       Kuwahara     SSAO       Volumetric   Bloom chain    Composite pass        FXAA
+(PBR, skinned,  -&gt;  resolve  -&gt; (optional -&gt; depth-  -&gt; shadow-   -&gt; downsample  -&gt; DoF, AO, god rays  -&gt; (optional
+ billboard,         (MSAA       painterly    based      based        upsample       bloom, fog, exposure    edge AA)
+ particles,         sample 0)   pre-pass)    AO         god rays                    ACES, grade, desat,
+ sky, ocean,                                                                        render mode, vignette,
+ terrain, grass)                                                                    grain, dither
+     |                 |            |           |           |            |                |                   |
+ Rgba16Float       depth       filtered     AO         vol          bloom          sRGB surface or       sRGB
+ HDR buffer        texture     HDR          texture    texture      texture        FXAA intermediate     surface
 </code></pre>
-<p>All scene pipelines — PBR, skinned mesh, billboard sprite, particle, and skybox — render to the HDR buffer when post-processing is active. The PBR shader’s built-in tonemapping is automatically disabled so it outputs linear HDR values for the composite pass to process.</p>
+<p>All scene pipelines — PBR, skinned mesh, billboard sprite, particle, skybox, sky, ocean, terrain and grass — render to the HDR buffer when post-processing is active. The PBR shader’s built-in tonemapping is automatically disabled so it outputs linear HDR values for the composite pass to process. Kuwahara and FXAA resources are only allocated when their effect is enabled.</p>
 <h2 id="bloom"><a class="header" href="#bloom">Bloom</a></h2>
 <p>Bloom creates the soft glow around bright light sources — emissive materials, fire particles, bright specular highlights. The implementation uses the technique from Call of Duty: Advanced Warfare:</p>
 <ol>
@@ -204,6 +205,18 @@
 <p><em>Post-processing enabled: bloom creates halos around emissive surfaces and bright lights.</em></p>
 <p><img src="../images/bloom-off.png" alt="Bloom disabled — same scene with raw PBR output"></p>
 <p><em>Post-processing disabled: the same scene rendered with shader-level tonemapping only.</em></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>bloom_enabled</code></td><td>bool</td><td><code>true</code></td><td>Enable bloom</td></tr>
+<tr><td><code>bloom_intensity</code></td><td>f32</td><td><code>0.04</code></td><td>Mix strength of the bloom texture</td></tr>
+<tr><td><code>bloom_threshold</code></td><td>f32</td><td><code>1.0</code></td><td>Minimum brightness extracted into the bloom chain</td></tr>
+</tbody>
+</table>
+</div>
 <p>The mip chain depth is calculated as <code>floor(log2(min(width, height))) - 3</code>, capped at 5 levels, ensuring the smallest mip is at least 8x8 pixels.</p>
 <h2 id="ssao-screen-space-ambient-occlusion"><a class="header" href="#ssao-screen-space-ambient-occlusion">SSAO (Screen-Space Ambient Occlusion)</a></h2>
 <p>SSAO darkens crevices, corners, and areas where surfaces meet, adding depth and realism to a scene without requiring extra light sources. The implementation samples the depth buffer around each pixel to estimate how much ambient light would be blocked by nearby geometry.</p>
@@ -216,11 +229,34 @@
 <tr><td><code>ssao_enabled</code></td><td>bool</td><td><code>true</code></td><td>Enable SSAO</td></tr>
 <tr><td><code>ssao_radius</code></td><td>f32</td><td><code>0.5</code></td><td>Sample radius in world units (larger = wider darkening)</td></tr>
 <tr><td><code>ssao_intensity</code></td><td>f32</td><td><code>1.0</code></td><td>Occlusion strength (higher = darker crevices)</td></tr>
+<tr><td><code>ssao_samples</code></td><td>u32</td><td><code>64</code></td><td>Hemisphere samples per pixel, 1–64 (ADR 0052)</td></tr>
 </tbody>
 </table>
 </div>
+<p>SSAO is the heaviest per-pixel pass in the post stack. The sample kernel is strided, so lower counts keep full radius coverage; <code>ssao_samples = 16</code> is usually indistinguishable on soft matte scenes and roughly four times cheaper. The clay-look demo scenes use 16.</p>
+<p>An SSAO depth bias (default <code>0.025</code>) is exposed in the Rendering &amp; Effects menu but has no scene key.</p>
+<h2 id="depth-of-field"><a class="header" href="#depth-of-field">Depth of Field</a></h2>
+<p>Depth of field defocuses everything outside a focus band. The composite pass computes a circle of confusion per pixel from the depth buffer and gathers a CoC-weighted disc from the HDR source, so in-focus foreground does not bleed into defocused regions.</p>
+<p><img src="../images/dof-near.png" alt="Depth of field, near focus"></p>
+<p><em>Focus plane at 3 m: the foreground is sharp and the room behind it falls away.</em></p>
+<p><img src="../images/dof-far.png" alt="Depth of field, far focus"></p>
+<p><em>Focus plane at 12 m: the same frame with the focus pushed back.</em></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>dof_strength</code></td><td>f32</td><td><code>0.0</code></td><td>0 = off/sharp, 1 = full defocus</td></tr>
+<tr><td><code>dof_focus_distance</code></td><td>f32</td><td><code>10.0</code></td><td>Distance of the focus plane in world units</td></tr>
+<tr><td><code>dof_focus_range</code></td><td>f32</td><td><code>5.0</code></td><td>Half-width of the sharp band around the focus plane</td></tr>
+</tbody>
+</table>
+</div>
+<p>Distances are plain view-space meters. Earlier builds linearized depth with the OpenGL <code>[-1, 1]</code> convention, which made focus values drift with the far plane; ADR 0055 moved every depth consumer to wgpu’s <code>[0, 1]</code> convention, so <code>dof_focus_distance = 10</code> now means ten meters from the camera.</p>
+<p>In the scene viewer, the Rendering &amp; Effects menu offers <strong>DoF follow</strong>: the focus plane tracks the last selected entity, which is a fast way to find a focus distance by eye.</p>
 <h2 id="fog"><a class="header" href="#fog">Fog</a></h2>
-<p>Distance-based fog blends a configurable fog color into the scene based on pixel depth. Height-based falloff can be layered on top so fog is thicker near the ground and thins out at higher elevations.</p>
+<p>Distance-based fog blends a configurable fog color into the scene based on pixel depth. Height-based falloff can be layered on top so fog is thicker near the ground and thins out at higher elevations. Fog is applied in linear HDR space, before tonemapping.</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -250,7 +286,7 @@
 </ol>
 <p>Because volumetric lighting depends on the shadow map, it requires at least one directional light with shadows enabled. The effect is disabled when shadows are off.</p>
 <h3 id="per-light-configuration"><a class="header" href="#per-light-configuration">Per-light configuration</a></h3>
-<p>Each directional light can control its volumetric contribution independently via its <code>light</code> component:</p>
+<p>Each directional light can control its volumetric contribution independently via its <code>light</code> component (see <a href="lighting.html">Lighting</a> for the full component):</p>
 <pre><code class="language-toml">[entities.sun.light]
 type = "directional"
 direction = [0.4, 0.6, 0.05]
@@ -304,19 +340,82 @@ volumetric_intensity = 4.0
 volumetric_color = [1.0, 0.88, 0.6]
 </code></pre>
 <p>High <code>volumetric_density</code> with a short <code>volumetric_max_distance</code> and <code>decay</code> close to 1.0 produces thick, concentrated shafts — good for dusty interiors. For outdoor haze, use lower density and longer distance.</p>
-<h2 id="dither"><a class="header" href="#dither">Dither</a></h2>
-<p>Subtle dithering reduces color banding in gradients (skies, fog falloff, smooth surfaces). A blue-noise pattern is applied during the composite pass.</p>
+<h2 id="kuwahara-painterly-filter"><a class="header" href="#kuwahara-painterly-filter">Kuwahara (Painterly Filter)</a></h2>
+<p>The anisotropic Kuwahara filter turns the HDR image into flat, brush-like patches that follow local edge direction. It runs as a pre-pass on the HDR buffer before SSAO and bloom, so lighting effects stay crisp on top of the painted surface. Three shaders cooperate: a structure-tensor pass, a tensor blur, and the sector filter itself.</p>
+<p><img src="../images/kuwahara-off.png" alt="Kuwahara off"></p>
+<p><em>The tavern showcase with the Kuwahara pre-pass disabled.</em></p>
+<p><img src="../images/kuwahara-on.png" alt="Kuwahara on"></p>
+<p><em>The same frame with the anisotropic Kuwahara filter, radius 4.</em></p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>dither_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable dithering</td></tr>
-<tr><td><code>dither_intensity</code></td><td>f32</td><td><code>0.03</code></td><td>Dither strength (subtle values like 0.02–0.05 work best)</td></tr>
+<tr><td><code>kuwahara_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable the filter</td></tr>
+<tr><td><code>kuwahara_radius</code></td><td>u32</td><td><code>4</code></td><td>Kernel radius in pixels (1–8 in the menu; larger = broader strokes)</td></tr>
+<tr><td><code>kuwahara_sharpness</code></td><td>f32</td><td><code>8.0</code></td><td>How strongly the lowest-variance sector wins</td></tr>
+<tr><td><code>kuwahara_hardness</code></td><td>f32</td><td><code>8.0</code></td><td>Edge hardness between sectors</td></tr>
+<tr><td><code>kuwahara_anisotropy</code></td><td>f32</td><td><code>1.0</code></td><td>0 = isotropic disc, 1 = sectors stretch fully along the local edge direction</td></tr>
 </tbody>
 </table>
 </div>
+<p>The filter’s textures and pipelines are allocated the first time it is enabled, so scenes that never use it pay nothing.</p>
+<h2 id="color-grade-film-grain-and-fxaa"><a class="header" href="#color-grade-film-grain-and-fxaa">Color Grade, Film Grain and FXAA</a></h2>
+<p>Three finishing controls from ADR 0050 sit at the end of the composite pass.</p>
+<p><strong>Color grade</strong> is an ASC-CDL-shaped lift/gamma/gain applied right after ACES tonemapping, so it grades the display-referred image: <code>pow(max(color * gain + lift, 0), 1 / gamma)</code>. The grade is skipped entirely while all three are neutral.</p>
+<p><strong>Film grain</strong> is hash noise on pixel coordinates, luma-weighted so highlights stay clean, and time-quantized to 24 Hz. It reads the shared post time, which <code>flint render</code> fixes at 0 unless you pass <code>--grain-time</code>, so headless renders stay deterministic.</p>
+<p><strong>FXAA</strong> is a separate fullscreen pass after composite. It is off by default because the headless pixel-diff gates run without it.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>grade_lift</code></td><td>[f32; 3]</td><td><code>[0, 0, 0]</code></td><td>Per-channel add after ACES (neutral = 0)</td></tr>
+<tr><td><code>grade_gamma</code></td><td>[f32; 3]</td><td><code>[1, 1, 1]</code></td><td>Per-channel midtone curve (neutral = 1)</td></tr>
+<tr><td><code>grade_gain</code></td><td>[f32; 3]</td><td><code>[1, 1, 1]</code></td><td>Per-channel multiply (neutral = 1)</td></tr>
+<tr><td><code>film_grain</code></td><td>f32</td><td><code>0.0</code></td><td>Grain intensity; 0 = off, 0.02–0.05 is subtle</td></tr>
+<tr><td><code>fxaa</code></td><td>bool</td><td><code>false</code></td><td>Run the FXAA pass on the final composite</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="desaturation-chromatic-aberration-and-radial-blur"><a class="header" href="#desaturation-chromatic-aberration-and-radial-blur">Desaturation, Chromatic Aberration and Radial Blur</a></h2>
+<p>These three are the “feel” levers scripts reach for most; see the script notes below for which ones are sticky.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>desaturate</code></td><td>f32</td><td><code>0.0</code></td><td>Mix toward a darkened ash grey (0 = full color, 1 = drained). Applied after the grade, before render modes (ADR 0021)</td></tr>
+<tr><td><code>chromatic_aberration</code></td><td>f32</td><td><code>0.0</code></td><td>Splits the red and blue channels radially from the screen center</td></tr>
+<tr><td><code>radial_blur</code></td><td>f32</td><td><code>0.0</code></td><td>8-tap blur that grows toward the screen edges while the center stays sharp</td></tr>
+</tbody>
+</table>
+</div>
+<p>Desaturation mixes toward <code>luma * 0.62</code> rather than neutral grey on purpose: it matches the disintegration ladder of the music-session harness, so the language of “the world draining” reads the same in both.</p>
+<h2 id="vignette-exposure-and-dither"><a class="header" href="#vignette-exposure-and-dither">Vignette, Exposure and Dither</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>exposure</code></td><td>f32</td><td><code>1.0</code></td><td>Multiplier applied before ACES</td></tr>
+<tr><td><code>vignette_enabled</code></td><td>bool</td><td><code>false</code></td><td>Darken screen edges</td></tr>
+<tr><td><code>vignette_intensity</code></td><td>f32</td><td><code>0.3</code></td><td>Vignette strength</td></tr>
+<tr><td><code>vignette_smoothness</code></td><td>f32</td><td><code>2.0</code></td><td>Falloff exponent from center to edge</td></tr>
+<tr><td><code>dither_enabled</code></td><td>bool</td><td><code>false</code></td><td>8x8 Bayer ordered dither to reduce banding</td></tr>
+<tr><td><code>dither_intensity</code></td><td>f32</td><td><code>0.03</code></td><td>Dither strength (0.02–0.05 works best)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="msaa"><a class="header" href="#msaa">MSAA</a></h2>
+<p>The scene passes can run with 4x multisample anti-aliasing (ADR 0058). Post-processing, shadow and blit passes stay single-sample; depth consumers such as SSAO, fog and DoF read a sample-0 depth resolve.</p>
+<p><img src="../images/msaa-compare.png" alt="MSAA comparison"></p>
+<p><em>Left: single-sample. Right: <code>--msaa 4</code>. Geometry edges smooth out; post effects are unchanged.</em></p>
+<p>MSAA is a launch option, not a scene key: <code>flint render --msaa 4</code>, <code>flint-player --msaa 4</code>, or <code>RendererConfig::sample_count</code> in code. Valid values are 1 and 4; anything else is clamped to 1 with a warning. The default stays 1 so headless pixel gates remain single-sample.</p>
 <h2 id="scene-configuration"><a class="header" href="#scene-configuration">Scene Configuration</a></h2>
 <p>Add a <code>[post_process]</code> block to your scene TOML to configure per-scene settings:</p>
 <pre><code class="language-toml">[post_process]
@@ -326,28 +425,37 @@ bloom_threshold = 1.0
 ssao_enabled = true
 ssao_radius = 0.5
 ssao_intensity = 1.0
+ssao_samples = 16
 fog_enabled = true
 fog_density = 0.02
 fog_color = [0.7, 0.75, 0.82]
 volumetric_enabled = false
+dof_strength = 0.4
+dof_focus_distance = 8.0
+dof_focus_range = 4.0
+kuwahara_enabled = false
+grade_lift = [0.03, 0.02, 0.015]
+grade_gamma = [1.0, 1.0, 1.0]
+grade_gain = [1.04, 1.0, 0.94]
+film_grain = 0.03
+fxaa = false
 vignette_enabled = true
 vignette_intensity = 0.3
 exposure = 1.0
 </code></pre>
-<p>All fields are optional — omitted values use their defaults.</p>
+<p>All fields are optional — omitted values use their defaults. The full key list with defaults is in <a href="../formats/overview.html">File Formats</a>.</p>
+<p>When the pipeline is disabled (<code>--no-postprocess</code> or the menu checkbox), most effects are zeroed: bloom, vignette, fog, dither, desaturate, film grain, DoF, render mode and grade. Two are not: <code>chromatic_aberration</code> and <code>radial_blur</code> predate the gate and stay live even with post-processing off.</p>
+<p>The scene viewer applies the scene’s <code>[post_process]</code> block on load (ADR 0046). The Rendering &amp; Effects menu can swap between the authored block and the viewer’s default look.</p>
 <h2 id="cli-flags"><a class="header" href="#cli-flags">CLI Flags</a></h2>
 <p>Override post-processing settings from the command line:</p>
 <pre><code class="language-bash"># Disable all post-processing
 flint render scene.toml --no-postprocess
 
-# Adjust bloom
-flint render scene.toml --bloom-intensity 0.08 --bloom-threshold 0.8
+# Adjust bloom and exposure
+flint render scene.toml --bloom-intensity 0.08 --bloom-threshold 0.8 --exposure 1.5
 
-# Adjust exposure
-flint render scene.toml --exposure 1.5
-
-# SSAO
-flint render scene.toml --ssao-radius 0.5 --ssao-intensity 1.0
+# SSAO, with the cheap sample count
+flint render scene.toml --ssao-radius 0.5 --ssao-intensity 1.0 --ssao-samples 16
 
 # Fog
 flint render scene.toml --fog-density 0.02 --fog-color 0.7,0.75,0.82 --fog-height-falloff 0.1
@@ -355,8 +463,14 @@ flint render scene.toml --fog-density 0.02 --fog-color 0.7,0.75,0.82 --fog-heigh
 # Volumetric lighting
 flint render scene.toml --volumetric-density 1.0 --volumetric-samples 32
 
-# Dither
-flint render scene.toml --dither-intensity 0.03
+# Depth of field
+flint render scene.toml --dof 0.6 --dof-focus 10 --dof-range 5
+
+# Kuwahara
+flint render scene.toml --kuwahara-radius 4 --kuwahara-sharpness 8 --kuwahara-hardness 8 --kuwahara-anisotropy 1
+
+# Grade, grain, FXAA, MSAA
+flint render scene.toml --grade-lift 0.03,0.02,0.015 --grade-gain 1.04,1,0.94 --film-grain 0.03 --fxaa --msaa 4
 
 # Combine flags
 flint play scene.toml --bloom-intensity 0.1 --exposure 1.2 --volumetric-density 5.0
@@ -369,52 +483,88 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2 --volumetric-density 
 <tbody>
 <tr><td><code>--no-postprocess</code></td><td>Disable the entire post-processing pipeline</td></tr>
 <tr><td><code>--no-shadows</code></td><td>Disable shadow mapping (also disables volumetric)</td></tr>
+<tr><td><code>--msaa &lt;1|4&gt;</code></td><td>Scene-pass MSAA sample count (default 1)</td></tr>
 <tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td>Override bloom intensity</td></tr>
 <tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td>Override bloom brightness threshold</td></tr>
 <tr><td><code>--exposure &lt;f32&gt;</code></td><td>Override exposure multiplier</td></tr>
 <tr><td><code>--ssao-radius &lt;f32&gt;</code></td><td>Override SSAO sample radius</td></tr>
 <tr><td><code>--ssao-intensity &lt;f32&gt;</code></td><td>Override SSAO strength</td></tr>
+<tr><td><code>--ssao-samples &lt;u32&gt;</code></td><td>Override SSAO samples per pixel, 1–64</td></tr>
 <tr><td><code>--fog-density &lt;f32&gt;</code></td><td>Override fog density (0 disables fog)</td></tr>
 <tr><td><code>--fog-color &lt;r,g,b&gt;</code></td><td>Override fog color</td></tr>
 <tr><td><code>--fog-height-falloff &lt;f32&gt;</code></td><td>Enable height fog with given falloff</td></tr>
 <tr><td><code>--volumetric-density &lt;f32&gt;</code></td><td>Override volumetric density (0 disables)</td></tr>
 <tr><td><code>--volumetric-samples &lt;u32&gt;</code></td><td>Override volumetric ray-march steps</td></tr>
 <tr><td><code>--dither-intensity &lt;f32&gt;</code></td><td>Override dither strength</td></tr>
+<tr><td><code>--desaturate &lt;f32&gt;</code></td><td>Desaturation toward ash grey, 0–1</td></tr>
+<tr><td><code>--dof &lt;f32&gt;</code></td><td>Depth-of-field strength (0 = off)</td></tr>
+<tr><td><code>--dof-focus &lt;f32&gt;</code></td><td>Focus plane distance in world units</td></tr>
+<tr><td><code>--dof-range &lt;f32&gt;</code></td><td>Focus half-width in world units</td></tr>
+<tr><td><code>--kuwahara-radius &lt;u32&gt;</code></td><td>Enable Kuwahara with this radius</td></tr>
+<tr><td><code>--kuwahara-sharpness &lt;f32&gt;</code></td><td>Kuwahara sector sharpness</td></tr>
+<tr><td><code>--kuwahara-hardness &lt;f32&gt;</code></td><td>Kuwahara sector hardness</td></tr>
+<tr><td><code>--kuwahara-anisotropy &lt;f32&gt;</code></td><td>Kuwahara anisotropy, 0–1</td></tr>
+<tr><td><code>--film-grain &lt;f32&gt;</code></td><td>Film grain intensity</td></tr>
+<tr><td><code>--grain-time &lt;f32&gt;</code></td><td>Post time for grain and mode animation (default 0)</td></tr>
+<tr><td><code>--grade-lift &lt;r,g,b&gt;</code></td><td>Color grade lift</td></tr>
+<tr><td><code>--grade-gamma &lt;r,g,b&gt;</code></td><td>Color grade gamma</td></tr>
+<tr><td><code>--grade-gain &lt;r,g,b&gt;</code></td><td>Color grade gain</td></tr>
+<tr><td><code>--fxaa</code></td><td>Enable the FXAA pass</td></tr>
+<tr><td><code>--render-mode &lt;0-5&gt;</code></td><td>Stylized render mode (see below)</td></tr>
+<tr><td><code>--mode-mix &lt;f32&gt;</code></td><td>Render mode blend strength, 0–1</td></tr>
+<tr><td><code>--mode-params &lt;x,y,z,w&gt;</code></td><td>Per-mode parameters</td></tr>
+<tr><td><code>--oren-nayar</code>, <code>--sheen-strength</code>, <code>--sheen-color</code></td><td>Lighting levers, documented in <a href="lighting.html">Lighting</a></td></tr>
 </tbody>
 </table>
 </div>
 <p>CLI flags take precedence over scene TOML settings.</p>
-<h2 id="runtime-toggles"><a class="header" href="#runtime-toggles">Runtime Toggles</a></h2>
-<p>During gameplay (<code>flint play</code> / <code>flint edit</code>), toggle post-processing effects with keyboard shortcuts:</p>
+<h2 id="the-rendering--effects-menu-f4"><a class="header" href="#the-rendering--effects-menu-f4">The Rendering &amp; Effects Menu (F4)</a></h2>
+<p>There are no longer per-effect function keys. ADR 0053 consolidated every render and post-process debug control into one egui window, opened with <strong>F4</strong> in both the player and the scene viewer. Every toggle above appears there with its non-binary parameters, and changes write straight through to the renderer.</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Key</th><th>Action</th></tr>
+<tr><th>Section</th><th>Controls</th></tr>
 </thead>
 <tbody>
-<tr><td><strong>F5</strong></td><td>Toggle bloom on/off</td></tr>
-<tr><td><strong>F6</strong></td><td>Toggle entire post-processing pipeline on/off</td></tr>
-<tr><td><strong>F7</strong></td><td>Toggle SSAO on/off</td></tr>
-<tr><td><strong>F8</strong></td><td>Toggle fog on/off</td></tr>
-<tr><td><strong>F9</strong></td><td>Toggle dither on/off</td></tr>
-<tr><td><strong>F10</strong></td><td>Toggle volumetric lighting on/off</td></tr>
+<tr><td>Post chain</td><td>Post-processing on/off, exposure, vignette + intensity + smoothness, chromatic aberration, radial blur, desaturate. Player only: <strong>Freeze script post overrides</strong>, so a running script cannot fight your edits</td></tr>
+<tr><td>SSAO</td><td>Enabled, radius, intensity, bias, samples</td></tr>
+<tr><td>Depth of field</td><td>Strength, focus distance, focus range</td></tr>
+<tr><td>Fog</td><td>Enabled, color, density, start, end, height fog + falloff + origin</td></tr>
+<tr><td>Bloom</td><td>Enabled, intensity, threshold, soft threshold</td></tr>
+<tr><td>Grade / Grain / FXAA</td><td>Lift, gamma, gain, Neutral grade button, film grain, FXAA</td></tr>
+<tr><td>Kuwahara</td><td>Enabled, radius, sharpness, hardness, anisotropy</td></tr>
+<tr><td>Render mode</td><td>Mode combo (None, Matrix, Blood, Drunk, Tron, Underwater), mix, params</td></tr>
+<tr><td>Dither / Volumetric</td><td>Dither + intensity, volumetric + samples + density + max distance + decay</td></tr>
+<tr><td>Shadows</td><td>Enabled, resolution (512 / 1024 / 2048 / 4096; rebuilds the shadow pass)</td></tr>
+<tr><td>Lighting</td><td>Ambient sky, ambient ground, diffuse wrap, Oren-Nayar, sheen color, sheen strength, Reset lighting</td></tr>
+<tr><td>Camera</td><td>Vertical FOV</td></tr>
+<tr><td>Debug mode</td><td>Shading combo over all eight <a href="rendering.html#debug-visualization">debug modes</a></td></tr>
 </tbody>
 </table>
 </div>
-<p>When post-processing is toggled off at runtime, the PBR shader’s built-in ACES tonemapping and gamma correction are automatically restored as a fallback path. This means the scene always looks correct regardless of the pipeline state.</p>
+<p>The scene viewer adds two entries of its own: a toggle between the scene’s authored <code>[post_process]</code> block and the viewer’s default look, and <strong>DoF follow</strong>. In the player the menu is compiled in with the <code>debug-hud</code> feature (on by default) and F3 deliberately leaves it alone: F3 toggles the scene-component panels (ocean, grass, time of day, and so on), F4 owns this one.</p>
+<p>When the pipeline is toggled off, the PBR shader’s built-in ACES tonemapping and gamma correction are automatically restored, so the scene always looks correct regardless of the pipeline state.</p>
 <h2 id="shader-integration"><a class="header" href="#shader-integration">Shader Integration</a></h2>
-<p>When the post-processing pipeline is active, the engine sets <code>enable_tonemapping = 0</code> in the PBR uniform buffer, forcing shaders to output raw linear HDR values. The composite pass then applies:</p>
+<p>When the post-processing pipeline is active, the engine sets <code>enable_tonemapping = 0</code> in the PBR uniform buffer, forcing shaders to output raw linear HDR values. The composite pass then applies, in this order:</p>
 <ol>
-<li><strong>SSAO</strong> — darkens ambient-occluded areas using the AO texture</li>
-<li><strong>Volumetric</strong> — additively blends god ray light shafts</li>
-<li><strong>Exposure</strong> — multiplies all color values by the exposure setting</li>
-<li><strong>ACES tonemapping</strong> — maps HDR values to displayable range using the ACES filmic curve</li>
-<li><strong>Fog</strong> — blends fog color based on depth and optional height falloff</li>
-<li><strong>Gamma correction</strong> — converts linear light to sRGB</li>
-<li><strong>Dither</strong> — applies subtle noise to reduce banding</li>
-<li><strong>Vignette</strong> — darkens screen edges for a cinematic look</li>
+<li><strong>Drunk sway</strong> — render mode 3 warps the sample UV before anything is read</li>
+<li><strong>Radial blur</strong> — 8-tap gather from the HDR source, edges only</li>
+<li><strong>Depth of field</strong> — CoC-weighted disc gather from the same source</li>
+<li><strong>Chromatic aberration</strong> — radial red/blue channel split</li>
+<li><strong>SSAO</strong> — multiplies by the AO texture</li>
+<li><strong>Volumetric</strong> — adds the god-ray texture</li>
+<li><strong>Bloom</strong> — adds the bloom texture at <code>bloom_intensity</code></li>
+<li><strong>Fog</strong> — blends fog color by depth and optional height falloff, still in linear HDR</li>
+<li><strong>Exposure</strong> and <strong>ACES tonemapping</strong> — maps HDR to displayable range</li>
+<li><strong>Color grade</strong> — lift/gamma/gain on the display-referred image</li>
+<li><strong>Desaturation</strong> — mix toward ash grey</li>
+<li><strong>Render mode</strong> — Matrix, Blood, Tron, or Underwater own the color from here</li>
+<li><strong>Vignette</strong> — edge darkening</li>
+<li><strong>Film grain</strong> — 24 Hz hash noise, before dither because grain is signal</li>
+<li><strong>Dither</strong> — 8x8 Bayer, always last inside composite</li>
 </ol>
-<p>When post-processing is disabled (via <code>--no-postprocess</code> or F6), the shader handles tonemapping and gamma internally. This dual-path design ensures backward compatibility with scenes that don’t use post-processing.</p>
+<p>The composite output stays linear; the sRGB render target applies gamma encoding in hardware. If FXAA is on, composite renders into an intermediate texture and the FXAA pass resolves it to the surface.</p>
+<p>When post-processing is disabled (via <code>--no-postprocess</code> or the menu), the shader handles tonemapping and gamma internally. This dual-path design ensures backward compatibility with scenes that don’t use post-processing.</p>
 <h2 id="render-modes"><a class="header" href="#render-modes">Render Modes</a></h2>
 <p>Render modes are whole-screen stylizations that branch <strong>after ACES tonemapping
 and before vignette</strong>. They are not debug views: they are a supported way to
@@ -422,6 +572,14 @@ make the world visibly stop being itself for a while.</p>
 <p><img src="../images/render-mode-tron.png" alt="Tron render mode"></p>
 <p><em>Mode 4 over an ocean scene: depth-reconstructed world grid, Sobel edges on
 depth and luminance.</em></p>
+<p><img src="../images/render-mode-matrix.png" alt="Matrix render mode"></p>
+<p><em>Mode 1: dot-matrix glyphs whose brightness and density track scene luminance.</em></p>
+<p><img src="../images/render-mode-blood.png" alt="Blood render mode"></p>
+<p><em>Mode 2: the palette remap, with the ocean recoloring itself through its own shader.</em></p>
+<p><img src="../images/render-mode-drunk.png" alt="Drunk render mode"></p>
+<p><em>Mode 3: UV sway across the whole composite chain plus a ghosting double-tap.</em></p>
+<p><img src="../images/render-mode-underwater.png" alt="Underwater render mode"></p>
+<p><em>Mode 5: masked by the per-pixel waterline, with banded absorption and a foam lip on the line.</em></p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -429,7 +587,7 @@ depth and luminance.</em></p>
 </thead>
 <tbody>
 <tr><td>0</td><td>None</td><td>Normal output.</td></tr>
-<tr><td>1</td><td>Matrix</td><td>Procedural dot-matrix glyphs per 8×12 px cell. Brightness <em>and</em> density track scene luminance, with per-column rain heads.</td></tr>
+<tr><td>1</td><td>Matrix</td><td>Procedural dot-matrix glyphs per 8x12 px cell. Brightness <em>and</em> density track scene luminance, with per-column rain heads.</td></tr>
 <tr><td>2</td><td>Blood</td><td>Palette remap. Ocean scenes recolor through the ocean shader too, so the water is genuinely a different sea rather than a red filter over a blue one.</td></tr>
 <tr><td>3</td><td>Drunk</td><td>Pre-sample UV sway warping the whole composite chain, plus a ghosting double-tap.</td></tr>
 <tr><td>4</td><td>Tron</td><td>Depth Sobel + luminance edges in cyan over a dimmed scene, with a world-space grid reconstructed from depth so it rides real geometry.</td></tr>
@@ -452,16 +610,19 @@ depth and luminance.</em></p>
 </div>
 <p>Modes 1–4 fade in through an fbm <strong>bleed mask</strong> whose threshold sweeps across
 the noise span, so patch coverage grows with <code>mode_mix</code> and pins to full
-coverage at 1. Mode 5 ignores the mask entirely — being underwater is a fact
+coverage at 1. Mode 5 ignores the mask entirely: being underwater is a fact
 about where your eye is, not a patch that spreads.</p>
 <h3 id="from-scripts"><a class="header" href="#from-scripts">From scripts</a></h3>
 <pre><code class="language-rhai">set_render_mode(4, 0.85);                  // mode, mix
 set_render_mode_params(3.0, 0.0, 6.0, 0.0);
+set_desaturation(0.5);                     // sticky
+set_dof(0.6);                              // sticky
+set_dof_focus(8.0, 4.0);                   // distance, range; sticky
 </code></pre>
 <p><strong><code>set_render_mode</code> is transient, and it is the only post-process override that
-is.</strong> Every other override — exposure, bloom, fog, chromatic aberration — is
-sticky: set it once and it persists. The render mode is zeroed the frame your
-script <em>stops calling it</em>.</p>
+is.</strong> Every other override (exposure, bloom, fog, chromatic aberration,
+desaturation, depth of field) is sticky: set it once and it persists. The
+render mode is zeroed the frame your script <em>stops calling it</em>.</p>
 <p>That asymmetry is deliberate. A sticky render mode plus a script that crashed,
 hot-reloaded, or was disabled mid-effect would leave the world permanently
 inside a hallucination with no way out. Instead, a dead script means a healed
@@ -475,12 +636,14 @@ world. The cost is that you must call it every frame the effect is active:</p>
 }
 </code></pre>
 <p>Sticky effects a mode borrows (FOV, radial blur, chromatic aberration) are
-<em>not</em> covered by this, so zero them yourself when your effect ends.</p>
+<em>not</em> covered by this, so zero them yourself when your effect ends. The
+player’s F4 menu has a <strong>Freeze script post overrides</strong> checkbox for the
+moments you want to tune by hand while a script is still writing.</p>
 <h3 id="headless"><a class="header" href="#headless">Headless</a></h3>
 <pre><code class="language-bash">flint render scene.toml --schemas schemas \
   --render-mode 4 --mode-mix 1.0 --mode-params 3,0,6,0
 </code></pre>
-<p>Since <code>flint render</code> runs no scripts, these flags <strong>are</strong> the fixture — there
+<p>Since <code>flint render</code> runs no scripts, these flags <strong>are</strong> the fixture: there
 is no script to drive the mode for you.</p>
 <p>One practical note: modes 1 and 4 key off scene luminance, so they read best
 in daylight even if your game schedules them at night. A night scene renders
@@ -490,12 +653,15 @@ the Matrix mode nearly black.</p>
 <li><strong>Rgba16Float</strong> for the HDR buffer provides sufficient precision for bloom extraction without the memory cost of Rgba32Float</li>
 <li><strong>Progressive downsample/upsample</strong> (rather than a single Gaussian blur) produces wide, natural-looking bloom cheaply</li>
 <li><strong>1x1 black fallback texture</strong> when bloom is disabled avoids conditional bind group creation</li>
+<li><strong>Lazy allocation</strong> — Kuwahara and FXAA pipelines and textures are created the first time they are enabled, so the default path pays nothing for them</li>
+<li><strong>Gate-safe defaults</strong> — MSAA, FXAA and film grain default off, and grain time is pinned at 0 headlessly, so <code>flint render</code> output stays byte-stable for pixel-diff gates</li>
 <li><strong>Resize handling</strong> — <code>PostProcessResources</code> are recreated on window resize since the HDR texture and bloom mip chain are resolution-dependent</li>
 <li><strong>Extended shadow depth</strong> — the shadow frustum’s depth range is extended beyond the camera frustum so off-screen casters (ceilings, walls behind the camera) are captured in the shadow map, which is critical for correct volumetric shafts in enclosed spaces</li>
 </ul>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
 <li><a href="rendering.html">Rendering</a> — the PBR pipeline that feeds into post-processing</li>
+<li><a href="lighting.html">Lighting</a> — the light component, shadows, and the clay-look shading levers</li>
 <li><a href="../guides/headless-rendering.html">Headless Rendering</a> — using post-processing flags in CI</li>
 <li><a href="../cli-reference/overview.html">CLI Reference</a> — full command options</li>
 <li><a href="../formats/overview.html">File Formats</a> — the <code>[post_process]</code> scene block</li>

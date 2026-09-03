@@ -1,0 +1,106 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Animation sequences: timestamped animator events in a `*.sequence.toml`"><title>flint_animation::sequence - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="flint_animation" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module sequence</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../flint_animation/index.html">flint_<wbr>animation</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module sequence</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate flint_<wbr>animation</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">flint_animation</a></div><h1>Module <span>sequence</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/flint_animation/sequence.rs.html#1-942">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Animation sequences: timestamped animator events in a <code>*.sequence.toml</code></p>
+<p>A sequence is a list of <code>[[events]]</code> sorted by <code>time</code>. Each event is one
+of the things a script can already do to an <code>animator</code> component —
+crossfade the base clip, set or fade a layer, change speed — plus named
+cues that scripts observe. The runner applies steps as plain ECS field
+writes, so the same file drives the <code>flint edit</code> previewer and the
+player identically, and seeking is a deterministic replay from <code>t = 0</code>.</p>
+<div class="example-wrap"><pre class="language-toml"><code>name = &quot;showcase&quot;
+loop = false
+
+[[events]]
+time = 1.5
+kind = &quot;blend&quot;
+clip = &quot;WalkCycle&quot;
+duration = 0.4
+
+[[events]]
+time = 2.5
+kind = &quot;layer&quot;
+index = 0
+clip = &quot;StarCower&quot;
+mask = &quot;head&quot;
+weight = 1.0
+fade = 0.3
+
+[[events]]
+time = 6.0
+kind = &quot;cue&quot;
+name = &quot;done&quot;</code></pre></div></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AnimSequence.html" title="struct flint_animation::sequence::AnimSequence">Anim<wbr>Sequence</a></dt><dd>Ordered, timestamped animator events</dd><dt><a class="struct" href="struct.SequenceCueEvent.html" title="struct flint_animation::sequence::SequenceCueEvent">Sequence<wbr>CueEvent</a></dt><dd>A cue an active sequence passed this frame</dd><dt><a class="struct" href="struct.SequenceEvent.html" title="struct flint_animation::sequence::SequenceEvent">Sequence<wbr>Event</a></dt><dt><a class="struct" href="struct.SequenceRuntime.html" title="struct flint_animation::sequence::SequenceRuntime">Sequence<wbr>Runtime</a></dt><dd>Per-entity playback of one sequence</dd><dt><a class="struct" href="struct.SequenceSync.html" title="struct flint_animation::sequence::SequenceSync">Sequence<wbr>Sync</a></dt><dd>Registry of sequences plus the per-entity runtimes driving them.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.SequenceStep.html" title="enum flint_animation::sequence::SequenceStep">Sequence<wbr>Step</a></dt><dd>One thing to do to the animator at an event’s time</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.MIN_BLEND.html" title="constant flint_animation::sequence::MIN_BLEND">MIN_<wbr>BLEND</a></dt><dd>Smallest crossfade the skeletal tier will run: <code>blend_duration &lt;= 0</code>
+disables blending entirely, so a “hard cut” is a one-frame fade.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.load_sequence_from_file.html" title="fn flint_animation::sequence::load_sequence_from_file">load_<wbr>sequence_<wbr>from_<wbr>file</a></dt><dd>Load a <code>*.sequence.toml</code></dd><dt><a class="fn" href="fn.load_sequence_from_str.html" title="fn flint_animation::sequence::load_sequence_from_str">load_<wbr>sequence_<wbr>from_<wbr>str</a></dt><dd>Parse a sequence from TOML text; <code>origin</code> names it in errors</dd></dl></section></div></main></body></html>
