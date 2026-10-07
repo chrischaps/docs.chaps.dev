@@ -1,0 +1,278 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Polyphony - Modular Synth Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../concepts/connections.html"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../concepts/polyphony.html" class="active"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../modules/index.html"><strong aria-hidden="true">7.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../modules/sources/oscillator.html"><strong aria-hidden="true">7.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../modules/midi/keyboard.html"><strong aria-hidden="true">7.2.</strong> Keyboard</a></li><li class="chapter-item "><a href="../modules/midi/midi-note.html"><strong aria-hidden="true">7.3.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../modules/midi/poly-midi.html"><strong aria-hidden="true">7.4.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../modules/filters/svf-filter.html"><strong aria-hidden="true">7.5.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../modules/filters/ladder-filter.html"><strong aria-hidden="true">7.6.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../modules/modulation/adsr.html"><strong aria-hidden="true">7.7.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../modules/modulation/lfo.html"><strong aria-hidden="true">7.8.</strong> LFO</a></li><li class="chapter-item "><a href="../modules/effects/delay.html"><strong aria-hidden="true">7.9.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../modules/effects/reverb.html"><strong aria-hidden="true">7.10.</strong> Reverb</a></li><li class="chapter-item "><a href="../modules/effects/eq.html"><strong aria-hidden="true">7.11.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../modules/effects/distortion.html"><strong aria-hidden="true">7.12.</strong> Distortion</a></li><li class="chapter-item "><a href="../modules/effects/chorus.html"><strong aria-hidden="true">7.13.</strong> Chorus</a></li><li class="chapter-item "><a href="../modules/effects/compressor.html"><strong aria-hidden="true">7.14.</strong> Compressor</a></li><li class="chapter-item "><a href="../modules/modulation/clock.html"><strong aria-hidden="true">7.15.</strong> Clock</a></li><li class="chapter-item "><a href="../modules/utilities/vca.html"><strong aria-hidden="true">7.16.</strong> VCA</a></li><li class="chapter-item "><a href="../modules/utilities/attenuverter.html"><strong aria-hidden="true">7.17.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../modules/utilities/mixer.html"><strong aria-hidden="true">7.18.</strong> Mixer</a></li><li class="chapter-item "><a href="../modules/utilities/sample-hold.html"><strong aria-hidden="true">7.19.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../modules/visualization/oscilloscope.html"><strong aria-hidden="true">7.20.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../modules/utilities/sequencer.html"><strong aria-hidden="true">7.21.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../modules/midi/midi-monitor.html"><strong aria-hidden="true">7.22.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../modules/output/audio-output.html"><strong aria-hidden="true">7.23.</strong> Audio Output</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../recipes/basic-subtractive.html"><strong aria-hidden="true">8.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../recipes/fm-synthesis.html"><strong aria-hidden="true">9.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../recipes/lush-pad.html"><strong aria-hidden="true">10.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../recipes/generative-ambient.html"><strong aria-hidden="true">11.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../recipes/rhythmic-sequence.html"><strong aria-hidden="true">12.</strong> Rhythmic Sequence</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Modular Synth Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Modular" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Modular/edit/master/docs/src/concepts/polyphony.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="polyphony"><a class="header" href="#polyphony">Polyphony</a></h1>
+<p>A cable in Modular Synth can carry up to <strong>eight channels</strong> at once, one per voice. Patch a chord through a single chain of modules and every note gets its own oscillator, its own filter and its own envelope. The result is a chord of separate voices, each shaping itself, rather than one voice playing a blend of notes.</p>
+<p>This is the approach VCV Rack takes. You don't build eight copies of your voice. You build one, and the cables carry the voices through it.</p>
+<h2 id="where-voices-come-from"><a class="header" href="#where-voices-come-from">Where voices come from</a></h2>
+<p>The <a href="../modules/midi/poly-midi.html">Poly MIDI</a> module is where polyphony starts. Its <strong>Voices</strong> knob (1 to 8) sets how many channels its <strong>Pitch</strong>, <strong>Gate</strong>, <strong>Velocity</strong> and <strong>Aftertouch</strong> cables carry, and each note you play is given a channel of its own. When a Poly MIDI module is in the patch, your computer keyboard plays it too.</p>
+<h2 id="polyphonic-modules"><a class="header" href="#polyphonic-modules">Polyphonic modules</a></h2>
+<p>These modules run one voice per channel of their widest input:</p>
+<div class="table-wrapper"><table><thead><tr><th>Module</th><th>Each voice has its own</th></tr></thead><tbody>
+<tr><td><a href="../modules/sources/oscillator.html">Oscillator</a></td><td>Phase, sync and unison stack</td></tr>
+<tr><td><a href="../modules/filters/svf-filter.html">SVF Filter</a></td><td>Filter state and resonance</td></tr>
+<tr><td><a href="../modules/filters/ladder-filter.html">Ladder Filter</a></td><td>Filter state and resonance</td></tr>
+<tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a></td><td>Stage and level</td></tr>
+<tr><td><a href="../modules/utilities/vca.html">VCA</a></td><td>Gain</td></tr>
+<tr><td><a href="../modules/utilities/attenuverter.html">Attenuverter</a></td><td>Scaling</td></tr>
+<tr><td><a href="../modules/utilities/sample-hold.html">Sample &amp; Hold</a></td><td>Held value</td></tr>
+</tbody></table>
+</div>
+<p>Their outputs carry as many channels as their widest input. The knobs are shared: turning <strong>Cutoff</strong> moves every voice's cutoff.</p>
+<h2 id="seeing-polyphony"><a class="header" href="#seeing-polyphony">Seeing polyphony</a></h2>
+<p>A polyphonic cable is drawn as a <strong>bundle of strands</strong>, one per channel, in a dark sheath that narrows where it plugs into a jack. The bundle widens as the channel count grows, so you can tell mono from poly at a glance at any zoom.</p>
+<p>Each strand lights with its own voice. Hold a chord and light runs along the strands of the notes you're playing while the rest stay dark. When you let go, each note's release fades down its own strand. The glow around the bundle grows with the number of voices playing, so a chord glows brighter than a single note. See <a href="./connections.html#reading-the-signal-in-a-cable">Reading the signal in a cable</a>.</p>
+<p>Output labels show the channel count too: <strong>Out ×8</strong> means that output carries eight channels. The count comes from the running patch, so press <strong>Play</strong> to see it. Once shown, it stays while the transport is stopped.</p>
+<h2 id="mixing-mono-and-poly"><a class="header" href="#mixing-mono-and-poly">Mixing mono and poly</a></h2>
+<p>A <strong>mono cable into a polyphonic module</strong> is shared by every voice. One LFO into a polyphonic filter's <strong>Cutoff</strong> sweeps all the voices together. To move each voice on its own, use a polyphonic source such as the envelope or Poly MIDI's <strong>Velocity</strong>.</p>
+<p>A <strong>polyphonic cable into a mono module</strong> is folded down to one channel:</p>
+<ul>
+<li><strong>Audio inputs</strong> hear every channel summed. That's why a polyphonic voice can go straight into the Mixer, an effect or the Audio Output.</li>
+<li><strong>Control and gate inputs</strong> take the first channel only, since adding CVs together rarely means anything useful.</li>
+</ul>
+<p>Voices add up, so a four-note chord is roughly four times as loud as one note. Leave headroom with the VCA's <strong>Level</strong> or the Mixer.</p>
+<h2 id="a-polyphonic-voice"><a class="header" href="#a-polyphonic-voice">A polyphonic voice</a></h2>
+<pre><code class="language-text">[Poly MIDI Pitch]    ──&gt; [Oscillator V/Oct]
+[Poly MIDI Gate]     ──&gt; [ADSR Gate]
+[Poly MIDI Velocity] ──&gt; [ADSR Velocity]
+[Oscillator Out]     ──&gt; [SVF Filter In]
+[ADSR Out]           ──&gt; [SVF Filter Cutoff]
+[SVF Filter LowPass] ──&gt; [VCA In]
+[ADSR Out]           ──&gt; [VCA CV]
+[VCA Out]            ──&gt; [Reverb In L]
+[Reverb Out L / R]   ──&gt; [Audio Output Left / Right]
+</code></pre>
+<p>Every module up to the VCA runs one copy per voice. The Reverb hears the voices summed, as a single stereo instrument.</p>
+<h2 id="cost"><a class="header" href="#cost">Cost</a></h2>
+<p>Each voice is a full copy of the module, so eight voices use about eight times the CPU of one. If a patch strains your computer, turn down <strong>Voices</strong> on the Poly MIDI module. With mono cables, a polyphonic module runs a single voice and costs no more than before.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../concepts/connections.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../modules/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../concepts/connections.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../modules/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
