@@ -202,6 +202,8 @@
 <tr><td><strong>Voices</strong></td><td>1 – 8</td><td>8</td><td>How many notes can sound at once, and so how many channels the cables carry</td></tr>
 <tr><td><strong>Oct</strong> (Octave)</td><td>−4 to +4</td><td>0</td><td>Shifts every note by whole octaves</td></tr>
 <tr><td><strong>Bend</strong> (Bend Range)</td><td>0 – 12 semitones</td><td>2</td><td>How far the pitch bend wheel bends every voice</td></tr>
+<tr><td><strong>Glide</strong></td><td>Off – 2 s</td><td>Off</td><td>How long the pitch takes to slide to a new note (see <a href="#glide">Glide</a>)</td></tr>
+<tr><td><strong>Glide</strong> (Glide Mode)</td><td>Always / Legato</td><td>Legato</td><td>Which notes slide: all of them, or only those played while another key is held</td></tr>
 </tbody></table>
 </div>
 <p>Each voice runs a full copy of every polyphonic module downstream, so eight voices cost about eight times the CPU of one. If a patch is heavy, turn <strong>Voices</strong> down.</p>
@@ -219,6 +221,10 @@
 <h2 id="sustain-pedal"><a class="header" href="#sustain-pedal">Sustain pedal</a></h2>
 <p>The sustain pedal (CC 64) holds notes after their keys come up. Lifting it releases them all. <strong>All Notes Off</strong> (CC 123) and <strong>All Sound Off</strong> (CC 120) release everything, pedal or not.</p>
 <p>Pitch bend glides over about 5 ms, as on <a href="./midi-note.html">MIDI Note</a>, and MIDI arrives on the exact sample it's scheduled for.</p>
+<h2 id="glide"><a class="header" href="#glide">Glide</a></h2>
+<p>Glide works as on <a href="./midi-note.html#glide">MIDI Note</a>: the knob sets how long a slide takes, from Off to 2 seconds, and every slide takes the same time whatever the distance. On Poly MIDI, each voice slides from <strong>its own</strong> previous note. Change chords with Glide up and every voice takes its own path, crossing and converging, the way the voices of a vintage polysynth do. A stolen voice slides from wherever it was.</p>
+<p><strong>Mode</strong> decides where each slide starts. With <strong>Reuse</strong>, a note played again returns to the voice that last played it, so it doesn't slide at all. With <strong>Rotate</strong>, the voices take turns, so each slide starts from a different note of the last chord or two.</p>
+<p>In <strong>Legato</strong> mode, only notes played while another key is held slide. A chord struck from nothing starts on its own pitches: notes arriving within 30 ms of the first note count as part of that chord, since no hand strikes every key at once. Hold one chord and play the next over it, and the new voices slide.</p>
 <h2 id="patch-example"><a class="header" href="#patch-example">Patch example</a></h2>
 <pre><code class="language-text">[Poly MIDI Pitch] ──&gt; [Oscillator V/Oct]
 [Poly MIDI Gate] ──&gt; [ADSR Gate]
