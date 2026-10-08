@@ -208,7 +208,10 @@
 <p>A <strong>mono cable into a polyphonic module</strong> is shared by every voice. One LFO into a polyphonic filter's <strong>Cutoff</strong> sweeps all the voices together. To move each voice on its own, use a polyphonic source such as the envelope or Poly MIDI's <strong>Velocity</strong>.</p>
 <p>A <strong>polyphonic cable into a mono module</strong> is folded down to one channel:</p>
 <ul>
-<li><strong>Audio inputs</strong> hear every channel summed. That's why a polyphonic voice can go straight into the Mixer, an effect or the Audio Output.</li>
+<li><strong>Audio inputs</strong> hear every channel summed. That's why a polyphonic voice can go straight into an effect or the Audio Output.</li>
+</ul>
+<p>The <a href="../modules/utilities/mixer.html">Mixer</a> is the exception. It hears each voice of a polyphonic cable apart, and its <strong>Spread</strong> knob fans them out across the stereo field, so a chord opens up instead of sitting in the middle. With <strong>Spread</strong> at 0% it sums them like any mono module.</p>
+<ul>
 <li><strong>Control and gate inputs</strong> take the first channel only, since adding CVs together rarely means anything useful.</li>
 </ul>
 <p>Voices add up, so a four-note chord is roughly four times as loud as one note. Leave headroom with the VCA's <strong>Level</strong> or the Mixer.</p>

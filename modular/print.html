@@ -688,7 +688,10 @@ cargo run --release
 <p>A <strong>mono cable into a polyphonic module</strong> is shared by every voice. One LFO into a polyphonic filter's <strong>Cutoff</strong> sweeps all the voices together. To move each voice on its own, use a polyphonic source such as the envelope or Poly MIDI's <strong>Velocity</strong>.</p>
 <p>A <strong>polyphonic cable into a mono module</strong> is folded down to one channel:</p>
 <ul>
-<li><strong>Audio inputs</strong> hear every channel summed. That's why a polyphonic voice can go straight into the Mixer, an effect or the Audio Output.</li>
+<li><strong>Audio inputs</strong> hear every channel summed. That's why a polyphonic voice can go straight into an effect or the Audio Output.</li>
+</ul>
+<p>The <a href="concepts/../modules/utilities/mixer.html">Mixer</a> is the exception. It hears each voice of a polyphonic cable apart, and its <strong>Spread</strong> knob fans them out across the stereo field, so a chord opens up instead of sitting in the middle. With <strong>Spread</strong> at 0% it sums them like any mono module.</p>
+<ul>
 <li><strong>Control and gate inputs</strong> take the first channel only, since adding CVs together rarely means anything useful.</li>
 </ul>
 <p>Voices add up, so a four-note chord is roughly four times as loud as one note. Leave headroom with the VCA's <strong>Level</strong> or the Mixer.</p>
@@ -751,7 +754,7 @@ cargo run --release
 <tr><td><a href="modules/./modulation/clock.html">Clock</a></td><td><code>util.clock</code></td><td>Steady gate pulses at a tempo</td></tr>
 <tr><td><a href="modules/./utilities/vca.html">VCA</a></td><td><code>util.vca</code></td><td>Voltage-controlled amplifier: sets a signal's level from a CV</td></tr>
 <tr><td><a href="modules/./utilities/attenuverter.html">Attenuverter</a></td><td><code>util.attenuverter</code></td><td>Scale, invert and offset a control signal</td></tr>
-<tr><td><a href="modules/./utilities/mixer.html">Mixer</a></td><td><code>util.mixer</code></td><td>Two-channel summing mixer</td></tr>
+<tr><td><a href="modules/./utilities/mixer.html">Mixer</a></td><td><code>util.mixer</code></td><td>Four-channel stereo mixer with pan, mute and poly spread</td></tr>
 <tr><td><a href="modules/./utilities/sample-hold.html">Sample &amp; Hold</a></td><td><code>util.sample_hold</code></td><td>Capture a signal's value on each trigger and hold it</td></tr>
 <tr><td><a href="modules/./utilities/quantizer.html">Quantizer</a></td><td><code>util.quantizer</code></td><td>Snap a pitch to the nearest note of a scale</td></tr>
 <tr><td><a href="modules/./visualization/oscilloscope.html">Oscilloscope</a></td><td><code>util.oscilloscope</code></td><td>Draw up to two signals as waveforms</td></tr>
@@ -799,7 +802,7 @@ cargo run --release
 <tr><td>Play a pattern</td><td><a href="modules/./modulation/clock.html">Clock</a> into the <a href="modules/./utilities/sequencer.html">Step Sequencer</a></td></tr>
 <tr><td>Make random changes</td><td><a href="modules/./sources/noise.html">Noise</a> into <a href="modules/./utilities/sample-hold.html">Sample &amp; Hold</a> for steps, or its <strong>Random</strong> output for glides</td></tr>
 <tr><td>Keep random notes in key</td><td><a href="modules/./utilities/quantizer.html">Quantizer</a></td></tr>
-<tr><td>Combine two signals</td><td><a href="modules/./utilities/mixer.html">Mixer</a></td></tr>
+<tr><td>Combine signals, or place them left and right</td><td><a href="modules/./utilities/mixer.html">Mixer</a></td></tr>
 <tr><td>Add space and depth</td><td><a href="modules/./effects/delay.html">Stereo Delay</a>, <a href="modules/./effects/reverb.html">Reverb</a>, <a href="modules/./effects/chorus.html">Chorus</a></td></tr>
 <tr><td>Add grit or warmth</td><td><a href="modules/./effects/distortion.html">Distortion</a></td></tr>
 <tr><td>Balance tone and dynamics</td><td><a href="modules/./effects/eq.html">3-Band EQ</a>, <a href="modules/./effects/compressor.html">Compressor</a></td></tr>
@@ -2335,44 +2338,86 @@ Out  = In × gain
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mixer"><a class="header" href="#mixer">Mixer</a></h1>
 <p><strong>Module ID</strong> <code>util.mixer</code> · <strong>Category</strong> Utility</p>
 <p><img src="modules/utilities/../../images/module-mixer.png" alt="Mixer Module" />
-<em>Two channels, two levels, one sum.</em></p>
-<p>The Mixer adds two signals together, each at its own level. Use it to layer two oscillators, blend a dry signal with an effect, or combine two modulation sources into one CV.</p>
+<em>Four channel strips, a stereo field, and a master.</em></p>
+<p>The Mixer brings up to four signals together into a stereo pair. Each channel has its own level, pan and mute. Use it to place sounds left and right, to pan one to and fro with an LFO, to open a polyphonic pad across the stereo field, or to add two modulation sources into one CV.</p>
 <p>It works on any signal that isn't MIDI. Audio and control signals both patch straight in, so the same module mixes sound or modulation.</p>
+<h2 id="reading-the-display"><a class="header" href="#reading-the-display">Reading the display</a></h2>
+<p>The display reads like a mixing desk: each channel is a column, from its light at the top down to its pan knob.</p>
+<ul>
+<li><strong>The panorama</strong>, at the top, is the stereo field from <strong>L</strong> to <strong>R</strong>, with a lane for each channel. A light shows where each channel sits. A polyphonic channel has a light per voice, fanned out by <strong>Spread</strong>. The lights brighten with the channel's level. A hollow ring is a voice with nothing to play, and a grey ring is a muted channel.</li>
+<li><strong>The meters</strong> show each channel's level after its fader. The pair on the right, over <strong>Master</strong>, is the stereo output. A notch either side of each meter marks full scale, and a white line holds the latest peak for a moment.</li>
+<li><strong>The M buttons</strong> mute a channel. A muted channel's button turns red and its meter dims. Muting fades over 10 ms, so it doesn't click.</li>
+</ul>
 <h2 id="inputs-15"><a class="header" href="#inputs-15">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><strong>Ch 1</strong></td><td>Audio (Blue)</td><td>First signal to mix</td></tr>
-<tr><td><strong>Ch 2</strong></td><td>Audio (Blue)</td><td>Second signal to mix</td></tr>
+<tr><td><strong>Ch 1</strong> – <strong>Ch 4</strong></td><td>Audio (Blue)</td><td>The channels. A polyphonic cable keeps its voices apart, for <strong>Spread</strong></td></tr>
+<tr><td><strong>Level 1</strong> – <strong>Level 4</strong></td><td>Control (Orange)</td><td>CV added to each channel's level</td></tr>
+<tr><td><strong>Pan 1</strong> – <strong>Pan 4</strong></td><td>Control (Orange)</td><td>CV added to each channel's pan. An LFO here pans it to and fro</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs-18"><a class="header" href="#outputs-18">Outputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><strong>Out</strong></td><td>Audio (Blue)</td><td>Both channels, each at its level, added together</td></tr>
+<tr><td><strong>Out</strong></td><td>Audio (Blue)</td><td>Mono sum of every channel at its level, ignoring pan and spread</td></tr>
+<tr><td><strong>Out L</strong></td><td>Audio (Blue)</td><td>Left side of the stereo mix</td></tr>
+<tr><td><strong>Out R</strong></td><td>Audio (Blue)</td><td>Right side of the stereo mix</td></tr>
 </tbody></table>
 </div>
 <h2 id="parameters-18"><a class="header" href="#parameters-18">Parameters</a></h2>
-<div class="table-wrapper"><table><thead><tr><th>Knob</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
-<tr><td><strong>Lv 1</strong> (Level 1)</td><td>0 – 100%</td><td>100%</td><td>Level of channel 1</td></tr>
-<tr><td><strong>Lv 2</strong> (Level 2)</td><td>0 – 100%</td><td>100%</td><td>Level of channel 2</td></tr>
+<div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Lv 1</strong> – <strong>Lv 4</strong> (Level)</td><td>0 – 100%</td><td>100%</td><td>Each channel's volume</td></tr>
+<tr><td><strong>Pan 1</strong> – <strong>Pan 4</strong></td><td>L 100 – R 100</td><td>C</td><td>Each channel's place in the stereo field</td></tr>
+<tr><td><strong>M</strong> (Mute 1 – 4)</td><td>on / off</td><td>off</td><td>Silences a channel</td></tr>
+<tr><td><strong>Master</strong></td><td>−60 – +6 dB</td><td>0 dB</td><td>Volume of all three outputs. At −60 dB they are silent</td></tr>
+<tr><td><strong>Spread</strong></td><td>0 – 100%</td><td>0%</td><td>How far a polyphonic channel's voices fan out around its pan</td></tr>
 </tbody></table>
 </div>
-<p>Both levels are smoothed, so you can ride them while the patch plays without clicks.</p>
+<p>Levels, pans, <strong>Master</strong> and <strong>Spread</strong> are smoothed, so you can ride them while the patch plays without clicks. A <strong>Pan</strong> knob's arc grows outward from the centre, so you can read which side a channel leans to at a glance. The readout says the same: <strong>C</strong>, or <strong>L</strong> or <strong>R</strong> and how far, out of 100.</p>
 <h2 id="how-it-works-6"><a class="header" href="#how-it-works-6">How it works</a></h2>
-<pre><code class="language-text">Out = Ch 1 × Level 1 + Ch 2 × Level 2
+<pre><code class="language-text">Out   = (Ch 1 × Level 1 + … + Ch 4 × Level 4) × Master
+Out L = (Ch 1 × Level 1 × left(Pan 1) + …) × Master
+Out R = (Ch 1 × Level 1 × right(Pan 1) + …) × Master
 </code></pre>
-<p>At the default levels, two full-scale signals add up to twice full scale. Anything within ±1 passes through untouched. Past that the Mixer soft-clips: the sum bends smoothly over and eases toward ±1.5 without ever reaching it, so two full-scale signals come out at about 1.48. The bend rounds off the peaks of loud audio, so when you mix two loud sources and want them clean, bring the levels down to around 50–70% each.</p>
+<h3 id="the-pan-law"><a class="header" href="#the-pan-law">The pan law</a></h3>
+<p>Panning is <strong>equal power</strong>: as a channel moves from left to right, one side fades as the other rises, and their power always adds up to the same. A sound swept across the field keeps its loudness all the way. In the centre each side is at −3 dB. Hard left, the right side is silent.</p>
+<p>So a channel panned centre is 3 dB quieter on each output than it is on <strong>Out</strong>. If a patch moves from <strong>Out</strong> to <strong>Out L</strong> and <strong>Out R</strong> and you want its old loudness back, set <strong>Master</strong> to +3 dB.</p>
+<h3 id="level-and-pan-cv"><a class="header" href="#level-and-pan-cv">Level and Pan CV</a></h3>
+<p>Both add to their knob. A <strong>Level</strong> CV can take a channel from silence to full, but never past 100% or below silence. A <strong>Pan</strong> CV of +1 moves a centred channel hard right, and a bipolar LFO swinging ±1 sweeps it from side to side. Set the <strong>Pan</strong> knob off centre and the LFO swings around that point instead, stopping at the edge.</p>
+<p>A patched knob shows an orange dot and keeps its own setting. The CV moves the sound around it.</p>
+<h3 id="headroom"><a class="header" href="#headroom">Headroom</a></h3>
+<p>At the default levels, two full-scale signals add up to twice full scale. Anything within ±1 passes through untouched. Past that, each output soft-clips: the sum bends smoothly over and eases toward ±1.5 without ever reaching it, so two full-scale signals come out at about 1.48. The bend rounds off the peaks of loud audio, so when you mix loud sources and want them clean, bring the levels down to around 50–70% each.</p>
 <p>The headroom above 1 is deliberate. Summing two envelopes for a filter's <strong>Cutoff</strong>, as the <a href="modules/utilities/../../recipes/rhythmic-sequence.html">Rhythmic Sequence</a> example does, opens the filter further than one envelope can.</p>
-<h3 id="polyphonic-cables"><a class="header" href="#polyphonic-cables">Polyphonic cables</a></h3>
-<p>The Mixer isn't polyphonic: it mixes down. A polyphonic cable into <strong>Ch 1</strong> or <strong>Ch 2</strong> is summed to one channel, so a whole polyphonic voice goes straight in. Each note adds to the total, so leave more headroom the more voices you play.</p>
+<h3 id="the-mono-out"><a class="header" href="#the-mono-out">The mono Out</a></h3>
+<p><strong>Out</strong> is the plain sum of the channels at their levels, times <strong>Master</strong>. Pan and <strong>Spread</strong> don't touch it. It's the same sum the Mixer gave when it had two mono channels, so patches built on it sound exactly as they did. Use <strong>Out</strong> when you're adding up CVs, or feeding one mono input.</p>
+<h3 id="polyphonic-cables-and-spread"><a class="header" href="#polyphonic-cables-and-spread">Polyphonic cables and Spread</a></h3>
+<p>The Mixer hears each voice of a polyphonic cable on its own. With <strong>Spread</strong> at 0% every voice sits at the channel's pan. That's the same as summing them first, so a whole polyphonic voice can go straight into a channel.</p>
+<p>Turn <strong>Spread</strong> up and the voices fan out across the field around the pan. They take evenly spaced places, alternating left and right from the outside in: the first voice hard left, the second hard right, the third just inside the first, and so on. <a href="modules/utilities/../midi/poly-midi.html">Poly MIDI</a> hands notes to voices in turn, and neighbouring voices sit on opposite sides, so even two notes held on an eight-voice cable land either side of the pan, and a chord opens up instead of sitting in the middle. Each voice keeps the power it had, so the chord is as loud spread as it was centred.</p>
+<p>A place belongs to a voice, not to a note. A melody played on a polyphonic cable moves from side to side as each note takes the next voice. That can sound lively. To keep a line steady, play it on a mono cable, or turn <strong>Spread</strong> down.</p>
+<p>The Mixer's outputs carry one channel each. Effects after it hear a single stereo pair.</p>
 <h2 id="patches-4"><a class="header" href="#patches-4">Patches</a></h2>
-<h3 id="two-oscillators"><a class="header" href="#two-oscillators">Two oscillators</a></h3>
-<p>Two oscillators a few cents apart beat slowly against each other and sound thicker than either alone:</p>
-<pre><code class="language-text">[Keyboard Pitch] ──&gt; [Oscillator 1 V/Oct]
-[Keyboard Pitch] ──&gt; [Oscillator 2 V/Oct]      (Fine +7 cents)
-[Oscillator 1 Out] ──&gt; [Mixer Ch 1]
-[Oscillator 2 Out] ──&gt; [Mixer Ch 2]
-[Mixer Out] ──&gt; [SVF Filter In]
+<h3 id="a-wide-pad"><a class="header" href="#a-wide-pad">A wide pad</a></h3>
+<p>Hold a chord, and the Mixer spreads its voices across the field before the effects hear it:</p>
+<pre><code class="language-text">[VCA Out] ──&gt; [Mixer Ch 1]          (VCA on a polyphonic voice, Spread 80%)
+[Mixer Out L] ──&gt; [Chorus In L]
+[Mixer Out R] ──&gt; [Chorus In R]
 </code></pre>
-<p>Set the second oscillator's <strong>Oct</strong> to +1 and its level to about 50% to add brightness without losing the fundamental. For a thick stack from one module, try the Oscillator's own <strong>Voices</strong> and <strong>Sub</strong> instead (see <a href="modules/utilities/../sources/oscillator.html">Oscillator</a>).</p>
+<p>The <a href="modules/utilities/../../recipes/lush-pad.html">Lush Pad</a> example is built this way.</p>
+<h3 id="auto-pan"><a class="header" href="#auto-pan">Auto-pan</a></h3>
+<p>A slow LFO moves a sound from side to side:</p>
+<pre><code class="language-text">[Oscillator Out] ──&gt; [Mixer Ch 1]
+[LFO Out] ──&gt; [Mixer Pan 1]         (LFO Bipolar on, 0.2 Hz)
+[Mixer Out L] ──&gt; [Audio Output Left]
+[Mixer Out R] ──&gt; [Audio Output Right]
+</code></pre>
+<p>Turn the LFO's <strong>Rate</strong> up to 4–6 Hz for a tremolo-like shimmer between the speakers.</p>
+<h3 id="placing-parts"><a class="header" href="#placing-parts">Placing parts</a></h3>
+<p>Give each part its own place, the way a band stands on a stage. Keep bass and kick in the middle, and move leads and pads out to the sides:</p>
+<pre><code class="language-text">[Bass VCA Out] ──&gt; [Mixer Ch 1]     (Pan C)
+[Lead VCA Out] ──&gt; [Mixer Ch 2]     (Pan R 35)
+[Pad VCA Out]  ──&gt; [Mixer Ch 3]     (Pan L 30)
+[Mixer Out L] ──&gt; [Reverb In L]
+[Mixer Out R] ──&gt; [Reverb In R]
+</code></pre>
+<p>The <a href="modules/utilities/../../recipes/afterglow.html">Afterglow</a> example sets its arpeggio a little right of its pad, so the ping-pong echoes answer from the other side.</p>
 <h3 id="two-modulation-sources"><a class="header" href="#two-modulation-sources">Two modulation sources</a></h3>
 <p>A slow LFO and an envelope together: the filter follows each note and drifts as well.</p>
 <pre><code class="language-text">[LFO Out] ──&gt; [Mixer Ch 1]          (Lv 1 around 30%)
@@ -2381,23 +2426,26 @@ Out  = In × gain
 </code></pre>
 <h3 id="wet-and-dry"><a class="header" href="#wet-and-dry">Wet and dry</a></h3>
 <p>Most effects have their own <strong>Mix</strong> knob, but the Mixer keeps the dry and wet signals on separate channels, so you can set their balance by hand or process one without the other:</p>
-<pre><code class="language-text">[VCA Out] ──&gt; [Mixer Ch 1]          (dry)
+<pre><code class="language-text">[VCA Out] ──&gt; [Mixer Ch 1]          (dry, Pan C)
 [VCA Out] ──&gt; [Reverb In L]
-[Reverb Out L] ──&gt; [Mixer Ch 2]     (wet, Reverb Mix at 100%)
-[Mixer Out] ──&gt; [Audio Output Mono]
+[Reverb Out L] ──&gt; [Mixer Ch 2]     (wet, Reverb Mix at 100%, Pan L 100)
+[Reverb Out R] ──&gt; [Mixer Ch 3]     (Pan R 100)
+[Mixer Out L] ──&gt; [Audio Output Left]
+[Mixer Out R] ──&gt; [Audio Output Right]
 </code></pre>
-<h3 id="more-than-two-channels"><a class="header" href="#more-than-two-channels">More than two channels</a></h3>
-<p>Chain Mixers: the output of one feeds a channel of the next.</p>
-<pre><code class="language-text">[Oscillator 1 Out] ──&gt; [Mixer A Ch 1]
-[Oscillator 2 Out] ──&gt; [Mixer A Ch 2]
-[Mixer A Out] ──&gt; [Mixer B Ch 1]
-[Oscillator 3 Out] ──&gt; [Mixer B Ch 2]
-[Mixer B Out] ──&gt; [Audio Output Mono]
+<h3 id="more-than-four-channels"><a class="header" href="#more-than-four-channels">More than four channels</a></h3>
+<p>Chain Mixers: the stereo pair of one feeds two channels of the next, panned hard apart.</p>
+<pre><code class="language-text">[Mixer A Out L] ──&gt; [Mixer B Ch 1]  (Pan L 100)
+[Mixer A Out R] ──&gt; [Mixer B Ch 2]  (Pan R 100)
+[Oscillator Out] ──&gt; [Mixer B Ch 3]
+[Mixer B Out L] ──&gt; [Audio Output Left]
+[Mixer B Out R] ──&gt; [Audio Output Right]
 </code></pre>
+<p>A channel panned hard to one side passes at full level, so Mixer A's stereo image comes through Mixer B as it left.</p>
 <h2 id="related-modules-18"><a class="header" href="#related-modules-18">Related modules</a></h2>
 <ul>
 <li><a href="modules/utilities/./vca.html">VCA</a>: level control from a CV</li>
-<li><a href="modules/utilities/./attenuverter.html">Attenuverter</a>: scale, invert or offset a signal before mixing</li>
+<li><a href="modules/utilities/./attenuverter.html">Attenuverter</a>: scale, invert or offset a signal before mixing, such as an LFO before it reaches <strong>Pan</strong></li>
 <li><a href="modules/utilities/../output/audio-output.html">Audio Output</a>: the final mix, with metering and a limiter</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sample--hold"><a class="header" href="#sample--hold">Sample &amp; Hold</a></h1>
@@ -2563,7 +2611,7 @@ Out:   __‾‾‾‾‾‾____‾‾‾‾‾‾‾‾        (one held value p
 <tr><td><strong>Trig</strong> (Trigger Level)</td><td>-1 to +1</td><td>0</td><td>The level In 1 must rise through to start a sweep</td></tr>
 </tbody></table>
 </div>
-<h2 id="reading-the-display"><a class="header" href="#reading-the-display">Reading the display</a></h2>
+<h2 id="reading-the-display-1"><a class="header" href="#reading-the-display-1">Reading the display</a></h2>
 <p>The screen spans <strong>-1 to +1</strong> from bottom to top, the full range of an audio signal, with the center line at zero. A 4 × 4 grid helps you judge levels: each horizontal division is 0.5.</p>
 <p>Each sweep shows 512 samples: about 11.6 ms at 44.1 kHz, or 10.7 ms at 48 kHz. That's a few cycles of a note in the middle of the keyboard: one cycle of C4 lasts 3.8 ms. The time scale is fixed.</p>
 <p>The trigger point sits a quarter of the way across, so you see a little of what came just before each trigger. A small arrow and a dashed line on the left edge mark the trigger level.</p>
@@ -2919,7 +2967,7 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <li><a href="recipes/./basic-subtractive.html">Basic Subtractive Synth</a> – the other way to shape harmonics</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="lush-pad"><a class="header" href="#lush-pad">Lush Pad</a></h1>
-<p>A wide, slow-blooming pad for holding chords. Each note fades in over most of a second, a filter breathes open and closed over ten seconds, and chorus and reverb spread it across the stereo field. This is the polyphonic example: every note you hold gets its own oscillator, filter, envelope and VCA.</p>
+<p>A wide, slow-blooming pad for holding chords. Each note fades in over most of a second, a filter breathes open and closed over ten seconds, the notes of a chord fan out across the stereo field, and chorus and reverb fill the space between them. This is the polyphonic example: every note you hold gets its own oscillator, filter, envelope and VCA.</p>
 <blockquote>
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Lush Pad</strong> in the toolbar. Press <strong>▶ Play</strong>, then hold chords on a MIDI keyboard or on the Z to M keys.
 The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/patches/lush-pad.json"><code>patches/lush-pad.json</code></a>.</p>
@@ -2930,7 +2978,8 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <ul>
 <li><strong>Polyphony.</strong> One chain of modules plays every note of a chord, each as its own voice. See <a href="recipes/../concepts/polyphony.html">Polyphony</a>.</li>
 <li><strong>Unison.</strong> Several detuned copies of one oscillator make a single note sound wide and alive.</li>
-<li><strong>Mono and poly together.</strong> A mono LFO moves every voice at once, and the mono effects at the end hear all the voices summed.</li>
+<li><strong>Mono and poly together.</strong> A mono LFO moves every voice at once, and the effects at the end hear all the voices as one stereo pair.</li>
+<li><strong>Spreading voices.</strong> The Mixer gives each voice of the chord its own place between the speakers.</li>
 </ul>
 <h2 id="modules-3"><a class="header" href="#modules-3">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
@@ -2940,6 +2989,7 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <tr><td><a href="recipes/../modules/modulation/lfo.html">LFO</a></td><td><strong>Rate</strong> 0.1 Hz, <strong>Wave</strong> Sine, <strong>Bipolar</strong> on</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a></td><td><strong>Atk</strong> 800 ms, <strong>Dec</strong> 500 ms, <strong>Sus</strong> 80%, <strong>Rel</strong> 2 s</td></tr>
 <tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a></td><td><strong>Level</strong> 50%</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a></td><td><strong>Spread</strong> 80%, <strong>Master</strong> +3 dB</td></tr>
 <tr><td><a href="recipes/../modules/effects/chorus.html">Chorus</a></td><td><strong>Rate</strong> 0.5 Hz, <strong>Depth</strong> 40%, <strong>Delay</strong> 10 ms, <strong>Voices</strong> 2, <strong>Mix</strong> 50%</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 70%, <strong>Decay</strong> 4 s, <strong>Damp</strong> 40%, <strong>PreD</strong> 50 ms, <strong>Mix</strong> 50%</td></tr>
 <tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
@@ -2953,7 +3003,7 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 </code></pre>
 <p>Poly MIDI gives each held note a channel of its own, and these three cables carry all eight channels. The Oscillator and the ADSR are polyphonic, so they run one copy per channel: a four-note chord is four oscillators and four envelopes, each starting and releasing with its own key. Velocity reaches each note's envelope, so softer notes bloom quieter.</p>
 <h3 id="one-note-five-saws"><a class="header" href="#one-note-five-saws">One note, five saws</a></h3>
-<p>The Oscillator stacks five saw waves per note with <strong>Voices</strong> 5, detuned 30% apart. They drift in and out of phase with each other, which gives each note its slow, chorused movement before any effect is added. Only the mono <strong>Out</strong> is used here; the stereo width comes later, from the chorus and reverb.</p>
+<p>The Oscillator stacks five saw waves per note with <strong>Voices</strong> 5, detuned 30% apart. They drift in and out of phase with each other, which gives each note its slow, chorused movement before any effect is added. Only the mono <strong>Out</strong> is used here. The stereo width comes later, from the Mixer, the chorus and the reverb.</p>
 <p>Five unison voices on each of eight notes is forty saws. If the patch strains your CPU, turn Poly MIDI's <strong>Voices</strong> down, or the Oscillator's.</p>
 <h3 id="a-filter-that-breathes"><a class="header" href="#a-filter-that-breathes">A filter that breathes</a></h3>
 <pre><code class="language-text">[Oscillator Out] ──&gt; [SVF Filter In]
@@ -2966,14 +3016,20 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 </code></pre>
 <p>The 800 ms attack makes each note swell in rather than start, and the 2-second release lets chords overlap as you change them. Rotate allocation helps here: a released note keeps ringing on its own voice while the next chord takes fresh ones.</p>
 <p>The VCA's <strong>Level</strong> sits at 50%. Voices add up, so a full chord is several times louder than one note, and the headroom keeps chords out of the limiter.</p>
-<h3 id="effects-after-the-voices-are-summed"><a class="header" href="#effects-after-the-voices-are-summed">Effects, after the voices are summed</a></h3>
-<pre><code class="language-text">[VCA Out] ──&gt; [Chorus In L]
-[Chorus Out L] ──&gt; [Reverb In L]
+<h3 id="spreading-the-chord"><a class="header" href="#spreading-the-chord">Spreading the chord</a></h3>
+<pre><code class="language-text">[VCA Out] ──&gt; [Mixer Ch 1]
+[Mixer Out L] ──&gt; [Chorus In L]
+[Mixer Out R] ──&gt; [Chorus In R]
+</code></pre>
+<p>The Mixer hears each voice of the polyphonic cable on its own. With <strong>Spread</strong> at 80% it fans them out across the stereo field. Poly MIDI hands each new note the next voice, and neighbouring voices sit on opposite sides, so the notes of a chord alternate left and right. Hold a chord and watch the lights on the Mixer's panorama open out.</p>
+<p>Panning costs a centred sound 3 dB on each side, so the Mixer's <strong>Master</strong> sits at +3 dB to win it back. The pad is as loud as it would be summed to mono, only wider.</p>
+<h3 id="effects"><a class="header" href="#effects">Effects</a></h3>
+<pre><code class="language-text">[Chorus Out L] ──&gt; [Reverb In L]
 [Chorus Out R] ──&gt; [Reverb In R]
 [Reverb Out L] ──&gt; [Audio Output Left]
 [Reverb Out R] ──&gt; [Audio Output Right]
 </code></pre>
-<p>The Chorus isn't polyphonic, so it hears the polyphonic cable summed into one signal. Its <strong>In R</strong> copies <strong>In L</strong> when nothing is patched there, and its two outputs come back with different modulation, which is where the stereo image starts. The Reverb's long, modulated tail does the rest.</p>
+<p>The Chorus and the Reverb aren't polyphonic: they hear the chord as one stereo pair. The Chorus modulates its two sides differently, which blurs the edges between the voices, and the Reverb's long, modulated tail does the rest.</p>
 <h2 id="variations-2"><a class="header" href="#variations-2">Variations</a></h2>
 <p><strong>Brighter or darker.</strong> Turn the filter's <strong>Cutoff</strong> up for a glassier pad or down to 800 Hz for a warm, distant one. The LFO keeps sweeping an octave either side of wherever you set it.</p>
 <p><strong>Supersaw.</strong> Set the Oscillator to <strong>Voices</strong> 7 and <strong>Detune</strong> 40%.</p>
@@ -2981,6 +3037,7 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <p><strong>Swell.</strong> Lengthen <strong>Atk</strong> to 3 s. Hold a chord and let it rise.</p>
 <p><strong>Each voice its own.</strong> Replace the LFO's cable into the filter's <strong>Cutoff</strong> with Poly MIDI's <strong>Velocity</strong>. The filter is polyphonic, so each note's filter opens by up to an octave according to its own velocity, and harder notes come out brighter.</p>
 <p><strong>Cheaper.</strong> Set the Oscillator's <strong>Voices</strong> to 1 and add more chorus <strong>Depth</strong>. It's thinner, but costs a fifth of the CPU.</p>
+<p><strong>Narrow or wide.</strong> Turn the Mixer's <strong>Spread</strong> down to 0% and the chord gathers in the middle, the way it sounded before it was spread. At 100% the outer voices sit hard left and right.</p>
 <h2 id="related-2"><a class="header" href="#related-2">Related</a></h2>
 <ul>
 <li><a href="recipes/../concepts/polyphony.html">Polyphony</a> – how polyphonic cables work</li>
@@ -3283,7 +3340,7 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <tr><td><a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 420 Hz, <strong>Res</strong> 15%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> 2</td><td><strong>Atk</strong> 80 ms, <strong>Dec</strong> 100 ms, <strong>Sus</strong> 100%, <strong>Rel</strong> 2.2 s, <strong>Vel</strong> 0%</td></tr>
 <tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a> 2</td><td><strong>Level</strong> 75%, <strong>CV Amt</strong> 60%</td></tr>
-<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> 2</td><td><strong>Lv 1</strong> 100%, <strong>Lv 2</strong> 65%</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> 2</td><td><strong>Lv 1</strong> 100%, <strong>Lv 2</strong> 65%, <strong>Pan 1</strong> R 35, <strong>Master</strong> +3 dB</td></tr>
 <tr><td><a href="recipes/../modules/effects/chorus.html">Chorus</a></td><td><strong>Rate</strong> 0.3 Hz, <strong>Depth</strong> 35%, <strong>Delay</strong> 12 ms, <strong>Voices</strong> 2, <strong>Mix</strong> 35%</td></tr>
 <tr><td><a href="recipes/../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Sync</strong> 1/8D, <strong>FB</strong> 45%, <strong>Mix</strong> 30%, <strong>HiCut</strong> 3.5 kHz, <strong>LoCut</strong> 350 Hz, <strong>P-P</strong> on, <strong>Tape</strong> on</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 80%, <strong>Decay</strong> 5 s, <strong>PreD</strong> 30 ms, <strong>Mix</strong> 35%, <strong>Mod</strong> 30%</td></tr>
@@ -3322,14 +3379,14 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <p>The chord sequencer also plays the bass. Oscillator 2 is five detuned saws an octave down, and they follow the chord roots. The SVF filter at 420 Hz keeps them dark and round.</p>
 <p>VCA 2's <strong>CV Amt</strong> of 60% means the envelope controls only part of the level, and the other 40% is always there. So the pad never stops. On each chord change, the sequencer's short gate fires ADSR 2, and the pad swells, then settles back over two seconds. The very first bar plays over F before Sequencer 2 has had a clock, so the pad comes in quietly and blooms on the first change.</p>
 <h3 id="echoes-and-space"><a class="header" href="#echoes-and-space">Echoes and space</a></h3>
-<pre><code class="language-text">[VCA 1 Out] ──&gt; [Mixer 2 Ch 1]
-[VCA 2 Out] ──&gt; [Mixer 2 Ch 2]
-[Mixer 2 Out] ──&gt; [Chorus In L]
+<pre><code class="language-text">[VCA 1 Out] ──&gt; [Mixer 2 Ch 1]       (Pan R 35)
+[VCA 2 Out] ──&gt; [Mixer 2 Ch 2]       (Pan C)
+[Mixer 2 Out L/R] ──&gt; [Chorus In L/R]
 [Chorus Out L/R] ──&gt; [Stereo Delay In L/R]
 [Stereo Delay Out L/R] ──&gt; [Reverb In L/R]
 [Reverb Out L/R] ──&gt; [Audio Output Left/Right]
 </code></pre>
-<p>The Chorus turns the mono mix into stereo. The Stereo Delay is synced to a dotted eighth, which is three sixteenths. Each echo therefore falls between the notes of the arpeggio, and <strong>Ping-Pong</strong> moves it to the other speaker. The arpeggio sounds busier than it is, the echoes stay in time with it, and the rhythm keeps moving. <strong>Tape</strong> gives the repeats a little wobble and wear. <strong>LoCut</strong> keeps the bass out of the echoes, so the low end stays clean. A medium reverb with a five-second tail puts everything in the same room.</p>
+<p>The Mixer sets the arpeggio a little to the right and keeps the pad, which carries the bass, in the middle. Its <strong>Master</strong> at +3 dB wins back the 3 dB that panning takes from a centred sound on each side. The Chorus widens both parts. The Stereo Delay is synced to a dotted eighth, which is three sixteenths. Each echo therefore falls between the notes of the arpeggio, and <strong>Ping-Pong</strong> moves it to the other speaker. The arpeggio sounds busier than it is, the echoes stay in time with it, and the rhythm keeps moving. <strong>Tape</strong> gives the repeats a little wobble and wear. <strong>LoCut</strong> keeps the bass out of the echoes, so the low end stays clean. The first echo of each note leaves from the arpeggio's side and lands on the other, so the echoes answer the notes across the room. A medium reverb with a five-second tail puts everything in the same room.</p>
 <h2 id="variations-6"><a class="header" href="#variations-6">Variations</a></h2>
 <p><strong>A new progression.</strong> Right-click Sequencer 2's steps to change the roots. C, D, F, G and A keep every note in C major. E and B add an F♯ or a C♯, which can sound lovely, but the pad and the arpeggio won't share a key.</p>
 <p><strong>A longer progression.</strong> Set Sequencer 2's <strong>Steps</strong> to 8 and fill in four more roots, for example F C G A F C D G.</p>
