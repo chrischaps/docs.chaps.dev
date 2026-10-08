@@ -187,7 +187,7 @@
 <h2 id="the-toolbar"><a class="header" href="#the-toolbar">The toolbar</a></h2>
 <p>From left to right:</p>
 <div class="table-wrapper"><table><thead><tr><th>Group</th><th>Controls</th></tr></thead><tbody>
-<tr><td><strong>Transport</strong></td><td><strong>▶ Play</strong> starts the patch; <strong>⏹ Stop</strong> stops it. The app opens stopped.</td></tr>
+<tr><td><strong>Transport</strong></td><td><strong>▶ Play</strong> starts the patch; <strong>⏹ Stop</strong> stops it. The app opens stopped. <strong>● Rec</strong> records what you hear: see <a href="#recording">Recording</a>.</td></tr>
 <tr><td><strong>File</strong></td><td><strong>📄 New</strong>, <strong>📂 Open</strong>, <strong>🕘 Recent</strong>, <strong>📚 Examples</strong>, <strong>💾 Save</strong>, <strong>💾 Save As</strong></td></tr>
 <tr><td><strong>Edit</strong></td><td><strong>↩ Undo</strong> and <strong>↪ Redo</strong>. Hover either to see which edit it will undo or redo.</td></tr>
 <tr><td><strong>〰 Cables</strong></td><td>How signal flow is drawn along cables: <strong>Chevrons</strong>, <strong>Dots</strong> or <strong>Comets</strong></td></tr>
@@ -297,6 +297,17 @@
 </ol>
 <p>The badge stops blinking and stays, and the knob now follows that control across its full range. Right-click it again to <strong>Re-learn MIDI CC</strong> or <strong>Clear MIDI</strong>. Mappings are saved with the patch.</p>
 <p>To back out before moving a control, press <code>Escape</code>, or right-click the blinking knob and choose <strong>Cancel MIDI Learn</strong>. Choosing <strong>Learn MIDI CC</strong> on a different knob moves learn mode to that knob instead.</p>
+<h2 id="recording"><a class="header" href="#recording">Recording</a></h2>
+<p>When something good happens (a filter sweep you rode by hand, a lucky generative passage, an improvisation on a MIDI keyboard), press <strong>● Rec</strong> or <code>Ctrl + R</code> to keep it. If the patch is stopped, Rec starts it.</p>
+<p>While recording, the button turns red, with a slowly pulsing light and the length of the take so far. Press it again, press <code>Ctrl + R</code>, or press <strong>⏹ Stop</strong> to end the take. A note pops up in the corner with the take's name and length, and <strong>📂 Show in folder</strong> opens it in your file manager.</p>
+<ul>
+<li><strong>What's recorded:</strong> exactly what you hear, after the output limiter, sample for sample. It's a 32-bit float WAV at your audio device's sample rate and channel count.</li>
+<li><strong>Where it goes:</strong> <code>Music/Modular</code>, named after the patch and the minute you pressed Rec, such as <code>First Sound 2026-10-08 14-03.wav</code>. To use another folder, right-click <strong>● Rec</strong> and choose <strong>Change…</strong>; <strong>Open Folder</strong> opens it.</li>
+<li><strong>The patch comes too.</strong> Every take is saved with the patch beside it, as a <code>.json</code> with the same name, so you can always open the patch that made a recording. It's saved when the take ends, so knobs you rode during the take are saved where you left them.</li>
+<li><strong>Edit freely.</strong> Turning knobs, patching cables, even opening another patch: the recording keeps going through all of it.</li>
+<li>Switching the <strong>Output</strong> device ends the take cleanly. Closing the window while recording asks first, and then saves the take.</li>
+</ul>
+<p>Recording runs alongside the audio, never in its way. If your disk ever falls more than two seconds behind, the missing audio is skipped rather than allowed to cause a glitch, and the note tells you how much was lost.</p>
 <h2 id="patches"><a class="header" href="#patches">Patches</a></h2>
 <p>Patches are saved as <code>.json</code> files holding every module, setting, cable and MIDI mapping.</p>
 <div class="table-wrapper"><table><thead><tr><th>Action</th><th>Shortcut</th></tr></thead><tbody>
@@ -318,6 +329,7 @@
 <li><strong>Don't Save</strong> (<strong>Quit Without Saving</strong>, when closing) carries on and lets the changes go.</li>
 <li><strong>Cancel</strong>, or <code>Escape</code>, goes back to the patch.</li>
 </ul>
+<p>Closing the window while a <a href="#recording">recording</a> is running asks too, even with nothing unsaved, and the prompt shows how long the take is. Quitting stops the take and saves it before the window closes.</p>
 <h3 id="autosave-and-recovery"><a class="header" href="#autosave-and-recovery">Autosave and recovery</a></h3>
 <p>Every 30 seconds, a patch with unsaved changes is autosaved alongside the app's settings. Saving the patch, or choosing <strong>Quit Without Saving</strong>, clears the autosave, so one only survives if Modular Synth closes without asking: after a crash or a forced quit.</p>
 <p>The next time the app starts, it offers the patch back. <strong>Recover</strong> reopens it exactly as it was at the last autosave, still marked unsaved; <strong>Discard</strong> lets it go. At most, you lose the last 30 seconds of work.</p>
