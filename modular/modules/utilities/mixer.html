@@ -207,7 +207,8 @@
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
 <pre><code class="language-text">Out = Ch 1 × Level 1 + Ch 2 × Level 2
 </code></pre>
-<p>At the default levels, two full-scale signals add up to twice full scale. Anything past ±1 is clipped hard, so when you mix two loud sources, bring the levels down to around 50–70% each.</p>
+<p>At the default levels, two full-scale signals add up to twice full scale. Anything within ±1 passes through untouched. Past that the Mixer soft-clips: the sum bends smoothly over and eases toward ±1.5 without ever reaching it, so two full-scale signals come out at about 1.48. The bend rounds off the peaks of loud audio, so when you mix two loud sources and want them clean, bring the levels down to around 50–70% each.</p>
+<p>The headroom above 1 is deliberate. Summing two envelopes for a filter's <strong>Cutoff</strong>, as the <a href="../../recipes/rhythmic-sequence.html">Rhythmic Sequence</a> example does, opens the filter further than one envelope can.</p>
 <h3 id="polyphonic-cables"><a class="header" href="#polyphonic-cables">Polyphonic cables</a></h3>
 <p>The Mixer isn't polyphonic: it mixes down. A polyphonic cable into <strong>Ch 1</strong> or <strong>Ch 2</strong> is summed to one channel, so a whole polyphonic voice goes straight in. Each note adds to the total, so leave more headroom the more voices you play.</p>
 <h2 id="patches"><a class="header" href="#patches">Patches</a></h2>

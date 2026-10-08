@@ -223,7 +223,8 @@
 <p>The sequencer has no tempo of its own. It moves on each rising edge at <strong>Clock</strong>, so the clock you patch in sets the speed, and its swing or irregularity carries through.</p>
 <p><strong>Gate</strong> sets the length of each note as a share of a fixed 100 ms, not of the step. At 50% each gate lasts 50 ms; at 99%, 99 ms. Fast patterns (sixteenths at 120 BPM are 125 ms apart) stay detached at every setting, which suits plucks and basses. For longer notes, give the envelope a longer <strong>Decay</strong> and higher <strong>Sustain</strong>, or a longer <strong>Release</strong>.</p>
 <h3 id="reset-and-the-first-step"><a class="header" href="#reset-and-the-first-step">Reset and the first step</a></h3>
-<p>The pattern advances <em>before</em> it plays, so each clock moves to the next step and then sounds it. After a <strong>Reset</strong>, the sequencer sits on step 1 and the next clock plays step 2. If you want step 1 on the downbeat, send the reset just after the last step of the bar instead of on the downbeat, or treat step 2 as the start of the phrase.</p>
+<p>Each clock moves to the next step and sounds it, except the first clock after a <strong>Reset</strong>, which sounds the step the pattern starts from without moving past it. So a reset on the downbeat puts step 1 on the downbeat. The same goes for the first clock after the patch starts playing.</p>
+<p>The start step is step 1 in every direction but <strong>Bwd</strong>, which starts from the last step. <strong>Rnd</strong> starts on step 1 too, then picks at random from the next clock on.</p>
 <h3 id="directions"><a class="header" href="#directions">Directions</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Dir</th><th>Order (with 4 steps)</th><th>EOC</th></tr></thead><tbody>
 <tr><td><strong>Fwd</strong></td><td>1 2 3 4 1 2 3 4 …</td><td>After step 4</td></tr>

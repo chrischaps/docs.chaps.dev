@@ -240,8 +240,7 @@
 <p>Some knobs move in whole steps, like the Oscillator's <strong>Oct</strong> and <strong>Semi</strong>: they click from one value to the next as you drag.</p>
 <h3 id="knobs-with-a-jack"><a class="header" href="#knobs-with-a-jack">Knobs with a jack</a></h3>
 <p>Many parameters have both a knob and an input jack of the same name. Patch a cable into the jack and the knob sets the center while the incoming signal moves the value around it. Each module page gives the scale.</p>
-<p>On most knobs, such as a filter's <strong>Cutoff</strong>, the knob stays live while the cable is patched, so you can keep moving the center. A few (the LFO's <strong>Rate</strong>, the Chorus's <strong>Rate</strong> and <strong>Depth</strong>) lock instead: the knob dims, stops responding and turns on its own to follow the incoming signal, and the cable modulates around wherever the knob was left.</p>
-<p>Either way, a small dot appears above the knob while a cable is patched in, orange once signal arrives. Unplug the cable and the knob is yours again.</p>
+<p>The knob stays live while the cable is patched, so you can keep moving the center as the signal plays. A small dot appears above the knob while a cable is patched in, orange once signal arrives. Unplug the cable and the knob alone sets the value again.</p>
 <h2 id="cables"><a class="header" href="#cables">Cables</a></h2>
 <p>Drag from an output to an input to patch a cable; a jack turns white when the cable is close enough to land on it. You can also drag from an input to an output. Cables only connect where the signals make sense: audio and control mix freely, and a gate can drive a control input, but a cable between jacks that can't work won't attach, and the status bar says why when it can. <a href="../concepts/signal-types.html">Signal Types</a> has the full rules.</p>
 <ul>
@@ -295,6 +294,7 @@
 <li>Move the control on your MIDI controller.</li>
 </ol>
 <p>The badge stops blinking and stays, and the knob now follows that control across its full range. Right-click it again to <strong>Re-learn MIDI CC</strong> or <strong>Clear MIDI</strong>. Mappings are saved with the patch.</p>
+<p>To back out before moving a control, press <code>Escape</code>, or right-click the blinking knob and choose <strong>Cancel MIDI Learn</strong>. Choosing <strong>Learn MIDI CC</strong> on a different knob moves learn mode to that knob instead.</p>
 <h2 id="patches"><a class="header" href="#patches">Patches</a></h2>
 <p>Patches are saved as <code>.json</code> files holding every module, setting, cable and MIDI mapping.</p>
 <div class="table-wrapper"><table><thead><tr><th>Action</th><th>Shortcut</th></tr></thead><tbody>
@@ -339,7 +339,7 @@
 <tr><td><code>Ctrl + O</code></td><td>Open a patch</td></tr>
 <tr><td><code>Ctrl + S</code></td><td>Save</td></tr>
 <tr><td><code>Ctrl + Shift + S</code></td><td>Save as</td></tr>
-<tr><td><code>Escape</code></td><td>Close the add menu or quick-add box</td></tr>
+<tr><td><code>Escape</code></td><td>Close the add menu or quick-add box, or cancel MIDI Learn</td></tr>
 <tr><td><code>Shift</code> + drag</td><td>Fine knob adjustment</td></tr>
 <tr><td>Double-click a knob</td><td>Reset it to its default</td></tr>
 </tbody></table>
