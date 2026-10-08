@@ -235,7 +235,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 <pre><code class="language-bash">cargo --version
 </code></pre>
 <h3 id="install-system-libraries-linux-only"><a class="header" href="#install-system-libraries-linux-only">Install system libraries (Linux only)</a></h3>
-<p>Windows and macOS need nothing more: Modular Synth uses WASAPI and CoreAudio, which come with the system.</p>
+<p>Windows and macOS need nothing more: Modular Synth uses WASAPI and CoreAudio, which come with the system. (ASIO on Windows is optional: see <a href="getting-started/installation.html#build-with-asio-windows-optional">Build with ASIO</a>.)</p>
 <p>On Linux, install the development packages for ALSA (audio), X11 and keyboard handling. On Debian and Ubuntu:</p>
 <pre><code class="language-bash">sudo apt install libasound2-dev libxcb-render0-dev libxcb-shape0-dev \
   libxcb-xfixes0-dev libxkbcommon-dev libssl-dev
@@ -248,6 +248,30 @@ cargo run --release
 </code></pre>
 <p>The first build takes a few minutes. Always use <code>--release</code> to play: the debug build is much slower and can't keep up with a busy patch, so you'll hear dropouts. The finished binary is <code>target/release/modular_synth</code>.</p>
 <p>The app opens on the <strong>First Sound</strong> example. Press <strong>▶ Play</strong>, then play the <code>Z</code> to <code>M</code> keys on your computer keyboard. If you hear a note, everything is working.</p>
+<h3 id="build-with-asio-windows-optional"><a class="header" href="#build-with-asio-windows-optional">Build with ASIO (Windows, optional)</a></h3>
+<p>For playing a guitar or singing through Modular, Windows Audio's round trip of 60 ms or so is too slow to play against. An audio interface's <strong>ASIO</strong> driver talks to the hardware directly and gets it down to 11–20 ms on a Scarlett 2i2. ASIO support is a build option, off by default:</p>
+<ol>
+<li>
+<p><strong>Install your interface's ASIO driver</strong> from its maker. For a Focusrite Scarlett, that's the Focusrite USB driver from <a href="https://focusrite.com/downloads">focusrite.com</a>. Restart, or unplug the interface and plug it back in, once it's installed: until then the driver may not find the interface.</p>
+</li>
+<li>
+<p><strong>Install LLVM</strong>, which the build uses to read the ASIO headers:</p>
+<pre><code class="language-bash">winget install LLVM.LLVM
+</code></pre>
+<p>Then point the build at it. In a new terminal:</p>
+<pre><code class="language-bash">setx LIBCLANG_PATH "C:\Program Files\LLVM\bin"
+</code></pre>
+</li>
+<li>
+<p><strong>Build with the <code>asio</code> feature:</strong></p>
+<pre><code class="language-bash">cargo run --release --features asio
+</code></pre>
+<p>The first build downloads Steinberg's ASIO SDK into your temp folder. To use a copy you already have, set <code>CPAL_ASIO_DIR</code> to its folder.</p>
+<p>If the build stops at "Failed to extract ASIO SDK", Windows PowerShell couldn't load its unzip command, which happens when the build runs from PowerShell 7. Build from Git Bash with <code>env -u PSModulePath cargo run --release --features asio</code>, or unzip <code>%TEMP%\asio_sdk.zip</code> yourself and set <code>CPAL_ASIO_DIR</code> to the folder inside.</p>
+</li>
+</ol>
+<p>Then choose <strong>ASIO</strong> at the top of the <strong>Output</strong> menu. See <a href="getting-started/../modules/sources/audio-input.html#low-latency-with-asio-windows">Audio Input</a> for choosing a buffer size.</p>
+<p>Steinberg licenses the ASIO SDK under the GPLv3 (or its own proprietary terms). Modular's source is MIT, but a binary you build with ASIO includes the SDK, so if you share one, the GPLv3 applies to it. The prebuilt releases leave ASIO out.</p>
 <h2 id="command-line"><a class="header" href="#command-line">Command line</a></h2>
 <p>Pass a patch file to open it instead of First Sound:</p>
 <pre><code class="language-bash">cargo run --release -- patches/lush-pad.json
@@ -1075,11 +1099,11 @@ cargo run --release
 <p>Short <strong>Attack</strong> times catch the front of a drum hit. Longer ones, 20–50 ms, smooth out the fast wiggles of a voice. <strong>Release</strong> sets how long Follow hangs on after a sound stops: around 100 ms for a tight pumping effect, a second or more for a slow swell.</p>
 <p><strong>Gate</strong> opens when Follow rises above the <strong>Threshold</strong>, and closes again only once Follow falls 6 dB below it. That gap stops the gate chattering open and shut when the level hovers right at the threshold. Because the gate follows Follow, a longer <strong>Release</strong> also holds the gate open longer.</p>
 <h2 id="latency-and-devices"><a class="header" href="#latency-and-devices">Latency and devices</a></h2>
-<p>Live input passes through two devices, each with its own clock and buffer: the input and the output. To keep the sound smooth, Modular holds a little audio between them, about one buffer of each. While an input is open, the status bar shows <strong>In</strong> and the round trip: how long a sound takes from the input jack to the speakers, often around 40 ms on Windows. Hover it for the parts that add up to it, then the device and any dropouts so far. It turns amber for a few seconds after a dropout.</p>
+<p>Live input passes through two devices, each with its own clock and buffer: the input and the output. To keep the sound smooth, Modular holds a little audio between them, about one buffer of each. While an input is open, the status bar shows <strong>In</strong> and the round trip: how long a sound takes from the input jack to the speakers, often around 60 ms on Windows. Hover it for the parts that add up to it, then the device and any dropouts so far. It turns amber for a few seconds after a dropout, or after a glitch the device itself reports (a lone one when the input first opens is common, and harmless).</p>
 <div class="table-wrapper"><table><thead><tr><th>Part</th><th>Typical (Windows)</th><th>What it is</th></tr></thead><tbody>
 <tr><td><strong>Input device</strong></td><td>~10 ms</td><td>The input device's own buffer: audio waits there until a packet is full</td></tr>
 <tr><td><strong>Buffer</strong></td><td>~20 ms</td><td>What Modular holds between the two devices to ride out their uneven timing</td></tr>
-<tr><td><strong>Output device</strong></td><td>~10 ms</td><td>The output device's own buffer, before the speakers play it</td></tr>
+<tr><td><strong>Output device</strong></td><td>~30 ms</td><td>The output device's own buffer and the Windows audio engine behind it, before the speakers play it</td></tr>
 <tr><td><strong>Limiter</strong></td><td>1 ms</td><td>The Audio Output limiter's look-ahead</td></tr>
 </tbody></table>
 </div>
@@ -1089,6 +1113,24 @@ cargo run --release
 <li><strong>Changing the Output device</strong> reopens the input at the new device's rate.</li>
 <li>If the input device is unplugged, the status bar shows <strong>⚠ Input lost</strong>. Choose it again under <strong>Input</strong>.</li>
 <li>A mono device is heard on both sides. An interface with more than two inputs gives its first two.</li>
+</ul>
+<h2 id="low-latency-with-asio-windows"><a class="header" href="#low-latency-with-asio-windows">Low latency with ASIO (Windows)</a></h2>
+<p>Windows Audio is shared by every app, and each direction passes through the Windows audio engine: fine for a pad or a sampled loop, but a guitarist hears 60 ms as a slap-back echo of their own playing. An audio interface's <strong>ASIO</strong> driver skips all of that. Input and output come from one driver, on one clock, in buffers a few milliseconds long, and Modular holds nothing between them: each output buffer is computed from the input that arrived moments before.</p>
+<p>To use it, build Modular with ASIO (<a href="modules/sources/../../getting-started/installation.html#build-with-asio-windows-optional">Build with ASIO</a>), then open the <strong>Output</strong> menu and choose <strong>ASIO</strong> under <strong>Audio system</strong>. The menu then lists ASIO drivers, and <strong>Input</strong> offers that driver's inputs. Choose it there to hear your interface.</p>
+<p><strong>Buffer</strong> sets how many frames the driver hands over at a time, and the closed Output menu shows it beside the driver's name:</p>
+<div class="table-wrapper"><table><thead><tr><th>Buffer</th><th>At 48 kHz</th><th>Round trip, measured</th><th></th></tr></thead><tbody>
+<tr><td><strong>32</strong></td><td>0.7 ms</td><td>11 ms</td><td>The quickest; needs a computer with headroom</td></tr>
+<tr><td><strong>64</strong></td><td>1.3 ms</td><td>14 ms</td><td>Tight enough to play guitar against</td></tr>
+<tr><td><strong>128</strong></td><td>2.7 ms</td><td>20 ms</td><td>A good start: feels immediate for most playing</td></tr>
+<tr><td><strong>256</strong></td><td>5.3 ms</td><td>32 ms</td><td>Busy patches with long reverbs</td></tr>
+<tr><td><strong>512</strong></td><td>10.7 ms</td><td>52 ms</td><td>Room to spare; too slow to play against</td></tr>
+</tbody></table>
+</div>
+<p>Measured on a first-generation Scarlett 2i2 with Focusrite's driver. The round trip is more than one buffer in and one out: each driver keeps a safety margin of its own, Focusrite's about another buffer and a few milliseconds each way, and Modular's limiter adds 1 ms. The status bar's <strong>In</strong> shows yours. If you hear crackles, or the CPU meter runs high, go up a size. Smaller buffers make Modular answer more often, with less time for each answer.</p>
+<ul>
+<li>ASIO drivers serve one app at a time. If another app (a DAW, say) has the interface, choosing ASIO says so and stays on Windows Audio.</li>
+<li>Changing the buffer from the driver's own control panel restarts audio at the driver's new size, with a note in the status bar.</li>
+<li>Modular remembers the audio system and buffer between sessions.</li>
 </ul>
 <h2 id="feedback"><a class="header" href="#feedback">Feedback</a></h2>
 <p>A microphone near speakers hears the speakers. Through a reverb or a delay with feedback, that can build into a howl. The first time you turn on an input while the output is speakers, the status bar says so. Use headphones, or keep the volume low. If it does run away, the Audio Output's limiter keeps it from getting dangerously loud. Press <strong>⏹ Stop</strong> to silence it.</p>

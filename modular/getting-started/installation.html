@@ -198,7 +198,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 <pre><code class="language-bash">cargo --version
 </code></pre>
 <h3 id="install-system-libraries-linux-only"><a class="header" href="#install-system-libraries-linux-only">Install system libraries (Linux only)</a></h3>
-<p>Windows and macOS need nothing more: Modular Synth uses WASAPI and CoreAudio, which come with the system.</p>
+<p>Windows and macOS need nothing more: Modular Synth uses WASAPI and CoreAudio, which come with the system. (ASIO on Windows is optional: see <a href="#build-with-asio-windows-optional">Build with ASIO</a>.)</p>
 <p>On Linux, install the development packages for ALSA (audio), X11 and keyboard handling. On Debian and Ubuntu:</p>
 <pre><code class="language-bash">sudo apt install libasound2-dev libxcb-render0-dev libxcb-shape0-dev \
   libxcb-xfixes0-dev libxkbcommon-dev libssl-dev
@@ -211,6 +211,30 @@ cargo run --release
 </code></pre>
 <p>The first build takes a few minutes. Always use <code>--release</code> to play: the debug build is much slower and can't keep up with a busy patch, so you'll hear dropouts. The finished binary is <code>target/release/modular_synth</code>.</p>
 <p>The app opens on the <strong>First Sound</strong> example. Press <strong>▶ Play</strong>, then play the <code>Z</code> to <code>M</code> keys on your computer keyboard. If you hear a note, everything is working.</p>
+<h3 id="build-with-asio-windows-optional"><a class="header" href="#build-with-asio-windows-optional">Build with ASIO (Windows, optional)</a></h3>
+<p>For playing a guitar or singing through Modular, Windows Audio's round trip of 60 ms or so is too slow to play against. An audio interface's <strong>ASIO</strong> driver talks to the hardware directly and gets it down to 11–20 ms on a Scarlett 2i2. ASIO support is a build option, off by default:</p>
+<ol>
+<li>
+<p><strong>Install your interface's ASIO driver</strong> from its maker. For a Focusrite Scarlett, that's the Focusrite USB driver from <a href="https://focusrite.com/downloads">focusrite.com</a>. Restart, or unplug the interface and plug it back in, once it's installed: until then the driver may not find the interface.</p>
+</li>
+<li>
+<p><strong>Install LLVM</strong>, which the build uses to read the ASIO headers:</p>
+<pre><code class="language-bash">winget install LLVM.LLVM
+</code></pre>
+<p>Then point the build at it. In a new terminal:</p>
+<pre><code class="language-bash">setx LIBCLANG_PATH "C:\Program Files\LLVM\bin"
+</code></pre>
+</li>
+<li>
+<p><strong>Build with the <code>asio</code> feature:</strong></p>
+<pre><code class="language-bash">cargo run --release --features asio
+</code></pre>
+<p>The first build downloads Steinberg's ASIO SDK into your temp folder. To use a copy you already have, set <code>CPAL_ASIO_DIR</code> to its folder.</p>
+<p>If the build stops at "Failed to extract ASIO SDK", Windows PowerShell couldn't load its unzip command, which happens when the build runs from PowerShell 7. Build from Git Bash with <code>env -u PSModulePath cargo run --release --features asio</code>, or unzip <code>%TEMP%\asio_sdk.zip</code> yourself and set <code>CPAL_ASIO_DIR</code> to the folder inside.</p>
+</li>
+</ol>
+<p>Then choose <strong>ASIO</strong> at the top of the <strong>Output</strong> menu. See <a href="../modules/sources/audio-input.html#low-latency-with-asio-windows">Audio Input</a> for choosing a buffer size.</p>
+<p>Steinberg licenses the ASIO SDK under the GPLv3 (or its own proprietary terms). Modular's source is MIT, but a binary you build with ASIO includes the SDK, so if you share one, the GPLv3 applies to it. The prebuilt releases leave ASIO out.</p>
 <h2 id="command-line"><a class="header" href="#command-line">Command line</a></h2>
 <p>Pass a patch file to open it instead of First Sound:</p>
 <pre><code class="language-bash">cargo run --release -- patches/lush-pad.json
