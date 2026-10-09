@@ -2745,13 +2745,13 @@ Out  = In × gain
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mixer"><a class="header" href="#mixer">Mixer</a></h1>
 <p><strong>Module ID</strong> <code>util.mixer</code> · <strong>Category</strong> Utility</p>
 <p><img src="modules/utilities/../../images/module-mixer.png" alt="Mixer Module" />
-<em>Four channel strips, a stereo field, and a master.</em></p>
-<p>The Mixer brings up to four signals together into a stereo pair. Each channel has its own level, pan and mute. Use it to place sounds left and right, to pan one to and fro with an LFO, to open a polyphonic pad across the stereo field, or to add two modulation sources into one CV.</p>
+<em>Four channel strips, a stereo field, a send to an effect, and a master.</em></p>
+<p>The Mixer brings up to four signals together into a stereo pair. Each channel has its own level, pan, mute and send. Use it to place sounds left and right, to pan one to and fro with an LFO, to open a polyphonic pad across the stereo field, to share one reverb among every channel, or to add two modulation sources into one CV. For more than four channels, chain Mixers: the stereo mix and the sends of one pass through the next.</p>
 <p>It works on any signal that isn't MIDI. Audio and control signals both patch straight in, so the same module mixes sound or modulation.</p>
 <h2 id="reading-the-display"><a class="header" href="#reading-the-display">Reading the display</a></h2>
-<p>The display reads like a mixing desk: each channel is a column, from its light at the top down to its pan knob.</p>
+<p>The display reads like a mixing desk: each channel is a column, from its light at the top down to its send knob.</p>
 <ul>
-<li><strong>The panorama</strong>, at the top, is the stereo field from <strong>L</strong> to <strong>R</strong>, with a lane for each channel. A light shows where each channel sits. A polyphonic channel has a light per voice, fanned out by <strong>Spread</strong>. The lights brighten with the channel's level. A hollow ring is a voice with nothing to play, and a grey ring is a muted channel.</li>
+<li><strong>The panorama</strong>, at the top, is the stereo field from <strong>L</strong> to <strong>R</strong>, with a lane for each channel. A light shows where each channel sits. A polyphonic channel has a light per voice, fanned out by <strong>Spread</strong>. The lights brighten with the channel's level. A channel with its <strong>Send</strong> up blooms sideways along its lane, wider the more it sends, the way a sound spreads into a room. A hollow ring is a voice with nothing to play, and a grey ring is a muted channel.</li>
 <li><strong>The meters</strong> show each channel's level after its fader. The pair on the right, over <strong>Master</strong>, is the stereo output. A notch either side of each meter marks full scale, and a white line holds the latest peak for a moment.</li>
 <li><strong>The M buttons</strong> mute a channel. A muted channel's button turns red and its meter dims. Muting fades over 10 ms, so it doesn't click.</li>
 </ul>
@@ -2760,6 +2760,9 @@ Out  = In × gain
 <tr><td><strong>Ch 1</strong> – <strong>Ch 4</strong></td><td>Audio (Blue)</td><td>The channels. A polyphonic cable keeps its voices apart, for <strong>Spread</strong></td></tr>
 <tr><td><strong>Level 1</strong> – <strong>Level 4</strong></td><td>Control (Orange)</td><td>CV added to each channel's level</td></tr>
 <tr><td><strong>Pan 1</strong> – <strong>Pan 4</strong></td><td>Control (Orange)</td><td>CV added to each channel's pan. An LFO here pans it to and fro</td></tr>
+<tr><td><strong>Chain L</strong>, <strong>Chain R</strong></td><td>Audio (Blue)</td><td>A stereo mix added after the faders, such as another Mixer's <strong>Out L</strong> and <strong>Out R</strong>. <strong>Chain R</strong> copies <strong>Chain L</strong> when only the left is patched</td></tr>
+<tr><td><strong>Chain Send L</strong>, <strong>Chain Send R</strong></td><td>Audio (Blue)</td><td>Another Mixer's <strong>Send L</strong> and <strong>Send R</strong>, added to this one's send bus</td></tr>
+<tr><td><strong>Return L</strong>, <strong>Return R</strong></td><td>Audio (Blue)</td><td>An effect's output, added to the mix at the <strong>Return</strong> knob. It may come from an effect fed by this same Mixer. <strong>Return R</strong> copies <strong>Return L</strong> when only the left is patched</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs-19"><a class="header" href="#outputs-19">Outputs</a></h2>
@@ -2767,6 +2770,7 @@ Out  = In × gain
 <tr><td><strong>Out</strong></td><td>Audio (Blue)</td><td>Mono sum of every channel at its level, ignoring pan and spread</td></tr>
 <tr><td><strong>Out L</strong></td><td>Audio (Blue)</td><td>Left side of the stereo mix</td></tr>
 <tr><td><strong>Out R</strong></td><td>Audio (Blue)</td><td>Right side of the stereo mix</td></tr>
+<tr><td><strong>Send L</strong>, <strong>Send R</strong></td><td>Audio (Blue)</td><td>The send bus: each channel at its <strong>Send</strong> knob, after its fader and pan. Patch it to a reverb or delay</td></tr>
 </tbody></table>
 </div>
 <h2 id="parameters-19"><a class="header" href="#parameters-19">Parameters</a></h2>
@@ -2774,15 +2778,19 @@ Out  = In × gain
 <tr><td><strong>Lv 1</strong> – <strong>Lv 4</strong> (Level)</td><td>0 – 100%</td><td>100%</td><td>Each channel's volume</td></tr>
 <tr><td><strong>Pan 1</strong> – <strong>Pan 4</strong></td><td>L 100 – R 100</td><td>C</td><td>Each channel's place in the stereo field</td></tr>
 <tr><td><strong>M</strong> (Mute 1 – 4)</td><td>on / off</td><td>off</td><td>Silences a channel</td></tr>
-<tr><td><strong>Master</strong></td><td>−60 – +6 dB</td><td>0 dB</td><td>Volume of all three outputs. At −60 dB they are silent</td></tr>
+<tr><td><strong>Master</strong></td><td>−60 – +6 dB</td><td>0 dB</td><td>Volume of <strong>Out</strong>, <strong>Out L</strong> and <strong>Out R</strong>. At −60 dB they are silent. The sends don't follow it</td></tr>
 <tr><td><strong>Spread</strong></td><td>0 – 100%</td><td>0%</td><td>How far a polyphonic channel's voices fan out around its pan</td></tr>
+<tr><td><strong>Send 1</strong> – <strong>Send 4</strong></td><td>0 – 100%</td><td>0%</td><td>How much of each channel goes to <strong>Send L</strong> and <strong>Send R</strong></td></tr>
+<tr><td><strong>Return</strong></td><td>0 – 100%</td><td>100%</td><td>Level of <strong>Return L</strong> and <strong>Return R</strong> in the mix</td></tr>
 </tbody></table>
 </div>
-<p>Levels, pans, <strong>Master</strong> and <strong>Spread</strong> are smoothed, so you can ride them while the patch plays without clicks. A <strong>Pan</strong> knob's arc grows outward from the centre, so you can read which side a channel leans to at a glance. The readout says the same: <strong>C</strong>, or <strong>L</strong> or <strong>R</strong> and how far, out of 100.</p>
+<p>Levels, pans, sends, <strong>Return</strong>, <strong>Master</strong> and <strong>Spread</strong> are smoothed, so you can ride them while the patch plays without clicks. A <strong>Pan</strong> knob's arc grows outward from the centre, so you can read which side a channel leans to at a glance. The readout says the same: <strong>C</strong>, or <strong>L</strong> or <strong>R</strong> and how far, out of 100.</p>
 <h2 id="how-it-works-6"><a class="header" href="#how-it-works-6">How it works</a></h2>
-<pre><code class="language-text">Out   = (Ch 1 × Level 1 + … + Ch 4 × Level 4) × Master
-Out L = (Ch 1 × Level 1 × left(Pan 1) + …) × Master
-Out R = (Ch 1 × Level 1 × right(Pan 1) + …) × Master
+<pre><code class="language-text">Out L  = (Ch 1 × Level 1 × left(Pan 1) + … + Chain L + Return L × Return) × Master
+Out R  = (Ch 1 × Level 1 × right(Pan 1) + … + Chain R + Return R × Return) × Master
+Out    = (Ch 1 × Level 1 + … + Ch 4 × Level 4 + (Chain L + Chain R + …) × 0.71) × Master
+Send L = Ch 1 × Level 1 × left(Pan 1) × Send 1 + … + Chain Send L
+Send R = Ch 1 × Level 1 × right(Pan 1) × Send 1 + … + Chain Send R
 </code></pre>
 <h3 id="the-pan-law"><a class="header" href="#the-pan-law">The pan law</a></h3>
 <p>Panning is <strong>equal power</strong>: as a channel moves from left to right, one side fades as the other rises, and their power always adds up to the same. A sound swept across the field keeps its loudness all the way. In the centre each side is at −3 dB. Hard left, the right side is silent.</p>
@@ -2795,6 +2803,15 @@ Out R = (Ch 1 × Level 1 × right(Pan 1) + …) × Master
 <p>The headroom above 1 is deliberate. Summing two envelopes for a filter's <strong>Cutoff</strong>, as the <a href="modules/utilities/../../recipes/rhythmic-sequence.html">Rhythmic Sequence</a> example does, opens the filter further than one envelope can.</p>
 <h3 id="the-mono-out"><a class="header" href="#the-mono-out">The mono Out</a></h3>
 <p><strong>Out</strong> is the plain sum of the channels at their levels, times <strong>Master</strong>. Pan and <strong>Spread</strong> don't touch it. It's the same sum the Mixer gave when it had two mono channels, so patches built on it sound exactly as they did. Use <strong>Out</strong> when you're adding up CVs, or feeding one mono input.</p>
+<p>The stereo pairs coming in on <strong>Chain</strong> and <strong>Return</strong> reach <strong>Out</strong> folded to one: left plus right, times 0.71. A centred sound comes back at the level it had before it was panned, and a hard-panned one at −3 dB.</p>
+<h3 id="sends-and-returns"><a class="header" href="#sends-and-returns">Sends and returns</a></h3>
+<p>Each channel's <strong>Send</strong> knob taps it after its fader, mute and pan, onto a stereo bus that leaves on <strong>Send L</strong> and <strong>Send R</strong>. Patch the bus into a reverb with its <strong>Mix</strong> at 100%, and bring the reverb back on <strong>Return L</strong> and <strong>Return R</strong>. One reverb then serves every channel, and each channel decides how much of the room it gets, as on a mixing console. A send follows its channel's fader, so a channel faded out leaves the room too.</p>
+<p>The sends ignore <strong>Master</strong>: turning the mix down doesn't change what the effect hears. <strong>Return</strong> sets how loud the effect comes back.</p>
+<p><strong>The return loop.</strong> The send leaves the Mixer and the effect comes back into it, so the cables make a loop. Modules normally can't be patched in a loop, because each one needs its inputs before it can run. <strong>Return L</strong> and <strong>Return R</strong> are the exception. When their cable closes a loop, they hear the effect one audio block late: 256 samples, about 5.8 ms at 44.1 kHz and 5.3 ms at 48 kHz. For a reverb or a delay that's like a few more milliseconds of pre-delay, so take them off the reverb's <strong>PreD</strong> if the timing matters. A return fed from anywhere that isn't a loop is heard at once.</p>
+<p>Patching a loop into any other input is still refused.</p>
+<h3 id="chaining-mixers"><a class="header" href="#chaining-mixers">Chaining Mixers</a></h3>
+<p>Two Mixers cascade like a console and its sidecar. Patch one Mixer's <strong>Out L</strong> and <strong>Out R</strong> into the next one's <strong>Chain L</strong> and <strong>Chain R</strong>, and its <strong>Send L</strong> and <strong>Send R</strong> into <strong>Chain Send L</strong> and <strong>Chain Send R</strong>. The first Mixer's stereo image passes through untouched, and its sends join the second's, so one reverb on the last Mixer serves all eight channels. The last Mixer's <strong>Master</strong> sets the volume of the whole mix.</p>
+<p><strong>Chain L</strong> works alone too: a mono source patched into it arrives centred, at its full level on each side.</p>
 <h3 id="polyphonic-cables-and-spread"><a class="header" href="#polyphonic-cables-and-spread">Polyphonic cables and Spread</a></h3>
 <p>The Mixer hears each voice of a polyphonic cable on its own. With <strong>Spread</strong> at 0% every voice sits at the channel's pan. That's the same as summing them first, so a whole polyphonic voice can go straight into a channel.</p>
 <p>Turn <strong>Spread</strong> up and the voices fan out across the field around the pan. They take evenly spaced places, alternating left and right from the outside in: the first voice hard left, the second hard right, the third just inside the first, and so on. <a href="modules/utilities/../midi/poly-midi.html">Poly MIDI</a> hands notes to voices in turn, and neighbouring voices sit on opposite sides, so even two notes held on an eight-voice cable land either side of the pan, and a chord opens up instead of sitting in the middle. Each voice keeps the power it had, so the chord is as loud spread as it was centred.</p>
@@ -2831,24 +2848,30 @@ Out R = (Ch 1 × Level 1 × right(Pan 1) + …) × Master
 [ADSR Out] ──&gt; [Mixer Ch 2]
 [Mixer Out] ──&gt; [SVF Filter Cutoff]
 </code></pre>
-<h3 id="wet-and-dry"><a class="header" href="#wet-and-dry">Wet and dry</a></h3>
-<p>Most effects have their own <strong>Mix</strong> knob, but the Mixer keeps the dry and wet signals on separate channels, so you can set their balance by hand or process one without the other:</p>
-<pre><code class="language-text">[VCA Out] ──&gt; [Mixer Ch 1]          (dry, Pan C)
-[VCA Out] ──&gt; [Reverb In L]
-[Reverb Out L] ──&gt; [Mixer Ch 2]     (wet, Reverb Mix at 100%, Pan L 100)
-[Reverb Out R] ──&gt; [Mixer Ch 3]     (Pan R 100)
+<h3 id="one-room-for-every-channel"><a class="header" href="#one-room-for-every-channel">One room for every channel</a></h3>
+<p>Send each channel as much reverb as it needs, through one reverb:</p>
+<pre><code class="language-text">[Mixer Send L] ──&gt; [Reverb In L]    (Reverb Mix at 100%)
+[Mixer Send R] ──&gt; [Reverb In R]
+[Reverb Out L] ──&gt; [Mixer Return L]
+[Reverb Out R] ──&gt; [Mixer Return R]
 [Mixer Out L] ──&gt; [Audio Output Left]
 [Mixer Out R] ──&gt; [Audio Output Right]
 </code></pre>
+<p>Turn <strong>Send</strong> up on the channels that should sit further back. A vocal-like lead might send 20%, a pad 50%, and a bass nothing at all.</p>
 <h3 id="more-than-four-channels"><a class="header" href="#more-than-four-channels">More than four channels</a></h3>
-<p>Chain Mixers: the stereo pair of one feeds two channels of the next, panned hard apart.</p>
-<pre><code class="language-text">[Mixer A Out L] ──&gt; [Mixer B Ch 1]  (Pan L 100)
-[Mixer A Out R] ──&gt; [Mixer B Ch 2]  (Pan R 100)
-[Oscillator Out] ──&gt; [Mixer B Ch 3]
+<p>Chain Mixers. The first one's mix and sends pass through the second:</p>
+<pre><code class="language-text">[Mixer A Out L] ──&gt; [Mixer B Chain L]
+[Mixer A Out R] ──&gt; [Mixer B Chain R]
+[Mixer A Send L] ──&gt; [Mixer B Chain Send L]
+[Mixer A Send R] ──&gt; [Mixer B Chain Send R]
+[Mixer B Send L] ──&gt; [Reverb In L]
+[Mixer B Send R] ──&gt; [Reverb In R]
+[Reverb Out L] ──&gt; [Mixer B Return L]
+[Reverb Out R] ──&gt; [Mixer B Return R]
 [Mixer B Out L] ──&gt; [Audio Output Left]
 [Mixer B Out R] ──&gt; [Audio Output Right]
 </code></pre>
-<p>A channel panned hard to one side passes at full level, so Mixer A's stereo image comes through Mixer B as it left.</p>
+<p>The <a href="modules/utilities/../../recipes/backbeat.html">Backbeat</a> example mixes a seven-piece drum kit this way, with one room for the whole kit.</p>
 <h2 id="related-modules-19"><a class="header" href="#related-modules-19">Related modules</a></h2>
 <ul>
 <li><a href="modules/utilities/./vca.html">VCA</a>: level control from a CV</li>
@@ -3900,13 +3923,14 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <iframe class="patch-embed" src="../play/?patch=backbeat" title="Backbeat, playable in the browser" loading="lazy"></iframe>
 *Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Modular**.*
 <p><img src="recipes/../images/recipe-backbeat.png" alt="The Backbeat patch" />
-<em>One lane per drum, from the top: kick, snare, hi-hats, toms, crash. The clock is at the top left. The Clock Divider that schedules the fill sits lower down in the same column. Kick and snare mix to the centre at the top right. Everything else mixes through a small room to the right of the hi-hats.</em></p>
+<em>One lane per drum, from the top: kick, snare, hi-hats, toms, crash. The clock is at the top left. The Clock Divider that schedules the fill sits lower down in the same column. Kick and snare mix to the centre at the top right. Below and to the right, the main Mixer brings the whole kit together, shares one small room among every drum, and feeds the output.</em></p>
 <h2 id="what-it-teaches-6"><a class="header" href="#what-it-teaches-6">What it teaches</a></h2>
 <ul>
 <li><strong>Drums from oscillators and noise.</strong> A kick is a sine that falls in pitch. A snare is a tone plus a burst of filtered noise. Hats and cymbals are noise with the low end removed.</li>
 <li><strong>Accents and ghost notes.</strong> Each sequencer step has a velocity, and the envelopes turn velocity into loudness. The same snare plays a backbeat and a whisper.</li>
 <li><strong>A sequencer's pitch as a switch.</strong> The hi-hat lane's pitch output is a flag that says whether the hat is open. That flag also chokes it.</li>
 <li><strong>Phrases longer than a bar.</strong> A 16-step sequencer loops every bar. For a fill every fourth bar, a Clock Divider counts the sixteenths and opens a gate once every 64.</li>
+<li><strong>One room for the whole kit.</strong> Two Mixers chain together, and each drum sends its own amount to a single reverb, as on a mixing console.</li>
 </ul>
 <h2 id="the-pattern"><a class="header" href="#the-pattern">The pattern</a></h2>
 <p>Sixteen steps a bar at 96 BPM. <code>X</code> is an accent, <code>x</code> a softer hit, <code>g</code> a ghost note, <code>o</code> an open hat, <code>~</code> a hat still ringing.</p>
@@ -3938,11 +3962,11 @@ crash    on the downbeat after each fill
 <tr><td><a href="recipes/../modules/sources/noise.html">Noise</a> + <a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a> (crash)</td><td><strong>Level</strong> 0%; HighPass, <strong>Cutoff</strong> 4.2 kHz, <strong>Res</strong> 20%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (crash)</td><td><strong>Dec</strong> 1.6 s, <strong>Rel</strong> 1.6 s, <strong>Vel</strong> 0%</td></tr>
 <tr><td><a href="recipes/../modules/utilities/attenuverter.html">Attenuverter</a> (hat mute)</td><td><strong>Amount</strong> -1.0</td></tr>
-<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (centre)</td><td><strong>Lv 1</strong> 60% kick, <strong>Lv 2</strong> 40% snare body, <strong>Lv 3</strong> 45% snare noise</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (kick and snare)</td><td><strong>Lv 1</strong> 60% kick, <strong>Lv 2</strong> 40% snare body, <strong>Lv 3</strong> 45% snare noise; <strong>Send 2</strong> and <strong>Send 3</strong> 30%</td></tr>
 <tr><td><a href="recipes/../modules/effects/compressor.html">Compressor</a></td><td><strong>Thresh</strong> -16 dB, <strong>Ratio</strong> 3:1, <strong>Atk</strong> 8 ms, <strong>Rel</strong> 120 ms, <strong>Mkup</strong> 2 dB</td></tr>
-<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (around)</td><td>Hats 55% at R 30 / R 35, toms 50%, crash 45% at L 40</td></tr>
-<tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 35%, <strong>Decay</strong> 0.9 s, <strong>Damp</strong> 55%, <strong>PreD</strong> 8 ms, <strong>Mix</strong> 20%</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 72%</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (main)</td><td>Hats 44% at R 30 / R 35, toms 40%, crash 36% at L 40; every <strong>Send</strong> 25%; <strong>Master</strong> −2 dB</td></tr>
+<tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 35%, <strong>Decay</strong> 0.9 s, <strong>Damp</strong> 55%, <strong>PreD</strong> 2.5 ms, <strong>Mix</strong> 100%</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 91%</td></tr>
 </tbody></table>
 </div>
 <p>All drum envelopes have a 1 ms attack and 0% sustain. The sequencers' gates are a fixed 99 ms (<strong>Gate of</strong> 100 ms), so each envelope's <strong>Release</strong> matches its <strong>Decay</strong>: the sound falls at the same rate after the gate closes.</p>
@@ -3985,13 +4009,24 @@ crash    on the downbeat after each fill
 </code></pre>
 <p>One oscillator plays all four toms. The sequencer's <strong>Pitch</strong> picks the drum, with the toms tuned in fourths: G, D, A, E. The same pitch goes into the Mixer's <strong>Pan 3</strong>, so high toms sit right and low ones left. The fill sweeps across the stereo field, the way a real kit does from the audience.</p>
 <h3 id="mixing"><a class="header" href="#mixing">Mixing</a></h3>
-<p>Kick and snare go to the first Mixer's mono <strong>Out</strong>, through a compressor, and into the Audio Output's <strong>Mono</strong>, so they stay dead centre. The compressor's 8 ms attack lets each hit's crack through before it starts to work. Hats, toms and crash are panned on the second Mixer and go through a short, 0.9-second room into <strong>Left</strong> and <strong>Right</strong>.</p>
+<pre><code class="language-text">[Kick/Snare Mixer Out] ──&gt; [Compressor In]
+[Compressor Out] ──&gt; [Main Mixer Chain L]
+[Kick/Snare Mixer Send L/R] ──&gt; [Main Mixer Chain Send L/R]
+[Main Mixer Send L/R] ──&gt; [Reverb In L/R]
+[Reverb Out L/R] ──&gt; [Main Mixer Return L/R]
+[Main Mixer Out L/R] ──&gt; [Audio Output Left/Right]
+</code></pre>
+<p>Kick and snare go to the first Mixer's mono <strong>Out</strong> and through a compressor, which glues them together. The compressor's 8 ms attack lets each hit's crack through before it starts to work. Its output comes into the main Mixer on <strong>Chain L</strong> alone, so it lands dead centre. Hats, toms and crash have the main Mixer's four channels, each panned to its place.</p>
+<p>There is one room for the whole kit: a short reverb, 0.9 seconds long and fully wet. Every drum decides how much of it to hear. On the main Mixer each channel sends 25%. On the first Mixer, the snare's two channels send 30% and the kick sends nothing, so the low end stays tight and dry. The snare's sends travel to the main Mixer on <strong>Chain Send</strong>, join its own, and the reverb hears them all on the main Mixer's <strong>Send L</strong> and <strong>Send R</strong>.</p>
+<p>The reverb comes back on the main Mixer's <strong>Return</strong>. That closes a loop, from the Mixer to the reverb and back, which the Return allows by hearing the reverb one audio block late, about 5 ms. The reverb's pre-delay is 2.5 ms, a little shorter than the room's natural 8 ms, to make up for it.</p>
+<p>The hats, toms and crash have exactly the balance they had when the whole second Mixer ran through the reverb at 20%: faders at 0.8 of their old level keep the dry, and a 25% send after them keeps the wet.</p>
 <h2 id="variations-6"><a class="header" href="#variations-6">Variations</a></h2>
 <p><strong>Tighter or looser kick.</strong> Shorten the kick pitch envelope's <strong>Dec</strong> to 25 ms for a clicky dance kick, or lengthen it to 90 ms for a boomy one. Raise the level envelope's <strong>Dec</strong> to 900 ms for an 808-style tail.</p>
 <p><strong>More snare.</strong> Turn the snare filter's <strong>Cutoff</strong> down to 900 Hz for a fatter, rougher snare, or set it to BandPass at 4 kHz for a thin, crisp one.</p>
 <p><strong>Busier hats.</strong> Set another step to C5 to open the hat there. Set the step after it to C5 as well to let it ring.</p>
 <p><strong>Half-time.</strong> Turn off the snare's steps 5 and 13 and turn on step 9. With one backbeat a bar instead of two, the same tempo feels half as fast and twice as heavy.</p>
 <p><strong>A different fill.</strong> The toms play steps 9 to 16. Turn on steps 1 to 8 for a whole-bar fill, or change the pitches for a different run.</p>
+<p><strong>More room, or less.</strong> The snare's <strong>Send 2</strong> and <strong>Send 3</strong> on the kick-and-snare Mixer set how far back it sits: 60% pushes it to the back of the room, 0% puts it right in your ear. Turn the main Mixer's <strong>Send 1</strong> and <strong>Send 2</strong> down for dry, close hats, or <strong>Send 4</strong> up for a crash that hangs in the air.</p>
 <p><strong>Swing it.</strong> Turn the Clock's <strong>Swing</strong> to about 58%. Every off-beat sixteenth lands a little late, while the downbeats and the backbeat stay on the grid. The pattern stops sounding programmed and starts to sit in a pocket. At 66% it becomes a full triplet shuffle.</p>
 <p><strong>Faster or slower.</strong> Turn the Clock's <strong>BPM</strong>. The fill stays on every fourth bar at any tempo, because the divider counts the Clock's own sixteenths.</p>
 <p><strong>A longer phrase.</strong> Set the Clock Divider's <strong>Div</strong> to 128 for a fill every eighth bar. Set <strong>Offset</strong> to 48, or 112 with <strong>Div</strong> 128, and the fill moves to the last bar of the phrase, with the crash on the first bar of the next one, the way drummers usually phrase it.</p>

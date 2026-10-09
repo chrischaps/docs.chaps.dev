@@ -189,13 +189,14 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <iframe class="patch-embed" src="../play/?patch=backbeat" title="Backbeat, playable in the browser" loading="lazy"></iframe>
 *Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Modular**.*
 <p><img src="../images/recipe-backbeat.png" alt="The Backbeat patch" />
-<em>One lane per drum, from the top: kick, snare, hi-hats, toms, crash. The clock is at the top left. The Clock Divider that schedules the fill sits lower down in the same column. Kick and snare mix to the centre at the top right. Everything else mixes through a small room to the right of the hi-hats.</em></p>
+<em>One lane per drum, from the top: kick, snare, hi-hats, toms, crash. The clock is at the top left. The Clock Divider that schedules the fill sits lower down in the same column. Kick and snare mix to the centre at the top right. Below and to the right, the main Mixer brings the whole kit together, shares one small room among every drum, and feeds the output.</em></p>
 <h2 id="what-it-teaches"><a class="header" href="#what-it-teaches">What it teaches</a></h2>
 <ul>
 <li><strong>Drums from oscillators and noise.</strong> A kick is a sine that falls in pitch. A snare is a tone plus a burst of filtered noise. Hats and cymbals are noise with the low end removed.</li>
 <li><strong>Accents and ghost notes.</strong> Each sequencer step has a velocity, and the envelopes turn velocity into loudness. The same snare plays a backbeat and a whisper.</li>
 <li><strong>A sequencer's pitch as a switch.</strong> The hi-hat lane's pitch output is a flag that says whether the hat is open. That flag also chokes it.</li>
 <li><strong>Phrases longer than a bar.</strong> A 16-step sequencer loops every bar. For a fill every fourth bar, a Clock Divider counts the sixteenths and opens a gate once every 64.</li>
+<li><strong>One room for the whole kit.</strong> Two Mixers chain together, and each drum sends its own amount to a single reverb, as on a mixing console.</li>
 </ul>
 <h2 id="the-pattern"><a class="header" href="#the-pattern">The pattern</a></h2>
 <p>Sixteen steps a bar at 96 BPM. <code>X</code> is an accent, <code>x</code> a softer hit, <code>g</code> a ghost note, <code>o</code> an open hat, <code>~</code> a hat still ringing.</p>
@@ -227,11 +228,11 @@ crash    on the downbeat after each fill
 <tr><td><a href="../modules/sources/noise.html">Noise</a> + <a href="../modules/filters/svf-filter.html">SVF Filter</a> (crash)</td><td><strong>Level</strong> 0%; HighPass, <strong>Cutoff</strong> 4.2 kHz, <strong>Res</strong> 20%</td></tr>
 <tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a> (crash)</td><td><strong>Dec</strong> 1.6 s, <strong>Rel</strong> 1.6 s, <strong>Vel</strong> 0%</td></tr>
 <tr><td><a href="../modules/utilities/attenuverter.html">Attenuverter</a> (hat mute)</td><td><strong>Amount</strong> -1.0</td></tr>
-<tr><td><a href="../modules/utilities/mixer.html">Mixer</a> (centre)</td><td><strong>Lv 1</strong> 60% kick, <strong>Lv 2</strong> 40% snare body, <strong>Lv 3</strong> 45% snare noise</td></tr>
+<tr><td><a href="../modules/utilities/mixer.html">Mixer</a> (kick and snare)</td><td><strong>Lv 1</strong> 60% kick, <strong>Lv 2</strong> 40% snare body, <strong>Lv 3</strong> 45% snare noise; <strong>Send 2</strong> and <strong>Send 3</strong> 30%</td></tr>
 <tr><td><a href="../modules/effects/compressor.html">Compressor</a></td><td><strong>Thresh</strong> -16 dB, <strong>Ratio</strong> 3:1, <strong>Atk</strong> 8 ms, <strong>Rel</strong> 120 ms, <strong>Mkup</strong> 2 dB</td></tr>
-<tr><td><a href="../modules/utilities/mixer.html">Mixer</a> (around)</td><td>Hats 55% at R 30 / R 35, toms 50%, crash 45% at L 40</td></tr>
-<tr><td><a href="../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 35%, <strong>Decay</strong> 0.9 s, <strong>Damp</strong> 55%, <strong>PreD</strong> 8 ms, <strong>Mix</strong> 20%</td></tr>
-<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 72%</td></tr>
+<tr><td><a href="../modules/utilities/mixer.html">Mixer</a> (main)</td><td>Hats 44% at R 30 / R 35, toms 40%, crash 36% at L 40; every <strong>Send</strong> 25%; <strong>Master</strong> −2 dB</td></tr>
+<tr><td><a href="../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 35%, <strong>Decay</strong> 0.9 s, <strong>Damp</strong> 55%, <strong>PreD</strong> 2.5 ms, <strong>Mix</strong> 100%</td></tr>
+<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 91%</td></tr>
 </tbody></table>
 </div>
 <p>All drum envelopes have a 1 ms attack and 0% sustain. The sequencers' gates are a fixed 99 ms (<strong>Gate of</strong> 100 ms), so each envelope's <strong>Release</strong> matches its <strong>Decay</strong>: the sound falls at the same rate after the gate closes.</p>
@@ -274,13 +275,24 @@ crash    on the downbeat after each fill
 </code></pre>
 <p>One oscillator plays all four toms. The sequencer's <strong>Pitch</strong> picks the drum, with the toms tuned in fourths: G, D, A, E. The same pitch goes into the Mixer's <strong>Pan 3</strong>, so high toms sit right and low ones left. The fill sweeps across the stereo field, the way a real kit does from the audience.</p>
 <h3 id="mixing"><a class="header" href="#mixing">Mixing</a></h3>
-<p>Kick and snare go to the first Mixer's mono <strong>Out</strong>, through a compressor, and into the Audio Output's <strong>Mono</strong>, so they stay dead centre. The compressor's 8 ms attack lets each hit's crack through before it starts to work. Hats, toms and crash are panned on the second Mixer and go through a short, 0.9-second room into <strong>Left</strong> and <strong>Right</strong>.</p>
+<pre><code class="language-text">[Kick/Snare Mixer Out] ──&gt; [Compressor In]
+[Compressor Out] ──&gt; [Main Mixer Chain L]
+[Kick/Snare Mixer Send L/R] ──&gt; [Main Mixer Chain Send L/R]
+[Main Mixer Send L/R] ──&gt; [Reverb In L/R]
+[Reverb Out L/R] ──&gt; [Main Mixer Return L/R]
+[Main Mixer Out L/R] ──&gt; [Audio Output Left/Right]
+</code></pre>
+<p>Kick and snare go to the first Mixer's mono <strong>Out</strong> and through a compressor, which glues them together. The compressor's 8 ms attack lets each hit's crack through before it starts to work. Its output comes into the main Mixer on <strong>Chain L</strong> alone, so it lands dead centre. Hats, toms and crash have the main Mixer's four channels, each panned to its place.</p>
+<p>There is one room for the whole kit: a short reverb, 0.9 seconds long and fully wet. Every drum decides how much of it to hear. On the main Mixer each channel sends 25%. On the first Mixer, the snare's two channels send 30% and the kick sends nothing, so the low end stays tight and dry. The snare's sends travel to the main Mixer on <strong>Chain Send</strong>, join its own, and the reverb hears them all on the main Mixer's <strong>Send L</strong> and <strong>Send R</strong>.</p>
+<p>The reverb comes back on the main Mixer's <strong>Return</strong>. That closes a loop, from the Mixer to the reverb and back, which the Return allows by hearing the reverb one audio block late, about 5 ms. The reverb's pre-delay is 2.5 ms, a little shorter than the room's natural 8 ms, to make up for it.</p>
+<p>The hats, toms and crash have exactly the balance they had when the whole second Mixer ran through the reverb at 20%: faders at 0.8 of their old level keep the dry, and a 25% send after them keeps the wet.</p>
 <h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
 <p><strong>Tighter or looser kick.</strong> Shorten the kick pitch envelope's <strong>Dec</strong> to 25 ms for a clicky dance kick, or lengthen it to 90 ms for a boomy one. Raise the level envelope's <strong>Dec</strong> to 900 ms for an 808-style tail.</p>
 <p><strong>More snare.</strong> Turn the snare filter's <strong>Cutoff</strong> down to 900 Hz for a fatter, rougher snare, or set it to BandPass at 4 kHz for a thin, crisp one.</p>
 <p><strong>Busier hats.</strong> Set another step to C5 to open the hat there. Set the step after it to C5 as well to let it ring.</p>
 <p><strong>Half-time.</strong> Turn off the snare's steps 5 and 13 and turn on step 9. With one backbeat a bar instead of two, the same tempo feels half as fast and twice as heavy.</p>
 <p><strong>A different fill.</strong> The toms play steps 9 to 16. Turn on steps 1 to 8 for a whole-bar fill, or change the pitches for a different run.</p>
+<p><strong>More room, or less.</strong> The snare's <strong>Send 2</strong> and <strong>Send 3</strong> on the kick-and-snare Mixer set how far back it sits: 60% pushes it to the back of the room, 0% puts it right in your ear. Turn the main Mixer's <strong>Send 1</strong> and <strong>Send 2</strong> down for dry, close hats, or <strong>Send 4</strong> up for a crash that hangs in the air.</p>
 <p><strong>Swing it.</strong> Turn the Clock's <strong>Swing</strong> to about 58%. Every off-beat sixteenth lands a little late, while the downbeats and the backbeat stay on the grid. The pattern stops sounding programmed and starts to sit in a pocket. At 66% it becomes a full triplet shuffle.</p>
 <p><strong>Faster or slower.</strong> Turn the Clock's <strong>BPM</strong>. The fill stays on every fourth bar at any tempo, because the divider counts the Clock's own sixteenths.</p>
 <p><strong>A longer phrase.</strong> Set the Clock Divider's <strong>Div</strong> to 128 for a fill every eighth bar. Set <strong>Offset</strong> to 48, or 112 with <strong>Div</strong> 128, and the fill moves to the last bar of the phrase, with the crash on the first bar of the next one, the way drummers usually phrase it.</p>
