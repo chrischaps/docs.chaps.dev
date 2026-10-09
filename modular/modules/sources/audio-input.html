@@ -229,8 +229,9 @@
 <li>A mono device is heard on both sides. An interface with more than two inputs gives its first two.</li>
 </ul>
 <h2 id="low-latency-with-asio-windows"><a class="header" href="#low-latency-with-asio-windows">Low latency with ASIO (Windows)</a></h2>
+<div class="asio-badge"><img src="../../images/asio-compatible.svg" alt="ASIO Compatible"><span>ASIO is a registered trademark of Steinberg Media Technologies GmbH</span></div>
 <p>Windows Audio is shared by every app, and each direction passes through the Windows audio engine: fine for a pad or a sampled loop, but a guitarist hears 60 ms as a slap-back echo of their own playing. An audio interface's <strong>ASIO</strong> driver skips all of that. Input and output come from one driver, on one clock, in buffers a few milliseconds long, and Modular holds nothing between them: each output buffer is computed from the input that arrived moments before.</p>
-<p>To use it, build Modular with ASIO (<a href="../../getting-started/installation.html#build-with-asio-windows-optional">Build with ASIO</a>), then open the <strong>Output</strong> menu and choose <strong>ASIO</strong> under <strong>Audio system</strong>. The menu then lists ASIO drivers, and <strong>Input</strong> offers that driver's inputs. Choose it there to hear your interface.</p>
+<p>To use it, download the low-latency Windows build, or build Modular with ASIO yourself (both in <a href="../../getting-started/installation.html#build-with-asio-windows-optional">Build with ASIO</a>), then open the <strong>Output</strong> menu and choose <strong>ASIO</strong> under <strong>Audio system</strong>. The menu then lists ASIO drivers, and <strong>Input</strong> offers that driver's inputs. Choose it there to hear your interface.</p>
 <p><strong>Buffer</strong> sets how many frames the driver hands over at a time, and the closed Output menu shows it beside the driver's name:</p>
 <div class="table-wrapper"><table><thead><tr><th>Buffer</th><th>At 48 kHz</th><th>Round trip, measured</th><th></th></tr></thead><tbody>
 <tr><td><strong>32</strong></td><td>0.7 ms</td><td>11 ms</td><td>The quickest; needs a computer with headroom</td></tr>

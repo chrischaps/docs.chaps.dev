@@ -232,6 +232,7 @@
 <p>Patches go in and out as files: <strong>💾 Save</strong> downloads the patch, and <strong>📂 Open</strong> picks one to upload. Each recipe in this manual can be played on its page.</p>
 <h2 id="download-a-release"><a class="header" href="#download-a-release">Download a release</a></h2>
 <p>Prebuilt binaries for Windows, macOS (Intel and Apple Silicon) and Linux are attached to each <a href="https://github.com/chrischaps/Modular/releases">release on GitHub</a>. Download the zip for your system, unzip it, and run <code>modular_synth</code>.</p>
+<p>For playing live on Windows, download <strong><code>modular_synth-windows-asio.zip</code></strong>, the low-latency build, instead. It runs exactly like the standard one, and can also use an audio interface's ASIO driver: see <a href="getting-started/installation.html#build-with-asio-windows-optional">Build with ASIO</a> for what that gives you, and skip the building.</p>
 <p>Releases are cut from time to time and can trail the source. This manual describes the current source, so if a feature here is missing from your copy, build from source.</p>
 <h2 id="build-from-source"><a class="header" href="#build-from-source">Build from source</a></h2>
 <h3 id="install-rust"><a class="header" href="#install-rust">Install Rust</a></h3>
@@ -260,7 +261,9 @@ cargo run --release
 <p>The first build takes a few minutes. Always use <code>--release</code> to play: the debug build is much slower and can't keep up with a busy patch, so you'll hear dropouts. The finished binary is <code>target/release/modular_synth</code>.</p>
 <p>The app opens on the <strong>First Sound</strong> example. Press <strong>▶ Play</strong>, then play the <code>Z</code> to <code>M</code> keys on your computer keyboard. If you hear a note, everything is working.</p>
 <h3 id="build-with-asio-windows-optional"><a class="header" href="#build-with-asio-windows-optional">Build with ASIO (Windows, optional)</a></h3>
-<p>For playing a guitar or singing through Modular, Windows Audio's round trip of 60 ms or so is too slow to play against. An audio interface's <strong>ASIO</strong> driver talks to the hardware directly and gets it down to 11–20 ms on a Scarlett 2i2. ASIO support is a build option, off by default:</p>
+<p>For playing a guitar or singing through Modular, Windows Audio's round trip of 60 ms or so is too slow to play against. An audio interface's <strong>ASIO</strong> driver talks to the hardware directly and gets it down to 11–20 ms on a Scarlett 2i2.</p>
+<div class="asio-badge"><img src="getting-started/../images/asio-compatible.svg" alt="ASIO Compatible"><span>ASIO is a registered trademark of Steinberg Media Technologies GmbH</span></div>
+<p>The low-latency Windows download (<code>modular_synth-windows-asio.zip</code>, see <a href="getting-started/installation.html#download-a-release">Download a release</a>) has ASIO built in: install your interface's driver (step 1) and choose <strong>ASIO</strong> in the <strong>Output</strong> menu. To build it yourself, it's a build option, off by default:</p>
 <ol>
 <li>
 <p><strong>Install your interface's ASIO driver</strong> from its maker. For a Focusrite Scarlett, that's the Focusrite USB driver from <a href="https://focusrite.com/downloads">focusrite.com</a>. Restart, or unplug the interface and plug it back in, once it's installed: until then the driver may not find the interface.</p>
@@ -282,7 +285,7 @@ cargo run --release
 </li>
 </ol>
 <p>Then choose <strong>ASIO</strong> at the top of the <strong>Output</strong> menu. See <a href="getting-started/../modules/sources/audio-input.html#low-latency-with-asio-windows">Audio Input</a> for choosing a buffer size.</p>
-<p>Steinberg licenses the ASIO SDK under the GPLv3 (or its own proprietary terms). Modular's source is MIT, but a binary you build with ASIO includes the SDK, so if you share one, the GPLv3 applies to it. The prebuilt releases leave ASIO out.</p>
+<p>Steinberg licenses the ASIO SDK under the GPLv3 (or its own proprietary terms). Modular's source is MIT, but a binary built with ASIO includes the SDK, so if you share one, the GPLv3 applies to it. The low-latency download is such a binary: it's distributed under the GPLv3, with the licence and a notice in its zip, and the exact SDK it was built from is attached to the same release (<code>asio-sdk-source.zip</code>). The other downloads leave ASIO out and stay MIT.</p>
 <h2 id="command-line"><a class="header" href="#command-line">Command line</a></h2>
 <p>Pass a patch file to open it instead of First Sound:</p>
 <pre><code class="language-bash">cargo run --release -- patches/lush-pad.json
@@ -1235,8 +1238,9 @@ cargo run --release
 <li>A mono device is heard on both sides. An interface with more than two inputs gives its first two.</li>
 </ul>
 <h2 id="low-latency-with-asio-windows"><a class="header" href="#low-latency-with-asio-windows">Low latency with ASIO (Windows)</a></h2>
+<div class="asio-badge"><img src="modules/sources/../../images/asio-compatible.svg" alt="ASIO Compatible"><span>ASIO is a registered trademark of Steinberg Media Technologies GmbH</span></div>
 <p>Windows Audio is shared by every app, and each direction passes through the Windows audio engine: fine for a pad or a sampled loop, but a guitarist hears 60 ms as a slap-back echo of their own playing. An audio interface's <strong>ASIO</strong> driver skips all of that. Input and output come from one driver, on one clock, in buffers a few milliseconds long, and Modular holds nothing between them: each output buffer is computed from the input that arrived moments before.</p>
-<p>To use it, build Modular with ASIO (<a href="modules/sources/../../getting-started/installation.html#build-with-asio-windows-optional">Build with ASIO</a>), then open the <strong>Output</strong> menu and choose <strong>ASIO</strong> under <strong>Audio system</strong>. The menu then lists ASIO drivers, and <strong>Input</strong> offers that driver's inputs. Choose it there to hear your interface.</p>
+<p>To use it, download the low-latency Windows build, or build Modular with ASIO yourself (both in <a href="modules/sources/../../getting-started/installation.html#build-with-asio-windows-optional">Build with ASIO</a>), then open the <strong>Output</strong> menu and choose <strong>ASIO</strong> under <strong>Audio system</strong>. The menu then lists ASIO drivers, and <strong>Input</strong> offers that driver's inputs. Choose it there to hear your interface.</p>
 <p><strong>Buffer</strong> sets how many frames the driver hands over at a time, and the closed Output menu shows it beside the driver's name:</p>
 <div class="table-wrapper"><table><thead><tr><th>Buffer</th><th>At 48 kHz</th><th>Round trip, measured</th><th></th></tr></thead><tbody>
 <tr><td><strong>32</strong></td><td>0.7 ms</td><td>11 ms</td><td>The quickest; needs a computer with headroom</td></tr>
