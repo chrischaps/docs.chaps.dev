@@ -200,7 +200,7 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <h2 id="modules"><a class="header" href="#modules">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
 <tr><td><a href="../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 120, <strong>Div</strong> 1/16</td></tr>
-<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a></td><td><strong>Steps</strong> 16, <strong>Dir</strong> Fwd, <strong>Gate</strong> 50%</td></tr>
+<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a></td><td><strong>Steps</strong> 16, <strong>Dir</strong> Fwd, <strong>Gate</strong> 50%, <strong>Gate of</strong> 100 ms</td></tr>
 <tr><td><a href="../modules/sources/oscillator.html">Oscillator</a></td><td><strong>Wave</strong> Saw</td></tr>
 <tr><td><a href="../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 300 Hz, <strong>Res</strong> 70%</td></tr>
 <tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a> (filter)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 200 ms, <strong>Sus</strong> 10%, <strong>Rel</strong> 50 ms</td></tr>
@@ -244,7 +244,7 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 [Stereo Delay Out L] ──&gt; [Audio Output Left]
 [Stereo Delay Out R] ──&gt; [Audio Output Right]
 </code></pre>
-<p>The amp envelope is short and punchy, so each note is a distinct pluck. With <strong>Gate</strong> at 50%, each of the sequencer's gates lasts 50 ms (gate length is a share of a fixed 100 ms), well inside the 125 ms step.</p>
+<p>The amp envelope is short and punchy, so each note is a distinct pluck. With <strong>Gate</strong> at 50%, each of the sequencer's gates lasts 50 ms (<strong>Gate of</strong> is set to 100 ms, so Gate is a share of a fixed 100 ms), well inside the 125 ms step.</p>
 <p>Soft distortion at 30% drive, mixed at 70%, rounds and thickens the bass and makes the resonant peak growl.</p>
 <p>The Stereo Delay's <strong>Sync</strong> is set to 1/8D, a dotted eighth. It takes its tempo from the Clock, so at 120 BPM each echo comes 375 ms after its note: three sixteenths later, falling between the notes and filling the gaps. Its <strong>LoCut</strong> keeps the echoes out of the bass register, so they don't muddy the line.</p>
 <h3 id="hi-hats"><a class="header" href="#hi-hats">Hi-hats</a></h3>

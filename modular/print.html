@@ -3048,9 +3048,9 @@ Out:   __‾‾‾‾‾‾____‾‾‾‾‾‾‾‾        (one held value p
 <div style="break-before: page; page-break-before: always;"></div><h1 id="step-sequencer"><a class="header" href="#step-sequencer">Step Sequencer</a></h1>
 <p><strong>Module ID</strong> <code>seq.step</code> · <strong>Category</strong> Utility</p>
 <p><img src="modules/utilities/../../images/module-sequencer.png" alt="Step Sequencer Module" />
-<em>Green steps play, dark steps rest; the outlined step is the one sounding now.</em></p>
+<em>Green steps play, dark steps rest; the outlined step is the one sounding now. A tied step reaches into the next one: here step 4 into 5, 8 into 9, and 15 into 16.</em></p>
 <p>The Step Sequencer plays a repeating pattern of up to 16 notes. Each clock pulse moves it one step along, and each step sends out its own pitch, a gate if the step is switched on, and a velocity. Patch <strong>Pitch</strong> into an oscillator and <strong>Gate</strong> into an envelope, and a <a href="modules/utilities/../modulation/clock.html">Clock</a> turns it into a bass line, an arpeggio or a riff.</p>
-<p>The pattern lives on the node itself: a grid of step buttons with each step's note name underneath.</p>
+<p>The pattern lives on the node itself: a grid of step buttons with each step's note name underneath. Ties join a step to the next one for held notes and legato lines.</p>
 <h2 id="inputs-19"><a class="header" href="#inputs-19">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Clock</strong></td><td>Gate (Green)</td><td>Each rising edge advances one step</td></tr>
@@ -3061,7 +3061,7 @@ Out:   __‾‾‾‾‾‾____‾‾‾‾‾‾‾‾        (one held value p
 <h2 id="outputs-22"><a class="header" href="#outputs-22">Outputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Pitch</strong></td><td>Control (Orange)</td><td>The current step's note as V/Oct. Middle C (C4) is 0.0, the same as the Keyboard and MIDI modules</td></tr>
-<tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>A pulse on each clock when the current step is switched on</td></tr>
+<tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>High for each step that's switched on, for <strong>Gate</strong> of the step. Stays high across a tie</td></tr>
 <tr><td><strong>Velocity</strong></td><td>Control (Orange)</td><td>The current step's velocity, 0 to 1</td></tr>
 <tr><td><strong>Step</strong></td><td>Control (Orange)</td><td>The current position as a ramp: 0 on the first step, 1 on the last</td></tr>
 <tr><td><strong>EOC</strong></td><td>Gate (Green)</td><td>End of cycle: a 1 ms pulse each time the pattern comes round</td></tr>
@@ -3070,23 +3070,36 @@ Out:   __‾‾‾‾‾‾____‾‾‾‾‾‾‾‾        (one held value p
 <h2 id="parameters-23"><a class="header" href="#parameters-23">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Steps</strong></td><td>1 – 16</td><td>8</td><td>How many steps play before the pattern loops</td></tr>
-<tr><td><strong>Gate</strong> (Gate Length)</td><td>1 – 99%</td><td>50%</td><td>How long each gate stays high, as a percentage of 100 ms</td></tr>
+<tr><td><strong>Gate</strong> (Gate Length)</td><td>1 – 100%</td><td>50%</td><td>How long each gate stays high, as a share of the step. 100% holds it until the next clock</td></tr>
 <tr><td><strong>Dir</strong> (Direction)</td><td>Fwd / Bwd / P-P / Rnd</td><td>Fwd</td><td>Playback order</td></tr>
+<tr><td><strong>Gate of</strong> (Gate Mode)</td><td>Step / 100 ms</td><td>Step</td><td>What <strong>Gate</strong> is a share of: the time between clock pulses, or a fixed 100 ms</td></tr>
 </tbody></table>
 </div>
-<p>Each of the 16 steps also stores a note (default C4), a gate on/off (default on) and a velocity (default 100 of 127). Patches save all of them.</p>
+<p>Each of the 16 steps also stores a note (default C4), a gate on/off (default on), a tie (default off) and a velocity (default 100 of 127). Patches save all of them.</p>
 <h2 id="programming-a-pattern"><a class="header" href="#programming-a-pattern">Programming a pattern</a></h2>
 <p>The grid shows one button per active step, in rows of eight. Steps beyond <strong>Steps</strong> are hidden, not lost: turn <strong>Steps</strong> back up and they return as you left them.</p>
 <ul>
 <li><strong>Click</strong> a step to switch its gate on (green) or off (dark). An off step is a rest: Pitch still moves to its note, but no gate fires.</li>
-<li><strong>Right-click</strong> a step to change its note: <strong>Pitch +12 (Octave Up)</strong>, <strong>Pitch +1 (Semitone Up)</strong>, <strong>Pitch -1 (Semitone Down)</strong> or <strong>Pitch -12 (Octave Down)</strong>. The note name under the step updates as you go.</li>
+<li><strong>Shift + click</strong> a step to tie it into the next step. A bar joins the two. Shift + click again to untie.</li>
+<li><strong>Right-click</strong> a step to change its note: <strong>Pitch +12 (Octave Up)</strong>, <strong>Pitch +1 (Semitone Up)</strong>, <strong>Pitch -1 (Semitone Down)</strong> or <strong>Pitch -12 (Octave Down)</strong>. The note name under the step updates as you go. <strong>Tie into next step</strong> in the same menu does the same as Shift + click.</li>
 </ul>
 <p>While the patch plays, the current step is drawn brighter, with a white outline.</p>
 <p>Velocities can't be edited on the node yet. Every step plays at 100 unless the patch file says otherwise. If you do set them there, patch <strong>Velocity</strong> into an envelope's <strong>Velocity</strong> input for accents.</p>
 <h2 id="timing-1"><a class="header" href="#timing-1">Timing</a></h2>
 <h3 id="clock-and-gate-length"><a class="header" href="#clock-and-gate-length">Clock and gate length</a></h3>
 <p>The sequencer has no tempo of its own. It moves on each rising edge at <strong>Clock</strong>, so the clock you patch in sets the speed, and its swing or irregularity carries through.</p>
-<p><strong>Gate</strong> sets the length of each note as a share of a fixed 100 ms, not of the step. At 50% each gate lasts 50 ms; at 99%, 99 ms. Fast patterns (sixteenths at 120 BPM are 125 ms apart) stay detached at every setting, which suits plucks and basses. For longer notes, give the envelope a longer <strong>Decay</strong> and higher <strong>Sustain</strong>, or a longer <strong>Release</strong>.</p>
+<p><strong>Gate</strong> sets the length of each note as a share of the step. The sequencer measures the step from the clock itself, as the time between the last two pulses, so the notes follow the tempo. At 60 BPM in quarter notes, 50% is a 500 ms gate; at 120 BPM in sixteenths, it's 62.5 ms. Lower settings give staccato plucks, higher ones legato. If the tempo changes, the next step uses the new length.</p>
+<p>At <strong>100%</strong> the gate stays high right up to the next clock. If the next step plays, the gate drops for a single sample there, so an envelope still starts a new note. If the next step is a rest, the gate falls on that clock.</p>
+<p>Until it has seen two clock pulses, the sequencer has no step to measure. The first note after the patch starts uses the 100 ms rule below.</p>
+<p>A <strong>Reset</strong> doesn't count the time since the last pulse as a step. That gap might be a pause while the clock was stopped, so the sequencer keeps the step it measured before.</p>
+<h3 id="ties"><a class="header" href="#ties">Ties</a></h3>
+<p>A tied step holds its gate across the next clock. If the next step plays, it continues the same note: <strong>Pitch</strong> moves to the new step's note, but the gate never drops, so an envelope stays in its sustain instead of starting again. Tie several steps in a row for one long note over all of them. Tie two steps with different notes and the second is played legato: one envelope, two pitches, the way a monosynth player slurs a phrase.</p>
+<p>A tie into a rest just holds the note to the end of the tied step. A tie on a step that's switched off does nothing.</p>
+<p>The next step is whichever plays next, so in <strong>Bwd</strong>, <strong>P-P</strong> or <strong>Rnd</strong> a tie carries into that one, though the bar on the grid always points right. Tie the last step to carry the note round into the first. At the end of a row the bar reaches out of the step's right side and into the left side of the next row's first step.</p>
+<p>A held gate (a tie, or <strong>Gate</strong> at 100%) lets go after two steps' time if no clock comes, so stopping the clock doesn't leave a note hanging.</p>
+<h3 id="100-ms-gates"><a class="header" href="#100-ms-gates">100 ms gates</a></h3>
+<p>With <strong>Gate of</strong> at <strong>100 ms</strong>, <strong>Gate</strong> is a share of a fixed 100 ms instead of the step: 50% is always 50 ms, whatever the tempo. Short, even triggers like this suit drums. Ties still work in this mode. If a gate is still high when the next note starts, as 99% is at fast tempos, the two notes run together without a new attack.</p>
+<p>Patches saved before the sequencer measured its steps open in this mode, so they sound as they always did. Switch them to <strong>Step</strong> for gates that follow the tempo.</p>
 <h3 id="reset-and-the-first-step"><a class="header" href="#reset-and-the-first-step">Reset and the first step</a></h3>
 <p>Each clock moves to the next step and sounds it, except the first clock after a <strong>Reset</strong>, which sounds the step the pattern starts from without moving past it. So a reset on the downbeat puts step 1 on the downbeat. The same goes for the first clock after the patch starts playing.</p>
 <p>The start step is step 1 in every direction but <strong>Bwd</strong>, which starts from the last step. <strong>Rnd</strong> starts on step 1 too, then picks at random from the next clock on.</p>
@@ -3459,7 +3472,7 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <h2 id="modules-4"><a class="header" href="#modules-4">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
 <tr><td><a href="recipes/../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 40, <strong>Div</strong> 1/4</td></tr>
-<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a></td><td><strong>Steps</strong> 8, <strong>Dir</strong> Fwd, <strong>Gate</strong> 60%. Notes C4 D4 E4 G4 A4 G4 E4 D4, step 6 off</td></tr>
+<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a></td><td><strong>Steps</strong> 8, <strong>Dir</strong> Fwd, <strong>Gate</strong> 60%, <strong>Gate of</strong> 100 ms. Notes C4 D4 E4 G4 A4 G4 E4 D4, step 6 off</td></tr>
 <tr><td><a href="recipes/../modules/sources/oscillator.html">Oscillator</a> 1</td><td><strong>Wave</strong> Tri, <strong>Oct</strong> −1, <strong>Exp FM</strong> 0.01 oct</td></tr>
 <tr><td><a href="recipes/../modules/sources/oscillator.html">Oscillator</a> 2</td><td><strong>Wave</strong> Sine</td></tr>
 <tr><td><a href="recipes/../modules/sources/noise.html">Noise</a></td><td><strong>Rate</strong> 0.2 Hz</td></tr>
@@ -3638,7 +3651,7 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <h2 id="modules-6"><a class="header" href="#modules-6">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
 <tr><td><a href="recipes/../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 120, <strong>Div</strong> 1/16</td></tr>
-<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a></td><td><strong>Steps</strong> 16, <strong>Dir</strong> Fwd, <strong>Gate</strong> 50%</td></tr>
+<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a></td><td><strong>Steps</strong> 16, <strong>Dir</strong> Fwd, <strong>Gate</strong> 50%, <strong>Gate of</strong> 100 ms</td></tr>
 <tr><td><a href="recipes/../modules/sources/oscillator.html">Oscillator</a></td><td><strong>Wave</strong> Saw</td></tr>
 <tr><td><a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 300 Hz, <strong>Res</strong> 70%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (filter)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 200 ms, <strong>Sus</strong> 10%, <strong>Rel</strong> 50 ms</td></tr>
@@ -3682,7 +3695,7 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 [Stereo Delay Out L] ──&gt; [Audio Output Left]
 [Stereo Delay Out R] ──&gt; [Audio Output Right]
 </code></pre>
-<p>The amp envelope is short and punchy, so each note is a distinct pluck. With <strong>Gate</strong> at 50%, each of the sequencer's gates lasts 50 ms (gate length is a share of a fixed 100 ms), well inside the 125 ms step.</p>
+<p>The amp envelope is short and punchy, so each note is a distinct pluck. With <strong>Gate</strong> at 50%, each of the sequencer's gates lasts 50 ms (<strong>Gate of</strong> is set to 100 ms, so Gate is a share of a fixed 100 ms), well inside the 125 ms step.</p>
 <p>Soft distortion at 30% drive, mixed at 70%, rounds and thickens the bass and makes the resonant peak growl.</p>
 <p>The Stereo Delay's <strong>Sync</strong> is set to 1/8D, a dotted eighth. It takes its tempo from the Clock, so at 120 BPM each echo comes 375 ms after its note: three sixteenths later, falling between the notes and filling the gaps. Its <strong>LoCut</strong> keeps the echoes out of the bass register, so they don't muddy the line.</p>
 <h3 id="hi-hats"><a class="header" href="#hi-hats">Hi-hats</a></h3>
@@ -3740,7 +3753,7 @@ crash    on the downbeat after each fill
 <h2 id="modules-7"><a class="header" href="#modules-7">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
 <tr><td><a href="recipes/../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 96, <strong>Div</strong> 1/16</td></tr>
-<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a> ×4 (kick, snare, hats, toms)</td><td><strong>Steps</strong> 16, <strong>Gate</strong> 99%. Steps as in the pattern above</td></tr>
+<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a> ×4 (kick, snare, hats, toms)</td><td><strong>Steps</strong> 16, <strong>Gate</strong> 99%, <strong>Gate of</strong> 100 ms. Steps as in the pattern above</td></tr>
 <tr><td><a href="recipes/../modules/sources/oscillator.html">Oscillator</a> (kick)</td><td><strong>Wave</strong> Sine, <strong>Oct</strong> -2, <strong>Semi</strong> -3 (55 Hz), <strong>Exp FM</strong> 2.6 oct</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (kick pitch)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 45 ms, <strong>Sus</strong> 0%, <strong>Rel</strong> 45 ms, <strong>Vel</strong> 30%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (kick level)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 450 ms, <strong>Sus</strong> 0%, <strong>Rel</strong> 450 ms, <strong>Vel</strong> 40%</td></tr>
@@ -3755,7 +3768,7 @@ crash    on the downbeat after each fill
 <tr><td><a href="recipes/../modules/sources/oscillator.html">Oscillator</a> (toms)</td><td><strong>Wave</strong> Sine, <strong>Oct</strong> -1, <strong>Semi</strong> +2, <strong>Exp FM</strong> 0.35 oct</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (toms)</td><td><strong>Dec</strong> 320 ms, <strong>Rel</strong> 320 ms, <strong>Vel</strong> 60%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/clock.html">Clock</a> (phrase)</td><td><strong>BPM</strong> 24, <strong>Div</strong> 1, <strong>Gate</strong> 26%</td></tr>
-<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a> (bar counter)</td><td><strong>Steps</strong> 4, only step 4 on</td></tr>
+<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a> (bar counter)</td><td><strong>Steps</strong> 4, <strong>Gate of</strong> 100 ms, only step 4 on</td></tr>
 <tr><td><a href="recipes/../modules/sources/noise.html">Noise</a> + <a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a> (crash)</td><td><strong>Level</strong> 0%; HighPass, <strong>Cutoff</strong> 4.2 kHz, <strong>Res</strong> 20%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (crash)</td><td><strong>Dec</strong> 1.6 s, <strong>Rel</strong> 1.6 s, <strong>Vel</strong> 0%</td></tr>
 <tr><td><a href="recipes/../modules/utilities/attenuverter.html">Attenuverter</a> (hat mute)</td><td><strong>Amount</strong> -1.0</td></tr>
@@ -3766,7 +3779,7 @@ crash    on the downbeat after each fill
 <tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 72%</td></tr>
 </tbody></table>
 </div>
-<p>All drum envelopes have a 1 ms attack and 0% sustain. The sequencer's gate is at most 100 ms long, so each envelope's <strong>Release</strong> matches its <strong>Decay</strong>: the sound falls at the same rate after the gate closes.</p>
+<p>All drum envelopes have a 1 ms attack and 0% sustain. The sequencers' gates are a fixed 99 ms (<strong>Gate of</strong> 100 ms), so each envelope's <strong>Release</strong> matches its <strong>Decay</strong>: the sound falls at the same rate after the gate closes.</p>
 <h2 id="how-its-built-6"><a class="header" href="#how-its-built-6">How it's built</a></h2>
 <h3 id="the-kick"><a class="header" href="#the-kick">The kick</a></h3>
 <pre><code class="language-text">[Kick Seq Gate] ──&gt; [Kick Pitch Env Gate]  [Kick Level Env Gate]  [Oscillator Sync]
@@ -3843,8 +3856,8 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <h2 id="modules-8"><a class="header" href="#modules-8">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
 <tr><td><a href="recipes/../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 92, <strong>Div</strong> 1/16</td></tr>
-<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a> 1 (arpeggio)</td><td><strong>Steps</strong> 16, <strong>Gate</strong> 60%. Notes C4 G4 D5 C5 G5 D5 G4 C5 C4 G4 D5 G5 C6 G5 D5 G4, step 10 off</td></tr>
-<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a> 2 (chords)</td><td><strong>Steps</strong> 4, <strong>Gate</strong> 99%. Notes F3 C4 G3 A3</td></tr>
+<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a> 1 (arpeggio)</td><td><strong>Steps</strong> 16, <strong>Gate</strong> 60%, <strong>Gate of</strong> 100 ms. Notes C4 G4 D5 C5 G5 D5 G4 C5 C4 G4 D5 G5 C6 G5 D5 G4, step 10 off</td></tr>
+<tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a> 2 (chords)</td><td><strong>Steps</strong> 4, <strong>Gate</strong> 99%, <strong>Gate of</strong> 100 ms. Notes F3 C4 G3 A3</td></tr>
 <tr><td><a href="recipes/../modules/sources/oscillator.html">Oscillator</a> 1</td><td><strong>Wave</strong> Saw, <strong>Voices</strong> 2, <strong>Detune</strong> 12%, <strong>Exp FM</strong> 1.0 oct</td></tr>
 <tr><td><a href="recipes/../modules/filters/ladder-filter.html">Ladder Filter</a></td><td><strong>Cutoff</strong> 900 Hz, <strong>Res</strong> 35%, <strong>Drive</strong> 2.2x</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> 1</td><td><strong>Atk</strong> 2 ms, <strong>Dec</strong> 350 ms, <strong>Sus</strong> 0%, <strong>Rel</strong> 350 ms, <strong>Vel</strong> 60%</td></tr>

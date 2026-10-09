@@ -209,7 +209,7 @@ crash    on the downbeat after each fill
 <h2 id="modules"><a class="header" href="#modules">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
 <tr><td><a href="../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 96, <strong>Div</strong> 1/16</td></tr>
-<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a> ×4 (kick, snare, hats, toms)</td><td><strong>Steps</strong> 16, <strong>Gate</strong> 99%. Steps as in the pattern above</td></tr>
+<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a> ×4 (kick, snare, hats, toms)</td><td><strong>Steps</strong> 16, <strong>Gate</strong> 99%, <strong>Gate of</strong> 100 ms. Steps as in the pattern above</td></tr>
 <tr><td><a href="../modules/sources/oscillator.html">Oscillator</a> (kick)</td><td><strong>Wave</strong> Sine, <strong>Oct</strong> -2, <strong>Semi</strong> -3 (55 Hz), <strong>Exp FM</strong> 2.6 oct</td></tr>
 <tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a> (kick pitch)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 45 ms, <strong>Sus</strong> 0%, <strong>Rel</strong> 45 ms, <strong>Vel</strong> 30%</td></tr>
 <tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a> (kick level)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 450 ms, <strong>Sus</strong> 0%, <strong>Rel</strong> 450 ms, <strong>Vel</strong> 40%</td></tr>
@@ -224,7 +224,7 @@ crash    on the downbeat after each fill
 <tr><td><a href="../modules/sources/oscillator.html">Oscillator</a> (toms)</td><td><strong>Wave</strong> Sine, <strong>Oct</strong> -1, <strong>Semi</strong> +2, <strong>Exp FM</strong> 0.35 oct</td></tr>
 <tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a> (toms)</td><td><strong>Dec</strong> 320 ms, <strong>Rel</strong> 320 ms, <strong>Vel</strong> 60%</td></tr>
 <tr><td><a href="../modules/modulation/clock.html">Clock</a> (phrase)</td><td><strong>BPM</strong> 24, <strong>Div</strong> 1, <strong>Gate</strong> 26%</td></tr>
-<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a> (bar counter)</td><td><strong>Steps</strong> 4, only step 4 on</td></tr>
+<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a> (bar counter)</td><td><strong>Steps</strong> 4, <strong>Gate of</strong> 100 ms, only step 4 on</td></tr>
 <tr><td><a href="../modules/sources/noise.html">Noise</a> + <a href="../modules/filters/svf-filter.html">SVF Filter</a> (crash)</td><td><strong>Level</strong> 0%; HighPass, <strong>Cutoff</strong> 4.2 kHz, <strong>Res</strong> 20%</td></tr>
 <tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a> (crash)</td><td><strong>Dec</strong> 1.6 s, <strong>Rel</strong> 1.6 s, <strong>Vel</strong> 0%</td></tr>
 <tr><td><a href="../modules/utilities/attenuverter.html">Attenuverter</a> (hat mute)</td><td><strong>Amount</strong> -1.0</td></tr>
@@ -235,7 +235,7 @@ crash    on the downbeat after each fill
 <tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 72%</td></tr>
 </tbody></table>
 </div>
-<p>All drum envelopes have a 1 ms attack and 0% sustain. The sequencer's gate is at most 100 ms long, so each envelope's <strong>Release</strong> matches its <strong>Decay</strong>: the sound falls at the same rate after the gate closes.</p>
+<p>All drum envelopes have a 1 ms attack and 0% sustain. The sequencers' gates are a fixed 99 ms (<strong>Gate of</strong> 100 ms), so each envelope's <strong>Release</strong> matches its <strong>Decay</strong>: the sound falls at the same rate after the gate closes.</p>
 <h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
 <h3 id="the-kick"><a class="header" href="#the-kick">The kick</a></h3>
 <pre><code class="language-text">[Kick Seq Gate] ──&gt; [Kick Pitch Env Gate]  [Kick Level Env Gate]  [Oscillator Sync]

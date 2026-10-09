@@ -17,8 +17,8 @@
 
     
 <script type="module">
-import init, * as bindings from './modular_synth-4f5c06db16437070.js';
-const wasm = await init({ module_or_path: './modular_synth-4f5c06db16437070_bg.wasm' });
+import init, * as bindings from './modular_synth-6bbef3ea06765e7f.js';
+const wasm = await init({ module_or_path: './modular_synth-6bbef3ea06765e7f_bg.wasm' });
 
 
 window.wasmBindings = bindings;
@@ -151,7 +151,7 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
         @keyframes flow { to { stroke-dashoffset: -24; } }
         @media (prefers-reduced-motion: reduce) { #loading .flow { animation: none; } }
     </style>
-<link rel="modulepreload" href="./modular_synth-4f5c06db16437070.js" crossorigin="anonymous" integrity="sha384-YaQnsmcH06tJNmte+sPOpn3tCUIMs5uRzhi9kMoHKhEL3BhGIh+RRrwEiC545hNk"><link rel="preload" href="./modular_synth-4f5c06db16437070_bg.wasm" crossorigin="anonymous" integrity="sha384-yg7CDS/8Bza8aNqngl3HJmjvjD81of/7VuXb4K47ejDXCNmsPzg3uvKW4//heClc" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="./modular_synth-6bbef3ea06765e7f.js" crossorigin="anonymous" integrity="sha384-rdN7ve0xKzWehlu8c8LbvGuPioG/g+HNR9oBLKM+I4M0tWSMXb+54xx16Jo8G1si"><link rel="preload" href="./modular_synth-6bbef3ea06765e7f_bg.wasm" crossorigin="anonymous" integrity="sha384-S5enDfuDsTAzR9ZbhQz7JXXuJYoHzjeueQKlkWB2PHE7lhV/La1H8ig4+Ubr+nZJ" as="fetch" type="application/wasm"></head>
 
 <body>
     <canvas id="modular"></canvas>
