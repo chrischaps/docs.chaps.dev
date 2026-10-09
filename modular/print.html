@@ -228,6 +228,7 @@
 <li><strong>Recording</strong> to a WAV, and <strong>My Modules</strong>, which keep files in a folder.</li>
 <li><strong>Low latency.</strong> The browser plays sound through larger buffers, about a tenth of a second behind your playing, and twice that in Firefox. That's fine for listening and exploring, and loose for playing live.</li>
 </ul>
+<p>On a phone or tablet, a patch opens zoomed out to fit the screen: pinch to zoom in, and drag the canvas to move around.</p>
 <p>Patches go in and out as files: <strong>💾 Save</strong> downloads the patch, and <strong>📂 Open</strong> picks one to upload. Each recipe in this manual can be played on its page.</p>
 <h2 id="download-a-release"><a class="header" href="#download-a-release">Download a release</a></h2>
 <p>Prebuilt binaries for Windows, macOS (Intel and Apple Silicon) and Linux are attached to each <a href="https://github.com/chrischaps/Modular/releases">release on GitHub</a>. Download the zip for your system, unzip it, and run <code>modular_synth</code>.</p>
@@ -334,8 +335,9 @@ cargo run --release
 <p>If a patch loads with problems (a module this version doesn't know, a cable to a jack that no longer exists), a <strong>⚠ load warning</strong> appears on the right. Hover it to read the warnings; click it to dismiss them.</p>
 <h2 id="moving-around-the-canvas"><a class="header" href="#moving-around-the-canvas">Moving around the canvas</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>To</th><th>Do this</th></tr></thead><tbody>
-<tr><td>Zoom</td><td>Scroll the mouse wheel</td></tr>
+<tr><td>Zoom</td><td>Scroll the mouse wheel. A trackpad pinch, or <code>Ctrl</code> and scroll, zooms about the pointer</td></tr>
 <tr><td>Pan</td><td>Drag with the middle mouse button, or hold <code>Ctrl</code> and drag empty canvas</td></tr>
+<tr><td>On a touch screen</td><td>Pinch to zoom; drag empty canvas with one finger, or two, to pan</td></tr>
 <tr><td>Select a module</td><td>Click it</td></tr>
 <tr><td>Select several</td><td>Drag a box across empty canvas. It also takes in any frames and notes wholly inside it</td></tr>
 <tr><td>Move modules</td><td>Drag a module by its body; a selection moves together</td></tr>
