@@ -218,7 +218,17 @@
 <p>Modular Synth is written in Rust, with <a href="https://github.com/emilk/egui">egui</a> for the interface and <a href="https://github.com/RustAudio/cpal">cpal</a> for audio. The audio engine runs on its own thread and never waits on the interface: edits travel to it over lock-free queues, every buffer is allocated before playback starts, and a test in the build fails if the audio thread ever allocates memory. That is what keeps the sound from glitching while you patch.</p>
 <p>The source is on <a href="https://github.com/chrischaps/Modular">GitHub</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
-<p>Modular Synth runs on Windows, macOS and Linux. You can download a prebuilt release or build it from source with Rust.</p>
+<p>Modular Synth runs on Windows, macOS and Linux. You can download a prebuilt release or build it from source with Rust. Or, to hear it first, try it in the browser.</p>
+<h2 id="try-it-in-the-browser"><a class="header" href="#try-it-in-the-browser">Try it in the browser</a></h2>
+<p><strong><a href="getting-started/../play/">Open Modular in the browser</a></strong>: the whole app, nothing to install. It opens on the <strong>First Sound</strong> example. Press <strong>▶ Play</strong>, then play the <code>Z</code> to <code>M</code> keys, or hold the keys of the Keyboard module's piano with the mouse or a finger.</p>
+<iframe class="patch-embed" src="../play/?patch=first-sound" title="First Sound, playable in the browser" loading="lazy"></iframe>
+<p>The browser version runs the same engine and modules, and every example is in its <strong>📚 Examples</strong> menu. A few things need the desktop app:</p>
+<ul>
+<li><strong>MIDI devices and audio input.</strong> In the browser, the computer keyboard and the on-screen pianos play the patch.</li>
+<li><strong>Recording</strong> to a WAV, and <strong>My Modules</strong>, which keep files in a folder.</li>
+<li><strong>Low latency.</strong> The browser plays sound through larger buffers, about a tenth of a second behind your playing, and twice that in Firefox. That's fine for listening and exploring, and loose for playing live.</li>
+</ul>
+<p>Patches go in and out as files: <strong>💾 Save</strong> downloads the patch, and <strong>📂 Open</strong> picks one to upload. Each recipe in this manual can be played on its page.</p>
 <h2 id="download-a-release"><a class="header" href="#download-a-release">Download a release</a></h2>
 <p>Prebuilt binaries for Windows, macOS (Intel and Apple Silicon) and Linux are attached to each <a href="https://github.com/chrischaps/Modular/releases">release on GitHub</a>. Download the zip for your system, unzip it, and run <code>modular_synth</code>.</p>
 <p>Releases are cut from time to time and can trail the source. This manual describes the current source, so if a feature here is missing from your copy, build from source.</p>
@@ -1313,6 +1323,7 @@ White keys:  Z   X   C   V   B   N   M   ,   .   /
 Note:        C   D   E   F   G   A   B   C   D   E
 </code></pre>
 <p>That's C4 to E5, a little over an octave. The top letter row plays too, in the same octave: <strong>Q</strong> is C4, <strong>R</strong> is E4 and <strong>I</strong> is B4, and <strong>W E T Y U O P</strong> are the black keys from C♯4 to D♯5. Turn <strong>Oct</strong> to move the whole range.</p>
+<p>The piano display plays too. Hold a key with the mouse, or a finger on a touch screen, and it plays like a computer key; slide across the keys and the pitch follows, legato. It's how the Keyboard is played on a phone.</p>
 <h2 id="playing-1"><a class="header" href="#playing-1">Playing</a></h2>
 <p>The Keyboard plays legato. The first key raises the gate, and while any key is held the gate stays up: pressing another key moves <strong>Pitch</strong> to it without retriggering the envelope, so overlapping your key presses slurs one note into the next. To retrigger, release every key before playing the next one.</p>
 <p>When several keys are held, <strong>Priority</strong> picks the one that sounds:</p>
@@ -1470,7 +1481,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <p><img src="modules/midi/../../images/module-poly-midi.png" alt="Poly MIDI module" />
 <em>Each output carries one channel per voice.</em></p>
 <p>Poly MIDI plays chords. Every note you play gets a voice of its own, and its <strong>Pitch</strong>, <strong>Gate</strong> and <strong>Velocity</strong> cables carry all the voices at once, one channel per voice. Patch them into the polyphonic modules (Oscillator, SVF and Ladder filters, ADSR, VCA) and each held note plays through its own oscillator, filter and envelope. Let go of one note and only that note fades. See <a href="modules/midi/../../concepts/polyphony.html">Polyphony</a> for how polyphonic cables work.</p>
-<p>It plays from the MIDI device chosen in <strong>MIDI In</strong> on the toolbar (see <a href="modules/midi/./midi-note.html#choosing-a-midi-device">Choosing a MIDI device</a>). While a Poly MIDI module is in the patch, the computer keyboard plays it too, on the same keys as the <a href="modules/midi/./keyboard.html#key-layout">Keyboard</a> module, so you can play chords without a MIDI keyboard. Those notes arrive on channel 1 at velocity 100.</p>
+<p>It plays from the MIDI device chosen in <strong>MIDI In</strong> on the toolbar (see <a href="modules/midi/./midi-note.html#choosing-a-midi-device">Choosing a MIDI device</a>). While a Poly MIDI module is in the patch, the computer keyboard plays it too, on the same keys as the <a href="modules/midi/./keyboard.html#key-layout">Keyboard</a> module, so you can play chords without a MIDI keyboard. Its piano display plays a note too, held with the mouse or a finger. Those notes arrive on channel 1 at velocity 100.</p>
 <h2 id="outputs-5"><a class="header" href="#outputs-5">Outputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Channels</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Pitch</strong></td><td>Control (Orange)</td><td>One per voice</td><td>Each voice's note as V/Oct, with pitch bend</td></tr>
@@ -3217,6 +3228,8 @@ Out:   __‾‾‾‾‾‾____‾‾‾‾‾‾‾‾        (one held value p
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Basic Subtractive</strong> in the toolbar. Press <strong>▶ Play</strong>, then play the Z to M keys.
 The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/patches/basic-subtractive.json"><code>patches/basic-subtractive.json</code></a>.</p>
 </blockquote>
+<iframe class="patch-embed" src="../play/?patch=basic-subtractive" title="Basic Subtractive Synth, playable in the browser" loading="lazy"></iframe>
+*Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Modular**.*
 <p><img src="recipes/../images/recipe-basic-subtractive.png" alt="The Basic Subtractive patch" />
 <em>Two envelopes from one gate: one for the filter, one for the VCA.</em></p>
 <h2 id="what-it-teaches"><a class="header" href="#what-it-teaches">What it teaches</a></h2>
@@ -3271,6 +3284,8 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <p><strong>Load it:</strong> choose <strong>📚 Examples → FM Synthesis</strong> in the toolbar. Press <strong>▶ Play</strong>, then play the Z to M keys.
 The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/patches/fm-synthesis.json"><code>patches/fm-synthesis.json</code></a>.</p>
 </blockquote>
+<iframe class="patch-embed" src="../play/?patch=fm-synthesis" title="FM Synthesis, playable in the browser" loading="lazy"></iframe>
+*Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Modular**.*
 <p><img src="recipes/../images/recipe-fm-synthesis.png" alt="The FM Synthesis patch" />
 <em>A modulator and a carrier, each with its own VCA and envelope.</em></p>
 <h2 id="what-it-teaches-1"><a class="header" href="#what-it-teaches-1">What it teaches</a></h2>
@@ -3330,6 +3345,8 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Lush Pad</strong> in the toolbar. Press <strong>▶ Play</strong>, then hold chords on a MIDI keyboard or on the Z to M keys.
 The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/patches/lush-pad.json"><code>patches/lush-pad.json</code></a>.</p>
 </blockquote>
+<iframe class="patch-embed" src="../play/?patch=lush-pad" title="Lush Pad, playable in the browser" loading="lazy"></iframe>
+*Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Modular**.*
 <p><img src="recipes/../images/recipe-lush-pad.png" alt="The Lush Pad patch" />
 <em>The bundled cables carry one strand per voice.</em></p>
 <h2 id="what-it-teaches-2"><a class="header" href="#what-it-teaches-2">What it teaches</a></h2>
@@ -3408,6 +3425,8 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Generative Ambient</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
 The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/patches/generative-ambient.json"><code>patches/generative-ambient.json</code></a>.</p>
 </blockquote>
+<iframe class="patch-embed" src="../play/?patch=generative-ambient" title="Generative Ambient, playable in the browser" loading="lazy"></iframe>
+*Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Modular**.*
 <p><img src="recipes/../images/recipe-generative-ambient.png" alt="The Generative Ambient patch" />
 <em>Clock and sequencer play the melody, top left. Below, Noise and the Quantizer sing the second voice.</em></p>
 <h2 id="what-it-teaches-3"><a class="header" href="#what-it-teaches-3">What it teaches</a></h2>
@@ -3501,6 +3520,8 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Shoreline</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
 The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/patches/shoreline.json"><code>patches/shoreline.json</code></a>.</p>
 </blockquote>
+<iframe class="patch-embed" src="../play/?patch=shoreline" title="Shoreline, playable in the browser" loading="lazy"></iframe>
+*Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Modular**.*
 <p><img src="recipes/../images/recipe-shoreline.png" alt="The Shoreline patch" />
 <em>The chime runs along the top and the surf along the bottom. The Noise module on the left feeds both.</em></p>
 <h2 id="what-it-teaches-4"><a class="header" href="#what-it-teaches-4">What it teaches</a></h2>
@@ -3583,6 +3604,8 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Rhythmic Sequence</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
 The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/patches/rhythmic-sequence.json"><code>patches/rhythmic-sequence.json</code></a>.</p>
 </blockquote>
+<iframe class="patch-embed" src="../play/?patch=rhythmic-sequence" title="Rhythmic Sequence, playable in the browser" loading="lazy"></iframe>
+*Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Modular**.*
 <p><img src="recipes/../images/recipe-rhythmic-sequence.png" alt="The Rhythmic Sequence patch" />
 <em>Two envelopes from the sequencer's gate: one squelches the filter, one shapes the volume. Along the bottom, the clock plays noise hi-hats.</em></p>
 <h2 id="what-it-teaches-5"><a class="header" href="#what-it-teaches-5">What it teaches</a></h2>
@@ -3674,6 +3697,8 @@ The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/pat
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Backbeat</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
 The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/patches/backbeat.json"><code>patches/backbeat.json</code></a>.</p>
 </blockquote>
+<iframe class="patch-embed" src="../play/?patch=backbeat" title="Backbeat, playable in the browser" loading="lazy"></iframe>
+*Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Modular**.*
 <p><img src="recipes/../images/recipe-backbeat.png" alt="The Backbeat patch" />
 <em>One lane per drum, from the top: kick, snare, hi-hats, toms, crash. The clock is at the top left. The phrase clock and bar counter that schedule the fill sit lower down in the same column. Kick and snare mix to the centre at the top right. Everything else mixes through a small room to the right of the hi-hats.</em></p>
 <h2 id="what-it-teaches-6"><a class="header" href="#what-it-teaches-6">What it teaches</a></h2>
@@ -3784,6 +3809,8 @@ crash    on the downbeat after each fill
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Afterglow</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
 The patch file is <a href="https://github.com/chrischaps/Modular/blob/master/patches/afterglow.json"><code>patches/afterglow.json</code></a>.</p>
 </blockquote>
+<iframe class="patch-embed" src="../play/?patch=afterglow" title="Afterglow, playable in the browser" loading="lazy"></iframe>
+*Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Modular**.*
 <p><img src="recipes/../images/recipe-afterglow.png" alt="The Afterglow patch" />
 <em>The arpeggio voice and the effects run along the top, and the pad runs along the bottom. The cable between the two sequencers is what changes the chords.</em></p>
 <h2 id="what-it-teaches-7"><a class="header" href="#what-it-teaches-7">What it teaches</a></h2>

@@ -181,7 +181,17 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
-<p>Modular Synth runs on Windows, macOS and Linux. You can download a prebuilt release or build it from source with Rust.</p>
+<p>Modular Synth runs on Windows, macOS and Linux. You can download a prebuilt release or build it from source with Rust. Or, to hear it first, try it in the browser.</p>
+<h2 id="try-it-in-the-browser"><a class="header" href="#try-it-in-the-browser">Try it in the browser</a></h2>
+<p><strong><a href="../play/">Open Modular in the browser</a></strong>: the whole app, nothing to install. It opens on the <strong>First Sound</strong> example. Press <strong>▶ Play</strong>, then play the <code>Z</code> to <code>M</code> keys, or hold the keys of the Keyboard module's piano with the mouse or a finger.</p>
+<iframe class="patch-embed" src="../play/?patch=first-sound" title="First Sound, playable in the browser" loading="lazy"></iframe>
+<p>The browser version runs the same engine and modules, and every example is in its <strong>📚 Examples</strong> menu. A few things need the desktop app:</p>
+<ul>
+<li><strong>MIDI devices and audio input.</strong> In the browser, the computer keyboard and the on-screen pianos play the patch.</li>
+<li><strong>Recording</strong> to a WAV, and <strong>My Modules</strong>, which keep files in a folder.</li>
+<li><strong>Low latency.</strong> The browser plays sound through larger buffers, about a tenth of a second behind your playing, and twice that in Firefox. That's fine for listening and exploring, and loose for playing live.</li>
+</ul>
+<p>Patches go in and out as files: <strong>💾 Save</strong> downloads the patch, and <strong>📂 Open</strong> picks one to upload. Each recipe in this manual can be played on its page.</p>
 <h2 id="download-a-release"><a class="header" href="#download-a-release">Download a release</a></h2>
 <p>Prebuilt binaries for Windows, macOS (Intel and Apple Silicon) and Linux are attached to each <a href="https://github.com/chrischaps/Modular/releases">release on GitHub</a>. Download the zip for your system, unzip it, and run <code>modular_synth</code>.</p>
 <p>Releases are cut from time to time and can trail the source. This manual describes the current source, so if a feature here is missing from your copy, build from source.</p>
