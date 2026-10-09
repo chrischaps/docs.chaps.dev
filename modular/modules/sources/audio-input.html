@@ -183,27 +183,40 @@
                         <h1 id="audio-input"><a class="header" href="#audio-input">Audio Input</a></h1>
 <p><strong>Module ID</strong> <code>source.audio_input</code> · <strong>Category</strong> Source</p>
 <p><img src="../../images/module-audio-input.png" alt="Audio Input Module" />
-<em>A drum loop coming in. Follow scrolls past the Threshold line, turning green wherever the gate opened: the kicks get through, the snares stay under.</em></p>
+<em>A drum loop coming in on input 1, with <strong>Channel</strong> on <strong>1</strong> so both meters carry it. Follow scrolls past the Threshold line, turning green wherever the gate opened: the kicks get through, the snares stay under.</em></p>
 <p>Audio Input brings sound from outside into the patch: a microphone, a guitar, a synth on a line input. Put your voice through the reverb, a guitar through the ladder filter and a tape delay, or let a drum loop play a synth.</p>
 <p>Choose the device in the toolbar's <strong>Input</strong> menu. It starts at <strong>None</strong>, so Modular never opens a microphone you didn't ask it to. Every Audio Input module in the patch hears that one device; until you choose one, they're silent.</p>
 <p>Alongside the audio, the module listens to how loud the input is. <strong>Follow</strong> traces the level as a control signal, and <strong>Gate</strong> opens when it rises above the <strong>Threshold</strong>, so a drum hit or a picked note can trigger envelopes.</p>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><strong>L</strong></td><td>Audio (Blue)</td><td>The input's left side, after <strong>Gain</strong>. A mono microphone is heard on both <strong>L</strong> and <strong>R</strong></td></tr>
-<tr><td><strong>R</strong></td><td>Audio (Blue)</td><td>The input's right side, after <strong>Gain</strong></td></tr>
+<tr><td><strong>L</strong></td><td>Audio (Blue)</td><td>Input 1, after <strong>Gain</strong>; or, with <strong>Channel</strong> on <strong>1</strong> or <strong>2</strong>, that input</td></tr>
+<tr><td><strong>R</strong></td><td>Audio (Blue)</td><td>Input 2, after <strong>Gain</strong>; or, with <strong>Channel</strong> on <strong>1</strong> or <strong>2</strong>, that input</td></tr>
 <tr><td><strong>Follow</strong></td><td>Control (Orange)</td><td>How loud the input is, on a dB scale: 0 at -60 dB, 1 at full scale</td></tr>
 <tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>High while <strong>Follow</strong> is above the <strong>Threshold</strong></td></tr>
 </tbody></table>
 </div>
 <p>The module has no inputs: its signal comes from the device.</p>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
-<div class="table-wrapper"><table><thead><tr><th>Knob</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Channel</strong></td><td>Stereo, 1, 2</td><td>Stereo</td><td>Which of the device's inputs the module hears, on a menu at the top of the node. See <a href="#choosing-a-channel">Choosing a channel</a></td></tr>
 <tr><td><strong>Gain</strong></td><td>-24 – +24 dB</td><td>0 dB</td><td>Level of the input, before everything else. Follow and Gate hear it too</td></tr>
 <tr><td><strong>Thresh</strong></td><td>-60 – 0 dB</td><td>-30 dB</td><td>Where the gate opens</td></tr>
 <tr><td><strong>Attack</strong></td><td>0.1 – 100 ms</td><td>5 ms</td><td>How fast <strong>Follow</strong> rises when the input gets louder</td></tr>
 <tr><td><strong>Release</strong></td><td>5 – 2000 ms</td><td>150 ms</td><td>How fast <strong>Follow</strong> falls when the input gets quieter</td></tr>
 </tbody></table>
 </div>
+<h2 id="choosing-a-channel"><a class="header" href="#choosing-a-channel">Choosing a channel</a></h2>
+<p>An audio interface hands its inputs over as a pair: input 1 on the left, input 2 on the right. That's right for a stereo source, like a synth's two outputs, but a guitar or a microphone plugged into input 1 alone would play only in your left ear, and a stereo delay or reverb after it would get a lopsided signal. <strong>Channel</strong> picks what the module hears:</p>
+<div class="table-wrapper"><table><thead><tr><th>Channel</th><th>L hears</th><th>R hears</th><th>For</th></tr></thead><tbody>
+<tr><td><strong>Stereo</strong></td><td>input 1</td><td>input 2</td><td>A stereo source across both inputs, or a device with a single input (see below)</td></tr>
+<tr><td><strong>1</strong></td><td>input 1</td><td>input 1</td><td>A guitar or microphone in input 1, heard in the centre</td></tr>
+<tr><td><strong>2</strong></td><td>input 2</td><td>input 2</td><td>The same, in input 2</td></tr>
+</tbody></table>
+</div>
+<p><strong>Follow</strong> and <strong>Gate</strong> hear what the module puts out. On <strong>1</strong> or <strong>2</strong> they follow that input alone. On <strong>Stereo</strong> they follow whichever side is louder.</p>
+<p>Each Audio Input module chooses for itself, so two of them can split an interface: one on <strong>1</strong> for a guitar through a filter and an echo, one on <strong>2</strong> for a voice through a reverb, each in its own chain.</p>
+<p>A device that has only one input, like a laptop's built-in microphone or a USB mic, already plays on both sides, whichever <strong>Channel</strong> you pick.</p>
+<p>Only inputs 1 and 2 reach the patch. On an interface with more, like a Scarlett 18i20, plug what you want to play into the first two.</p>
 <h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
 <p>On the left, two slim meters show the input's peaks after <strong>Gain</strong>, on the same scale as the Audio Output meter. Hover them for the levels in dBFS. Set <strong>Gain</strong> so your loudest playing stays out of the red.</p>
 <p>On the right, the last three seconds of <strong>Follow</strong> scroll past, newest at the right edge. The <strong>Threshold</strong> lies across them as a dashed green line, and the trace turns green wherever the gate was open, so you can see which hits got through. <strong>Drag the line</strong> up or down to move the Threshold; the lamp at its end lights while the gate is open.</p>
@@ -227,7 +240,7 @@
 <li><strong>Different sample rates are fine.</strong> Windows often runs a microphone at 48 kHz and speakers at 44.1 kHz, even on one interface. Modular converts the input to the output's rate on the way in. For the cleanest sound, set both to the same rate in your system's sound settings; the status bar tooltip says when it's converting.</li>
 <li><strong>Changing the Output device</strong> reopens the input at the new device's rate.</li>
 <li>If the input device is unplugged, the status bar shows <strong>⚠ Input lost</strong>. Choose it again under <strong>Input</strong>.</li>
-<li>A mono device is heard on both sides. An interface with more than two inputs gives its first two.</li>
+<li>A mono device is heard on both sides. With a two-input interface, set <strong>Channel</strong> to the input you're using; see <a href="#choosing-a-channel">Choosing a channel</a>.</li>
 </ul>
 <h2 id="low-latency-with-asio-windows"><a class="header" href="#low-latency-with-asio-windows">Low latency with ASIO (Windows)</a></h2>
 <div class="asio-badge"><img src="../../images/asio-compatible.svg" alt="ASIO Compatible"><span>ASIO is a registered trademark of Steinberg Media Technologies GmbH</span></div>
@@ -262,14 +275,14 @@
 [Reverb Out L] ──&gt; [Audio Output Left]
 [Reverb Out R] ──&gt; [Audio Output Right]
 </code></pre>
-<p>Talk or sing into the microphone. Raise the Reverb's <strong>Size</strong> and <strong>Decay</strong> for a hall, or a cathedral. Use headphones.</p>
+<p>Talk or sing into the microphone. If it's plugged into an interface, set <strong>Channel</strong> to its input, so it sits in the middle of the room rather than off to one side. Raise the Reverb's <strong>Size</strong> and <strong>Decay</strong> for a hall, or a cathedral. Use headphones.</p>
 <h3 id="guitar-through-a-ladder-filter-and-tape-echo"><a class="header" href="#guitar-through-a-ladder-filter-and-tape-echo">Guitar through a ladder filter and tape echo</a></h3>
 <pre><code class="language-text">[Audio Input L] ──&gt; [Ladder Filter In]
 [Audio Input Follow] ──&gt; [Ladder Filter Cutoff]
 [Ladder Filter LP24] ──&gt; [Stereo Delay In L]           (Tape on)
 [Stereo Delay Out L / Out R] ──&gt; [Audio Output Left / Right]
 </code></pre>
-<p><strong>Follow</strong> opens the filter as you dig in, like an auto-wah: each pick attack sweeps it up, and it closes as the note decays. Start with the Ladder's cutoff low and its <strong>Resonance</strong> around 50%. <strong>Attack</strong> at 5 ms and <strong>Release</strong> at 200 ms give a classic quack. The tape echo then repeats each sweep, darker every time.</p>
+<p>Set <strong>Channel</strong> to the input the guitar is plugged into. <strong>Follow</strong> opens the filter as you dig in, like an auto-wah: each pick attack sweeps it up, and it closes as the note decays. Start with the Ladder's cutoff low and its <strong>Resonance</strong> around 50%. <strong>Attack</strong> at 5 ms and <strong>Release</strong> at 200 ms give a classic quack. The tape echo then repeats each sweep, darker every time.</p>
 <h3 id="drums-that-play-a-synth"><a class="header" href="#drums-that-play-a-synth">Drums that play a synth</a></h3>
 <pre><code class="language-text">[Audio Input Gate] ──&gt; [ADSR Gate]                    (Thresh just under the kicks)
 [ADSR Out] ──&gt; [VCA CV]
