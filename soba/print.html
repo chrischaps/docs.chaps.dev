@@ -460,18 +460,19 @@ cargo run --release
 <p>Click a frame's title or a note to select it, and <code>Shift</code>-click to add to the selection. <code>Delete</code>, <code>Ctrl + C</code>, <code>Ctrl + X</code>, <code>Ctrl + D</code> and <code>Ctrl + V</code> work on selected frames and notes along with any selected modules, so a framed section copies and pastes as a whole. Undo covers adding, moving, resizing, renaming, recoloring, editing and deleting them; typing a frame's name or a note is one step.</p>
 <p>Frames and notes are saved with the patch. Versions of Soba from before frames and notes existed open the patch without them.</p>
 <h2 id="groups"><a class="header" href="#groups">Groups</a></h2>
-<p>A group collapses modules into one node of your own, with jacks where cables crossed into it and the knobs you choose on its face. <a href="getting-started/../concepts/groups.html">Groups</a> has the whole story; in short:</p>
+<p>A group collapses modules into one node of your own, with jacks where cables crossed into it and the controls you choose on its face. <a href="getting-started/../concepts/groups.html">Groups</a> has the whole story; in short:</p>
 <ul>
 <li><strong>Group:</strong> select modules and press <code>Ctrl + G</code>, then type a name and press <code>Enter</code>.</li>
 <li><strong>Go inside:</strong> double-click the group, select it and press <code>Tab</code>, or click the miniature on its face. A trail at the top of the canvas shows where you are; click it, or press <code>Escape</code>, to go back out.</li>
-<li><strong>Pin a knob:</strong> inside the group, right-click a knob and choose <strong>Show on group</strong>.</li>
+<li><strong>Pin a control:</strong> inside the group, right-click a knob, dropdown or toggle and choose <strong>Show on group</strong>.</li>
+<li><strong>Add a jack:</strong> inside the group, right-click a port's name and choose <strong>Show on group</strong>. Right-click a jack and choose <strong>Remove jack</strong> to take it away.</li>
 <li><strong>Rename:</strong> select the group and press <code>F2</code>, or right-click it and choose <strong>Rename</strong>.</li>
 <li><strong>Ungroup:</strong> select the group and press <code>Ctrl + Alt + G</code>.</li>
 <li><strong>Keep it:</strong> right-click the group and choose <strong>Save to My Modules</strong>. It's then in the add menu and quick-add palette of every patch.</li>
 </ul>
 <p>A group's right-click menu also has <strong>Open</strong>, <strong>Duplicate</strong>, <strong>Copy</strong> and <strong>Delete</strong>.</p>
 <h2 id="undo-and-redo"><a class="header" href="#undo-and-redo">Undo and redo</a></h2>
-<p><strong>Undo</strong> (<code>Ctrl + Z</code>) and <strong>Redo</strong> (<code>Ctrl + Shift + Z</code> or <code>Ctrl + Y</code>) cover adding, deleting, moving and bypassing modules, patching and unpatching cables, turning knobs, grouping and ungrouping, and every change to <a href="getting-started/interface-overview.html#frames-and-notes">frames and notes</a>. Hover the toolbar buttons to see which edit is next, such as <em>Move Oscillator</em>, <em>Set SVF Filter Cutoff</em> or <em>Move frame Voice</em>.</p>
+<p><strong>Undo</strong> (<code>Ctrl + Z</code>) and <strong>Redo</strong> (<code>Ctrl + Shift + Z</code> or <code>Ctrl + Y</code>) cover adding, deleting, moving and bypassing modules, patching and unpatching cables, turning knobs, grouping and ungrouping, adding and removing a group's jacks, and every change to <a href="getting-started/interface-overview.html#frames-and-notes">frames and notes</a>. Hover the toolbar buttons to see which edit is next, such as <em>Move Oscillator</em>, <em>Set SVF Filter Cutoff</em> or <em>Move frame Voice</em>.</p>
 <p>A whole drag is one step: turning a knob from 200 Hz to 2 kHz and back undoes in one go. A deleted module comes back with its settings, its cables and its MIDI mappings. Knobs moved by a MIDI controller aren't recorded, and opening a patch starts a fresh history.</p>
 <h2 id="playing"><a class="header" href="#playing">Playing</a></h2>
 <h3 id="transport"><a class="header" href="#transport">Transport</a></h3>
@@ -874,7 +875,7 @@ cargo run --release
 <p>The Clock counts its beat precisely enough that every pulse lands within a sample of where it belongs, even after ten minutes, so a slow phrase clock and a fast sixteenth clock started together stay together.</p>
 <p>Modules read the transport once per block of audio (a few milliseconds). Within the block, a synced LFO moves on at the tempo it read. When the beat jumps, as when the Clock restarts or a MIDI master suddenly changes tempo, a synced LFO can be up to one block late in following it. On a steady tempo, and from the next beat on, it's exact.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="groups-1"><a class="header" href="#groups-1">Groups</a></h1>
-<p>A good voice (an oscillator, a filter, a VCA and an envelope) is the same few modules in patch after patch, and three voices side by side turn into a wall of cables. A <strong>group</strong> collapses modules into one node of your own. It has jacks where cables crossed into and out of the selection, and the controls you choose to keep on its face. Open it to work on what's inside. Save it to <strong>My Modules</strong>, and it's in the add menu of every patch.</p>
+<p>A good voice (an oscillator, a filter, a VCA and an envelope) is the same few modules in patch after patch, and three voices side by side turn into a wall of cables. A <strong>group</strong> collapses modules into one node of your own. It has jacks where cables crossed into and out of the selection, plus any you add, and the controls you choose to keep on its face. Open it to work on what's inside. Save it to <strong>My Modules</strong>, and it's in the add menu of every patch.</p>
 <p><img src="concepts/../images/groups-outside.png" alt="A group called Voice, playing, with a Wave dropdown and four knobs on its face" />
 <em>Voice holds an oscillator, an envelope and a VCA. Its face shows them in miniature, with the oscillator's <strong>Wave</strong> and four knobs pinned.</em></p>
 <h2 id="making-a-group"><a class="header" href="#making-a-group">Making a group</a></h2>
@@ -934,9 +935,17 @@ cargo run --release
 <p>Copy, paste, duplicate and delete treat a group as a whole: deleting one deletes everything inside it. Undo covers grouping, ungrouping, renaming, pinning and every edit you make inside a group. Undoing an edit that was made inside a group shows you that group as it happens.</p>
 <h2 id="how-the-sound-works"><a class="header" href="#how-the-sound-works">How the sound works</a></h2>
 <p>The audio engine never sees a group. It only hears the modules and the cables between them, followed through any number of jacks. Groups use no CPU, and grouping or ungrouping never interrupts the sound. A grouped patch plays sample for sample what the ungrouped patch plays, and the test suite checks this for every example.</p>
+<h2 id="adding-and-removing-jacks"><a class="header" href="#adding-and-removing-jacks">Adding and removing jacks</a></h2>
+<p>A group starts with the jacks its cables gave it, and you can change them whenever you like. Inside the group, right-click a port's name:</p>
+<ul>
+<li><strong>Show on group</strong>, on an output or an unplugged input, gives the group a new jack named after the port, wired to it through Inputs or Outputs. A filter's <strong>Cutoff</strong> shown this way can be modulated from outside, and a second output can be brought out beside the first. An input that's already plugged in inside the group can't take a jack too, so the item is greyed.</li>
+<li><strong>Hide from group</strong>, on a port wired to one of the group's jacks, unplugs it. If that leaves the jack carrying nothing inside, the jack goes, and so does any cable into it outside. If the jack still feeds another module, as a shared <strong>Gate</strong> might, it stays.</li>
+</ul>
+<p>To take a jack away from anywhere, right-click it on the group's node, or on Inputs or Outputs inside, and choose <strong>Remove jack</strong>. Its cables go with it, inside and out.</p>
+<p>New jacks go at the bottom of the group's jacks. Inside a group within a group, an inner group's jacks are ports like any other, so you can show them on the group around it. Undo covers adding and removing jacks, and a saved patch keeps them.</p>
 <p>Groups are saved in the patch file, each holding its own modules, cables and groups. A patch with groups needs this version of Soba or later to open. A patch without groups is saved just as before, so older versions still open it.</p>
 <h2 id="limits"><a class="header" href="#limits">Limits</a></h2>
-<p>A group's jacks are set when you make it. To add or remove a jack, ungroup the group, change the cables, and group it again. The new group is called <em>Group</em> until you rename it; its pinned controls are kept.</p>
+<p>A jack keeps the name it was given, and stays in its place among the group's jacks. To rename or reorder jacks, ungroup the group and group it again. The new group is called <em>Group</em> until you rename it, and its pinned controls are kept.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="module-overview"><a class="header" href="#module-overview">Module Overview</a></h1>
 <p>Soba has 34 modules in six categories. Each category has its own header color, so you can tell what a module is for at a glance across a crowded patch. The categories match the right-click menu and the quick-add palette, and the modules are listed here in the order the menu shows them.</p>
 <p>The <strong>ID</strong> is the name a patch file uses to refer to the module.</p>

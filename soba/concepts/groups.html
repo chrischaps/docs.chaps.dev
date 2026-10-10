@@ -181,7 +181,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="groups"><a class="header" href="#groups">Groups</a></h1>
-<p>A good voice (an oscillator, a filter, a VCA and an envelope) is the same few modules in patch after patch, and three voices side by side turn into a wall of cables. A <strong>group</strong> collapses modules into one node of your own. It has jacks where cables crossed into and out of the selection, and the controls you choose to keep on its face. Open it to work on what's inside. Save it to <strong>My Modules</strong>, and it's in the add menu of every patch.</p>
+<p>A good voice (an oscillator, a filter, a VCA and an envelope) is the same few modules in patch after patch, and three voices side by side turn into a wall of cables. A <strong>group</strong> collapses modules into one node of your own. It has jacks where cables crossed into and out of the selection, plus any you add, and the controls you choose to keep on its face. Open it to work on what's inside. Save it to <strong>My Modules</strong>, and it's in the add menu of every patch.</p>
 <p><img src="../images/groups-outside.png" alt="A group called Voice, playing, with a Wave dropdown and four knobs on its face" />
 <em>Voice holds an oscillator, an envelope and a VCA. Its face shows them in miniature, with the oscillator's <strong>Wave</strong> and four knobs pinned.</em></p>
 <h2 id="making-a-group"><a class="header" href="#making-a-group">Making a group</a></h2>
@@ -241,9 +241,17 @@
 <p>Copy, paste, duplicate and delete treat a group as a whole: deleting one deletes everything inside it. Undo covers grouping, ungrouping, renaming, pinning and every edit you make inside a group. Undoing an edit that was made inside a group shows you that group as it happens.</p>
 <h2 id="how-the-sound-works"><a class="header" href="#how-the-sound-works">How the sound works</a></h2>
 <p>The audio engine never sees a group. It only hears the modules and the cables between them, followed through any number of jacks. Groups use no CPU, and grouping or ungrouping never interrupts the sound. A grouped patch plays sample for sample what the ungrouped patch plays, and the test suite checks this for every example.</p>
+<h2 id="adding-and-removing-jacks"><a class="header" href="#adding-and-removing-jacks">Adding and removing jacks</a></h2>
+<p>A group starts with the jacks its cables gave it, and you can change them whenever you like. Inside the group, right-click a port's name:</p>
+<ul>
+<li><strong>Show on group</strong>, on an output or an unplugged input, gives the group a new jack named after the port, wired to it through Inputs or Outputs. A filter's <strong>Cutoff</strong> shown this way can be modulated from outside, and a second output can be brought out beside the first. An input that's already plugged in inside the group can't take a jack too, so the item is greyed.</li>
+<li><strong>Hide from group</strong>, on a port wired to one of the group's jacks, unplugs it. If that leaves the jack carrying nothing inside, the jack goes, and so does any cable into it outside. If the jack still feeds another module, as a shared <strong>Gate</strong> might, it stays.</li>
+</ul>
+<p>To take a jack away from anywhere, right-click it on the group's node, or on Inputs or Outputs inside, and choose <strong>Remove jack</strong>. Its cables go with it, inside and out.</p>
+<p>New jacks go at the bottom of the group's jacks. Inside a group within a group, an inner group's jacks are ports like any other, so you can show them on the group around it. Undo covers adding and removing jacks, and a saved patch keeps them.</p>
 <p>Groups are saved in the patch file, each holding its own modules, cables and groups. A patch with groups needs this version of Soba or later to open. A patch without groups is saved just as before, so older versions still open it.</p>
 <h2 id="limits"><a class="header" href="#limits">Limits</a></h2>
-<p>A group's jacks are set when you make it. To add or remove a jack, ungroup the group, change the cables, and group it again. The new group is called <em>Group</em> until you rename it; its pinned controls are kept.</p>
+<p>A jack keeps the name it was given, and stays in its place among the group's jacks. To rename or reorder jacks, ungroup the group and group it again. The new group is called <em>Group</em> until you rename it, and its pinned controls are kept.</p>
 
                     </main>
 

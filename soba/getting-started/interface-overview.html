@@ -297,18 +297,19 @@
 <p>Click a frame's title or a note to select it, and <code>Shift</code>-click to add to the selection. <code>Delete</code>, <code>Ctrl + C</code>, <code>Ctrl + X</code>, <code>Ctrl + D</code> and <code>Ctrl + V</code> work on selected frames and notes along with any selected modules, so a framed section copies and pastes as a whole. Undo covers adding, moving, resizing, renaming, recoloring, editing and deleting them; typing a frame's name or a note is one step.</p>
 <p>Frames and notes are saved with the patch. Versions of Soba from before frames and notes existed open the patch without them.</p>
 <h2 id="groups"><a class="header" href="#groups">Groups</a></h2>
-<p>A group collapses modules into one node of your own, with jacks where cables crossed into it and the knobs you choose on its face. <a href="../concepts/groups.html">Groups</a> has the whole story; in short:</p>
+<p>A group collapses modules into one node of your own, with jacks where cables crossed into it and the controls you choose on its face. <a href="../concepts/groups.html">Groups</a> has the whole story; in short:</p>
 <ul>
 <li><strong>Group:</strong> select modules and press <code>Ctrl + G</code>, then type a name and press <code>Enter</code>.</li>
 <li><strong>Go inside:</strong> double-click the group, select it and press <code>Tab</code>, or click the miniature on its face. A trail at the top of the canvas shows where you are; click it, or press <code>Escape</code>, to go back out.</li>
-<li><strong>Pin a knob:</strong> inside the group, right-click a knob and choose <strong>Show on group</strong>.</li>
+<li><strong>Pin a control:</strong> inside the group, right-click a knob, dropdown or toggle and choose <strong>Show on group</strong>.</li>
+<li><strong>Add a jack:</strong> inside the group, right-click a port's name and choose <strong>Show on group</strong>. Right-click a jack and choose <strong>Remove jack</strong> to take it away.</li>
 <li><strong>Rename:</strong> select the group and press <code>F2</code>, or right-click it and choose <strong>Rename</strong>.</li>
 <li><strong>Ungroup:</strong> select the group and press <code>Ctrl + Alt + G</code>.</li>
 <li><strong>Keep it:</strong> right-click the group and choose <strong>Save to My Modules</strong>. It's then in the add menu and quick-add palette of every patch.</li>
 </ul>
 <p>A group's right-click menu also has <strong>Open</strong>, <strong>Duplicate</strong>, <strong>Copy</strong> and <strong>Delete</strong>.</p>
 <h2 id="undo-and-redo"><a class="header" href="#undo-and-redo">Undo and redo</a></h2>
-<p><strong>Undo</strong> (<code>Ctrl + Z</code>) and <strong>Redo</strong> (<code>Ctrl + Shift + Z</code> or <code>Ctrl + Y</code>) cover adding, deleting, moving and bypassing modules, patching and unpatching cables, turning knobs, grouping and ungrouping, and every change to <a href="#frames-and-notes">frames and notes</a>. Hover the toolbar buttons to see which edit is next, such as <em>Move Oscillator</em>, <em>Set SVF Filter Cutoff</em> or <em>Move frame Voice</em>.</p>
+<p><strong>Undo</strong> (<code>Ctrl + Z</code>) and <strong>Redo</strong> (<code>Ctrl + Shift + Z</code> or <code>Ctrl + Y</code>) cover adding, deleting, moving and bypassing modules, patching and unpatching cables, turning knobs, grouping and ungrouping, adding and removing a group's jacks, and every change to <a href="#frames-and-notes">frames and notes</a>. Hover the toolbar buttons to see which edit is next, such as <em>Move Oscillator</em>, <em>Set SVF Filter Cutoff</em> or <em>Move frame Voice</em>.</p>
 <p>A whole drag is one step: turning a knob from 200 Hz to 2 kHz and back undoes in one go. A deleted module comes back with its settings, its cables and its MIDI mappings. Knobs moved by a MIDI controller aren't recorded, and opening a patch starts a fresh history.</p>
 <h2 id="playing"><a class="header" href="#playing">Playing</a></h2>
 <h3 id="transport"><a class="header" href="#transport">Transport</a></h3>
