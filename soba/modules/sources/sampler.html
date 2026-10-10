@@ -1,0 +1,343 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Sampler - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../../concepts/connections.html"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../../concepts/polyphony.html"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../../concepts/tempo-and-sync.html"><strong aria-hidden="true">7.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../../concepts/groups.html"><strong aria-hidden="true">8.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../../modules/index.html"><strong aria-hidden="true">9.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../modules/sources/oscillator.html"><strong aria-hidden="true">9.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../../modules/sources/noise.html"><strong aria-hidden="true">9.2.</strong> Noise</a></li><li class="chapter-item "><a href="../../modules/sources/drum.html"><strong aria-hidden="true">9.3.</strong> Drum</a></li><li class="chapter-item expanded "><a href="../../modules/sources/sampler.html" class="active"><strong aria-hidden="true">9.4.</strong> Sampler</a></li><li class="chapter-item "><a href="../../modules/sources/audio-input.html"><strong aria-hidden="true">9.5.</strong> Audio Input</a></li><li class="chapter-item "><a href="../../modules/midi/keyboard.html"><strong aria-hidden="true">9.6.</strong> Keyboard</a></li><li class="chapter-item "><a href="../../modules/midi/midi-note.html"><strong aria-hidden="true">9.7.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../../modules/midi/poly-midi.html"><strong aria-hidden="true">9.8.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../../modules/filters/svf-filter.html"><strong aria-hidden="true">9.9.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../../modules/filters/ladder-filter.html"><strong aria-hidden="true">9.10.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../../modules/modulation/adsr.html"><strong aria-hidden="true">9.11.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../../modules/modulation/lfo.html"><strong aria-hidden="true">9.12.</strong> LFO</a></li><li class="chapter-item "><a href="../../modules/effects/delay.html"><strong aria-hidden="true">9.13.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../../modules/effects/reverb.html"><strong aria-hidden="true">9.14.</strong> Reverb</a></li><li class="chapter-item "><a href="../../modules/effects/eq.html"><strong aria-hidden="true">9.15.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../../modules/effects/distortion.html"><strong aria-hidden="true">9.16.</strong> Distortion</a></li><li class="chapter-item "><a href="../../modules/effects/chorus.html"><strong aria-hidden="true">9.17.</strong> Chorus</a></li><li class="chapter-item "><a href="../../modules/effects/compressor.html"><strong aria-hidden="true">9.18.</strong> Compressor</a></li><li class="chapter-item "><a href="../../modules/modulation/clock.html"><strong aria-hidden="true">9.19.</strong> Clock</a></li><li class="chapter-item "><a href="../../modules/utilities/vca.html"><strong aria-hidden="true">9.20.</strong> VCA</a></li><li class="chapter-item "><a href="../../modules/utilities/attenuverter.html"><strong aria-hidden="true">9.21.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../../modules/utilities/mix.html"><strong aria-hidden="true">9.22.</strong> Mix</a></li><li class="chapter-item "><a href="../../modules/utilities/mixer.html"><strong aria-hidden="true">9.23.</strong> Mixer</a></li><li class="chapter-item "><a href="../../modules/utilities/sample-hold.html"><strong aria-hidden="true">9.24.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../../modules/utilities/quantizer.html"><strong aria-hidden="true">9.25.</strong> Quantizer</a></li><li class="chapter-item "><a href="../../modules/utilities/divider.html"><strong aria-hidden="true">9.26.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../../modules/utilities/logic.html"><strong aria-hidden="true">9.27.</strong> Logic</a></li><li class="chapter-item "><a href="../../modules/utilities/looper.html"><strong aria-hidden="true">9.28.</strong> Looper</a></li><li class="chapter-item "><a href="../../modules/visualization/oscilloscope.html"><strong aria-hidden="true">9.29.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../../modules/utilities/sequencer.html"><strong aria-hidden="true">9.30.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">9.31.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../../modules/midi/midi-monitor.html"><strong aria-hidden="true">9.32.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../../modules/output/audio-output.html"><strong aria-hidden="true">9.33.</strong> Audio Output</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../../recipes/basic-subtractive.html"><strong aria-hidden="true">10.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../../recipes/fm-synthesis.html"><strong aria-hidden="true">11.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../../recipes/lush-pad.html"><strong aria-hidden="true">12.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../../recipes/sampled-keys.html"><strong aria-hidden="true">13.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../../recipes/live-looper.html"><strong aria-hidden="true">14.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../../recipes/generative-ambient.html"><strong aria-hidden="true">15.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../../recipes/shoreline.html"><strong aria-hidden="true">16.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../../recipes/rhythmic-sequence.html"><strong aria-hidden="true">17.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../../recipes/backbeat.html"><strong aria-hidden="true">18.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../../recipes/drum-machine.html"><strong aria-hidden="true">19.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../../recipes/roll-call.html"><strong aria-hidden="true">20.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../../recipes/afterglow.html"><strong aria-hidden="true">21.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../../recipes/interlock.html"><strong aria-hidden="true">22.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../../recipes/from-one-sine.html"><strong aria-hidden="true">23.</strong> From One Sine</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/modules/sources/sampler.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="sampler"><a class="header" href="#sampler">Sampler</a></h1>
+<p><strong>Module ID</strong> <code>source.sampler</code> · <strong>Category</strong> Source</p>
+<p><img src="../../images/module-sampler.png" alt="Sampler Module" />
+<em>A five-note chord on a looped bell. The orange flags mark the loop and the blue ones what plays. Each white line is a voice, circling inside the loop at its own speed.</em></p>
+<p>Sampler plays a WAV file. Patch a gate in and it plays one-shots: a kick under a sequencer, a vocal chop, a door slam. Patch in V/Oct as well and a polyphonic gate, and it becomes an instrument: one recorded note spread across the keyboard, each key playing it at its own pitch.</p>
+<p>Every other sound in Soba is synthesized. The Sampler brings in sound you've recorded, or one Soba rendered itself, and keeps it with the patch.</p>
+<h2 id="loading-a-file"><a class="header" href="#loading-a-file">Loading a file</a></h2>
+<ul>
+<li>Click <strong>Open…</strong> under the waveform, or click an empty Sampler's display, and choose a WAV.</li>
+<li>Drag a WAV from your file manager onto a Sampler to replace its file. Drop one on empty canvas and a new Sampler appears there, already playing it. The node lights up under the file while you drag, to show where it will land.</li>
+<li>In the browser, drag a file onto the page the same way.</li>
+</ul>
+<p>Loading a file is a step you can undo. A file is read and converted once. Samplers that play the same file share it.</p>
+<h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>A rising edge starts a note. In <strong>Gated</strong> mode the falling edge lets it go. A polyphonic gate plays a voice per channel</td></tr>
+<tr><td><strong>V/Oct</strong></td><td>Control (Orange)</td><td>Pitch, 1 V an octave. 0 V (C4) plays the <strong>Root</strong> note: the recording as it was made. Read all the time, so pitch bend and glide work</td></tr>
+<tr><td><strong>Velocity</strong></td><td>Control (Orange)</td><td>Each note's level, 0 to 1, read as the note starts. Unpatched, every note is full</td></tr>
+<tr><td><strong>Start</strong></td><td>Control (Orange)</td><td>Added to the <strong>Start</strong> knob as each note begins. 1 V is the whole recording</td></tr>
+<tr><td><strong>Speed</strong></td><td>Control (Orange)</td><td>Added to the <strong>Speed</strong> knob while the note plays, as on tape: pitch follows, and below zero it plays backwards</td></tr>
+</tbody></table>
+</div>
+<h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>L</strong></td><td>Audio (Blue)</td><td>The left channel. A mono file plays the same on both outputs</td></tr>
+<tr><td><strong>R</strong></td><td>Audio (Blue)</td><td>The right channel</td></tr>
+</tbody></table>
+</div>
+<p>Both outputs carry a channel per voice when the gate is polyphonic.</p>
+<h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Loop</strong></td><td>Off, Forward, Ping-Pong</td><td>Off</td><td>Off plays once. Forward jumps from Loop End back to Loop Start. Ping-Pong plays back and forth between them</td></tr>
+<tr><td><strong>Mode</strong></td><td>One-Shot, Gated</td><td>One-Shot</td><td>One-Shot plays to the end whatever the gate does. Gated lets go when the gate falls</td></tr>
+<tr><td><strong>Start</strong></td><td>0 – 100%</td><td>0%</td><td>Where notes start, through the recording</td></tr>
+<tr><td><strong>End</strong></td><td>0 – 100%</td><td>100%</td><td>Where notes end</td></tr>
+<tr><td><strong>Lp St</strong> (Loop Start)</td><td>0 – 100%</td><td>0%</td><td>Where the loop begins. Kept between Start and End</td></tr>
+<tr><td><strong>Lp End</strong> (Loop End)</td><td>0 – 100%</td><td>100%</td><td>Where the loop turns back. Kept between Start and End</td></tr>
+<tr><td><strong>Tune</strong></td><td>±24 st</td><td>0 st</td><td>Transpose in semitones</td></tr>
+<tr><td><strong>Fine</strong></td><td>±100 cents</td><td>0</td><td>Fine tuning</td></tr>
+<tr><td><strong>Root</strong></td><td>C-1 – G9</td><td>C4</td><td>The note the recording was made at. Playing it plays the recording unchanged</td></tr>
+<tr><td><strong>Speed</strong></td><td>−2 – 2×</td><td>1×</td><td>Tape speed. 2 is twice as fast and an octave up, 0.5 half as fast and an octave down, and below 0 plays backwards</td></tr>
+<tr><td><strong>Atk</strong> (Attack)</td><td>1 ms – 2 s</td><td>2 ms</td><td>How long each note takes to fade in</td></tr>
+<tr><td><strong>Rel</strong> (Release)</td><td>1 ms – 5 s</td><td>10 ms</td><td>How long a note takes to fade out once let go</td></tr>
+<tr><td><strong>Level</strong></td><td>0 – 100%</td><td>80%</td><td>Output level</td></tr>
+</tbody></table>
+</div>
+<p>The four region knobs sit in the top row, under the waveform where their markers are. You can drag the markers instead of the knobs.</p>
+<h2 id="playing-it"><a class="header" href="#playing-it">Playing it</a></h2>
+<h3 id="one-shots"><a class="header" href="#one-shots">One-shots</a></h3>
+<p>Patch a sequencer's <strong>Gate</strong> into <strong>Gate</strong>, and its <strong>Velocity</strong> into <strong>Velocity</strong>. Leave <strong>V/Oct</strong> unpatched and every hit plays at the recording's own pitch. <strong>One-Shot</strong> mode plays each hit to the end, however short the gate.</p>
+<h3 id="across-the-keyboard"><a class="header" href="#across-the-keyboard">Across the keyboard</a></h3>
+<p>Patch <a href="../midi/poly-midi.html">Poly MIDI</a>'s <strong>Pitch</strong>, <strong>Gate</strong> and <strong>Velocity</strong> into <strong>V/Oct</strong>, <strong>Gate</strong> and <strong>Velocity</strong>, and set <strong>Root</strong> to the note the file was recorded at. Each key plays the recording faster or slower: an octave up is twice as fast and half as long, as on tape. Set <strong>Mode</strong> to <strong>Gated</strong> so that letting go of a key lets its note go, over <strong>Rel</strong>.</p>
+<h3 id="pitch-and-speed"><a class="header" href="#pitch-and-speed">Pitch and speed</a></h3>
+<p>Pitch and speed are one thing here, as on a tape machine. <strong>Tune</strong>, <strong>Fine</strong>, <strong>Root</strong>, <strong>V/Oct</strong> and <strong>Speed</strong> all set how fast the recording is read, and so how high it sounds and how long it lasts. A recording made at a different sample rate from your audio device still plays at its own pitch.</p>
+<p>At negative <strong>Speed</strong> a note plays backwards, starting at <strong>End</strong> and finishing at <strong>Start</strong>. A Speed that changes sign mid-note turns the note around where it is: an LFO into <strong>Speed</strong> scratches, and an envelope that falls to zero is a tape stop.</p>
+<h2 id="what-plays"><a class="header" href="#what-plays">What plays</a></h2>
+<p><strong>Start</strong> and <strong>End</strong> set the part of the recording a note plays. The rest of the waveform sinks into the background. A note fades out over its last 3 ms, so a recording cut mid-sound doesn't click at the end.</p>
+<p>With <strong>Loop</strong> on, a note plays from <strong>Start</strong> to <strong>Lp End</strong>, then goes round. <strong>Forward</strong> jumps back to <strong>Lp St</strong>. <strong>Ping-Pong</strong> turns around and plays backwards to <strong>Lp St</strong>, then forwards again. A loop over whole cycles of a steady sound is seamless. Elsewhere, set the loop points where the waveform crosses zero, or use Ping-Pong, which never jumps.</p>
+<p>In <strong>Gated</strong> mode a looping note keeps looping through its release, then fades. In <strong>One-Shot</strong> mode a looping note never ends. It plays until a new note takes its voice or the transport stops. That's a drone: a field recording slowed down an octave, looping forever.</p>
+<h2 id="voices"><a class="header" href="#voices">Voices</a></h2>
+<p>Sampler is polyphonic. Each channel of the <strong>Gate</strong> cable is a voice of its own, with its own pitch, velocity and place in the recording. <a href="../midi/poly-midi.html">Poly MIDI</a> hands each new note the next voice. When all its voices are busy, it takes the oldest note's voice, which lets go of the old note over 5 ms as the new one starts. Retriggering a note that's still sounding does the same, so fast repeated notes never click.</p>
+<p>Loading a new file while notes play fades them out over 5 ms. The next notes play the new file.</p>
+<h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
+<p>The waveform shows the whole recording, scaled to fill the panel. What plays is lit blue, and the loop is washed orange. <strong>Start</strong> and <strong>End</strong> have blue flags at the foot, and the loop points orange flags at the head. Drag any of them like a knob. Hover a marker to see what it is, or the waveform to see the file's path, length and format.</p>
+<p>Every voice draws a white playhead where it is in the recording, as bright as it is loud. A chord is several lines moving at their own speeds, and a released note fades where it stands.</p>
+<p>Under the waveform are the file's name and length. A file that can't be found shows its name in orange. An empty Sampler asks for a file.</p>
+<h2 id="files-and-patches"><a class="header" href="#files-and-patches">Files and patches</a></h2>
+<p>The Sampler plays WAV files: 8-, 16-, 24- or 32-bit integer, or 32-bit float. Mono files play on both sides. Files with more than two channels play their first two. Each file is resampled to your audio device's rate when it loads, and again if the device's rate changes.</p>
+<p>A Sampler keeps up to <strong>five minutes</strong> of audio, about 115 MB of stereo at 48 kHz. A longer file is cut to its first five minutes, and the status bar says so.</p>
+<p>A patch saves each Sampler's file as a path:</p>
+<ul>
+<li><strong>Beside or below the patch</strong>, the path is relative: <code>samples/kick.wav</code>. Move or zip the patch's folder and it still finds its samples.</li>
+<li><strong>Elsewhere</strong>, the path is absolute: <code>C:/Music/choir.wav</code>.</li>
+</ul>
+<p><strong>Save As</strong> copies samples from outside the patch's folder into a folder beside it named <code>&lt;patch name&gt; samples</code>, and points the patch at the copies. The patch's folder then holds everything it needs to be shared. If the samples come to more than 50 MB, it asks first. Saving an example works the same way, so its samples come with the copy.</p>
+<p>A patch whose sample is missing still opens. The Sampler keeps the path but plays nothing, and the status bar lists the missing file with the other load warnings. Open the file again to fix it.</p>
+<p>In the patch file, the path is the module's <code>file</code> field. Modules without a file leave it out, so patches from before the Sampler read and save as they always did:</p>
+<pre><code class="language-json">{
+  "id": 2,
+  "module_id": "source.sampler",
+  "position": [300.0, 74.0],
+  "parameters": [{ "name": "Mode", "type": "Select", "value": 1 }],
+  "file": "samples/fm-bell-c4.wav"
+}
+</code></pre>
+<p>The <a href="../../getting-started/installation.html#command-line"><code>render</code></a> tool finds a patch's samples the same way, relative to the patch file.</p>
+<h3 id="sound-quality"><a class="header" href="#sound-quality">Sound quality</a></h3>
+<p>Voices read between samples on a cubic (Hermite) curve. That's clean at ordinary speeds and pitches. Played more than an octave or so above its root, a bright recording begins to alias: its highest harmonics fold back as a faint metallic edge. Record the sample nearer the range you'll play it in, or filter it after the Sampler.</p>
+<h2 id="patches"><a class="header" href="#patches">Patches</a></h2>
+<h3 id="sampled-keys"><a class="header" href="#sampled-keys">Sampled keys</a></h3>
+<p>The <a href="../../recipes/sampled-keys.html">Sampled Keys</a> example plays a bell across the keyboard: one strike of the FM Synthesis example, rendered by Soba and loaded into a Sampler.</p>
+<h3 id="a-drum-kit-from-recordings"><a class="header" href="#a-drum-kit-from-recordings">A drum kit from recordings</a></h3>
+<pre><code class="language-text">[Trigger Sequencer Gate 1] ──&gt; [Sampler (kick.wav) Gate]
+[Trigger Sequencer Vel 1]  ──&gt; [Sampler (kick.wav) Velocity]
+[Trigger Sequencer Gate 2] ──&gt; [Sampler (snare.wav) Gate]
+...
+</code></pre>
+<p>One Sampler per sound, each in <strong>One-Shot</strong> mode, into a <a href="../utilities/mixer.html">Mixer</a> to place them. Mix them with <a href="./drum.html">Drum</a> voices for a kit that's part recorded and part synthesized.</p>
+<h3 id="a-drone-from-anything"><a class="header" href="#a-drone-from-anything">A drone from anything</a></h3>
+<p>Load a long recording (rain, a room, a held note) and set <strong>Speed</strong> to 0.5, <strong>Loop</strong> to <strong>Ping-Pong</strong> with the loop over a steady stretch, <strong>Atk</strong> to 2 s and <strong>Mode</strong> to <strong>One-Shot</strong>. One gate starts a drone an octave down that never ends. Two Samplers on the same file, one at <strong>Speed</strong> 0.5 and one at 0.749 (a fifth above it), make a chord.</p>
+<h3 id="scrubbing"><a class="header" href="#scrubbing">Scrubbing</a></h3>
+<p>Patch a slow <a href="../modulation/lfo.html">LFO</a> into <strong>Start</strong>, and a Clock into <strong>Gate</strong>. Each note starts a little further into the recording, so a spoken phrase or a melody comes out in stutters that wander through it.</p>
+<h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>
+<ul>
+<li><a href="../midi/poly-midi.html">Poly MIDI</a>: plays the Sampler as an instrument, a voice per key</li>
+<li><a href="../utilities/trigger-sequencer.html">Trigger Sequencer</a> and <a href="../utilities/sequencer.html">Step Sequencer</a>: one-shots in time</li>
+<li><a href="./audio-input.html">Audio Input</a>: outside sound live, as it happens, where the Sampler plays it back from a file</li>
+<li><a href="./drum.html">Drum</a>: synthesized drums to sit beside recorded ones</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../modules/sources/drum.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../modules/sources/audio-input.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../modules/sources/drum.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../modules/sources/audio-input.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

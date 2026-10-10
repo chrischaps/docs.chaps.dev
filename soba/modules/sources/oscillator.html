@@ -1,0 +1,369 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Oscillator - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../../concepts/connections.html"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../../concepts/polyphony.html"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../../concepts/tempo-and-sync.html"><strong aria-hidden="true">7.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../../concepts/groups.html"><strong aria-hidden="true">8.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../../modules/index.html"><strong aria-hidden="true">9.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../modules/sources/oscillator.html" class="active"><strong aria-hidden="true">9.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../../modules/sources/noise.html"><strong aria-hidden="true">9.2.</strong> Noise</a></li><li class="chapter-item "><a href="../../modules/sources/drum.html"><strong aria-hidden="true">9.3.</strong> Drum</a></li><li class="chapter-item "><a href="../../modules/sources/sampler.html"><strong aria-hidden="true">9.4.</strong> Sampler</a></li><li class="chapter-item "><a href="../../modules/sources/audio-input.html"><strong aria-hidden="true">9.5.</strong> Audio Input</a></li><li class="chapter-item "><a href="../../modules/midi/keyboard.html"><strong aria-hidden="true">9.6.</strong> Keyboard</a></li><li class="chapter-item "><a href="../../modules/midi/midi-note.html"><strong aria-hidden="true">9.7.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../../modules/midi/poly-midi.html"><strong aria-hidden="true">9.8.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../../modules/filters/svf-filter.html"><strong aria-hidden="true">9.9.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../../modules/filters/ladder-filter.html"><strong aria-hidden="true">9.10.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../../modules/modulation/adsr.html"><strong aria-hidden="true">9.11.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../../modules/modulation/lfo.html"><strong aria-hidden="true">9.12.</strong> LFO</a></li><li class="chapter-item "><a href="../../modules/effects/delay.html"><strong aria-hidden="true">9.13.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../../modules/effects/reverb.html"><strong aria-hidden="true">9.14.</strong> Reverb</a></li><li class="chapter-item "><a href="../../modules/effects/eq.html"><strong aria-hidden="true">9.15.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../../modules/effects/distortion.html"><strong aria-hidden="true">9.16.</strong> Distortion</a></li><li class="chapter-item "><a href="../../modules/effects/chorus.html"><strong aria-hidden="true">9.17.</strong> Chorus</a></li><li class="chapter-item "><a href="../../modules/effects/compressor.html"><strong aria-hidden="true">9.18.</strong> Compressor</a></li><li class="chapter-item "><a href="../../modules/modulation/clock.html"><strong aria-hidden="true">9.19.</strong> Clock</a></li><li class="chapter-item "><a href="../../modules/utilities/vca.html"><strong aria-hidden="true">9.20.</strong> VCA</a></li><li class="chapter-item "><a href="../../modules/utilities/attenuverter.html"><strong aria-hidden="true">9.21.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../../modules/utilities/mix.html"><strong aria-hidden="true">9.22.</strong> Mix</a></li><li class="chapter-item "><a href="../../modules/utilities/mixer.html"><strong aria-hidden="true">9.23.</strong> Mixer</a></li><li class="chapter-item "><a href="../../modules/utilities/sample-hold.html"><strong aria-hidden="true">9.24.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../../modules/utilities/quantizer.html"><strong aria-hidden="true">9.25.</strong> Quantizer</a></li><li class="chapter-item "><a href="../../modules/utilities/divider.html"><strong aria-hidden="true">9.26.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../../modules/utilities/logic.html"><strong aria-hidden="true">9.27.</strong> Logic</a></li><li class="chapter-item "><a href="../../modules/utilities/looper.html"><strong aria-hidden="true">9.28.</strong> Looper</a></li><li class="chapter-item "><a href="../../modules/visualization/oscilloscope.html"><strong aria-hidden="true">9.29.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../../modules/utilities/sequencer.html"><strong aria-hidden="true">9.30.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">9.31.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../../modules/midi/midi-monitor.html"><strong aria-hidden="true">9.32.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../../modules/output/audio-output.html"><strong aria-hidden="true">9.33.</strong> Audio Output</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../../recipes/basic-subtractive.html"><strong aria-hidden="true">10.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../../recipes/fm-synthesis.html"><strong aria-hidden="true">11.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../../recipes/lush-pad.html"><strong aria-hidden="true">12.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../../recipes/sampled-keys.html"><strong aria-hidden="true">13.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../../recipes/live-looper.html"><strong aria-hidden="true">14.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../../recipes/generative-ambient.html"><strong aria-hidden="true">15.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../../recipes/shoreline.html"><strong aria-hidden="true">16.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../../recipes/rhythmic-sequence.html"><strong aria-hidden="true">17.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../../recipes/backbeat.html"><strong aria-hidden="true">18.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../../recipes/drum-machine.html"><strong aria-hidden="true">19.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../../recipes/roll-call.html"><strong aria-hidden="true">20.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../../recipes/afterglow.html"><strong aria-hidden="true">21.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../../recipes/interlock.html"><strong aria-hidden="true">22.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../../recipes/from-one-sine.html"><strong aria-hidden="true">23.</strong> From One Sine</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/modules/sources/oscillator.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="oscillator"><a class="header" href="#oscillator">Oscillator</a></h1>
+<p><strong>Module ID</strong> <code>osc.sine</code> · <strong>Category</strong> Source</p>
+<p><img src="../../images/module-oscillator.png" alt="Oscillator Module" />
+<em>The tune, timbre and ensemble rows, under a preview of the selected waveform.</em></p>
+<p>The Oscillator is the main sound source in Soba. It is a <strong>VCO</strong> (voltage-controlled oscillator): a tuned waveform whose pitch follows a keyboard, an LFO or another oscillator.</p>
+<p>Beyond the four classic waveforms, it has the features that make an oscillator an instrument:</p>
+<ul>
+<li>a <strong>tune section</strong> in octaves, semitones and cents;</li>
+<li><strong>hard sync</strong> to another oscillator;</li>
+<li><strong>through-zero linear FM</strong> and <strong>exponential FM</strong>;</li>
+<li>a <strong>sub-oscillator</strong> one octave down;</li>
+<li><strong>unison</strong> of up to seven voices, with stereo spread. Seven detuned saws is the classic <em>supersaw</em>.</li>
+</ul>
+<p>Every waveform is band-limited. Each voice runs at twice the sample rate with polyBLEP corrections on its edges and polyBLAMP corrections on its corners, then a halfband filter brings it back down. A 5 kHz saw's aliasing sits around -80 dB, so high notes and sync sweeps stay clean.</p>
+<h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>V/Oct</strong></td><td>Control (Orange)</td><td>Pitch, 1 per octave. Each +1.0 raises the pitch one octave, on top of the tune section</td></tr>
+<tr><td><strong>FM</strong></td><td>Control (Orange)</td><td>Through-zero linear FM, scaled by the <strong>FM</strong> knob</td></tr>
+<tr><td><strong>Exp FM</strong></td><td>Control (Orange)</td><td>Exponential FM, <strong>Exp FM</strong> knob octaves per unit</td></tr>
+<tr><td><strong>PWM</strong></td><td>Control (Orange)</td><td>Pulse-width modulation around the <strong>PW</strong> knob (±1 moves it ±0.4)</td></tr>
+<tr><td><strong>Sync</strong></td><td>Control (Orange)</td><td>Hard sync. Each rising zero crossing restarts the cycle. Accepts audio, control or gates</td></tr>
+</tbody></table>
+</div>
+<h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Out</strong></td><td>Audio (Blue)</td><td>All unison voices, mixed to mono</td></tr>
+<tr><td><strong>Sub</strong></td><td>Audio (Blue)</td><td>Square wave one octave below the tuned pitch</td></tr>
+<tr><td><strong>Out L</strong></td><td>Audio (Blue)</td><td>Unison voices spread to the left</td></tr>
+<tr><td><strong>Out R</strong></td><td>Audio (Blue)</td><td>Unison voices spread to the right</td></tr>
+</tbody></table>
+</div>
+<h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
+<p>The knobs sit in three rows: <strong>tune</strong>, <strong>timbre</strong> and <strong>ensemble</strong>.</p>
+<div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Oct</strong></td><td>-4 to +4</td><td>0</td><td>Octaves above or below C4. Clicks in whole octaves</td></tr>
+<tr><td><strong>Semi</strong></td><td>-12 to +12</td><td>0</td><td>Semitones. Clicks in whole semitones</td></tr>
+<tr><td><strong>Fine</strong></td><td>±100 cents</td><td>0</td><td>Fine tuning</td></tr>
+<tr><td><strong>FM</strong></td><td>0 – 5</td><td>0</td><td>Linear FM index (see below)</td></tr>
+<tr><td><strong>Exp FM</strong></td><td>0 – 4 oct</td><td>1</td><td>Octaves of pitch change per unit at the Exp FM input</td></tr>
+<tr><td><strong>PW</strong></td><td>0.1 – 0.9</td><td>0.5</td><td>Pulse width of the square (0.5 is a 50% duty cycle)</td></tr>
+<tr><td><strong>Voices</strong></td><td>1 – 7</td><td>1</td><td>Unison voices</td></tr>
+<tr><td><strong>Detune</strong></td><td>0 – 100%</td><td>40%</td><td>How far apart the unison voices are tuned</td></tr>
+<tr><td><strong>Spread</strong></td><td>0 – 100%</td><td>50%</td><td>How wide the unison voices sit across Out L and Out R</td></tr>
+<tr><td><strong>Wave</strong></td><td>Sine / Saw / Square / Tri</td><td>Sine</td><td>Dropdown on the node</td></tr>
+</tbody></table>
+</div>
+<p>With every tune knob at 0, the oscillator plays <strong>C4 (261.63 Hz)</strong>. The keyboard and MIDI modules send 0.0 for C4, so they play in tune with nothing else to set. MIDI note 69 plays 440 Hz to within a tenth of a cent.</p>
+<p>Pitch is smoothed in octaves, not Hz, so a jump of an octave up takes as long as an octave down.</p>
+<h2 id="waveforms"><a class="header" href="#waveforms">Waveforms</a></h2>
+<p>The preview at the top of the node draws one cycle of the selected waveform, and follows the <strong>PW</strong> knob on the square.</p>
+<ul>
+<li><strong>Sine</strong> is a pure tone with no harmonics: sub-bass, FM carriers and modulators, flute-like tones.</li>
+<li><strong>Saw</strong> has every harmonic, falling as 1/n: classic leads and basses, strings, brass. It is the richest source for filtering, and the one to use for a supersaw.</li>
+<li><strong>Square</strong> has odd harmonics only, for hollow, woody, clarinet-like tones. Pulse width reshapes it, from the square at 0.5 to thin and nasal near 0.1 or 0.9.</li>
+<li><strong>Tri</strong> (triangle) has odd harmonics that fall away fast: softer than the square, brighter than the sine.</li>
+</ul>
+<h2 id="tune-section"><a class="header" href="#tune-section">Tune section</a></h2>
+<p><strong>Oct</strong> and <strong>Semi</strong> set the note; <strong>Fine</strong> trims it in cents. To tune a second oscillator a fifth up, set <strong>Semi</strong> to +7. To make it beat slowly against the first, add a few cents of <strong>Fine</strong>.</p>
+<h2 id="hard-sync"><a class="header" href="#hard-sync">Hard sync</a></h2>
+<p>Patch another oscillator's <strong>Out</strong> into <strong>Sync</strong>:</p>
+<pre><code class="language-text">[Osc 2 Out] ──&gt; [Osc 1 Sync]
+</code></pre>
+<p>Every time Osc 2's waveform rises through zero, Osc 1 starts its cycle again. The result repeats at Osc 2's pitch, but its tone comes from Osc 1's pitch. Tune Osc 1 above Osc 2 and sweep its pitch (a slow LFO or envelope on <strong>V/Oct</strong> or <strong>Exp FM</strong>) for the classic tearing sync sweep.</p>
+<p>The reset itself is band-limited, so sync sweeps don't fizz with aliasing.</p>
+<h2 id="through-zero-fm"><a class="header" href="#through-zero-fm">Through-zero FM</a></h2>
+<p>The <strong>FM</strong> input multiplies the pitch by <code>1 + FM × input</code>, where FM is the knob:</p>
+<ul>
+<li>At an FM of 1, an input of -1 just reaches 0 Hz.</li>
+<li>Past 1, the frequency swings <em>through</em> zero and the waveform runs backward for a moment, instead of stalling at 0 Hz.</li>
+</ul>
+<p>That keeps the average pitch where it was, so deep FM stays in tune and keeps the bright, glassy character of DX-style FM. Because the depth is relative to the pitch, the timbre stays the same as you play up the keyboard.</p>
+<pre><code class="language-text">[Osc 2 Out] ──&gt; [Osc 1 FM]
+[Osc 1 Out] ──&gt; [VCA In] ──&gt; [Audio Output]
+</code></pre>
+<ul>
+<li>Sine into sine gives the cleanest FM tones.</li>
+<li>Whole-number pitch ratios (Semi +12, or +19 for 3:1) sound harmonic.</li>
+<li>Other ratios sound bell-like and metallic.</li>
+<li>Shape the modulator's level with an envelope (through a VCA) to make the brightness decay like a struck bell.</li>
+</ul>
+<p>The <a href="../../recipes/fm-synthesis.html">FM Synthesis</a> recipe builds a complete patch around this.</p>
+<h2 id="exponential-fm"><a class="header" href="#exponential-fm">Exponential FM</a></h2>
+<p><strong>Exp FM</strong> works like a second V/Oct input with its own depth knob. An LFO into it gives a vibrato that's even in pitch: the same width in cents on every note. Keep the depth small (Shift-drag the knob for fine steps): 0.02 octaves is about ±24 cents. At audio rates it gives a rougher, less pitch-stable kind of FM than the linear input.</p>
+<h2 id="sub-oscillator"><a class="header" href="#sub-oscillator">Sub-oscillator</a></h2>
+<p><strong>Sub</strong> is a square wave one octave below the tuned pitch. It divides the main oscillator's own cycle, so it follows V/Oct, FM and sync. Mix it in under a saw for weight:</p>
+<pre><code class="language-text">[Oscillator Out] ──&gt; [Mix In 1]
+[Oscillator Sub] ──&gt; [Mix In 2]
+[Mix Out] ──&gt; [Ladder Filter In]
+</code></pre>
+<h2 id="unison-and-supersaw"><a class="header" href="#unison-and-supersaw">Unison and supersaw</a></h2>
+<p><strong>Voices</strong> stacks copies of the oscillator, each slightly detuned:</p>
+<ul>
+<li><strong>Detune</strong> sets how far apart they are. Its curve is gentle at the bottom: 20% puts the outer voices about ±4 cents apart, 40% about ±16 cents, and 100% a full ±100 cents.</li>
+<li>The voices bunch toward the middle, close to Roland's JP-8000 supersaw. The spacing is deliberately uneven, so the voices never beat in lockstep.</li>
+<li>Each voice starts at a different point in its cycle, so the stack doesn't open with one loud spike.</li>
+<li><strong>Out</strong> sums all the voices at about the loudness of one voice.</li>
+<li><strong>Out L</strong> and <strong>Out R</strong> pan the voices across the stereo field, outer voices widest. <strong>Spread</strong> sets the width.</li>
+</ul>
+<p>For a supersaw: <strong>Wave</strong> on Saw, <strong>Voices</strong> at 7, <strong>Detune</strong> about 40%, and <strong>Out L</strong> and <strong>Out R</strong> into the output's <strong>Left</strong> and <strong>Right</strong>.</p>
+<h2 id="pulse-width-modulation"><a class="header" href="#pulse-width-modulation">Pulse-width modulation</a></h2>
+<p>With the square wave selected, modulate the pulse width with an LFO:</p>
+<pre><code class="language-text">[LFO Out] ──&gt; [Oscillator PWM]
+</code></pre>
+<p>Slow rates give a chorus-like shimmer; fast rates, a more dramatic wobble in the tone.</p>
+<h2 id="patch-examples"><a class="header" href="#patch-examples">Patch examples</a></h2>
+<h3 id="sync-lead"><a class="header" href="#sync-lead">Sync lead</a></h3>
+<pre><code class="language-text">[Keyboard Pitch] ──&gt; [Osc 2 V/Oct]
+                 ──&gt; [Osc 1 V/Oct]   (Osc 1 Oct +1)
+[Osc 2 Out] ──&gt; [Osc 1 Sync]
+[ADSR Out] ──&gt; [Osc 1 Exp FM]
+[Osc 1 Out] ──&gt; [SVF Filter In]
+</code></pre>
+<p>Each note sweeps Osc 1's pitch up with the envelope, while sync holds it to Osc 2's pitch.</p>
+<h3 id="supersaw-pad"><a class="header" href="#supersaw-pad">Supersaw pad</a></h3>
+<pre><code class="language-text">[Keyboard Pitch] ──&gt; [Oscillator V/Oct]   (Saw, 7 voices)
+[Oscillator Out L] ──&gt; [Reverb In L]
+[Oscillator Out R] ──&gt; [Reverb In R]
+[Reverb Out L] ──&gt; [Audio Output Left]
+[Reverb Out R] ──&gt; [Audio Output Right]
+</code></pre>
+<h2 id="polyphony"><a class="header" href="#polyphony">Polyphony</a></h2>
+<p>The Oscillator is polyphonic. Patch a polyphonic <strong>Pitch</strong> cable from <a href="../midi/poly-midi.html">Poly MIDI</a> into <strong>V/Oct</strong> and each note gets its own oscillator, with its own phase, sync and unison stack. The knobs are shared by every voice. Unison multiplies the cost: eight notes of a seven-voice supersaw is 56 oscillators. See <a href="../../concepts/polyphony.html">Polyphony</a>.</p>
+<h2 id="notes"><a class="header" href="#notes">Notes</a></h2>
+<ul>
+<li><strong>Older patches</strong> load at the same pitch. Their Frequency setting is split into Oct, Semi and Fine. FM Depth, which used to be in Hz, becomes the matching index at that pitch. A MIDI controller mapped to Frequency moves to Oct over the same range. The old <em>Frequency</em> input jack is gone; a cable into it is skipped with a load warning.</li>
+<li>Band-limited edges overshoot a little. Saw and square peak at about 1.3 for a few samples after each edge. This is ringing near 24 kHz, which is inaudible, and any filter or the output stage takes it away.</li>
+<li>The tune section reaches from about 7.7 Hz to 8.9 kHz. Use V/Oct or Exp FM to go further.</li>
+</ul>
+<h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>
+<ul>
+<li><a href="../modulation/lfo.html">LFO</a> for vibrato and PWM</li>
+<li><a href="../filters/svf-filter.html">SVF Filter</a> to shape the oscillator's harmonics</li>
+<li><a href="../filters/ladder-filter.html">Ladder Filter</a>, the fat, saturating 24 dB alternative</li>
+<li><a href="../utilities/vca.html">VCA</a> and <a href="../modulation/adsr.html">ADSR Envelope</a> to turn a tone into notes</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../modules/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../modules/sources/noise.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../modules/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../modules/sources/noise.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

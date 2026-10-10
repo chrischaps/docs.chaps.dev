@@ -1,0 +1,333 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Generative Ambient - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../concepts/connections.html"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../concepts/polyphony.html"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../concepts/tempo-and-sync.html"><strong aria-hidden="true">7.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../concepts/groups.html"><strong aria-hidden="true">8.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../modules/index.html"><strong aria-hidden="true">9.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../modules/sources/oscillator.html"><strong aria-hidden="true">9.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../modules/sources/noise.html"><strong aria-hidden="true">9.2.</strong> Noise</a></li><li class="chapter-item "><a href="../modules/sources/drum.html"><strong aria-hidden="true">9.3.</strong> Drum</a></li><li class="chapter-item "><a href="../modules/sources/sampler.html"><strong aria-hidden="true">9.4.</strong> Sampler</a></li><li class="chapter-item "><a href="../modules/sources/audio-input.html"><strong aria-hidden="true">9.5.</strong> Audio Input</a></li><li class="chapter-item "><a href="../modules/midi/keyboard.html"><strong aria-hidden="true">9.6.</strong> Keyboard</a></li><li class="chapter-item "><a href="../modules/midi/midi-note.html"><strong aria-hidden="true">9.7.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../modules/midi/poly-midi.html"><strong aria-hidden="true">9.8.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../modules/filters/svf-filter.html"><strong aria-hidden="true">9.9.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../modules/filters/ladder-filter.html"><strong aria-hidden="true">9.10.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../modules/modulation/adsr.html"><strong aria-hidden="true">9.11.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../modules/modulation/lfo.html"><strong aria-hidden="true">9.12.</strong> LFO</a></li><li class="chapter-item "><a href="../modules/effects/delay.html"><strong aria-hidden="true">9.13.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../modules/effects/reverb.html"><strong aria-hidden="true">9.14.</strong> Reverb</a></li><li class="chapter-item "><a href="../modules/effects/eq.html"><strong aria-hidden="true">9.15.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../modules/effects/distortion.html"><strong aria-hidden="true">9.16.</strong> Distortion</a></li><li class="chapter-item "><a href="../modules/effects/chorus.html"><strong aria-hidden="true">9.17.</strong> Chorus</a></li><li class="chapter-item "><a href="../modules/effects/compressor.html"><strong aria-hidden="true">9.18.</strong> Compressor</a></li><li class="chapter-item "><a href="../modules/modulation/clock.html"><strong aria-hidden="true">9.19.</strong> Clock</a></li><li class="chapter-item "><a href="../modules/utilities/vca.html"><strong aria-hidden="true">9.20.</strong> VCA</a></li><li class="chapter-item "><a href="../modules/utilities/attenuverter.html"><strong aria-hidden="true">9.21.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../modules/utilities/mix.html"><strong aria-hidden="true">9.22.</strong> Mix</a></li><li class="chapter-item "><a href="../modules/utilities/mixer.html"><strong aria-hidden="true">9.23.</strong> Mixer</a></li><li class="chapter-item "><a href="../modules/utilities/sample-hold.html"><strong aria-hidden="true">9.24.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../modules/utilities/quantizer.html"><strong aria-hidden="true">9.25.</strong> Quantizer</a></li><li class="chapter-item "><a href="../modules/utilities/divider.html"><strong aria-hidden="true">9.26.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../modules/utilities/logic.html"><strong aria-hidden="true">9.27.</strong> Logic</a></li><li class="chapter-item "><a href="../modules/utilities/looper.html"><strong aria-hidden="true">9.28.</strong> Looper</a></li><li class="chapter-item "><a href="../modules/visualization/oscilloscope.html"><strong aria-hidden="true">9.29.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../modules/utilities/sequencer.html"><strong aria-hidden="true">9.30.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">9.31.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../modules/midi/midi-monitor.html"><strong aria-hidden="true">9.32.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../modules/output/audio-output.html"><strong aria-hidden="true">9.33.</strong> Audio Output</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../recipes/basic-subtractive.html"><strong aria-hidden="true">10.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../recipes/fm-synthesis.html"><strong aria-hidden="true">11.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../recipes/lush-pad.html"><strong aria-hidden="true">12.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../recipes/sampled-keys.html"><strong aria-hidden="true">13.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../recipes/live-looper.html"><strong aria-hidden="true">14.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../recipes/generative-ambient.html" class="active"><strong aria-hidden="true">15.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../recipes/shoreline.html"><strong aria-hidden="true">16.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../recipes/rhythmic-sequence.html"><strong aria-hidden="true">17.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../recipes/backbeat.html"><strong aria-hidden="true">18.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../recipes/drum-machine.html"><strong aria-hidden="true">19.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../recipes/roll-call.html"><strong aria-hidden="true">20.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../recipes/afterglow.html"><strong aria-hidden="true">21.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../recipes/interlock.html"><strong aria-hidden="true">22.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../recipes/from-one-sine.html"><strong aria-hidden="true">23.</strong> From One Sine</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/recipes/generative-ambient.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="generative-ambient"><a class="header" href="#generative-ambient">Generative Ambient</a></h1>
+<p>A patch that plays itself. A slow pentatonic melody repeats every twelve seconds, but its brightness shifts in threes against it, and a second voice wanders around it, never taking the same path twice. The tuning drifts, and long echoes and an eight-second reverb blur one phrase into the next. Press Play and leave it running.</p>
+<blockquote>
+<p><strong>Load it:</strong> choose <strong>📚 Examples → Generative Ambient</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
+The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patches/generative-ambient.json"><code>patches/generative-ambient.json</code></a>.</p>
+</blockquote>
+<iframe class="patch-embed" src="../play/?patch=generative-ambient" title="Generative Ambient, playable in the browser" loading="lazy"></iframe>
+*Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Soba**.*
+<p><img src="../images/recipe-generative-ambient.png" alt="The Generative Ambient patch" />
+<em>Clock and sequencer play the melody, top left, with the Clock Divider under the Clock. Below, the LFO and Sample &amp; Hold set the brightness, and Noise and the Quantizer sing the second voice.</em></p>
+<h2 id="what-it-teaches"><a class="header" href="#what-it-teaches">What it teaches</a></h2>
+<ul>
+<li><strong>Clock and sequencer.</strong> A clock sets the pace and a step sequencer turns each pulse into a note.</li>
+<li><strong>Sample &amp; hold.</strong> Freezing a moving signal at a pulse gives each group of notes its own setting, a step at a time.</li>
+<li><strong>Cycles that don't line up.</strong> When loops of different lengths run against each other, the combination takes a very long time to repeat. That's where the brightness gets its variety.</li>
+<li><strong>Chance, in key.</strong> A quantizer snaps a random voltage to the notes of a scale, so chance can write a melody without a wrong note.</li>
+</ul>
+<h2 id="modules"><a class="header" href="#modules">Modules</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
+<tr><td><a href="../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 40, <strong>Div</strong> 1/4</td></tr>
+<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a></td><td><strong>Steps</strong> 8, <strong>Dir</strong> Fwd, <strong>Gate</strong> 60%, <strong>Gate of</strong> 100 ms. Notes C4 D4 E4 G4 A4 G4 E4 D4, step 6 off</td></tr>
+<tr><td><a href="../modules/sources/oscillator.html">Oscillator</a> 1</td><td><strong>Wave</strong> Tri, <strong>Oct</strong> −1, <strong>Exp FM</strong> 0.01 oct</td></tr>
+<tr><td><a href="../modules/sources/oscillator.html">Oscillator</a> 2</td><td><strong>Wave</strong> Sine</td></tr>
+<tr><td><a href="../modules/sources/noise.html">Noise</a></td><td><strong>Rate</strong> 0.2 Hz</td></tr>
+<tr><td><a href="../modules/utilities/quantizer.html">Quantizer</a></td><td><strong>Root</strong> C, <strong>Scale</strong> Pentatonic Major</td></tr>
+<tr><td><a href="../modules/utilities/mix.html">Mix</a></td><td><strong>Level 1</strong> 100%, <strong>Level 2</strong> 50%</td></tr>
+<tr><td><a href="../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 1.5 kHz, <strong>Res</strong> 20%</td></tr>
+<tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a></td><td><strong>Atk</strong> 300 ms, <strong>Dec</strong> 500 ms, <strong>Sus</strong> 70%, <strong>Rel</strong> 2 s</td></tr>
+<tr><td><a href="../modules/utilities/vca.html">VCA</a></td><td>Defaults</td></tr>
+<tr><td><a href="../modules/modulation/lfo.html">LFO</a> 1</td><td><strong>Rate</strong> 0.13 Hz, <strong>Wave</strong> Triangle, <strong>Bipolar</strong> on</td></tr>
+<tr><td><a href="../modules/utilities/divider.html">Clock Divider</a></td><td><strong>Div</strong> 3</td></tr>
+<tr><td><a href="../modules/utilities/sample-hold.html">Sample &amp; Hold</a></td><td><strong>Slew</strong> 300 ms</td></tr>
+<tr><td><a href="../modules/modulation/lfo.html">LFO</a> 2</td><td><strong>Rate</strong> 0.03 Hz, <strong>Wave</strong> Sine, <strong>Bipolar</strong> on</td></tr>
+<tr><td><a href="../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Time</strong> 600 ms, <strong>FB</strong> 50%, <strong>Mix</strong> 40%, <strong>HiCut</strong> 4 kHz, <strong>LoCut</strong> 200 Hz, <strong>P-P</strong> on</td></tr>
+<tr><td><a href="../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 90%, <strong>Decay</strong> 8 s, <strong>PreD</strong> 100 ms, <strong>Mix</strong> 60%</td></tr>
+<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 100%</td></tr>
+</tbody></table>
+</div>
+<h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
+<h3 id="the-melody"><a class="header" href="#the-melody">The melody</a></h3>
+<pre><code class="language-text">[Clock Gate] ──&gt; [Step Sequencer Clock]
+[Step Sequencer Pitch] ──&gt; [Oscillator 1 V/Oct]
+[Step Sequencer Gate] ──&gt; [ADSR Gate]
+</code></pre>
+<p>At 40 BPM with <strong>Div</strong> at 1/4, the Clock pulses once a beat, every 1.5 seconds. Each pulse moves the sequencer one step. Its eight steps rise and fall through a C major pentatonic scale, C D E G A G E D, and step 6's gate is off, so the melody takes a breath before it turns around. Eight steps of 1.5 seconds make a twelve-second loop.</p>
+<p>The pentatonic scale has no half steps, so no two of its notes clash. That's why the long echoes and reverb can pile notes on top of each other without the result turning muddy.</p>
+<p>Oscillator 1 plays the melody as a triangle, an octave down: a soft, hollow tone, closer to a flute or a mallet than to a synth lead.</p>
+<h3 id="a-second-voice-by-chance"><a class="header" href="#a-second-voice-by-chance">A second voice, by chance</a></h3>
+<pre><code class="language-text">[Noise Random] ──&gt; [Quantizer In]
+[Quantizer Out] ──&gt; [Oscillator 2 V/Oct]
+[Oscillator 1 Out] ──&gt; [Mix In 1]
+[Oscillator 2 Out] ──&gt; [Mix In 2]
+[Mix Out] ──&gt; [SVF Filter In]
+</code></pre>
+<p>The Noise module's <strong>Random</strong> output picks a new value every five seconds or so, and glides to it. On its own, that would bend Oscillator 2's pitch smoothly through every frequency in between. The Quantizer snaps it to the C major pentatonic scale, the same five notes the melody uses, so the glide becomes a walk: one scale step at a time, up or down, from C3 to C5.</p>
+<p>This voice keeps its own time. Its notes change when the random walk crosses from one note to the next, not on the clock, so it slips in between the melody's notes and sometimes holds on through several. Because both voices stay in the pentatonic scale, any note of one sounds right against any note of the other. Oscillator 2 is a sine, mixed in at half level, so it sits behind the melody like a singer humming along.</p>
+<p>The mini piano on the Quantizer lights the five notes of the scale and follows the note it's playing.</p>
+<h3 id="brightness-in-threes"><a class="header" href="#brightness-in-threes">Brightness in threes</a></h3>
+<pre><code class="language-text">[Clock Gate] ──&gt; [Clock Divider Clock]
+[Clock Divider Trig] ──&gt; [Sample &amp; Hold Trig]
+[LFO 1 Out] ──&gt; [Sample &amp; Hold In]
+[Sample &amp; Hold Out] ──&gt; [SVF Filter Cutoff]
+</code></pre>
+<p>LFO 1 is a slow triangle, one cycle every 7.7 seconds. The Clock Divider passes on every third clock pulse, and on each one the Sample &amp; Hold catches the LFO's current value and holds it. The filter's <strong>Cutoff</strong> input works in octaves, so each group of three notes gets a cutoff somewhere between 750 Hz and 3 kHz. The 300 ms <strong>Slew</strong> glides between values instead of jumping.</p>
+<p>Three doesn't go into the melody's eight. The first pass is shaded 3 + 3 + 2, the next starts its groups one note later, and the groups only fall on the same notes again after three passes, 36 seconds. On top of that, the LFO's 7.7-second cycle divides evenly into none of them. So the melody repeats exactly, but its shading never does: every pass comes out lit differently, in phrases that cut across the melody's own.</p>
+<h3 id="slow-drift"><a class="header" href="#slow-drift">Slow drift</a></h3>
+<pre><code class="language-text">[LFO 2 Out] ──&gt; [Oscillator 1 Exp FM]
+            ──&gt; [SVF Filter Resonance]
+</code></pre>
+<p>LFO 2 takes over half a minute per cycle. On Oscillator 1's <strong>Exp FM</strong> input, with <strong>Exp FM</strong> set to 0.01 octave, it bends the pitch about 12 cents sharp and flat. Against the steady Oscillator 2, that makes a slow beating, like an instrument that's not quite in tune with itself. The same LFO raises and lowers the filter's resonance, so some passages ring and others are soft.</p>
+<h3 id="envelope-echoes-and-space"><a class="header" href="#envelope-echoes-and-space">Envelope, echoes and space</a></h3>
+<pre><code class="language-text">[SVF Filter LowPass] ──&gt; [VCA In]
+[ADSR Out] ──&gt; [VCA CV]
+[VCA Out] ──&gt; [Stereo Delay In L]
+[Stereo Delay Out L] ──&gt; [Reverb In L]
+[Stereo Delay Out R] ──&gt; [Reverb In R]
+[Reverb Out L] ──&gt; [Audio Output Left]
+[Reverb Out R] ──&gt; [Audio Output Right]
+</code></pre>
+<p>The envelope's 300 ms attack takes the edge off each note and its 2-second release lets it ring into the next one. The Stereo Delay repeats every 600 ms with <strong>Ping-Pong</strong> on, so echoes bounce between the speakers. Its <strong>HiCut</strong> and <strong>LoCut</strong> darken and thin each repeat, so the echoes recede instead of building up. The Reverb's large room and 8-second tail turn it all into a wash.</p>
+<h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
+<p><strong>Really generative.</strong> Set the sequencer's <strong>Dir</strong> to Rnd. The notes now come in a random order, and because they're all from the pentatonic scale, every order works.</p>
+<p><strong>A busier second voice.</strong> Raise the Noise <strong>Rate</strong> to 1 Hz and the second voice runs up and down the scale. Turn it down to 0.05 Hz and it becomes a slowly changing drone.</p>
+<p><strong>Bend the scale.</strong> Click keys on the Quantizer's piano. Take out E and A for a bare, open C D G, or add B for six notes and a little more tension. Only the second voice changes; the melody stays where it is.</p>
+<p><strong>Rewrite the melody.</strong> Click a step to turn its gate on or off. Drag a step up or down to change its note, or right-click it and play a new line on its piano. Stay on C, D, E, G and A to keep the pentatonic calm.</p>
+<p><strong>An odd-length loop.</strong> Set <strong>Steps</strong> to 5 or 7 so the phrase falls out of step with the bar.</p>
+<p><strong>Other groupings.</strong> Set the Clock Divider's <strong>Div</strong> to 1 and every note gets its own brightness. Try 5 against the eight notes for a longer cycle, or 4 for shading that lines up with the melody's two halves.</p>
+<p><strong>Slower still.</strong> Turn the Clock down to 20 BPM, and raise the Reverb's <strong>Decay</strong> to 15 s or more.</p>
+<p><strong>Tape echoes.</strong> Turn on the delay's <strong>Tape</strong> for wobble and saturation in the repeats.</p>
+<p><strong>Wider drift.</strong> Raise Oscillator 1's <strong>Exp FM</strong> to 0.03 octave for a seasick, detuned-tape feel.</p>
+<h2 id="related"><a class="header" href="#related">Related</a></h2>
+<ul>
+<li><a href="../modules/utilities/sample-hold.html">Sample &amp; Hold</a> – stepped modulation</li>
+<li><a href="../modules/utilities/divider.html">Clock Divider</a> – every third pulse, and longer phrases</li>
+<li><a href="../modules/utilities/quantizer.html">Quantizer</a> – random pitches, in key</li>
+<li><a href="../modules/utilities/sequencer.html">Step Sequencer</a> – editing steps</li>
+<li><a href="./rhythmic-sequence.html">Rhythmic Sequence</a> – the same clock and sequencer, at dance tempo</li>
+<li><a href="./shoreline.html">Shoreline</a> – another patch that plays itself, where chance does the varying</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../recipes/live-looper.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../recipes/shoreline.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../recipes/live-looper.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../recipes/shoreline.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

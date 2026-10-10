@@ -1,0 +1,299 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Connections - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../concepts/connections.html" class="active"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../concepts/polyphony.html"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../concepts/tempo-and-sync.html"><strong aria-hidden="true">7.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../concepts/groups.html"><strong aria-hidden="true">8.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../modules/index.html"><strong aria-hidden="true">9.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../modules/sources/oscillator.html"><strong aria-hidden="true">9.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../modules/sources/noise.html"><strong aria-hidden="true">9.2.</strong> Noise</a></li><li class="chapter-item "><a href="../modules/sources/drum.html"><strong aria-hidden="true">9.3.</strong> Drum</a></li><li class="chapter-item "><a href="../modules/sources/sampler.html"><strong aria-hidden="true">9.4.</strong> Sampler</a></li><li class="chapter-item "><a href="../modules/sources/audio-input.html"><strong aria-hidden="true">9.5.</strong> Audio Input</a></li><li class="chapter-item "><a href="../modules/midi/keyboard.html"><strong aria-hidden="true">9.6.</strong> Keyboard</a></li><li class="chapter-item "><a href="../modules/midi/midi-note.html"><strong aria-hidden="true">9.7.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../modules/midi/poly-midi.html"><strong aria-hidden="true">9.8.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../modules/filters/svf-filter.html"><strong aria-hidden="true">9.9.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../modules/filters/ladder-filter.html"><strong aria-hidden="true">9.10.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../modules/modulation/adsr.html"><strong aria-hidden="true">9.11.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../modules/modulation/lfo.html"><strong aria-hidden="true">9.12.</strong> LFO</a></li><li class="chapter-item "><a href="../modules/effects/delay.html"><strong aria-hidden="true">9.13.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../modules/effects/reverb.html"><strong aria-hidden="true">9.14.</strong> Reverb</a></li><li class="chapter-item "><a href="../modules/effects/eq.html"><strong aria-hidden="true">9.15.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../modules/effects/distortion.html"><strong aria-hidden="true">9.16.</strong> Distortion</a></li><li class="chapter-item "><a href="../modules/effects/chorus.html"><strong aria-hidden="true">9.17.</strong> Chorus</a></li><li class="chapter-item "><a href="../modules/effects/compressor.html"><strong aria-hidden="true">9.18.</strong> Compressor</a></li><li class="chapter-item "><a href="../modules/modulation/clock.html"><strong aria-hidden="true">9.19.</strong> Clock</a></li><li class="chapter-item "><a href="../modules/utilities/vca.html"><strong aria-hidden="true">9.20.</strong> VCA</a></li><li class="chapter-item "><a href="../modules/utilities/attenuverter.html"><strong aria-hidden="true">9.21.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../modules/utilities/mix.html"><strong aria-hidden="true">9.22.</strong> Mix</a></li><li class="chapter-item "><a href="../modules/utilities/mixer.html"><strong aria-hidden="true">9.23.</strong> Mixer</a></li><li class="chapter-item "><a href="../modules/utilities/sample-hold.html"><strong aria-hidden="true">9.24.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../modules/utilities/quantizer.html"><strong aria-hidden="true">9.25.</strong> Quantizer</a></li><li class="chapter-item "><a href="../modules/utilities/divider.html"><strong aria-hidden="true">9.26.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../modules/utilities/logic.html"><strong aria-hidden="true">9.27.</strong> Logic</a></li><li class="chapter-item "><a href="../modules/utilities/looper.html"><strong aria-hidden="true">9.28.</strong> Looper</a></li><li class="chapter-item "><a href="../modules/visualization/oscilloscope.html"><strong aria-hidden="true">9.29.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../modules/utilities/sequencer.html"><strong aria-hidden="true">9.30.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">9.31.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../modules/midi/midi-monitor.html"><strong aria-hidden="true">9.32.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../modules/output/audio-output.html"><strong aria-hidden="true">9.33.</strong> Audio Output</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../recipes/basic-subtractive.html"><strong aria-hidden="true">10.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../recipes/fm-synthesis.html"><strong aria-hidden="true">11.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../recipes/lush-pad.html"><strong aria-hidden="true">12.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../recipes/sampled-keys.html"><strong aria-hidden="true">13.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../recipes/live-looper.html"><strong aria-hidden="true">14.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../recipes/generative-ambient.html"><strong aria-hidden="true">15.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../recipes/shoreline.html"><strong aria-hidden="true">16.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../recipes/rhythmic-sequence.html"><strong aria-hidden="true">17.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../recipes/backbeat.html"><strong aria-hidden="true">18.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../recipes/drum-machine.html"><strong aria-hidden="true">19.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../recipes/roll-call.html"><strong aria-hidden="true">20.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../recipes/afterglow.html"><strong aria-hidden="true">21.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../recipes/interlock.html"><strong aria-hidden="true">22.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../recipes/from-one-sine.html"><strong aria-hidden="true">23.</strong> From One Sine</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/concepts/connections.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="connections"><a class="header" href="#connections">Connections</a></h1>
+<p>A cable carries a signal from one module's output to another module's input. Patching is the whole of Soba: the modules decide what can happen, and the cables decide what does.</p>
+<h2 id="patching-a-cable"><a class="header" href="#patching-a-cable">Patching a cable</a></h2>
+<p>Outputs are on the right edge of a module and inputs are on the left. To connect two modules:</p>
+<ol>
+<li>Press on an output jack and drag. A cable follows the pointer.</li>
+<li>Release over an input jack on another module.</li>
+</ol>
+<p>You can also start from an empty input and drag back to an output.</p>
+<p>To unplug a cable, press on the input end and drag it away. The cable comes off the jack and follows the pointer: drop it on another input to re-patch it, or on empty canvas to remove it. Deleting a module removes all of its cables.</p>
+<p>Patching and unpatching are recorded in the undo history, so <strong>Ctrl + Z</strong> puts back a cable you pulled by mistake.</p>
+<h2 id="the-rules"><a class="header" href="#the-rules">The rules</a></h2>
+<ul>
+<li><strong>An output can feed any number of inputs.</strong> Each one receives the full signal, with no loss of level.</li>
+<li><strong>An input takes one cable.</strong> Patching a second cable into an occupied input replaces the first.</li>
+<li><strong>Signal types must be compatible.</strong> Audio and control connect to each other freely, and a gate can drive a control input, but a gate input only accepts gates. The full table is on <a href="./signal-types.html#which-types-connect">Signal Types</a>. If a cable can't connect, Soba removes it and the status bar explains why.</li>
+<li><strong>A module can't patch into itself, and signals don't loop.</strong> Soba processes the patch in one direction, from sources to the output, so a cable that would feed a module's output back into its own input, directly or through other modules, has no effect. For echoes and feedback, use the <a href="../modules/effects/delay.html">Delay</a>'s <strong>Feedback</strong> knob.</li>
+</ul>
+<h2 id="empty-jacks"><a class="header" href="#empty-jacks">Empty jacks</a></h2>
+<p>An input with nothing patched in isn't necessarily zero. Each jack has a resting value chosen so the module does something sensible on its own. A <a href="../modules/utilities/vca.html">VCA</a> with nothing in its <strong>CV</strong> jack plays at full level, for example, so you can hear its input before you add an envelope.</p>
+<p>The stereo effects work the same way. Patch only their left input and they treat the signal as mono, feeding both sides, so a mono voice into the Reverb still gets a stereo tail.</p>
+<h2 id="knobs-with-jacks"><a class="header" href="#knobs-with-jacks">Knobs with jacks</a></h2>
+<p>Many parameters have both a knob and an input jack of the same name, such as <strong>Cutoff</strong> on the filters or <strong>Time</strong> on the Delay. With nothing patched, the knob sets the value. Patch a cable in and the signal modulates the parameter <em>around the knob</em>: the knob sets the center, and the cable moves the value up and down from there.</p>
+<p>How far a cable moves the parameter depends on the parameter, and each module page gives the scale. On both filters, for instance, the Cutoff CV is 1 per octave: +1.0 doubles the cutoff and −1.0 halves it. With Cutoff at 1 kHz, a bipolar LFO sweeps the filter from 500 Hz to 2 kHz.</p>
+<p>A small dot above the knob shows that a cable is patched in: orange once the signal is arriving, green while it's connected but hasn't reported a value yet. You can keep turning the knob to move the center while the cable plays.</p>
+<p>A knob mapped to a MIDI controller shows a purple <strong>M</strong> badge instead of the dot.</p>
+<h2 id="reading-the-signal-in-a-cable"><a class="header" href="#reading-the-signal-in-a-cable">Reading the signal in a cable</a></h2>
+<p>While the patch plays, each cable shows what its signal has been doing over the last few seconds. The signal travels from the output to the input at a steady pace, so the end of the cable nearest the output is <em>now</em> and points further along are moments ago.</p>
+<ul>
+<li><strong>Brightness is strength.</strong> A cable lights up with its signal and goes dark when it's silent. A note becomes a packet of light that runs down the wire. The packet's length is how long the note lasted, and an audio cable's light fades out as the note releases.</li>
+<li><strong>Marks point the way.</strong> Chevrons ride the light from output to input, so you can read a patch's direction even in a still frame. Each mark keeps the brightness of the moment it left the output.</li>
+<li><strong>Control cables draw their shape.</strong> On orange cables the light swings to one side of the cable or the other with the signal's value. An LFO shows its waveform traveling down the wire, an envelope its rise and fall, a sequencer its steps.</li>
+<li><strong>Gates are on or off.</strong> A green cable shows bright packets with hard edges, one per gate.</li>
+</ul>
+<p>When you press <strong>Stop</strong>, the last of the signal drains out of the cables rather than vanishing.</p>
+<p>To change the marks, open <strong>Cables</strong> in the toolbar and choose <strong>Chevrons</strong>, <strong>Dots</strong> or <strong>Comets</strong>. Soba remembers your choice.</p>
+<p>Polyphonic cables are drawn as a bundle of strands, one per voice. See <a href="./polyphony.html#seeing-polyphony">Seeing polyphony</a>.</p>
+<h2 id="laying-out-a-patch"><a class="header" href="#laying-out-a-patch">Laying out a patch</a></h2>
+<p>A patch is easier to read, and easier to come back to, when it follows a few habits:</p>
+<ul>
+<li>Run the audio path from left to right, ending at the Audio Output.</li>
+<li>Put modulation sources (envelopes, LFOs, the clock) above or below the audio path, so their cables reach across it rather than tangling with it.</li>
+<li>Keep each voice's modules together.</li>
+</ul>
+<pre><code class="language-text">               [LFO] ──┐
+                       ▼ Cutoff
+[Oscillator] ──&gt; [SVF Filter] ──&gt; [VCA] ──&gt; [Audio Output]
+                                    ▲ CV
+               [ADSR] ──────────────┘
+</code></pre>
+<h2 id="when-theres-no-sound"><a class="header" href="#when-theres-no-sound">When there's no sound</a></h2>
+<p>Work backward from the output:</p>
+<ol>
+<li><strong>Is anything patched into the Audio Output?</strong> The <strong>Mono</strong> input is the simplest place to start.</li>
+<li><strong>Is the transport running?</strong> Press <strong>Play</strong> in the toolbar.</li>
+<li><strong>Is the VCA opening?</strong> If its <strong>CV</strong> jack is patched to an envelope, the envelope needs a gate. Play a note.</li>
+<li><strong>Is the envelope getting a gate?</strong> Its Gate cable should light green when you play.</li>
+<li><strong>Follow the light.</strong> A cable that stays dark carries silence. The last lit cable before the dark ones points to the module to check.</li>
+</ol>
+<h2 id="see-also"><a class="header" href="#see-also">See also</a></h2>
+<ul>
+<li><a href="./signal-types.html">Signal Types</a>: what each color carries, and which types connect</li>
+<li><a href="./polyphony.html">Polyphony</a>: one cable, up to eight voices</li>
+<li><a href="../getting-started/interface-overview.html">Interface Overview</a>: every editing action and shortcut</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../concepts/signal-types.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../concepts/polyphony.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../concepts/signal-types.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../concepts/polyphony.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
