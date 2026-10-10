@@ -874,7 +874,7 @@ cargo run --release
 <p>The Clock counts its beat precisely enough that every pulse lands within a sample of where it belongs, even after ten minutes, so a slow phrase clock and a fast sixteenth clock started together stay together.</p>
 <p>Modules read the transport once per block of audio (a few milliseconds). Within the block, a synced LFO moves on at the tempo it read. When the beat jumps, as when the Clock restarts or a MIDI master suddenly changes tempo, a synced LFO can be up to one block late in following it. On a steady tempo, and from the next beat on, it's exact.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="groups-1"><a class="header" href="#groups-1">Groups</a></h1>
-<p>A good voice (an oscillator, a filter, a VCA and an envelope) is the same few modules in patch after patch, and three voices side by side turn into a wall of cables. A <strong>group</strong> collapses modules into one node of your own. It has jacks where cables crossed into and out of the selection, and the knobs you choose to keep on its face. Open it to work on what's inside. Save it to <strong>My Modules</strong>, and it's in the add menu of every patch.</p>
+<p>A good voice (an oscillator, a filter, a VCA and an envelope) is the same few modules in patch after patch, and three voices side by side turn into a wall of cables. A <strong>group</strong> collapses modules into one node of your own. It has jacks where cables crossed into and out of the selection, and the controls you choose to keep on its face. Open it to work on what's inside. Save it to <strong>My Modules</strong>, and it's in the add menu of every patch.</p>
 <p><img src="concepts/../images/groups-outside.png" alt="A group called Voice, playing, with four knobs on its face" />
 <em>Voice holds an envelope and a VCA. Its face shows them in miniature, with four of their knobs pinned.</em></p>
 <h2 id="making-a-group"><a class="header" href="#making-a-group">Making a group</a></h2>
@@ -898,19 +898,20 @@ cargo run --release
 <p>Everything else works as it does at the top of the patch. Modules you add, paste or drop from the palette land inside the group, and you can group modules inside a group too. The cables from Inputs show the signal arriving from outside. Frames and notes belong to the top level of the patch, so they're hidden while you're inside a group.</p>
 <h2 id="the-face"><a class="header" href="#the-face">The face</a></h2>
 <p>The group's face shows a miniature of what's inside: each module as a small card in its header color, wired as it is. Hover it to see <strong>Open ▸</strong>, and click to go inside.</p>
-<p>Below the miniature are any knobs you've <strong>pinned</strong> to the group. Inside the group, right-click a knob and choose <strong>Show on group</strong>. The knob appears on the group's face, in its module's color. It's the module's own knob, not a copy:</p>
+<p>Below the miniature are any controls you've <strong>pinned</strong> to the group. Inside the group, right-click a knob, a dropdown or a toggle and choose <strong>Show on group</strong>. It appears on the group's face, in its module's color: dropdowns and toggles in a row of their own, with the knobs under them. It's the module's own control, not a copy:</p>
 <ul>
-<li>Turning either one turns both.</li>
-<li>A <a href="concepts/../getting-started/interface-overview.html#midi-learn">MIDI Learn</a> mapping works from either place.</li>
-<li>If a cable inside the group moves the knob, the face shows it moving.</li>
+<li>Turning or changing either one changes both, and undo takes back either.</li>
+<li>A <a href="concepts/../getting-started/interface-overview.html#midi-learn">MIDI Learn</a> mapping on a knob works from either place. Dropdowns and toggles can't learn a CC, inside or on the face.</li>
+<li>If a cable inside the group moves a knob, the face shows it moving. A toggle with a jack, such as the Slope's <strong>Cycle</strong>, is greyed on the face while a cable sets it.</li>
 </ul>
-<p>Right-click a knob on the face and choose <strong>Hide from group</strong> to take it off. If the group is inside another group, <strong>Show on outer group too</strong> puts the knob on that group's face as well.</p>
+<p>Controls from modules nearer the face come first, then top to bottom by where the modules sit, then in each module's own order.</p>
+<p>Right-click a control on the face and choose <strong>Hide from group</strong> to take it off. If the group is inside another group, <strong>Show on outer group too</strong> puts it on that group's face as well.</p>
 <h2 id="my-modules"><a class="header" href="#my-modules">My Modules</a></h2>
 <p>Right-click a group and choose <strong>Save to My Modules</strong>. The group is saved as a file named after it, in <em>Documents/Soba/My Modules</em>.</p>
-<p>Saved groups come first in the <a href="concepts/../getting-started/interface-overview.html#quick-add">quick-add palette</a> (<code>Space</code>), under <strong>My Modules</strong>, and in the add menu's <strong>My Modules</strong> submenu. Each one is described by its jacks and size, such as <em>In, Gate, Velocity → Out · 2 modules</em>. Choosing one adds a copy of the whole group at the cursor, with its modules, cables, jacks and pinned knobs.</p>
+<p>Saved groups come first in the <a href="concepts/../getting-started/interface-overview.html#quick-add">quick-add palette</a> (<code>Space</code>), under <strong>My Modules</strong>, and in the add menu's <strong>My Modules</strong> submenu. Each one is described by its jacks and size, such as <em>In, Gate, Velocity → Out · 2 modules</em>. Choosing one adds a copy of the whole group at the cursor, with its modules, cables, jacks and pinned controls.</p>
 <p>Saving a group under a name that's already there updates it. The folder holds ordinary patch files, so you can copy them to another computer or share them. To find the folder, choose <strong>Open folder</strong> at the bottom of the add menu's My Modules submenu.</p>
 <h2 id="the-library"><a class="header" href="#the-library">The Library</a></h2>
-<p>The <strong>Library</strong> is a shelf of ready-made groups that ships with Soba. Each one is an ordinary group: add it, play it from the knobs on its face, then open it to see how it's made and change anything inside. Find them under <strong>Library</strong> at the bottom of the add menu, sorted into sections, or type a name or <code>lib</code> into the <a href="concepts/../getting-started/interface-overview.html#quick-add">quick-add palette</a>.</p>
+<p>The <strong>Library</strong> is a shelf of ready-made groups that ships with Soba. Each one is an ordinary group: add it, play it from the controls on its face, then open it to see how it's made and change anything inside. Find them under <strong>Library</strong> at the bottom of the add menu, sorted into sections, or type a name or <code>lib</code> into the <a href="concepts/../getting-started/interface-overview.html#quick-add">quick-add palette</a>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Group</th><th>What it is</th><th>Jacks</th></tr></thead><tbody>
 <tr><td><strong>Subtractive Voice</strong></td><td>A saw through a ladder filter, one envelope opening the filter and one shaping the level</td><td>Pitch, Gate, Velocity → Out</td></tr>
 <tr><td><strong>FM Voice</strong></td><td>Two-operator FM at 1:1, an electric-piano bark that mellows as it rings. <strong>Oct</strong> and <strong>Semi</strong> set the ratio</td><td>Pitch, Gate, Velocity → Out</td></tr>
@@ -920,11 +921,11 @@ cargo run --release
 <tr><td><strong>Acid Bass</strong></td><td>A resonant, driven ladder snapped open on every note; velocity accents</td><td>Pitch, Gate, Velocity → Out</td></tr>
 <tr><td><strong>Reese Bass</strong></td><td>Three detuned saws beating against each other, with a slow LFO in the filter</td><td>Pitch, Gate, Velocity → Out</td></tr>
 <tr><td><strong>Drum Kit</strong></td><td>Kick, snare and hats on a stereo mixer, the closed hat choking the open one</td><td>Kick, Snare, Hat, Open Hat, Accent → Out L, Out R</td></tr>
-<tr><td><strong>Random Melody</strong></td><td>Plays itself: a wandering voltage sampled on the beat and kept in A minor pentatonic. <strong>Amt</strong> is its range, <strong>Thresh</strong> how many beats rest</td><td>→ Pitch, Gate</td></tr>
+<tr><td><strong>Random Melody</strong></td><td>Plays itself: a wandering voltage sampled on the beat and kept in a scale, A minor pentatonic until you change <strong>Root</strong> and <strong>Scale</strong>. <strong>Amt</strong> is its range, <strong>Thresh</strong> how many beats rest</td><td>→ Pitch, Gate</td></tr>
 <tr><td><strong>Wind</strong></td><td>Plays itself: pink noise through a wandering band-pass, whistling higher as each gust rises</td><td>→ Out L, Out R</td></tr>
 <tr><td><strong>Stereo Space</strong></td><td>Chorus, ping-pong tape echo and a room, in pedalboard order</td><td>In L, In R → Out L, Out R</td></tr>
 <tr><td><strong>Pump</strong></td><td>Each trigger ducks the sound and lets it swell back, like a compressor keyed from the kick</td><td>In, Trig → Out</td></tr>
-<tr><td><strong>Auto-Pan</strong></td><td>An LFO sweeps a mono sound from side to side</td><td>In → Out L, Out R</td></tr>
+<tr><td><strong>Auto-Pan</strong></td><td>An LFO sweeps a mono sound from side to side. <strong>Tempo</strong> locks the sweep to the Clock</td><td>In → Out L, Out R</td></tr>
 </tbody></table>
 </div>
 <p>The voices share a shape: plug a <a href="concepts/../modules/midi/keyboard.html">Keyboard</a> or <a href="concepts/../modules/midi/poly-midi.html">Poly MIDI</a> into <strong>Pitch</strong>, <strong>Gate</strong> and <strong>Velocity</strong>, and <strong>Out</strong> into a mixer or the output. They're built only from <a href="concepts/./polyphony.html">polyphonic</a> modules, so Poly MIDI plays chords through any of them. They're also levelled to match, so swapping one voice for another doesn't jump in volume.</p>
@@ -935,7 +936,7 @@ cargo run --release
 <p>The audio engine never sees a group. It only hears the modules and the cables between them, followed through any number of jacks. Groups use no CPU, and grouping or ungrouping never interrupts the sound. A grouped patch plays sample for sample what the ungrouped patch plays, and the test suite checks this for every example.</p>
 <p>Groups are saved in the patch file, each holding its own modules, cables and groups. A patch with groups needs this version of Soba or later to open. A patch without groups is saved just as before, so older versions still open it.</p>
 <h2 id="limits"><a class="header" href="#limits">Limits</a></h2>
-<p>A group's jacks are set when you make it. To add or remove a jack, ungroup the group, change the cables, and group it again. The new group is called <em>Group</em> until you rename it; its pinned knobs are kept.</p>
+<p>A group's jacks are set when you make it. To add or remove a jack, ungroup the group, change the cables, and group it again. The new group is called <em>Group</em> until you rename it; its pinned controls are kept.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="module-overview"><a class="header" href="#module-overview">Module Overview</a></h1>
 <p>Soba has 34 modules in six categories. Each category has its own header color, so you can tell what a module is for at a glance across a crowded patch. The categories match the right-click menu and the quick-add palette, and the modules are listed here in the order the menu shows them.</p>
 <p>The <strong>ID</strong> is the name a patch file uses to refer to the module.</p>
