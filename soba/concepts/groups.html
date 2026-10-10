@@ -203,6 +203,19 @@
 <li><strong>Outputs</strong> has an input for each output jack. Whatever you plug in here comes out of that jack outside.</li>
 </ul>
 <p>Everything else works as it does at the top of the patch. Modules you add, paste or drop from the palette land inside the group, and you can group modules inside a group too. The cables from Inputs show the signal arriving from outside. Frames and notes belong to the top level of the patch, so they're hidden while you're inside a group.</p>
+<h2 id="changing-a-groups-jacks"><a class="header" href="#changing-a-groups-jacks">Changing a group's jacks</a></h2>
+<p>A group starts with the jacks its cables gave it, and you can change them whenever you like. Inside the group, right-click a port's name:</p>
+<ul>
+<li><strong>Show on group</strong>, on an output or an unplugged input, gives the group a new jack named after the port, wired to it through Inputs or Outputs. A filter's <strong>Cutoff</strong> shown this way can be modulated from outside, and a second output can be brought out beside the first. An input that's already plugged in inside the group can't take a jack too, so the item is greyed.</li>
+<li><strong>Hide from group</strong>, on a port wired to one of the group's jacks, unplugs it. If that leaves the jack carrying nothing inside, the jack goes, and so does any cable into it outside. If the jack still feeds another module, as a shared <strong>Gate</strong> might, it stays.</li>
+</ul>
+<p>Right-click a jack itself, on the group's node or on Inputs or Outputs inside, for its own menu:</p>
+<ul>
+<li><strong>Name</strong> opens with the jack's name selected, so you can type a new one and press <code>Enter</code>. A <strong>Gate</strong> jack might become <strong>Trig</strong>, or <strong>Out</strong> might become <strong>Wet</strong>. The group's node and its Inputs or Outputs change together, and every cable stays plugged in. If another jack on that side already has the name, the new one is numbered.</li>
+<li><strong>Move up</strong> and <strong>Move down</strong> move the jack one place along the group's jacks, with its cables.</li>
+<li><strong>Remove jack</strong> takes the jack away, with its cables inside and out.</li>
+</ul>
+<p>New jacks go at the bottom of the group's jacks. Inside a group within a group, an inner group's jacks are ports like any other, so you can show them on the group around it. Undo covers adding, renaming, moving and removing jacks, and a saved patch keeps them.</p>
 <h2 id="the-face"><a class="header" href="#the-face">The face</a></h2>
 <p>The group's face shows a miniature of what's inside: each module as a small card in its header color, wired as it is. Hover it to see <strong>Open ▸</strong>, and click to go inside.</p>
 <p>Below the miniature are any controls you've <strong>pinned</strong> to the group. Inside the group, right-click a knob, a dropdown or a toggle and choose <strong>Show on group</strong>. It appears on the group's face, in its module's color: dropdowns and toggles in a row of their own, with the knobs under them. It's the module's own control, not a copy:</p>
@@ -238,20 +251,10 @@
 <p>The voices share a shape: plug a <a href="../modules/midi/keyboard.html">Keyboard</a> or <a href="../modules/midi/poly-midi.html">Poly MIDI</a> into <strong>Pitch</strong>, <strong>Gate</strong> and <strong>Velocity</strong>, and <strong>Out</strong> into a mixer or the output. They're built only from <a href="./polyphony.html">polyphonic</a> modules, so Poly MIDI plays chords through any of them. They're also levelled to match, so swapping one voice for another doesn't jump in volume.</p>
 <p>A Library group you've changed can be saved to My Modules under its own name, like any other group.</p>
 <h2 id="editing-and-undo"><a class="header" href="#editing-and-undo">Editing and undo</a></h2>
-<p>Copy, paste, duplicate and delete treat a group as a whole: deleting one deletes everything inside it. Undo covers grouping, ungrouping, renaming, pinning and every edit you make inside a group. Undoing an edit that was made inside a group shows you that group as it happens.</p>
+<p>Copy, paste, duplicate and delete treat a group as a whole: deleting one deletes everything inside it. Undo covers grouping, ungrouping, renaming, pinning, changing jacks and every edit you make inside a group. Undoing an edit that was made inside a group shows you that group as it happens.</p>
 <h2 id="how-the-sound-works"><a class="header" href="#how-the-sound-works">How the sound works</a></h2>
 <p>The audio engine never sees a group. It only hears the modules and the cables between them, followed through any number of jacks. Groups use no CPU, and grouping or ungrouping never interrupts the sound. A grouped patch plays sample for sample what the ungrouped patch plays, and the test suite checks this for every example.</p>
-<h2 id="adding-and-removing-jacks"><a class="header" href="#adding-and-removing-jacks">Adding and removing jacks</a></h2>
-<p>A group starts with the jacks its cables gave it, and you can change them whenever you like. Inside the group, right-click a port's name:</p>
-<ul>
-<li><strong>Show on group</strong>, on an output or an unplugged input, gives the group a new jack named after the port, wired to it through Inputs or Outputs. A filter's <strong>Cutoff</strong> shown this way can be modulated from outside, and a second output can be brought out beside the first. An input that's already plugged in inside the group can't take a jack too, so the item is greyed.</li>
-<li><strong>Hide from group</strong>, on a port wired to one of the group's jacks, unplugs it. If that leaves the jack carrying nothing inside, the jack goes, and so does any cable into it outside. If the jack still feeds another module, as a shared <strong>Gate</strong> might, it stays.</li>
-</ul>
-<p>To take a jack away from anywhere, right-click it on the group's node, or on Inputs or Outputs inside, and choose <strong>Remove jack</strong>. Its cables go with it, inside and out.</p>
-<p>New jacks go at the bottom of the group's jacks. Inside a group within a group, an inner group's jacks are ports like any other, so you can show them on the group around it. Undo covers adding and removing jacks, and a saved patch keeps them.</p>
 <p>Groups are saved in the patch file, each holding its own modules, cables and groups. A patch with groups needs this version of Soba or later to open. A patch without groups is saved just as before, so older versions still open it.</p>
-<h2 id="limits"><a class="header" href="#limits">Limits</a></h2>
-<p>A jack keeps the name it was given, and stays in its place among the group's jacks. To rename or reorder jacks, ungroup the group and group it again. The new group is called <em>Group</em> until you rename it, and its pinned controls are kept.</p>
 
                     </main>
 

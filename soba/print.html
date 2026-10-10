@@ -465,14 +465,14 @@ cargo run --release
 <li><strong>Group:</strong> select modules and press <code>Ctrl + G</code>, then type a name and press <code>Enter</code>.</li>
 <li><strong>Go inside:</strong> double-click the group, select it and press <code>Tab</code>, or click the miniature on its face. A trail at the top of the canvas shows where you are; click it, or press <code>Escape</code>, to go back out.</li>
 <li><strong>Pin a control:</strong> inside the group, right-click a knob, dropdown or toggle and choose <strong>Show on group</strong>.</li>
-<li><strong>Add a jack:</strong> inside the group, right-click a port's name and choose <strong>Show on group</strong>. Right-click a jack and choose <strong>Remove jack</strong> to take it away.</li>
+<li><strong>Add a jack:</strong> inside the group, right-click a port's name and choose <strong>Show on group</strong>. Right-click a jack to rename it, move it up or down, or remove it.</li>
 <li><strong>Rename:</strong> select the group and press <code>F2</code>, or right-click it and choose <strong>Rename</strong>.</li>
 <li><strong>Ungroup:</strong> select the group and press <code>Ctrl + Alt + G</code>.</li>
 <li><strong>Keep it:</strong> right-click the group and choose <strong>Save to My Modules</strong>. It's then in the add menu and quick-add palette of every patch.</li>
 </ul>
 <p>A group's right-click menu also has <strong>Open</strong>, <strong>Duplicate</strong>, <strong>Copy</strong> and <strong>Delete</strong>.</p>
 <h2 id="undo-and-redo"><a class="header" href="#undo-and-redo">Undo and redo</a></h2>
-<p><strong>Undo</strong> (<code>Ctrl + Z</code>) and <strong>Redo</strong> (<code>Ctrl + Shift + Z</code> or <code>Ctrl + Y</code>) cover adding, deleting, moving and bypassing modules, patching and unpatching cables, turning knobs, grouping and ungrouping, adding and removing a group's jacks, and every change to <a href="getting-started/interface-overview.html#frames-and-notes">frames and notes</a>. Hover the toolbar buttons to see which edit is next, such as <em>Move Oscillator</em>, <em>Set SVF Filter Cutoff</em> or <em>Move frame Voice</em>.</p>
+<p><strong>Undo</strong> (<code>Ctrl + Z</code>) and <strong>Redo</strong> (<code>Ctrl + Shift + Z</code> or <code>Ctrl + Y</code>) cover adding, deleting, moving and bypassing modules, patching and unpatching cables, turning knobs, grouping and ungrouping, adding, renaming, moving and removing a group's jacks, and every change to <a href="getting-started/interface-overview.html#frames-and-notes">frames and notes</a>. Hover the toolbar buttons to see which edit is next, such as <em>Move Oscillator</em>, <em>Set SVF Filter Cutoff</em> or <em>Move frame Voice</em>.</p>
 <p>A whole drag is one step: turning a knob from 200 Hz to 2 kHz and back undoes in one go. A deleted module comes back with its settings, its cables and its MIDI mappings. Knobs moved by a MIDI controller aren't recorded, and opening a patch starts a fresh history.</p>
 <h2 id="playing"><a class="header" href="#playing">Playing</a></h2>
 <h3 id="transport"><a class="header" href="#transport">Transport</a></h3>
@@ -897,6 +897,19 @@ cargo run --release
 <li><strong>Outputs</strong> has an input for each output jack. Whatever you plug in here comes out of that jack outside.</li>
 </ul>
 <p>Everything else works as it does at the top of the patch. Modules you add, paste or drop from the palette land inside the group, and you can group modules inside a group too. The cables from Inputs show the signal arriving from outside. Frames and notes belong to the top level of the patch, so they're hidden while you're inside a group.</p>
+<h2 id="changing-a-groups-jacks"><a class="header" href="#changing-a-groups-jacks">Changing a group's jacks</a></h2>
+<p>A group starts with the jacks its cables gave it, and you can change them whenever you like. Inside the group, right-click a port's name:</p>
+<ul>
+<li><strong>Show on group</strong>, on an output or an unplugged input, gives the group a new jack named after the port, wired to it through Inputs or Outputs. A filter's <strong>Cutoff</strong> shown this way can be modulated from outside, and a second output can be brought out beside the first. An input that's already plugged in inside the group can't take a jack too, so the item is greyed.</li>
+<li><strong>Hide from group</strong>, on a port wired to one of the group's jacks, unplugs it. If that leaves the jack carrying nothing inside, the jack goes, and so does any cable into it outside. If the jack still feeds another module, as a shared <strong>Gate</strong> might, it stays.</li>
+</ul>
+<p>Right-click a jack itself, on the group's node or on Inputs or Outputs inside, for its own menu:</p>
+<ul>
+<li><strong>Name</strong> opens with the jack's name selected, so you can type a new one and press <code>Enter</code>. A <strong>Gate</strong> jack might become <strong>Trig</strong>, or <strong>Out</strong> might become <strong>Wet</strong>. The group's node and its Inputs or Outputs change together, and every cable stays plugged in. If another jack on that side already has the name, the new one is numbered.</li>
+<li><strong>Move up</strong> and <strong>Move down</strong> move the jack one place along the group's jacks, with its cables.</li>
+<li><strong>Remove jack</strong> takes the jack away, with its cables inside and out.</li>
+</ul>
+<p>New jacks go at the bottom of the group's jacks. Inside a group within a group, an inner group's jacks are ports like any other, so you can show them on the group around it. Undo covers adding, renaming, moving and removing jacks, and a saved patch keeps them.</p>
 <h2 id="the-face"><a class="header" href="#the-face">The face</a></h2>
 <p>The group's face shows a miniature of what's inside: each module as a small card in its header color, wired as it is. Hover it to see <strong>Open ▸</strong>, and click to go inside.</p>
 <p>Below the miniature are any controls you've <strong>pinned</strong> to the group. Inside the group, right-click a knob, a dropdown or a toggle and choose <strong>Show on group</strong>. It appears on the group's face, in its module's color: dropdowns and toggles in a row of their own, with the knobs under them. It's the module's own control, not a copy:</p>
@@ -932,20 +945,10 @@ cargo run --release
 <p>The voices share a shape: plug a <a href="concepts/../modules/midi/keyboard.html">Keyboard</a> or <a href="concepts/../modules/midi/poly-midi.html">Poly MIDI</a> into <strong>Pitch</strong>, <strong>Gate</strong> and <strong>Velocity</strong>, and <strong>Out</strong> into a mixer or the output. They're built only from <a href="concepts/./polyphony.html">polyphonic</a> modules, so Poly MIDI plays chords through any of them. They're also levelled to match, so swapping one voice for another doesn't jump in volume.</p>
 <p>A Library group you've changed can be saved to My Modules under its own name, like any other group.</p>
 <h2 id="editing-and-undo"><a class="header" href="#editing-and-undo">Editing and undo</a></h2>
-<p>Copy, paste, duplicate and delete treat a group as a whole: deleting one deletes everything inside it. Undo covers grouping, ungrouping, renaming, pinning and every edit you make inside a group. Undoing an edit that was made inside a group shows you that group as it happens.</p>
+<p>Copy, paste, duplicate and delete treat a group as a whole: deleting one deletes everything inside it. Undo covers grouping, ungrouping, renaming, pinning, changing jacks and every edit you make inside a group. Undoing an edit that was made inside a group shows you that group as it happens.</p>
 <h2 id="how-the-sound-works"><a class="header" href="#how-the-sound-works">How the sound works</a></h2>
 <p>The audio engine never sees a group. It only hears the modules and the cables between them, followed through any number of jacks. Groups use no CPU, and grouping or ungrouping never interrupts the sound. A grouped patch plays sample for sample what the ungrouped patch plays, and the test suite checks this for every example.</p>
-<h2 id="adding-and-removing-jacks"><a class="header" href="#adding-and-removing-jacks">Adding and removing jacks</a></h2>
-<p>A group starts with the jacks its cables gave it, and you can change them whenever you like. Inside the group, right-click a port's name:</p>
-<ul>
-<li><strong>Show on group</strong>, on an output or an unplugged input, gives the group a new jack named after the port, wired to it through Inputs or Outputs. A filter's <strong>Cutoff</strong> shown this way can be modulated from outside, and a second output can be brought out beside the first. An input that's already plugged in inside the group can't take a jack too, so the item is greyed.</li>
-<li><strong>Hide from group</strong>, on a port wired to one of the group's jacks, unplugs it. If that leaves the jack carrying nothing inside, the jack goes, and so does any cable into it outside. If the jack still feeds another module, as a shared <strong>Gate</strong> might, it stays.</li>
-</ul>
-<p>To take a jack away from anywhere, right-click it on the group's node, or on Inputs or Outputs inside, and choose <strong>Remove jack</strong>. Its cables go with it, inside and out.</p>
-<p>New jacks go at the bottom of the group's jacks. Inside a group within a group, an inner group's jacks are ports like any other, so you can show them on the group around it. Undo covers adding and removing jacks, and a saved patch keeps them.</p>
 <p>Groups are saved in the patch file, each holding its own modules, cables and groups. A patch with groups needs this version of Soba or later to open. A patch without groups is saved just as before, so older versions still open it.</p>
-<h2 id="limits"><a class="header" href="#limits">Limits</a></h2>
-<p>A jack keeps the name it was given, and stays in its place among the group's jacks. To rename or reorder jacks, ungroup the group and group it again. The new group is called <em>Group</em> until you rename it, and its pinned controls are kept.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="module-overview"><a class="header" href="#module-overview">Module Overview</a></h1>
 <p>Soba has 35 modules in six categories. Each category has its own header color, so you can tell what a module is for at a glance across a crowded patch. The categories match the right-click menu and the quick-add palette, and the modules are listed here in the order the menu shows them.</p>
 <p>The <strong>ID</strong> is the name a patch file uses to refer to the module.</p>
