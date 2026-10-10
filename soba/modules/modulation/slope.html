@@ -1,0 +1,332 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Slope - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../../concepts/connections.html"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../../concepts/polyphony.html"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../../concepts/tempo-and-sync.html"><strong aria-hidden="true">7.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../../concepts/groups.html"><strong aria-hidden="true">8.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../../modules/index.html"><strong aria-hidden="true">9.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../modules/sources/oscillator.html"><strong aria-hidden="true">9.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../../modules/sources/noise.html"><strong aria-hidden="true">9.2.</strong> Noise</a></li><li class="chapter-item "><a href="../../modules/sources/drum.html"><strong aria-hidden="true">9.3.</strong> Drum</a></li><li class="chapter-item "><a href="../../modules/sources/sampler.html"><strong aria-hidden="true">9.4.</strong> Sampler</a></li><li class="chapter-item "><a href="../../modules/sources/audio-input.html"><strong aria-hidden="true">9.5.</strong> Audio Input</a></li><li class="chapter-item "><a href="../../modules/midi/keyboard.html"><strong aria-hidden="true">9.6.</strong> Keyboard</a></li><li class="chapter-item "><a href="../../modules/midi/midi-note.html"><strong aria-hidden="true">9.7.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../../modules/midi/poly-midi.html"><strong aria-hidden="true">9.8.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../../modules/filters/svf-filter.html"><strong aria-hidden="true">9.9.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../../modules/filters/ladder-filter.html"><strong aria-hidden="true">9.10.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../../modules/modulation/adsr.html"><strong aria-hidden="true">9.11.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../../modules/modulation/lfo.html"><strong aria-hidden="true">9.12.</strong> LFO</a></li><li class="chapter-item expanded "><a href="../../modules/modulation/slope.html" class="active"><strong aria-hidden="true">9.13.</strong> Slope</a></li><li class="chapter-item "><a href="../../modules/effects/delay.html"><strong aria-hidden="true">9.14.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../../modules/effects/reverb.html"><strong aria-hidden="true">9.15.</strong> Reverb</a></li><li class="chapter-item "><a href="../../modules/effects/eq.html"><strong aria-hidden="true">9.16.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../../modules/effects/distortion.html"><strong aria-hidden="true">9.17.</strong> Distortion</a></li><li class="chapter-item "><a href="../../modules/effects/chorus.html"><strong aria-hidden="true">9.18.</strong> Chorus</a></li><li class="chapter-item "><a href="../../modules/effects/compressor.html"><strong aria-hidden="true">9.19.</strong> Compressor</a></li><li class="chapter-item "><a href="../../modules/modulation/clock.html"><strong aria-hidden="true">9.20.</strong> Clock</a></li><li class="chapter-item "><a href="../../modules/utilities/vca.html"><strong aria-hidden="true">9.21.</strong> VCA</a></li><li class="chapter-item "><a href="../../modules/utilities/attenuverter.html"><strong aria-hidden="true">9.22.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../../modules/utilities/mix.html"><strong aria-hidden="true">9.23.</strong> Mix</a></li><li class="chapter-item "><a href="../../modules/utilities/mixer.html"><strong aria-hidden="true">9.24.</strong> Mixer</a></li><li class="chapter-item "><a href="../../modules/utilities/sample-hold.html"><strong aria-hidden="true">9.25.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../../modules/utilities/quantizer.html"><strong aria-hidden="true">9.26.</strong> Quantizer</a></li><li class="chapter-item "><a href="../../modules/utilities/divider.html"><strong aria-hidden="true">9.27.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../../modules/utilities/logic.html"><strong aria-hidden="true">9.28.</strong> Logic</a></li><li class="chapter-item "><a href="../../modules/utilities/looper.html"><strong aria-hidden="true">9.29.</strong> Looper</a></li><li class="chapter-item "><a href="../../modules/visualization/oscilloscope.html"><strong aria-hidden="true">9.30.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../../modules/utilities/sequencer.html"><strong aria-hidden="true">9.31.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">9.32.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../../modules/midi/midi-monitor.html"><strong aria-hidden="true">9.33.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../../modules/output/audio-output.html"><strong aria-hidden="true">9.34.</strong> Audio Output</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../../recipes/basic-subtractive.html"><strong aria-hidden="true">10.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../../recipes/fm-synthesis.html"><strong aria-hidden="true">11.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../../recipes/lush-pad.html"><strong aria-hidden="true">12.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../../recipes/sampled-keys.html"><strong aria-hidden="true">13.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../../recipes/live-looper.html"><strong aria-hidden="true">14.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../../recipes/generative-ambient.html"><strong aria-hidden="true">15.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../../recipes/shoreline.html"><strong aria-hidden="true">16.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../../recipes/rhythmic-sequence.html"><strong aria-hidden="true">17.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../../recipes/backbeat.html"><strong aria-hidden="true">18.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../../recipes/drum-machine.html"><strong aria-hidden="true">19.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../../recipes/roll-call.html"><strong aria-hidden="true">20.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../../recipes/afterglow.html"><strong aria-hidden="true">21.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../../recipes/interlock.html"><strong aria-hidden="true">22.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../../recipes/from-one-sine.html"><strong aria-hidden="true">23.</strong> From One Sine</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/modules/modulation/slope.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="slope"><a class="header" href="#slope">Slope</a></h1>
+<p><strong>Module ID</strong> <code>mod.slope</code> · <strong>Category</strong> Modulation · Polyphonic</p>
+<p><img src="../../images/module-slope.png" alt="Slope Module" />
+<em>Cycling, with a 1.2 s rise and a 400 ms fall, Shape 0.5. The dot is on its way down the fall, which is lit, and EOR glows until the fall ends.</em></p>
+<p>A Slope rises and falls at rates you set. That one idea does four everyday jobs. Patch a signal into <strong>In</strong> and Out follows it, slowly or quickly: slew, glide, portamento, lag. A gate into <strong>In</strong> makes that an attack-release envelope. A trigger into <strong>Trig</strong> plays one whole rise and fall, however short the trigger: a function generator. Turn on <strong>Cycle</strong> and each fall starts the next rise: an LFO whose rising and falling halves you set apart. It is the slope generator from a Make Noise Maths, where all four are one circuit.</p>
+<p>The node draws the rise and the fall side by side, each as wide as its share of the time, both bent by <strong>Shape</strong>. A dot rides the curve where the slope is, the stage it's in lights up, and the glow under the curve swells with Out, so a cycling Slope breathes. Above, the two times, and the rate when it cycles.</p>
+<h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>In</strong></td><td>Control (Orange)</td><td>A signal to follow. Out moves toward it at the <strong>Rise</strong> rate going up and the <strong>Fall</strong> rate going down, and rests on it exactly once it gets there</td></tr>
+<tr><td><strong>Trig</strong></td><td>Gate (Green)</td><td>A rising edge runs one full rise to 1 and fall back to In (0 if nothing is patched), however short the trigger. A trigger mid-fall turns round and rises from where it is</td></tr>
+<tr><td><strong>Rise</strong></td><td>Control (Orange)</td><td>CV around the <strong>Rise</strong> knob, exponential: +1 halves the time, -1 doubles it</td></tr>
+<tr><td><strong>Fall</strong></td><td>Control (Orange)</td><td>CV around the <strong>Fall</strong> knob, the same way</td></tr>
+<tr><td><strong>Cycle</strong></td><td>Gate (Green)</td><td>While high, every fall starts a new rise. Patched, it takes over from the <strong>Cycle</strong> switch</td></tr>
+</tbody></table>
+</div>
+<h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Out</strong></td><td>Control (Orange)</td><td>The slope: 0 to 1 from a trigger or a cycle, or following In in In's own range, a pitch or a bipolar signal included</td></tr>
+<tr><td><strong>EOR</strong></td><td>Gate (Green)</td><td>End of rise: high from the top of each rise until the fall ends. A new rise turns it off</td></tr>
+<tr><td><strong>EOC</strong></td><td>Gate (Green)</td><td>End of cycle: a 1 ms pulse each time a fall ends, on the sample it ends. Cycling, that's once per cycle</td></tr>
+</tbody></table>
+</div>
+<h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Rise</strong></td><td>1 ms – 20 s</td><td>100 ms</td><td>The time to rise from 0 to 1. The knob is logarithmic</td></tr>
+<tr><td><strong>Fall</strong></td><td>1 ms – 20 s</td><td>300 ms</td><td>The time to fall from 1 to 0</td></tr>
+<tr><td><strong>Shape</strong></td><td>-1 – 1</td><td>0</td><td>The curve of both stages: -1 log, 0 linear, 1 exponential</td></tr>
+<tr><td><strong>Cycle</strong></td><td>On / Off</td><td>Off</td><td>Checkbox on the node. On starts a new rise at the end of every fall</td></tr>
+</tbody></table>
+</div>
+<h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
+<h3 id="rates-not-times"><a class="header" href="#rates-not-times">Rates, not times</a></h3>
+<p>Rise and Fall are <strong>rates</strong>: the time to move a whole unit, from 0 to 1. A trigger always runs a whole unit, so its rise takes exactly <strong>Rise</strong> and its fall exactly <strong>Fall</strong>. Following In, a smaller move takes less time: half a unit takes half the time. Pitch is in octaves, so with <strong>Rise</strong> at 60 ms an octave leap glides in 60 ms and a semitone in 5 ms. That's the analog way, and it's different from the <strong>Glide</strong> on the <a href="../midi/keyboard.html#glide">Keyboard</a> and the MIDI modules, which takes the same time for any interval.</p>
+<p>With the linear Shape, Out moves at a constant rate. When it reaches In it stops on it exactly, to the last bit, and stays there for as long as In holds still.</p>
+<h3 id="a-trigger-a-gate-and-in"><a class="header" href="#a-trigger-a-gate-and-in">A trigger, a gate, and In</a></h3>
+<p><strong>Trig</strong> sends the slope up to 1 and back down to In. It doesn't matter how long the trigger lasts: a single sample plays the whole shape, so a sequencer's gate length no longer shapes the sound. A trigger that arrives mid-fall starts a new rise from where Out is, with no jump.</p>
+<p>A gate into <strong>In</strong> behaves differently. Out rises toward 1 while the gate is high, holds there, and falls when the gate goes low: an attack-release envelope that sustains for as long as you hold the note.</p>
+<pre><code class="language-text">Trig: _|‾|____________________   In:  __|‾‾‾‾‾‾‾‾‾‾|_________
+Out:  _/‾‾‾\__________________   Out: __/‾‾‾‾‾‾‾‾‾‾‾‾\_______
+EOR:  ____|‾|_________________   EOR: ____|‾‾‾‾‾‾‾‾‾‾‾|______
+EOC:  _______|‾|______________   EOC: _________________|‾|___
+</code></pre>
+<h3 id="shape"><a class="header" href="#shape">Shape</a></h3>
+<p><strong>Shape</strong> bends both stages the same way, without changing how long they take.</p>
+<ul>
+<li><strong>-1, log:</strong> the rise shoots up and eases in at the top; the fall eases off the top and drops to the bottom.</li>
+<li><strong>0, linear:</strong> straight lines, at a constant rate.</li>
+<li><strong>1, exponential:</strong> the rise starts slowly and accelerates; the fall drops fast and tails off, the way a struck sound decays. This is the shape for drums and plucks.</li>
+</ul>
+<p>Turning Shape while the slope moves never makes Out jump: only the road ahead bends. Outside 0 to 1, where a pitch or a bipolar signal can take Out, the slope is always a straight line.</p>
+<h3 id="cycle"><a class="header" href="#cycle">Cycle</a></h3>
+<p>With <strong>Cycle</strong> on, the end of each fall starts the next rise, so the Slope runs as an LFO at 1 / (Rise + Fall): 2 Hz at the defaults' 100 ms and 300 ms. Each stage ends between samples, and the next starts from exactly there, so the period is exact and doesn't drift, after ten minutes as after ten seconds. Turn Cycle off and the run in progress finishes its fall and stops.</p>
+<h2 id="patches"><a class="header" href="#patches">Patches</a></h2>
+<h3 id="glide-on-a-sequence"><a class="header" href="#glide-on-a-sequence">Glide on a sequence</a></h3>
+<pre><code class="language-text">[Step Sequencer Pitch] ──&gt; [Slope In]          (Rise 60 ms, Fall 60 ms, Shape 0)
+[Slope Out] ──&gt; [Oscillator V/Oct]
+</code></pre>
+<p>Every note slides into the next: an octave in 60 ms, a fifth in 35 ms. Set Rise and Fall apart for a line that swoops up and drops down, or the other way round. <a href="../../recipes/rhythmic-sequence.html#variations">Rhythmic Sequence</a> has this as a variation. Because it's polyphonic, a chord from <a href="../midi/poly-midi.html">Poly MIDI</a> glides voice by voice, each at its own pace.</p>
+<h3 id="trigger-drums"><a class="header" href="#trigger-drums">Trigger drums</a></h3>
+<pre><code class="language-text">[Step Sequencer Gate] ──&gt; [Slope Trig]          (Rise 1 ms, Fall 450 ms, Shape 1)
+[Slope Out] ──&gt; [VCA CV]
+</code></pre>
+<p>A snap up and an exponential decay, from any length of gate. With an <a href="./adsr.html">ADSR</a>, a gate that falls during the attack sends it straight to release, so a short trigger can't play a long envelope; a Slope can.</p>
+<h3 id="a-skewed-lfo"><a class="header" href="#a-skewed-lfo">A skewed LFO</a></h3>
+<pre><code class="language-text">Slope: Cycle on, Rise 2 s, Fall 50 ms
+[Slope Out] ──&gt; [VCA CV]
+</code></pre>
+<p>A slow swell that drops away, every 2.05 s. Turn Rise and Fall the other way round for a ramp down, or set them equal for a triangle.</p>
+<h3 id="a-bouncing-ball"><a class="header" href="#a-bouncing-ball">A bouncing ball</a></h3>
+<pre><code class="language-text">[Clock Gate] ──&gt; [Slope "Energy" Trig]           (Energy: Rise 1 ms, Fall 2.5 s; Clock 20 BPM, Div 1)
+[Energy Out] ──&gt; [Attenuverter In]               (Amount -1, Offset 1)
+[Attenuverter Out] ──&gt; [Mix In 1] [Mix In 2]
+[Mix Out] ──&gt; [Slope "Bounce" Rise] [Bounce Fall]  (Bounce: Rise 150 ms, Fall 150 ms)
+[Energy EOR] ──&gt; [Bounce Cycle]
+[Bounce EOC] ──&gt; [Drum Trig]                    (Rim, Tune 7 st)
+[Energy Out] ──&gt; [Drum Accent]
+</code></pre>
+<p>One Slope is the ball's energy, draining away over 2.5 s. While it drains, its EOR keeps the second Slope cycling, and the second's EOC taps the drum once a bounce. As the energy falls, the Attenuverter turns it upside down and the Mix doubles it, so the CV into the bounce's times climbs and the bounces close up, from a gap of 240 ms to about 110 ms, while the Accent lets each one land softer. A patch can't feed a module back into itself, so the ball's energy lives in a Slope of its own.</p>
+<h3 id="an-envelope-follower"><a class="header" href="#an-envelope-follower">An envelope follower</a></h3>
+<pre><code class="language-text">[Drum Out] ──&gt; [Slope In]                       (Rise 5 ms, Fall 1 s)
+[Slope Out] ──&gt; [VCA CV]
+</code></pre>
+<p>Out climbs to each peak of the sound and sinks slowly between them, so a second sound swells and fades with the drum. Fall is the time for a whole unit, so from a peak of 0.3, Out is back to zero in 300 ms. Lengthen Fall for a slower release. For a microphone or guitar, the <a href="../sources/audio-input.html">Audio Input</a>'s <strong>Follow</strong> output does this already.</p>
+<h3 id="a-delayed-trigger-and-a-delayed-gate"><a class="header" href="#a-delayed-trigger-and-a-delayed-gate">A delayed trigger, and a delayed gate</a></h3>
+<pre><code class="language-text">[Clock Gate] ──&gt; [Slope Trig]                   (Rise 300 ms, Fall 10 ms, Shape 0)
+[Slope Out] ──&gt; [Logic CV]                      (Threshold 0.9)
+[Logic Above] ──&gt; [Drum Trig]
+</code></pre>
+<p>Each clock pulse starts a rise, and <a href="../utilities/logic.html">Logic</a>'s <strong>Above</strong> goes high when it crosses the Threshold, 270 ms later: each hit delayed by Rise × Threshold.</p>
+<p>Patch the gate into <strong>In</strong> instead of <strong>Trig</strong>, and Out holds at the top for as long as the gate is high. Then <strong>Above</strong> is the same gate, opening 270 ms late and closing 1 ms after the gate does (the Fall, from the top down to the Threshold). Turn Rise to set the delay.</p>
+<h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>
+<ul>
+<li><a href="./adsr.html">ADSR Envelope</a>: four stages, following a gate</li>
+<li><a href="./lfo.html">LFO</a>: fixed shapes, and tempo sync</li>
+<li><a href="../utilities/sample-hold.html">Sample &amp; Hold</a>: its <strong>Slew</strong> glides between held values</li>
+<li><a href="../utilities/logic.html">Logic</a>: turns a slope into a gate</li>
+<li><a href="../utilities/divider.html">Clock Divider</a>: longer gaps between triggers</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../modules/modulation/lfo.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../modules/effects/delay.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../modules/modulation/lfo.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../modules/effects/delay.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
