@@ -216,6 +216,26 @@
 <p>Right-click a group and choose <strong>Save to My Modules</strong>. The group is saved as a file named after it, in <em>Documents/Modular/My Modules</em>.</p>
 <p>Saved groups come first in the <a href="../getting-started/interface-overview.html#quick-add">quick-add palette</a> (<code>Space</code>), under <strong>My Modules</strong>, and in the add menu's <strong>My Modules</strong> submenu. Each one is described by its jacks and size, such as <em>In, Gate, Velocity → Out · 2 modules</em>. Choosing one adds a copy of the whole group at the cursor, with its modules, cables, jacks and pinned knobs.</p>
 <p>Saving a group under a name that's already there updates it. The folder holds ordinary patch files, so you can copy them to another computer or share them. To find the folder, choose <strong>Open folder</strong> at the bottom of the add menu's My Modules submenu.</p>
+<h2 id="the-library"><a class="header" href="#the-library">The Library</a></h2>
+<p>The <strong>Library</strong> is a shelf of ready-made groups that ships with Modular Synth. Each one is an ordinary group: add it, play it from the knobs on its face, then open it to see how it's made and change anything inside. Find them under <strong>Library</strong> at the bottom of the add menu, sorted into sections, or type a name or <code>lib</code> into the <a href="../getting-started/interface-overview.html#quick-add">quick-add palette</a>.</p>
+<div class="table-wrapper"><table><thead><tr><th>Group</th><th>What it is</th><th>Jacks</th></tr></thead><tbody>
+<tr><td><strong>Subtractive Voice</strong></td><td>A saw through a ladder filter, one envelope opening the filter and one shaping the level</td><td>Pitch, Gate, Velocity → Out</td></tr>
+<tr><td><strong>FM Voice</strong></td><td>Two-operator FM at 1:1, an electric-piano bark that mellows as it rings. <strong>Oct</strong> and <strong>Semi</strong> set the ratio</td><td>Pitch, Gate, Velocity → Out</td></tr>
+<tr><td><strong>FM Bell</strong></td><td>Two-operator FM at 1:3.5: clangorous partials that fade to a pure tone</td><td>Pitch, Gate, Velocity → Out</td></tr>
+<tr><td><strong>Supersaw Pad</strong></td><td>Seven detuned saws, a slow swell and a filter that breathes</td><td>Pitch, Gate, Velocity → Out</td></tr>
+<tr><td><strong>Mallet</strong></td><td>A short strike rings a resonant filter tuned to the note, like a marimba bar</td><td>Pitch, Gate, Velocity → Out</td></tr>
+<tr><td><strong>Acid Bass</strong></td><td>A resonant, driven ladder snapped open on every note; velocity accents</td><td>Pitch, Gate, Velocity → Out</td></tr>
+<tr><td><strong>Reese Bass</strong></td><td>Three detuned saws beating against each other, with a slow LFO in the filter</td><td>Pitch, Gate, Velocity → Out</td></tr>
+<tr><td><strong>Drum Kit</strong></td><td>Kick, snare and hats on a stereo mixer, the closed hat choking the open one</td><td>Kick, Snare, Hat, Open Hat, Accent → Out L, Out R</td></tr>
+<tr><td><strong>Random Melody</strong></td><td>Plays itself: a wandering voltage sampled on the beat and kept in A minor pentatonic. <strong>Amt</strong> is its range, <strong>Thresh</strong> how many beats rest</td><td>→ Pitch, Gate</td></tr>
+<tr><td><strong>Wind</strong></td><td>Plays itself: pink noise through a wandering band-pass, whistling higher as each gust rises</td><td>→ Out L, Out R</td></tr>
+<tr><td><strong>Stereo Space</strong></td><td>Chorus, ping-pong tape echo and a room, in pedalboard order</td><td>In L, In R → Out L, Out R</td></tr>
+<tr><td><strong>Pump</strong></td><td>Each trigger ducks the sound and lets it swell back, like a compressor keyed from the kick</td><td>In, Trig → Out</td></tr>
+<tr><td><strong>Auto-Pan</strong></td><td>An LFO sweeps a mono sound from side to side</td><td>In → Out L, Out R</td></tr>
+</tbody></table>
+</div>
+<p>The voices share a shape: plug a <a href="../modules/midi/keyboard.html">Keyboard</a> or <a href="../modules/midi/poly-midi.html">Poly MIDI</a> into <strong>Pitch</strong>, <strong>Gate</strong> and <strong>Velocity</strong>, and <strong>Out</strong> into a mixer or the output. They're built only from <a href="./polyphony.html">polyphonic</a> modules, so Poly MIDI plays chords through any of them. They're also levelled to match, so swapping one voice for another doesn't jump in volume.</p>
+<p>A Library group you've changed can be saved to My Modules under its own name, like any other group.</p>
 <h2 id="editing-and-undo"><a class="header" href="#editing-and-undo">Editing and undo</a></h2>
 <p>Copy, paste, duplicate and delete treat a group as a whole: deleting one deletes everything inside it. Undo covers grouping, ungrouping, renaming, pinning and every edit you make inside a group. Undoing an edit that was made inside a group shows you that group as it happens.</p>
 <h2 id="how-the-sound-works"><a class="header" href="#how-the-sound-works">How the sound works</a></h2>
