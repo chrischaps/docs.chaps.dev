@@ -521,10 +521,11 @@ cargo run --release
 <p>The <strong>📚 Examples</strong> menu holds fourteen ready-made patches: <strong>First Sound</strong>, which opens when the app starts, and one for each <a href="getting-started/../recipes/basic-subtractive.html">recipe</a> in this manual. Hover an example to read what it is. Each one is laid out in frames, with notes on how it works and what to try. Saving an example always asks for a file name, so you save a copy and the original stays intact.</p>
 <h3 id="samples"><a class="header" href="#samples">Samples</a></h3>
 <p>A <a href="getting-started/../modules/sources/sampler.html">Sampler</a> keeps the path to its WAV file in the patch. A file beside or below the patch is saved by a path relative to it, so the patch's folder can be moved or shared whole. <strong>Save As</strong> copies samples from anywhere else into a <code>&lt;patch name&gt; samples</code> folder beside the patch, asking first if they come to more than 50 MB. A patch whose sample has gone missing still opens, with the missing file among the load warnings.</p>
+<p>A <a href="getting-started/../modules/utilities/looper.html">Looper</a>'s loop is kept the same way. Saving the patch writes each loop that changed as a WAV into a <code>&lt;patch name&gt; loops</code> folder beside it, asking first if they come to more than 50 MB, and opening the patch brings each loop back, stopped and ready to play. A loop whose file has gone missing is a load warning, and its Looper opens empty. See <a href="getting-started/../modules/utilities/looper.html#keeping-the-loop">Keeping the loop</a>.</p>
 <h3 id="recent-patches"><a class="header" href="#recent-patches">Recent patches</a></h3>
 <p><strong>🕘 Recent</strong> lists the last eight patches you opened or saved, newest first. Hover one to see where it lives. A file that has since been moved or deleted is grayed out. <strong>Clear Recent</strong> empties the list.</p>
 <h3 id="unsaved-changes"><a class="header" href="#unsaved-changes">Unsaved changes</a></h3>
-<p>While a patch has unsaved changes, the window title starts with a dot (<code>● Lush Pad · Soba</code>), and so does its name in the status bar. Undoing back to the saved state clears the dot.</p>
+<p>While a patch has unsaved changes, the window title starts with a dot (<code>● Lush Pad · Soba</code>), and so does its name in the status bar. Undoing back to the saved state clears the dot. Recording into a <a href="getting-started/../modules/utilities/looper.html#keeping-the-loop">Looper</a> counts as a change too.</p>
 <p><strong>New</strong>, <strong>Open</strong>, opening an example or a recent file, and closing the window all ask first when there are unsaved changes:</p>
 <ul>
 <li><strong>Save</strong> saves the patch (asking where, if it has never been saved), then carries on. Cancelling the save dialog cancels the whole thing.</li>
@@ -534,7 +535,7 @@ cargo run --release
 <p>Closing the window while a <a href="getting-started/interface-overview.html#recording">recording</a> is running asks too, even with nothing unsaved, and the prompt shows how long the take is. Quitting stops the take and saves it before the window closes.</p>
 <h3 id="autosave-and-recovery"><a class="header" href="#autosave-and-recovery">Autosave and recovery</a></h3>
 <p>Every 30 seconds, a patch with unsaved changes is autosaved alongside the app's settings. Saving the patch, or choosing <strong>Quit Without Saving</strong>, clears the autosave, so one only survives if Soba closes without asking: after a crash or a forced quit.</p>
-<p>The next time the app starts, it offers the patch back. <strong>Recover</strong> reopens it exactly as it was at the last autosave, still marked unsaved; <strong>Discard</strong> lets it go. At most, you lose the last 30 seconds of work.</p>
+<p>The next time the app starts, it offers the patch back. <strong>Recover</strong> reopens it exactly as it was at the last autosave, still marked unsaved; <strong>Discard</strong> lets it go. At most, you lose the last 30 seconds of work. An autosave doesn't keep Loopers' loops, though: they come back as last saved with the patch, and the prompt says so.</p>
 <p>Recent files, the autosave, your cable style and the window's size and position are kept in the settings file:</p>
 <ul>
 <li>Windows: <code>%APPDATA%\Soba\data\app.ron</code></li>
@@ -3642,7 +3643,21 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <p>Soba measures that round trip (the <strong>In</strong> figure in the status bar, see <a href="modules/utilities/../sources/audio-input.html">Audio Input</a>). With <strong>Auto latency</strong> on, the Looper writes everything fed by an Audio Input that much earlier, through any chain of modules in between, so each layer lines up with what you heard while you played it. Sound made inside the patch (a sequencer, an oscillator) has no round trip, so nothing is moved even with Auto latency on.</p>
 <p><strong>Offset</strong> trims by ear on top of that. If your interface's converters add latency no timestamp reports, layers will still sit a little late: turn Offset up until they're tight. Turn Auto latency off if the input isn't something played along with the loop, such as a drum machine slaved to the patch's clock.</p>
 <h2 id="memory"><a class="header" href="#memory">Memory</a></h2>
-<p>A Looper holds up to <strong>two minutes</strong> of stereo, plus room for one undo layer: about 92 MB at 48 kHz, set aside when the module is added and never on the audio thread. Recording past two minutes closes the loop there. Changing the device's sample rate empties the loop.</p>
+<p>A Looper holds up to <strong>two minutes</strong> of stereo, plus room for one undo layer: about 92 MB at 48 kHz, set aside when the module is added and never on the audio thread. Recording past two minutes closes the loop there. Changing the device's sample rate empties the loop, and brings back the one last saved with the patch, if there is one.</p>
+<h2 id="keeping-the-loop"><a class="header" href="#keeping-the-loop">Keeping the loop</a></h2>
+<p>A loop is part of the patch. Saving the patch saves each Looper's loop as a WAV file in a <code>&lt;patch name&gt; loops</code> folder beside it, and opening the patch brings the loop back, <strong>Stopped</strong> at the top, with its waveform on the ring. Tap <strong>Rec</strong> or <strong>Stop</strong> to play it.</p>
+<ul>
+<li><strong>What's saved is the loop as you hear it.</strong> The last overdub layer is in it, unless you've undone it. The undo layer itself isn't kept, so after the patch is opened again there's nothing for Undo to take back.</li>
+<li><strong>A loop is a change.</strong> Recording, overdubbing, undoing or clearing one marks the patch unsaved (the dot in the window title), and <strong>New</strong>, <strong>Open</strong> and quitting ask before letting it go.</li>
+<li><strong>Only what changed is written.</strong> A loop that hasn't changed since it was saved or opened isn't written again, so saving a patch with a long loop is instant the second time.</li>
+<li><strong>Nothing is lost.</strong> The files are 32-bit float WAVs at the device's rate, about 23 MB a minute in stereo, and half that for a mono loop (one input patched makes one). If the loops to write come to more than 50 MB, saving asks first. <strong>No</strong> saves the patch without them, and its Loopers will open empty.</li>
+<li><strong>The folder stays tidy.</strong> A Looper with nothing in it saves no file. A loop file the patch wrote that no Looper uses any more (its loop cleared, or the Looper deleted) is removed on the next save, and so is the folder once it's empty. Files you put there yourself are left alone.</li>
+<li><strong>Another sample rate.</strong> Opened on a device at a different rate, a loop is resampled so it stays in tune. With a <strong>Clock</strong> patched, a loop that resampling left a frame or two off a whole number of bars is trimmed back onto the bar.</li>
+<li><strong>Saving takes a moment.</strong> The loop is copied off the audio thread a piece at a time, so the sound never stutters: about half a second for a two-minute loop. Saving during an overdub keeps the overdub as far as it had got, and the patch shows unsaved again once the overdub ends. A first take still recording isn't a loop yet, so it isn't saved.</li>
+<li><strong>Autosave doesn't keep loops.</strong> After a crash, a <a href="modules/utilities/../../getting-started/interface-overview.html#autosave-and-recovery">recovered</a> patch's Loopers come back with the loops last saved, if any.</li>
+<li><strong>The browser can't keep loops</strong>, as there's no folder beside the patch to put them in.</li>
+<li><strong>Offline too.</strong> The <code>render</code> tool loads a patch's saved loops, so a cue that presses <strong>Rec</strong> plays them.</li>
+</ul>
 <h2 id="clean-loop-points"><a class="header" href="#clean-loop-points">Clean loop points</a></h2>
 <p>Nothing clicks at the seam. The first take keeps recording for 5 ms past where the loop closes, and that tail is crossfaded over the loop's first 5 ms, so the wrap runs on into what you really played next. Overdubs punch in and out over 5 ms, and stopping, clearing and undoing fade rather than cut.</p>
 <h2 id="patches-14"><a class="header" href="#patches-14">Patches</a></h2>
@@ -4350,6 +4365,8 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <h3 id="layers"><a class="header" href="#layers">Layers</a></h3>
 <p>Once the loop is playing, tap <strong>Rec</strong> to overdub (the ring turns amber), play your next part, and tap <strong>Rec</strong> again when it's done. Each overdub pass lays a thin band inside the ring. <strong>Undo</strong> takes back the layer you just made, if it didn't work, and a second Undo brings it back. <strong>Stop</strong> silences the loop and <strong>Clear</strong> empties it to start over.</p>
 <p>Turn <strong>FB</strong> down before an overdub to let the older layers fade as the new one goes on, so a loop can change gradually rather than only pile up.</p>
+<h3 id="keeping-your-layers"><a class="header" href="#keeping-your-layers">Keeping your layers</a></h3>
+<p>Your layers are part of the patch. Save it (an example has no file of its own, so <strong>Save</strong> asks where), and the loop goes into a <code>&lt;patch name&gt; loops</code> folder beside it. Open the patch tomorrow and the loop is there, stopped at the top: tap <strong>Rec</strong> to hear it and go on overdubbing from where you left off. What's kept is the loop as you hear it, so a layer you've undone stays out. See <a href="recipes/../modules/utilities/looper.html#keeping-the-loop">Keeping the loop</a>.</p>
 <h3 id="latency"><a class="header" href="#latency">Latency</a></h3>
 <p>The status bar's <strong>In</strong> figure is the round trip from the input jack to your speakers, typically 20 to 50 ms. You play along with the loop you hear, and what you play arrives that long after the moment you were playing to. <strong>Auto latency</strong> writes each overdub that much earlier, so a strum on beat one lands on beat one. If layers still feel a hair late (your converters add delay no timestamp reports), trim with <strong>Offset</strong>.</p>
 <h3 id="click-echo-and-room"><a class="header" href="#click-echo-and-room">Click, echo and room</a></h3>
@@ -4376,6 +4393,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 </code></pre>
 <pre><code class="language-text">cargo run --release --bin render -- patches/live-looper.json out.wav --seconds 30 --input take.wav --cue cues.txt
 </code></pre>
+<p>A copy saved with its loop renders that loop too: it opens stopped, so press <strong>Rec</strong> (or <strong>Stop</strong>) in the cues to start it.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="generative-ambient"><a class="header" href="#generative-ambient">Generative Ambient</a></h1>
 <p>A patch that plays itself. A slow pentatonic melody repeats every twelve seconds, but its brightness shifts in threes against it, and a second voice wanders around it, never taking the same path twice. The tuning drifts, and long echoes and an eight-second reverb blur one phrase into the next. Press Play and leave it running.</p>
 <blockquote>
