@@ -634,7 +634,7 @@ cargo run --release
 <li>Patch the envelope's <strong>Out</strong> into the filter's <strong>Cutoff</strong> input. One output can feed any number of inputs, so the envelope keeps driving the VCA too.</li>
 <li>Turn the <strong>Cutoff</strong> knob down to about 400 Hz.</li>
 </ol>
-<p>Each note now opens the filter and closes it again as the envelope decays. The <strong>Cutoff</strong> knob stays live and sets where the sweep starts; the envelope adds up to one octave on top. A small dot above the knob shows that a cable is moving it.</p>
+<p>Each note now opens the filter and closes it again as the envelope decays. The <strong>Cutoff</strong> knob stays live and sets where the sweep starts. <strong>CV Amt</strong> sets how far the envelope carries it: one octave at first. Turn <strong>CV Amt</strong> up to 3 and each note opens with a squelch. A small dot above the <strong>Cutoff</strong> knob shows that a cable is moving it.</p>
 <p>For a plucky, percussive bass, set <strong>Atk</strong> to its minimum, <strong>Dec</strong> to about 200 ms and <strong>Sus</strong> low. For a slow, brightening pad, lengthen <strong>Atk</strong>.</p>
 <h2 id="the-finished-patch"><a class="header" href="#the-finished-patch">The finished patch</a></h2>
 <pre><code class="language-text">[Keyboard Pitch] ──&gt; [Oscillator V/Oct]
@@ -658,7 +658,7 @@ cargo run --release
 <ul>
 <li><strong>Use separate envelopes.</strong> Add a second ADSR Envelope for the filter, also gated by the Keyboard, so brightness and loudness can have different shapes.</li>
 <li><strong>Add velocity.</strong> Patch the Keyboard's <strong>Velocity</strong> into the envelope's <strong>Velocity</strong> input, then lower the Keyboard's <strong>Vel</strong> knob for quieter notes.</li>
-<li><strong>Add movement.</strong> Patch a <strong>Modulation › LFO</strong> into the filter's <strong>Cutoff</strong> for a slow sweep. Its <strong>Out</strong> swings the cutoff an octave either way.</li>
+<li><strong>Add movement.</strong> Patch a <strong>Modulation › LFO</strong> into the filter's <strong>Cutoff</strong> for a slow sweep. Its <strong>Out</strong> swings the cutoff <strong>CV Amt</strong> octaves either way.</li>
 <li><strong>Add space.</strong> Put an <strong>Effect › Reverb</strong> between the VCA and the Audio Output: VCA <strong>Out</strong> into Reverb <strong>In L</strong>, then the Reverb's <strong>Out L</strong> and <strong>Out R</strong> into the output's <strong>Left</strong> and <strong>Right</strong>.</li>
 <li><strong>Watch it.</strong> Patch the VCA's <strong>Out</strong> into a <strong>Utility › Oscilloscope</strong> as well as the output to see the envelope shape the wave.</li>
 </ul>
@@ -752,7 +752,7 @@ cargo run --release
 <p>The stereo effects work the same way. Patch only their left input and they treat the signal as mono, feeding both sides, so a mono voice into the Reverb still gets a stereo tail.</p>
 <h2 id="knobs-with-jacks"><a class="header" href="#knobs-with-jacks">Knobs with jacks</a></h2>
 <p>Many parameters have both a knob and an input jack of the same name, such as <strong>Cutoff</strong> on the filters or <strong>Time</strong> on the Delay. With nothing patched, the knob sets the value. Patch a cable in and the signal modulates the parameter <em>around the knob</em>: the knob sets the center, and the cable moves the value up and down from there.</p>
-<p>How far a cable moves the parameter depends on the parameter, and each module page gives the scale. On both filters, for instance, the Cutoff CV is 1 per octave: +1.0 doubles the cutoff and −1.0 halves it. With Cutoff at 1 kHz, a bipolar LFO sweeps the filter from 500 Hz to 2 kHz.</p>
+<p>How far a cable moves the parameter depends on the parameter, and each module page gives the scale. On both filters, for instance, the Cutoff CV is in octaves: at the default <strong>CV Amt</strong> of 1, +1.0 doubles the cutoff and −1.0 halves it. With Cutoff at 1 kHz, a bipolar LFO sweeps the filter from 500 Hz to 2 kHz. Some inputs have a knob of their own that sets how far they reach, as <strong>CV Amt</strong> does here.</p>
 <p>A small dot above the knob shows that a cable is patched in: orange once the signal is arriving, green while it's connected but hasn't reported a value yet. You can keep turning the knob to move the center while the cable plays.</p>
 <p>A knob mapped to a MIDI controller shows a purple <strong>M</strong> badge instead of the dot.</p>
 <h2 id="reading-the-signal-in-a-cable"><a class="header" href="#reading-the-signal-in-a-cable">Reading the signal in a cable</a></h2>
@@ -1830,7 +1830,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <h2 id="inputs-4"><a class="header" href="#inputs-4">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In</strong></td><td>Audio (Blue)</td><td>Audio to filter</td></tr>
-<tr><td><strong>Cutoff</strong></td><td>Control (Orange)</td><td>Cutoff CV, 1 per octave: +1 doubles the cutoff, -1 halves it. The same scale as V/Oct, so a keyboard's pitch tracks directly</td></tr>
+<tr><td><strong>Cutoff</strong></td><td>Control (Orange)</td><td>Cutoff CV, in octaves: each unit moves the cutoff by <strong>CV Amt</strong> octaves. At the default of 1, +1 doubles the cutoff and -1 halves it: the V/Oct scale, so a keyboard's pitch tracks directly</td></tr>
 <tr><td><strong>Resonance</strong></td><td>Control (Orange)</td><td>Adds to the <strong>Res</strong> knob: +1 adds 50%</td></tr>
 </tbody></table>
 </div>
@@ -1847,6 +1847,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <div class="table-wrapper"><table><thead><tr><th>Knob</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Cutoff</strong></td><td>20 Hz – 20 kHz</td><td>1000 Hz</td><td>Where the filter starts cutting</td></tr>
 <tr><td><strong>Res</strong> (Resonance)</td><td>0 – 100%</td><td>50%</td><td>Peak at the cutoff. Self-oscillates above about 97%</td></tr>
+<tr><td><strong>CV Amt</strong> (Cutoff CV)</td><td>-4 – +4 oct</td><td>1 oct</td><td>Octaves the cutoff moves per unit at the <strong>Cutoff</strong> input. Negative turns the CV upside down</td></tr>
 <tr><td><strong>Drive</strong></td><td>1x – 10x</td><td>1x</td><td>Input gain into a soft saturator, for warmth and grit</td></tr>
 </tbody></table>
 </div>
@@ -1865,6 +1866,17 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <li>Patch a keyboard's <strong>Pitch</strong> into <strong>Cutoff</strong> and it plays in tune.</li>
 </ul>
 <p>Feed audio in while it oscillates and the two interact, with the resonance pushing back against loud input.</p>
+<h2 id="cv-amt"><a class="header" href="#cv-amt">CV Amt</a></h2>
+<p><strong>CV Amt</strong> sets how far the <strong>Cutoff</strong> input reaches: how many octaves one unit of CV moves the cutoff. It runs from -4 to +4 octaves per unit, and starts at 1, the V/Oct scale.</p>
+<p>An envelope runs from 0 to 1, so <strong>CV Amt</strong> is the size of its sweep, the knob a hardware synth calls <em>Env Amount</em> or <em>Contour</em>:</p>
+<ul>
+<li><strong>1</strong> opens the filter one octave at the envelope's peak. Gentle: a sound that brightens a little at each note.</li>
+<li><strong>2 to 3</strong> suits a pluck or a brassy swell.</li>
+<li><strong>3 to 4</strong> is acid: a resonant peak that shoots up from the bass to the treble and falls back.</li>
+<li><strong>Negative</strong> values turn the CV upside down. An envelope then closes the filter as the note starts and opens it again as it releases, so set the <strong>Cutoff</strong> knob high.</li>
+</ul>
+<p>With pitch on <strong>Cutoff</strong>, <strong>CV Amt</strong> is the keyboard tracking: 1 keeps the filter's brightness the same on every note, 0.5 tracks at half the rate, and 0 ignores the keys.</p>
+<p><strong>CV Amt</strong> scales whatever is patched into <strong>Cutoff</strong> before it's added to the <strong>Cutoff</strong> knob, so the knob still sets where the sweep starts. With a polyphonic envelope, each voice's sweep is scaled the same way.</p>
 <h2 id="drive"><a class="header" href="#drive">Drive</a></h2>
 <p><strong>Drive</strong> raises the level into a soft saturator before the filter. At 1x it is nearly clean. Turning it up thickens the sound and then adds grit, and the louder signal also pushes harder against the resonance.</p>
 <h2 id="patch-examples-3"><a class="header" href="#patch-examples-3">Patch examples</a></h2>
@@ -1877,12 +1889,12 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <pre><code class="language-text">[Keyboard Gate] ──&gt; [ADSR Gate]
 [ADSR Out] ──&gt; [SVF Filter Cutoff]
 </code></pre>
-<p>Set the <strong>Cutoff</strong> knob low (200 to 500 Hz). The envelope's 0-to-1 output raises the cutoff by up to one octave as it plays, so the knob sets where the sweep starts and the envelope carries it an octave higher. Add resonance to make the sweep more pronounced. A fast attack and decay gives a pluck; a slow attack, a swell.</p>
+<p>Set the <strong>Cutoff</strong> knob low (200 to 500 Hz) and <strong>CV Amt</strong> to 2 or 3. The envelope's 0-to-1 output raises the cutoff by up to <strong>CV Amt</strong> octaves as it plays, so the knob sets where the sweep starts and <strong>CV Amt</strong> how far it goes. Add resonance to make the sweep more pronounced. A fast attack and decay gives a pluck; a slow attack, a swell.</p>
 <h3 id="keyboard-tracking"><a class="header" href="#keyboard-tracking">Keyboard tracking</a></h3>
 <pre><code class="language-text">[Keyboard Pitch] ──&gt; [Oscillator V/Oct]
                  ──&gt; [SVF Filter Cutoff]
 </code></pre>
-<p>The filter follows the notes you play, so high notes are as bright as low ones. The Cutoff input uses the V/Oct scale, so no scaling is needed.</p>
+<p>The filter follows the notes you play, so high notes are as bright as low ones. At the default <strong>CV Amt</strong> of 1 the Cutoff input is on the V/Oct scale, so no scaling is needed. Turn <strong>CV Amt</strong> down to 0.5 for half tracking, so high notes come out a little darker.</p>
 <h3 id="parallel-modes"><a class="header" href="#parallel-modes">Parallel modes</a></h3>
 <pre><code class="language-text">[Oscillator Out] ──&gt; [SVF Filter In]
 [SVF Filter LowPass] ──&gt; [Mix In 1]
@@ -1905,7 +1917,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <li><a href="modules/filters/./ladder-filter.html">Ladder Filter</a>, the steeper, saturating lowpass</li>
 <li><a href="modules/filters/../modulation/adsr.html">ADSR Envelope</a> to sweep the cutoff with each note</li>
 <li><a href="modules/filters/../modulation/lfo.html">LFO</a> for wobbles and phaser sweeps</li>
-<li><a href="modules/filters/../utilities/attenuverter.html">Attenuverter</a> to narrow or invert a cutoff sweep</li>
+<li><a href="modules/filters/../utilities/attenuverter.html">Attenuverter</a> to offset a cutoff sweep, or to scale one CV for several modules at once</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ladder-filter"><a class="header" href="#ladder-filter">Ladder Filter</a></h1>
 <p><strong>Module ID</strong> <code>filter.ladder</code> · <strong>Category</strong> Filter</p>
@@ -1923,7 +1935,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <h2 id="inputs-5"><a class="header" href="#inputs-5">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In</strong></td><td>Audio (Blue)</td><td>Audio to filter</td></tr>
-<tr><td><strong>Cutoff</strong></td><td>Control (Orange)</td><td>Cutoff CV, 1 per octave: +1 doubles the cutoff, -1 halves it. The same scale as V/Oct, so a keyboard's pitch tracks directly</td></tr>
+<tr><td><strong>Cutoff</strong></td><td>Control (Orange)</td><td>Cutoff CV, in octaves: each unit moves the cutoff by <strong>CV Amt</strong> octaves. At the default of 1, +1 doubles the cutoff and -1 halves it: the V/Oct scale, so a keyboard's pitch tracks directly</td></tr>
 <tr><td><strong>Resonance</strong></td><td>Control (Orange)</td><td>Adds to the <strong>Res</strong> knob: +1 adds 50%</td></tr>
 </tbody></table>
 </div>
@@ -1938,11 +1950,12 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <div class="table-wrapper"><table><thead><tr><th>Knob</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Cutoff</strong></td><td>20 Hz – 20 kHz</td><td>1000 Hz</td><td>Filter cutoff frequency</td></tr>
 <tr><td><strong>Res</strong> (Resonance)</td><td>0 – 100%</td><td>50%</td><td>Peak at the cutoff. Self-oscillates above 80%</td></tr>
+<tr><td><strong>CV Amt</strong> (Cutoff CV)</td><td>-4 – +4 oct</td><td>1 oct</td><td>Octaves the cutoff moves per unit at the <strong>Cutoff</strong> input. Negative turns the CV upside down</td></tr>
 <tr><td><strong>Drive</strong></td><td>1x – 10x</td><td>1x</td><td>Input gain into the saturating stages</td></tr>
 </tbody></table>
 </div>
 <h2 id="ladder-or-svf"><a class="header" href="#ladder-or-svf">Ladder or SVF?</a></h2>
-<p>Both filters cover the musical range, self-oscillate, and take cutoff CV at 1 per octave. They differ in character:</p>
+<p>Both filters cover the musical range, self-oscillate, and take cutoff CV in octaves, scaled by <strong>CV Amt</strong>. They differ in character:</p>
 <div class="table-wrapper"><table><thead><tr><th></th><th>Ladder</th><th>SVF</th></tr></thead><tbody>
 <tr><td>Slope</td><td>24 dB/oct (and 12)</td><td>12 dB/oct</td></tr>
 <tr><td>Modes</td><td>Lowpass only</td><td>LowPass, HighPass, BandPass, Notch</td></tr>
@@ -1951,6 +1964,17 @@ Note:        C   D   E   F   G   A   B   C   D   E
 </tbody></table>
 </div>
 <p>Reach for the ladder for basses, leads and anything that should sound fat. Reach for the <a href="modules/filters/./svf-filter.html">SVF Filter</a> when you want the other modes, or a lighter, more transparent touch.</p>
+<h2 id="cv-amt-1"><a class="header" href="#cv-amt-1">CV Amt</a></h2>
+<p><strong>CV Amt</strong> sets how far the <strong>Cutoff</strong> input reaches: how many octaves one unit of CV moves the cutoff. It runs from -4 to +4 octaves per unit, and starts at 1, the V/Oct scale.</p>
+<p>An envelope runs from 0 to 1, so <strong>CV Amt</strong> is the size of its sweep, the knob a hardware synth calls <em>Env Amount</em> or <em>Contour</em>:</p>
+<ul>
+<li><strong>1</strong> opens the filter one octave at the envelope's peak. Gentle: a sound that brightens a little at each note.</li>
+<li><strong>2 to 3</strong> suits a pluck or a brassy swell.</li>
+<li><strong>3 to 4</strong> is acid: a resonant peak that shoots up from the bass to the treble and falls back.</li>
+<li><strong>Negative</strong> values turn the CV upside down. An envelope then closes the filter as the note starts and opens it again as it releases, so set the <strong>Cutoff</strong> knob high.</li>
+</ul>
+<p>With pitch on <strong>Cutoff</strong>, <strong>CV Amt</strong> is the keyboard tracking: 1 keeps the filter's brightness the same on every note, 0.5 tracks at half the rate, and 0 ignores the keys.</p>
+<p><strong>CV Amt</strong> scales whatever is patched into <strong>Cutoff</strong> before it's added to the <strong>Cutoff</strong> knob, so the knob still sets where the sweep starts. With a polyphonic envelope, each voice's sweep is scaled the same way.</p>
 <h2 id="drive-1"><a class="header" href="#drive-1">Drive</a></h2>
 <p>At 1x, a full-scale signal is already warmed slightly. Around 2x to 4x the ladder thickens audibly and the resonance takes on a growl. At 10x it is a distortion in its own right. The level stays roughly constant as you turn Drive up, because the saturating stages cap it.</p>
 <h2 id="self-oscillation"><a class="header" href="#self-oscillation">Self-oscillation</a></h2>
@@ -1966,19 +1990,19 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <pre><code class="language-text">[Keyboard Gate] ──&gt; [ADSR Gate]
 [ADSR Out] ──&gt; [Ladder Filter Cutoff]
 </code></pre>
-<p>The envelope's 0-to-1 output raises the cutoff by up to one octave above the knob. Set the knob where the sweep should start, and add resonance and a little Drive to make it bite.</p>
+<p>The envelope's 0-to-1 output raises the cutoff by up to <strong>CV Amt</strong> octaves above the knob. Set the knob where the sweep should start and <strong>CV Amt</strong> to how far it should go, then add resonance and a little Drive to make it bite. For a 303-style squelch, try <strong>Cutoff</strong> 300 Hz, <strong>Res</strong> 80%, <strong>CV Amt</strong> 3 and a 300 ms decay.</p>
 <h3 id="keyboard-tracking-1"><a class="header" href="#keyboard-tracking-1">Keyboard tracking</a></h3>
 <pre><code class="language-text">[Keyboard Pitch] ──&gt; [Oscillator V/Oct]
                  ──&gt; [Ladder Filter Cutoff]
 </code></pre>
-<p>Because the Cutoff input is 1 per octave, a pitch CV patched straight in keeps the filter's brightness the same on every note. With the resonance high enough to self-oscillate and nothing patched into <strong>In</strong>, this turns the ladder into a sine oscillator that plays in tune.</p>
+<p>At the default <strong>CV Amt</strong> of 1, the Cutoff input is 1 per octave, so a pitch CV patched straight in keeps the filter's brightness the same on every note. With the resonance high enough to self-oscillate and nothing patched into <strong>In</strong>, this turns the ladder into a sine oscillator that plays in tune.</p>
 <h2 id="starting-points"><a class="header" href="#starting-points">Starting points</a></h2>
-<div class="table-wrapper"><table><thead><tr><th>Sound</th><th>Cutoff</th><th>Res</th><th>Drive</th><th>Output</th></tr></thead><tbody>
-<tr><td>Fat bass</td><td>200 – 400 Hz</td><td>30%</td><td>2x</td><td>LP24</td></tr>
-<tr><td>Squelchy acid</td><td>400 – 800 Hz</td><td>70%</td><td>3x</td><td>LP24</td></tr>
-<tr><td>Buzzy lead</td><td>1 – 3 kHz</td><td>40%</td><td>1.5x</td><td>LP12</td></tr>
-<tr><td>Warm pad</td><td>600 Hz</td><td>20%</td><td>1x</td><td>LP24</td></tr>
-<tr><td>Sine voice</td><td>Played from the keyboard</td><td>90%</td><td>1x</td><td>LP24, nothing in <strong>In</strong></td></tr>
+<div class="table-wrapper"><table><thead><tr><th>Sound</th><th>Cutoff</th><th>Res</th><th>Drive</th><th>Cutoff input</th><th>Output</th></tr></thead><tbody>
+<tr><td>Fat bass</td><td>200 – 400 Hz</td><td>30%</td><td>2x</td><td>Nothing</td><td>LP24</td></tr>
+<tr><td>Squelchy acid</td><td>250 – 400 Hz</td><td>70 – 80%</td><td>3x</td><td>An envelope, <strong>CV Amt</strong> 3</td><td>LP24</td></tr>
+<tr><td>Buzzy lead</td><td>1 – 3 kHz</td><td>40%</td><td>1.5x</td><td>An envelope, <strong>CV Amt</strong> 1 – 2</td><td>LP12</td></tr>
+<tr><td>Warm pad</td><td>600 Hz</td><td>20%</td><td>1x</td><td>A slow LFO, <strong>CV Amt</strong> 0.5</td><td>LP24</td></tr>
+<tr><td>Sine voice</td><td>Played from the keyboard</td><td>90%</td><td>1x</td><td>Pitch, <strong>CV Amt</strong> 1</td><td>LP24, nothing in <strong>In</strong></td></tr>
 </tbody></table>
 </div>
 <h2 id="polyphony-3"><a class="header" href="#polyphony-3">Polyphony</a></h2>
@@ -1996,6 +2020,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <li><a href="modules/filters/../sources/oscillator.html">Oscillator</a>, the usual thing to filter</li>
 <li><a href="modules/filters/../modulation/adsr.html">ADSR Envelope</a> to sweep the cutoff with each note</li>
 <li><a href="modules/filters/../modulation/lfo.html">LFO</a> for wobbles and sweeps</li>
+<li><a href="modules/filters/../../concepts/groups.html#the-library">Library</a>: <strong>Acid Bass</strong> and <strong>Subtractive Voice</strong> are ladders with an envelope on <strong>Cutoff</strong>, and <strong>CV Amt</strong> on their faces</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="adsr-envelope"><a class="header" href="#adsr-envelope">ADSR Envelope</a></h1>
 <p><strong>Module ID</strong> <code>mod.adsr</code> · <strong>Category</strong> Modulation</p>
@@ -2073,7 +2098,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <pre><code class="language-text">[ADSR Out] ──&gt; [Attenuverter In]   (Amount -1)
 [Attenuverter Out] ──&gt; [SVF Filter Cutoff]
 </code></pre>
-<p>The filter closes as the note opens and opens again as it releases, for "backwards" sweeps.</p>
+<p>The filter closes as the note opens and opens again as it releases, for "backwards" sweeps. On a filter you can skip the Attenuverter: patch the envelope straight into <strong>Cutoff</strong> and turn the filter's <strong>CV Amt</strong> below zero.</p>
 <h3 id="retriggering-a-held-note"><a class="header" href="#retriggering-a-held-note">Retriggering a held note</a></h3>
 <pre><code class="language-text">[Clock Gate] ──&gt; [ADSR Retrig]
 </code></pre>
@@ -2177,7 +2202,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <h3 id="filter-sweep"><a class="header" href="#filter-sweep">Filter sweep</a></h3>
 <pre><code class="language-text">[LFO Out] ──&gt; [SVF Filter Cutoff]
 </code></pre>
-<p>The Cutoff input works in octaves, so a bipolar LFO at full level sweeps one octave either side of the knob. A slow Triangle gives a smooth wah; a Square jumps between two brightnesses. To sweep less, pass the LFO through an <a href="modules/modulation/../utilities/attenuverter.html">Attenuverter</a>.</p>
+<p>The Cutoff input works in octaves, so a bipolar LFO at full level sweeps the filter's <strong>CV Amt</strong> octaves either side of the knob: one, at first. A slow Triangle gives a smooth wah; a Square jumps between two brightnesses. Turn <strong>CV Amt</strong> down to sweep less, or up to sweep more.</p>
 <h3 id="a-filter-that-breathes-with-the-bar"><a class="header" href="#a-filter-that-breathes-with-the-bar">A filter that breathes with the bar</a></h3>
 <pre><code class="language-text">[LFO Out] ──&gt; [SVF Filter Cutoff]
 </code></pre>
@@ -2827,7 +2852,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 </code></pre>
 <p>The sidechain only drives the detector; it isn't heard through the compressor. Patch the kick to the output separately to hear it.</p>
 <p><strong>Parallel compression.</strong> Set <strong>Ratio</strong> high (6:1 or more) and the threshold low, then bring <strong>Mix</strong> down to about 50%. The heavily compressed signal thickens the quiet details while the dry signal keeps the transients.</p>
-<p><strong>Moving other things with GR.</strong> <strong>GR</strong> rises as the compressor works. Because 1.0 stands for 60 dB of reduction, the signal is small: 6 dB of reduction reads 0.1. Patched into a filter's <strong>Cutoff</strong> (1 per octave), that moves the cutoff a tenth of an octave: enough for the tone to brighten slightly as the compressor clamps down.</p>
+<p><strong>Moving other things with GR.</strong> <strong>GR</strong> rises as the compressor works. Because 1.0 stands for 60 dB of reduction, the signal is small: 6 dB of reduction reads 0.1. Patched into a filter's <strong>Cutoff</strong> (1 per octave at the default <strong>CV Amt</strong>), that moves the cutoff a tenth of an octave: enough for the tone to brighten slightly as the compressor clamps down. Turn the filter's <strong>CV Amt</strong> up to make more of it.</p>
 <h2 id="related-modules-18"><a class="header" href="#related-modules-18">Related modules</a></h2>
 <ul>
 <li><a href="modules/effects/./eq.html">EQ</a>: often placed just before the compressor</li>
@@ -3079,7 +3104,7 @@ Out  = In × gain
 <pre><code class="language-text">[ADSR Out] ──&gt; [Attenuverter In] ──&gt; [SVF Filter Cutoff]
                 (Amt -1)
 </code></pre>
-<p>The SVF's Cutoff input moves the cutoff in octaves around its knob, so set the <strong>Cutoff</strong> knob high and let the inverted envelope pull it down.</p>
+<p>The SVF's Cutoff input moves the cutoff in octaves around its knob, so set the <strong>Cutoff</strong> knob high and let the inverted envelope pull it down. (On a filter, a negative <strong>CV Amt</strong> does the same without an Attenuverter. This patch is for anything else an envelope should close.)</p>
 <h3 id="unipolar-to-bipolar"><a class="header" href="#unipolar-to-bipolar">Unipolar to bipolar</a></h3>
 <p>An envelope runs from 0 to 1. With Amount 1 and Offset -0.5, it runs from -0.5 to +0.5, centered on zero. (A full -1 to +1 swing would need a gain of 2, which the Attenuverter can't give.)</p>
 <pre><code class="language-text">[ADSR Out] ──&gt; [Attenuverter In]      (Amt 1, Offset -0.5)
@@ -3095,7 +3120,7 @@ Out  = In × gain
                    ──&gt; [Ladder Filter Resonance]
 </code></pre>
 <h3 id="velocity-to-brightness-per-voice"><a class="header" href="#velocity-to-brightness-per-voice">Velocity to brightness, per voice</a></h3>
-<p>In a polyphonic patch, scale each voice's velocity before it moves the filter, so harder notes are brighter without the filter jumping a full octave:</p>
+<p>In a polyphonic patch, scale each voice's velocity before it moves the filter, so harder notes are brighter without the filter jumping a full octave. (The filter's own <strong>CV Amt</strong> at 0.5 does the same, if nothing else is patched into its <strong>Cutoff</strong>.)</p>
 <pre><code class="language-text">[Poly MIDI Velocity] ──&gt; [Attenuverter In] ──&gt; [SVF Filter Cutoff]
                           (Amt 0.5)
 </code></pre>
@@ -3133,7 +3158,7 @@ Out  = In × gain
 </code></pre>
 <h3 id="headroom"><a class="header" href="#headroom">Headroom</a></h3>
 <p>Anything within ±1 passes through untouched. Past that, the sum soft-clips: it bends smoothly over and eases toward ±1.5 without ever reaching it, so two full-scale signals come out at about 1.48. The same bend is on the Mixer's outputs.</p>
-<p>The headroom above 1 is deliberate. Summing two envelopes for a filter's <strong>Cutoff</strong>, as the <a href="modules/utilities/../../recipes/rhythmic-sequence.html">Rhythmic Sequence</a> example does, opens the filter further than one envelope can. For audio, the bend rounds off loud peaks, so bring the levels down to around 50–70% each when you add loud sources and want them clean.</p>
+<p>The headroom above 1 is deliberate: summed control signals can add up past 1 without being clipped flat. (To open a filter further, turn up its <strong>CV Amt</strong> rather than summing envelopes.) For audio, the bend rounds off loud peaks, so bring the levels down to around 50–70% each when you add loud sources and want them clean.</p>
 <h2 id="patches-8"><a class="header" href="#patches-8">Patches</a></h2>
 <h3 id="two-modulation-sources"><a class="header" href="#two-modulation-sources">Two modulation sources</a></h3>
 <p>A slow LFO and an envelope together: the filter follows each note and drifts as well.</p>
@@ -4111,13 +4136,13 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 </code></pre>
 <p>One output can feed any number of inputs, so the Keyboard's gate starts both envelopes at once.</p>
 <p>The <strong>amp envelope</strong> shapes the volume through the VCA. It rises in 5 ms, which is quick but not a click, falls to 70% over 200 ms, and fades out over 300 ms after you let go.</p>
-<p>The <strong>filter envelope</strong> shapes the brightness. The SVF's <strong>Cutoff</strong> input works in octaves: +1 doubles the cutoff. So as the envelope jumps to its peak of 1.0, the filter opens one octave above the knob, to 1.4 kHz. Over the next 300 ms it settles to its 30% sustain, about 860 Hz. That fall in brightness, faster than the fall in volume, is what makes each note sound plucked rather than switched on.</p>
+<p>The <strong>filter envelope</strong> shapes the brightness. The SVF's <strong>Cutoff</strong> input works in octaves, and its <strong>CV Amt</strong> is at 1, so +1 doubles the cutoff. As the envelope jumps to its peak of 1.0, the filter opens one octave above the knob, to 1.4 kHz. Over the next 300 ms it settles to its 30% sustain, about 860 Hz. That fall in brightness, faster than the fall in volume, is what makes each note sound plucked rather than switched on.</p>
 <h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
 <p><strong>Fatter bass.</strong> Replace the SVF with a <a href="recipes/../modules/filters/ladder-filter.html">Ladder Filter</a> and use its <strong>LP24</strong> output. Turn <strong>Oct</strong> on the Keyboard down to −1, set the Ladder's <strong>Drive</strong> to about 2x, and lower its <strong>Cutoff</strong> to 300 Hz.</p>
 <p><strong>Acid squelch.</strong> Raise <strong>Res</strong> to 70% and lower <strong>Cutoff</strong> to 400 Hz. The filter envelope now sweeps a sharp resonant peak across each note.</p>
 <p><strong>Pluck.</strong> Set the amp envelope's <strong>Sus</strong> to 0% and <strong>Dec</strong> to 400 ms, so every note dies away even while held.</p>
 <p><strong>Supersaw.</strong> On the Oscillator, set <strong>Voices</strong> to 7 and <strong>Detune</strong> to about 40%. Seven detuned saws through the same filter make a wide, shimmering lead.</p>
-<p><strong>More sweep.</strong> To open the filter by more than an octave, double the envelope by patching it into both inputs of a <a href="recipes/../modules/utilities/mix.html">Mix</a>, as the <a href="recipes/./rhythmic-sequence.html">Rhythmic Sequence</a> example does.</p>
+<p><strong>More sweep.</strong> Turn the filter's <strong>CV Amt</strong> up to open it by more than an octave: 2 takes the peak to 2.8 kHz, 3 to 5.6 kHz. Lower <strong>Cutoff</strong> as you go, so the notes still settle dark.</p>
 <p><strong>Space.</strong> Add a <a href="recipes/../modules/effects/delay.html">Stereo Delay</a> and a <a href="recipes/../modules/effects/reverb.html">Reverb</a> between the VCA and the Audio Output.</p>
 <h2 id="related-2"><a class="header" href="#related-2">Related</a></h2>
 <ul>
@@ -4604,9 +4629,8 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="recipes/../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 120, <strong>Div</strong> 1/16</td></tr>
 <tr><td><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a></td><td><strong>Steps</strong> 16, <strong>Dir</strong> Fwd, <strong>Gate</strong> 50%, <strong>Gate of</strong> 100 ms</td></tr>
 <tr><td><a href="recipes/../modules/sources/oscillator.html">Oscillator</a></td><td><strong>Wave</strong> Saw</td></tr>
-<tr><td><a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 300 Hz, <strong>Res</strong> 70%</td></tr>
+<tr><td><a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 300 Hz, <strong>Res</strong> 70%, <strong>CV Amt</strong> 2 oct</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (filter)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 200 ms, <strong>Sus</strong> 10%, <strong>Rel</strong> 50 ms</td></tr>
-<tr><td><a href="recipes/../modules/utilities/mix.html">Mix</a></td><td><strong>Level 1</strong> 100%, <strong>Level 2</strong> 100%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (amp)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 150 ms, <strong>Sus</strong> 30%, <strong>Rel</strong> 50 ms</td></tr>
 <tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a></td><td>Defaults</td></tr>
 <tr><td><a href="recipes/../modules/effects/distortion.html">Distortion</a></td><td><strong>Type</strong> Soft, <strong>Drive</strong> 30%, <strong>Mix</strong> 70%</td></tr>
@@ -4631,12 +4655,10 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <h3 id="the-squelch"><a class="header" href="#the-squelch">The squelch</a></h3>
 <pre><code class="language-text">[Oscillator Out] ──&gt; [SVF Filter In]
 [Step Sequencer Gate] ──&gt; [ADSR (filter) Gate]
-[ADSR (filter) Out] ──&gt; [Mix In 1]
-                    ──&gt; [Mix In 2]
-[Mix Out] ──&gt; [SVF Filter Cutoff]
+[ADSR (filter) Out] ──&gt; [SVF Filter Cutoff]
 </code></pre>
 <p>The filter sits low, at 300 Hz, with <strong>Res</strong> at 70%. The filter envelope kicks it open on every step with a gate, then drops it back in 200 ms. That fast sweep of a sharp resonant peak is the acid sound.</p>
-<p>The filter's <strong>Cutoff</strong> input works in octaves, and an envelope peaks at 1.0, so one envelope on its own opens the filter by one octave. The patch sends the envelope into both inputs of a Mix to add two copies together, which opens it further. The Mix soft-clips anything over 1.0, easing it toward 1.5, so in practice the peak is nearly an octave and a half, up to roughly 840 Hz.</p>
+<p>The filter's <strong>Cutoff</strong> input works in octaves, and an envelope peaks at 1.0. The filter's <strong>CV Amt</strong> sets how many octaves that peak is worth: at 2, each step's envelope throws the cutoff two octaves up, to 1.2 kHz, and lets it fall back to the bass.</p>
 <h3 id="volume-drive-and-echo"><a class="header" href="#volume-drive-and-echo">Volume, drive and echo</a></h3>
 <pre><code class="language-text">[Step Sequencer Gate] ──&gt; [ADSR (amp) Gate]
 [SVF Filter LowPass] ──&gt; [VCA In]
@@ -4660,7 +4682,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <p>The Noise module's <strong>Level</strong> knob is at 0, so it is silent until the envelope opens it. Each pulse snaps it to full in 1 ms and lets it die away in 45 ms: a short burst of noise, which is all a closed hi-hat is. An envelope into <strong>Level</strong> does the job of a VCA, and Level follows CV instantly, so the attack stays sharp.</p>
 <p>The highpass filter at 4.5 kHz keeps only the sizzle. Pink noise rather than white keeps the hats from getting harsh and sitting on top of the bass. Noise's <strong>Random</strong> output drifts the filter's cutoff an octave either way, over several seconds, so the hats darken and brighten as if a drummer were working the pedal. The hats go to <strong>Mono</strong>, past the delay, so they stay dry and tight in the middle.</p>
 <h2 id="variations-6"><a class="header" href="#variations-6">Variations</a></h2>
-<p><strong>Play the filter.</strong> While it runs, sweep <strong>Cutoff</strong> between 150 Hz and 1 kHz and push <strong>Res</strong> toward 90%. Lengthen the filter envelope's <strong>Dec</strong> to 400 ms for longer squelches.</p>
+<p><strong>Play the filter.</strong> While it runs, sweep <strong>Cutoff</strong> between 150 Hz and 1 kHz and push <strong>Res</strong> toward 90%. Lengthen the filter envelope's <strong>Dec</strong> to 400 ms for longer squelches, and turn <strong>CV Amt</strong> up to 3 or 4 for wider ones.</p>
 <p><strong>Change the line.</strong> Click a step to toggle its gate. Drag a step up or down to change its note, or right-click it and play a new line on its piano: each key writes a step and moves to the next.</p>
 <p><strong>Different tempo.</strong> Turn the Clock's <strong>BPM</strong>. The delay follows, staying on the dotted eighth.</p>
 <p><strong>Slide.</strong> Patch the sequencer's <strong>Pitch</strong> through a <a href="recipes/../modules/modulation/slope.html">Slope</a> on its way to the Oscillator's <strong>V/Oct</strong>, with <strong>Rise</strong> and <strong>Fall</strong> at 60 ms and <strong>Shape</strong> at 0. Every note now slides into the next: the octave leap to C3 in 60 ms, a fifth in 35 ms, so each slide is over well inside its step and the line still lands on its notes. Repeated notes don't slide, so the pattern keeps its stabs. Turn <strong>Rise</strong> and <strong>Fall</strong> up to 200 ms for a lazier, more vocal line.</p>

@@ -196,7 +196,7 @@
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In</strong></td><td>Audio (Blue)</td><td>Audio to filter</td></tr>
-<tr><td><strong>Cutoff</strong></td><td>Control (Orange)</td><td>Cutoff CV, 1 per octave: +1 doubles the cutoff, -1 halves it. The same scale as V/Oct, so a keyboard's pitch tracks directly</td></tr>
+<tr><td><strong>Cutoff</strong></td><td>Control (Orange)</td><td>Cutoff CV, in octaves: each unit moves the cutoff by <strong>CV Amt</strong> octaves. At the default of 1, +1 doubles the cutoff and -1 halves it: the V/Oct scale, so a keyboard's pitch tracks directly</td></tr>
 <tr><td><strong>Resonance</strong></td><td>Control (Orange)</td><td>Adds to the <strong>Res</strong> knob: +1 adds 50%</td></tr>
 </tbody></table>
 </div>
@@ -211,11 +211,12 @@
 <div class="table-wrapper"><table><thead><tr><th>Knob</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Cutoff</strong></td><td>20 Hz – 20 kHz</td><td>1000 Hz</td><td>Filter cutoff frequency</td></tr>
 <tr><td><strong>Res</strong> (Resonance)</td><td>0 – 100%</td><td>50%</td><td>Peak at the cutoff. Self-oscillates above 80%</td></tr>
+<tr><td><strong>CV Amt</strong> (Cutoff CV)</td><td>-4 – +4 oct</td><td>1 oct</td><td>Octaves the cutoff moves per unit at the <strong>Cutoff</strong> input. Negative turns the CV upside down</td></tr>
 <tr><td><strong>Drive</strong></td><td>1x – 10x</td><td>1x</td><td>Input gain into the saturating stages</td></tr>
 </tbody></table>
 </div>
 <h2 id="ladder-or-svf"><a class="header" href="#ladder-or-svf">Ladder or SVF?</a></h2>
-<p>Both filters cover the musical range, self-oscillate, and take cutoff CV at 1 per octave. They differ in character:</p>
+<p>Both filters cover the musical range, self-oscillate, and take cutoff CV in octaves, scaled by <strong>CV Amt</strong>. They differ in character:</p>
 <div class="table-wrapper"><table><thead><tr><th></th><th>Ladder</th><th>SVF</th></tr></thead><tbody>
 <tr><td>Slope</td><td>24 dB/oct (and 12)</td><td>12 dB/oct</td></tr>
 <tr><td>Modes</td><td>Lowpass only</td><td>LowPass, HighPass, BandPass, Notch</td></tr>
@@ -224,6 +225,17 @@
 </tbody></table>
 </div>
 <p>Reach for the ladder for basses, leads and anything that should sound fat. Reach for the <a href="./svf-filter.html">SVF Filter</a> when you want the other modes, or a lighter, more transparent touch.</p>
+<h2 id="cv-amt"><a class="header" href="#cv-amt">CV Amt</a></h2>
+<p><strong>CV Amt</strong> sets how far the <strong>Cutoff</strong> input reaches: how many octaves one unit of CV moves the cutoff. It runs from -4 to +4 octaves per unit, and starts at 1, the V/Oct scale.</p>
+<p>An envelope runs from 0 to 1, so <strong>CV Amt</strong> is the size of its sweep, the knob a hardware synth calls <em>Env Amount</em> or <em>Contour</em>:</p>
+<ul>
+<li><strong>1</strong> opens the filter one octave at the envelope's peak. Gentle: a sound that brightens a little at each note.</li>
+<li><strong>2 to 3</strong> suits a pluck or a brassy swell.</li>
+<li><strong>3 to 4</strong> is acid: a resonant peak that shoots up from the bass to the treble and falls back.</li>
+<li><strong>Negative</strong> values turn the CV upside down. An envelope then closes the filter as the note starts and opens it again as it releases, so set the <strong>Cutoff</strong> knob high.</li>
+</ul>
+<p>With pitch on <strong>Cutoff</strong>, <strong>CV Amt</strong> is the keyboard tracking: 1 keeps the filter's brightness the same on every note, 0.5 tracks at half the rate, and 0 ignores the keys.</p>
+<p><strong>CV Amt</strong> scales whatever is patched into <strong>Cutoff</strong> before it's added to the <strong>Cutoff</strong> knob, so the knob still sets where the sweep starts. With a polyphonic envelope, each voice's sweep is scaled the same way.</p>
 <h2 id="drive"><a class="header" href="#drive">Drive</a></h2>
 <p>At 1x, a full-scale signal is already warmed slightly. Around 2x to 4x the ladder thickens audibly and the resonance takes on a growl. At 10x it is a distortion in its own right. The level stays roughly constant as you turn Drive up, because the saturating stages cap it.</p>
 <h2 id="self-oscillation"><a class="header" href="#self-oscillation">Self-oscillation</a></h2>
@@ -239,19 +251,19 @@
 <pre><code class="language-text">[Keyboard Gate] ──&gt; [ADSR Gate]
 [ADSR Out] ──&gt; [Ladder Filter Cutoff]
 </code></pre>
-<p>The envelope's 0-to-1 output raises the cutoff by up to one octave above the knob. Set the knob where the sweep should start, and add resonance and a little Drive to make it bite.</p>
+<p>The envelope's 0-to-1 output raises the cutoff by up to <strong>CV Amt</strong> octaves above the knob. Set the knob where the sweep should start and <strong>CV Amt</strong> to how far it should go, then add resonance and a little Drive to make it bite. For a 303-style squelch, try <strong>Cutoff</strong> 300 Hz, <strong>Res</strong> 80%, <strong>CV Amt</strong> 3 and a 300 ms decay.</p>
 <h3 id="keyboard-tracking"><a class="header" href="#keyboard-tracking">Keyboard tracking</a></h3>
 <pre><code class="language-text">[Keyboard Pitch] ──&gt; [Oscillator V/Oct]
                  ──&gt; [Ladder Filter Cutoff]
 </code></pre>
-<p>Because the Cutoff input is 1 per octave, a pitch CV patched straight in keeps the filter's brightness the same on every note. With the resonance high enough to self-oscillate and nothing patched into <strong>In</strong>, this turns the ladder into a sine oscillator that plays in tune.</p>
+<p>At the default <strong>CV Amt</strong> of 1, the Cutoff input is 1 per octave, so a pitch CV patched straight in keeps the filter's brightness the same on every note. With the resonance high enough to self-oscillate and nothing patched into <strong>In</strong>, this turns the ladder into a sine oscillator that plays in tune.</p>
 <h2 id="starting-points"><a class="header" href="#starting-points">Starting points</a></h2>
-<div class="table-wrapper"><table><thead><tr><th>Sound</th><th>Cutoff</th><th>Res</th><th>Drive</th><th>Output</th></tr></thead><tbody>
-<tr><td>Fat bass</td><td>200 – 400 Hz</td><td>30%</td><td>2x</td><td>LP24</td></tr>
-<tr><td>Squelchy acid</td><td>400 – 800 Hz</td><td>70%</td><td>3x</td><td>LP24</td></tr>
-<tr><td>Buzzy lead</td><td>1 – 3 kHz</td><td>40%</td><td>1.5x</td><td>LP12</td></tr>
-<tr><td>Warm pad</td><td>600 Hz</td><td>20%</td><td>1x</td><td>LP24</td></tr>
-<tr><td>Sine voice</td><td>Played from the keyboard</td><td>90%</td><td>1x</td><td>LP24, nothing in <strong>In</strong></td></tr>
+<div class="table-wrapper"><table><thead><tr><th>Sound</th><th>Cutoff</th><th>Res</th><th>Drive</th><th>Cutoff input</th><th>Output</th></tr></thead><tbody>
+<tr><td>Fat bass</td><td>200 – 400 Hz</td><td>30%</td><td>2x</td><td>Nothing</td><td>LP24</td></tr>
+<tr><td>Squelchy acid</td><td>250 – 400 Hz</td><td>70 – 80%</td><td>3x</td><td>An envelope, <strong>CV Amt</strong> 3</td><td>LP24</td></tr>
+<tr><td>Buzzy lead</td><td>1 – 3 kHz</td><td>40%</td><td>1.5x</td><td>An envelope, <strong>CV Amt</strong> 1 – 2</td><td>LP12</td></tr>
+<tr><td>Warm pad</td><td>600 Hz</td><td>20%</td><td>1x</td><td>A slow LFO, <strong>CV Amt</strong> 0.5</td><td>LP24</td></tr>
+<tr><td>Sine voice</td><td>Played from the keyboard</td><td>90%</td><td>1x</td><td>Pitch, <strong>CV Amt</strong> 1</td><td>LP24, nothing in <strong>In</strong></td></tr>
 </tbody></table>
 </div>
 <h2 id="polyphony"><a class="header" href="#polyphony">Polyphony</a></h2>
@@ -269,6 +281,7 @@
 <li><a href="../sources/oscillator.html">Oscillator</a>, the usual thing to filter</li>
 <li><a href="../modulation/adsr.html">ADSR Envelope</a> to sweep the cutoff with each note</li>
 <li><a href="../modulation/lfo.html">LFO</a> for wobbles and sweeps</li>
+<li><a href="../../concepts/groups.html#the-library">Library</a>: <strong>Acid Bass</strong> and <strong>Subtractive Voice</strong> are ladders with an envelope on <strong>Cutoff</strong>, and <strong>CV Amt</strong> on their faces</li>
 </ul>
 
                     </main>

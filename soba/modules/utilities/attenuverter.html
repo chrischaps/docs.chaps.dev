@@ -227,7 +227,7 @@
 <pre><code class="language-text">[ADSR Out] ──&gt; [Attenuverter In] ──&gt; [SVF Filter Cutoff]
                 (Amt -1)
 </code></pre>
-<p>The SVF's Cutoff input moves the cutoff in octaves around its knob, so set the <strong>Cutoff</strong> knob high and let the inverted envelope pull it down.</p>
+<p>The SVF's Cutoff input moves the cutoff in octaves around its knob, so set the <strong>Cutoff</strong> knob high and let the inverted envelope pull it down. (On a filter, a negative <strong>CV Amt</strong> does the same without an Attenuverter. This patch is for anything else an envelope should close.)</p>
 <h3 id="unipolar-to-bipolar"><a class="header" href="#unipolar-to-bipolar">Unipolar to bipolar</a></h3>
 <p>An envelope runs from 0 to 1. With Amount 1 and Offset -0.5, it runs from -0.5 to +0.5, centered on zero. (A full -1 to +1 swing would need a gain of 2, which the Attenuverter can't give.)</p>
 <pre><code class="language-text">[ADSR Out] ──&gt; [Attenuverter In]      (Amt 1, Offset -0.5)
@@ -243,7 +243,7 @@
                    ──&gt; [Ladder Filter Resonance]
 </code></pre>
 <h3 id="velocity-to-brightness-per-voice"><a class="header" href="#velocity-to-brightness-per-voice">Velocity to brightness, per voice</a></h3>
-<p>In a polyphonic patch, scale each voice's velocity before it moves the filter, so harder notes are brighter without the filter jumping a full octave:</p>
+<p>In a polyphonic patch, scale each voice's velocity before it moves the filter, so harder notes are brighter without the filter jumping a full octave. (The filter's own <strong>CV Amt</strong> at 0.5 does the same, if nothing else is patched into its <strong>Cutoff</strong>.)</p>
 <pre><code class="language-text">[Poly MIDI Velocity] ──&gt; [Attenuverter In] ──&gt; [SVF Filter Cutoff]
                           (Amt 0.5)
 </code></pre>

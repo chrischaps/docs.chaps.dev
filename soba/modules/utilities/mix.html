@@ -208,7 +208,7 @@
 </code></pre>
 <h3 id="headroom"><a class="header" href="#headroom">Headroom</a></h3>
 <p>Anything within ±1 passes through untouched. Past that, the sum soft-clips: it bends smoothly over and eases toward ±1.5 without ever reaching it, so two full-scale signals come out at about 1.48. The same bend is on the Mixer's outputs.</p>
-<p>The headroom above 1 is deliberate. Summing two envelopes for a filter's <strong>Cutoff</strong>, as the <a href="../../recipes/rhythmic-sequence.html">Rhythmic Sequence</a> example does, opens the filter further than one envelope can. For audio, the bend rounds off loud peaks, so bring the levels down to around 50–70% each when you add loud sources and want them clean.</p>
+<p>The headroom above 1 is deliberate: summed control signals can add up past 1 without being clipped flat. (To open a filter further, turn up its <strong>CV Amt</strong> rather than summing envelopes.) For audio, the bend rounds off loud peaks, so bring the levels down to around 50–70% each when you add loud sources and want them clean.</p>
 <h2 id="patches"><a class="header" href="#patches">Patches</a></h2>
 <h3 id="two-modulation-sources"><a class="header" href="#two-modulation-sources">Two modulation sources</a></h3>
 <p>A slow LFO and an envelope together: the filter follows each note and drifts as well.</p>

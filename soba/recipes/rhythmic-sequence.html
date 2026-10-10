@@ -202,9 +202,8 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 120, <strong>Div</strong> 1/16</td></tr>
 <tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a></td><td><strong>Steps</strong> 16, <strong>Dir</strong> Fwd, <strong>Gate</strong> 50%, <strong>Gate of</strong> 100 ms</td></tr>
 <tr><td><a href="../modules/sources/oscillator.html">Oscillator</a></td><td><strong>Wave</strong> Saw</td></tr>
-<tr><td><a href="../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 300 Hz, <strong>Res</strong> 70%</td></tr>
+<tr><td><a href="../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 300 Hz, <strong>Res</strong> 70%, <strong>CV Amt</strong> 2 oct</td></tr>
 <tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a> (filter)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 200 ms, <strong>Sus</strong> 10%, <strong>Rel</strong> 50 ms</td></tr>
-<tr><td><a href="../modules/utilities/mix.html">Mix</a></td><td><strong>Level 1</strong> 100%, <strong>Level 2</strong> 100%</td></tr>
 <tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a> (amp)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 150 ms, <strong>Sus</strong> 30%, <strong>Rel</strong> 50 ms</td></tr>
 <tr><td><a href="../modules/utilities/vca.html">VCA</a></td><td>Defaults</td></tr>
 <tr><td><a href="../modules/effects/distortion.html">Distortion</a></td><td><strong>Type</strong> Soft, <strong>Drive</strong> 30%, <strong>Mix</strong> 70%</td></tr>
@@ -229,12 +228,10 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <h3 id="the-squelch"><a class="header" href="#the-squelch">The squelch</a></h3>
 <pre><code class="language-text">[Oscillator Out] ──&gt; [SVF Filter In]
 [Step Sequencer Gate] ──&gt; [ADSR (filter) Gate]
-[ADSR (filter) Out] ──&gt; [Mix In 1]
-                    ──&gt; [Mix In 2]
-[Mix Out] ──&gt; [SVF Filter Cutoff]
+[ADSR (filter) Out] ──&gt; [SVF Filter Cutoff]
 </code></pre>
 <p>The filter sits low, at 300 Hz, with <strong>Res</strong> at 70%. The filter envelope kicks it open on every step with a gate, then drops it back in 200 ms. That fast sweep of a sharp resonant peak is the acid sound.</p>
-<p>The filter's <strong>Cutoff</strong> input works in octaves, and an envelope peaks at 1.0, so one envelope on its own opens the filter by one octave. The patch sends the envelope into both inputs of a Mix to add two copies together, which opens it further. The Mix soft-clips anything over 1.0, easing it toward 1.5, so in practice the peak is nearly an octave and a half, up to roughly 840 Hz.</p>
+<p>The filter's <strong>Cutoff</strong> input works in octaves, and an envelope peaks at 1.0. The filter's <strong>CV Amt</strong> sets how many octaves that peak is worth: at 2, each step's envelope throws the cutoff two octaves up, to 1.2 kHz, and lets it fall back to the bass.</p>
 <h3 id="volume-drive-and-echo"><a class="header" href="#volume-drive-and-echo">Volume, drive and echo</a></h3>
 <pre><code class="language-text">[Step Sequencer Gate] ──&gt; [ADSR (amp) Gate]
 [SVF Filter LowPass] ──&gt; [VCA In]
@@ -258,7 +255,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <p>The Noise module's <strong>Level</strong> knob is at 0, so it is silent until the envelope opens it. Each pulse snaps it to full in 1 ms and lets it die away in 45 ms: a short burst of noise, which is all a closed hi-hat is. An envelope into <strong>Level</strong> does the job of a VCA, and Level follows CV instantly, so the attack stays sharp.</p>
 <p>The highpass filter at 4.5 kHz keeps only the sizzle. Pink noise rather than white keeps the hats from getting harsh and sitting on top of the bass. Noise's <strong>Random</strong> output drifts the filter's cutoff an octave either way, over several seconds, so the hats darken and brighten as if a drummer were working the pedal. The hats go to <strong>Mono</strong>, past the delay, so they stay dry and tight in the middle.</p>
 <h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
-<p><strong>Play the filter.</strong> While it runs, sweep <strong>Cutoff</strong> between 150 Hz and 1 kHz and push <strong>Res</strong> toward 90%. Lengthen the filter envelope's <strong>Dec</strong> to 400 ms for longer squelches.</p>
+<p><strong>Play the filter.</strong> While it runs, sweep <strong>Cutoff</strong> between 150 Hz and 1 kHz and push <strong>Res</strong> toward 90%. Lengthen the filter envelope's <strong>Dec</strong> to 400 ms for longer squelches, and turn <strong>CV Amt</strong> up to 3 or 4 for wider ones.</p>
 <p><strong>Change the line.</strong> Click a step to toggle its gate. Drag a step up or down to change its note, or right-click it and play a new line on its piano: each key writes a step and moves to the next.</p>
 <p><strong>Different tempo.</strong> Turn the Clock's <strong>BPM</strong>. The delay follows, staying on the dotted eighth.</p>
 <p><strong>Slide.</strong> Patch the sequencer's <strong>Pitch</strong> through a <a href="../modules/modulation/slope.html">Slope</a> on its way to the Oscillator's <strong>V/Oct</strong>, with <strong>Rise</strong> and <strong>Fall</strong> at 60 ms and <strong>Shape</strong> at 0. Every note now slides into the next: the octave leap to C3 in 60 ms, a fifth in 35 ms, so each slide is over well inside its step and the line still lands on its notes. Repeated notes don't slide, so the pattern keeps its stabs. Turn <strong>Rise</strong> and <strong>Fall</strong> up to 200 ms for a lazier, more vocal line.</p>

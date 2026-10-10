@@ -223,13 +223,13 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 </code></pre>
 <p>One output can feed any number of inputs, so the Keyboard's gate starts both envelopes at once.</p>
 <p>The <strong>amp envelope</strong> shapes the volume through the VCA. It rises in 5 ms, which is quick but not a click, falls to 70% over 200 ms, and fades out over 300 ms after you let go.</p>
-<p>The <strong>filter envelope</strong> shapes the brightness. The SVF's <strong>Cutoff</strong> input works in octaves: +1 doubles the cutoff. So as the envelope jumps to its peak of 1.0, the filter opens one octave above the knob, to 1.4 kHz. Over the next 300 ms it settles to its 30% sustain, about 860 Hz. That fall in brightness, faster than the fall in volume, is what makes each note sound plucked rather than switched on.</p>
+<p>The <strong>filter envelope</strong> shapes the brightness. The SVF's <strong>Cutoff</strong> input works in octaves, and its <strong>CV Amt</strong> is at 1, so +1 doubles the cutoff. As the envelope jumps to its peak of 1.0, the filter opens one octave above the knob, to 1.4 kHz. Over the next 300 ms it settles to its 30% sustain, about 860 Hz. That fall in brightness, faster than the fall in volume, is what makes each note sound plucked rather than switched on.</p>
 <h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
 <p><strong>Fatter bass.</strong> Replace the SVF with a <a href="../modules/filters/ladder-filter.html">Ladder Filter</a> and use its <strong>LP24</strong> output. Turn <strong>Oct</strong> on the Keyboard down to −1, set the Ladder's <strong>Drive</strong> to about 2x, and lower its <strong>Cutoff</strong> to 300 Hz.</p>
 <p><strong>Acid squelch.</strong> Raise <strong>Res</strong> to 70% and lower <strong>Cutoff</strong> to 400 Hz. The filter envelope now sweeps a sharp resonant peak across each note.</p>
 <p><strong>Pluck.</strong> Set the amp envelope's <strong>Sus</strong> to 0% and <strong>Dec</strong> to 400 ms, so every note dies away even while held.</p>
 <p><strong>Supersaw.</strong> On the Oscillator, set <strong>Voices</strong> to 7 and <strong>Detune</strong> to about 40%. Seven detuned saws through the same filter make a wide, shimmering lead.</p>
-<p><strong>More sweep.</strong> To open the filter by more than an octave, double the envelope by patching it into both inputs of a <a href="../modules/utilities/mix.html">Mix</a>, as the <a href="./rhythmic-sequence.html">Rhythmic Sequence</a> example does.</p>
+<p><strong>More sweep.</strong> Turn the filter's <strong>CV Amt</strong> up to open it by more than an octave: 2 takes the peak to 2.8 kHz, 3 to 5.6 kHz. Lower <strong>Cutoff</strong> as you go, so the notes still settle dark.</p>
 <p><strong>Space.</strong> Add a <a href="../modules/effects/delay.html">Stereo Delay</a> and a <a href="../modules/effects/reverb.html">Reverb</a> between the VCA and the Audio Output.</p>
 <h2 id="related"><a class="header" href="#related">Related</a></h2>
 <ul>
