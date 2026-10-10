@@ -183,14 +183,15 @@
                         <h1 id="step-sequencer"><a class="header" href="#step-sequencer">Step Sequencer</a></h1>
 <p><strong>Module ID</strong> <code>seq.step</code> · <strong>Category</strong> Utility</p>
 <p><img src="../../images/module-sequencer.png" alt="Step Sequencer Module" />
-<em>Green steps play, dark steps rest; the outlined step is the one sounding now. A tied step reaches into the next one: here step 4 into 5, 8 into 9, and 15 into 16.</em></p>
+<em>Pattern B, playing. Green steps play, dark steps rest, and the outlined step is the one sounding now. A tied step reaches into the next one: here step 4 into 5, 12 into 13, and 16 round into the next pattern. The Chain plays A A B C; B wears the green dot, and C, ringed, comes next.</em></p>
 <p>The Step Sequencer plays a repeating pattern of up to 16 notes. Each clock pulse moves it one step along, and each step sends out its own pitch, a gate if the step is switched on, and a velocity. Patch <strong>Pitch</strong> into an oscillator and <strong>Gate</strong> into an envelope, and a <a href="../modulation/clock.html">Clock</a> turns it into a bass line, an arpeggio or a riff.</p>
-<p>The pattern lives on the node itself: a grid of step buttons with each step's note name underneath. Ties join a step to the next one for held notes and legato lines.</p>
+<p>The pattern lives on the node itself: a grid of step buttons with each step's note name underneath. Ties join a step to the next one for held notes and legato lines. It holds four patterns, A to D, and plays them in the order its <strong>Chain</strong> gives, so a melody can run to 64 steps without repeating, and a verse and a chorus can share one sequencer.</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Clock</strong></td><td>Gate (Green)</td><td>Each rising edge advances one step</td></tr>
 <tr><td><strong>Reset</strong></td><td>Gate (Green)</td><td>A rising edge jumps back to step 1</td></tr>
 <tr><td><strong>Run</strong></td><td>Gate (Green)</td><td>Steps advance only while this is high. With nothing patched, the sequencer runs</td></tr>
+<tr><td><strong>Pattern</strong></td><td>Control (Orange)</td><td>Picks the pattern for each pass in place of the Chain: 0 to 0.25 is A, 0.25 to 0.5 is B, then C, and D from 0.75 up</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -199,7 +200,7 @@
 <tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>High for each step that's switched on, for <strong>Gate</strong> of the step. Stays high across a tie</td></tr>
 <tr><td><strong>Velocity</strong></td><td>Control (Orange)</td><td>The current step's velocity, 0 to 1</td></tr>
 <tr><td><strong>Step</strong></td><td>Control (Orange)</td><td>The current position as a ramp: 0 on the first step, 1 on the last</td></tr>
-<tr><td><strong>EOC</strong></td><td>Gate (Green)</td><td>End of cycle: a 1 ms pulse each time the pattern comes round</td></tr>
+<tr><td><strong>EOC</strong></td><td>Gate (Green)</td><td>End of cycle: a 1 ms pulse each time the whole Chain comes round. With a cable in <strong>Pattern</strong>, each time a pattern does</td></tr>
 </tbody></table>
 </div>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
@@ -210,7 +211,7 @@
 <tr><td><strong>Gate of</strong> (Gate Mode)</td><td>Step / 100 ms</td><td>Step</td><td>What <strong>Gate</strong> is a share of: the time between clock pulses, or a fixed 100 ms</td></tr>
 </tbody></table>
 </div>
-<p>Each of the 16 steps also stores a note (default C4), a gate on/off (default on), a tie (default off) and a velocity (default 100 of 127). Patches save all of them.</p>
+<p>Each of the 16 steps of each pattern also stores a note (default C4), a gate on/off (default on), a tie (default off) and a velocity (default 100 of 127). The Chain has up to eight slots. Patches save all of them. <strong>Steps</strong>, <strong>Dir</strong> and the gate settings are shared by all four patterns.</p>
 <h2 id="programming-a-pattern"><a class="header" href="#programming-a-pattern">Programming a pattern</a></h2>
 <p>The grid shows one button per active step, in rows of eight. Steps beyond <strong>Steps</strong> are hidden, not lost: turn <strong>Steps</strong> back up and they return as you left them.</p>
 <ul>
@@ -232,6 +233,18 @@
 </ul>
 <p>Each note you write is its own undo step, so <strong>Ctrl+Z</strong> takes back the last key you played.</p>
 <p>Velocities can't be edited on the node yet. Every step plays at 100 unless the patch file says otherwise. If you do set them there, patch <strong>Velocity</strong> into an envelope's <strong>Velocity</strong> input for accents.</p>
+<h2 id="patterns-and-the-chain"><a class="header" href="#patterns-and-the-chain">Patterns and the Chain</a></h2>
+<p>The tabs under the grid pick which pattern you're editing: clicking, dragging and the piano all write to the pattern on show. The one playing wears a green dot, and the one coming next a green ring. The playhead's outline only shows on the pattern playing. Which tab is open is the editor's choice: it isn't saved with the patch, and it isn't an edit. <strong>Right-click</strong> a tab to copy its pattern to another (to start a variation from it), or to clear it. Clearing turns every step into a rest but keeps the notes, ready for the piano to write a new line over.</p>
+<p>The <strong>Chain</strong> is the order the patterns play in, a pass each, round and round. The pass playing is underlined. It works as on the <a href="./trigger-sequencer.html#patterns-and-the-chain">Trigger Sequencer</a>:</p>
+<ul>
+<li><strong>Click</strong> a slot to change its pattern: A, B, C, D, then A again.</li>
+<li><strong>Right-click</strong> it to pick a pattern, or to remove the slot. The slots after it move up.</li>
+<li><strong>+</strong> adds a pass of the pattern you're editing to the end. The Chain holds up to eight.</li>
+</ul>
+<p>A new Step Sequencer plays <code>A</code>, and so do patches saved before it had patterns, exactly as they always did. For a 64-step line, write four bars of it into A, B, C and D, and make the Chain <code>A B C D</code>. For a 16-bar verse whose first half repeats, <code>A A B C</code> will do.</p>
+<p>A pass ends where the pattern comes round: after the last step going <strong>Fwd</strong>, after step 1 going <strong>Bwd</strong>, and at each turn in <strong>P-P</strong>, so a ping-pong bounces from one pattern into the next. In <strong>Rnd</strong> a pass is <strong>Steps</strong> clocks long. A tie on the last step carries into the first step of the next pattern, so a phrase can hold a note over the join.</p>
+<h3 id="pattern-cv"><a class="header" href="#pattern-cv">Pattern CV</a></h3>
+<p>With a cable in <strong>Pattern</strong>, the CV picks the patterns instead, and the Chain dims. The CV is read once a pass, on the clock that starts it, in the same four zones as the Trigger Sequencer's, so one CV means the same pattern on both. An <a href="./arranger.html">Arranger</a> lane is made for this: a verse section that holds the lane at A and a chorus that holds it at B make one sequencer play the song's two melodies. The Arranger moves its lanes on the same clock edge the sequencer steps on, so a section's first note comes from its own pattern, with no lag. Leave that lane's <strong>Glide</strong> at 0.</p>
 <h2 id="timing"><a class="header" href="#timing">Timing</a></h2>
 <h3 id="clock-and-gate-length"><a class="header" href="#clock-and-gate-length">Clock and gate length</a></h3>
 <p>The sequencer has no tempo of its own. It moves on each rising edge at <strong>Clock</strong>, so the clock you patch in sets the speed, and its swing or irregularity carries through.</p>
@@ -283,6 +296,7 @@
 <h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>
 <ul>
 <li><a href="../modulation/clock.html">Clock</a>: drives the sequencer</li>
+<li><a href="./arranger.html">Arranger</a>: picks the pattern for each section of a song, through <strong>Pattern</strong></li>
 <li><a href="./trigger-sequencer.html">Trigger Sequencer</a>: eight lanes of drum hits from one module, with chained patterns for fills</li>
 <li><a href="./divider.html">Clock Divider</a>: divides the clock, so a sequencer can play once every few bars from its <strong>Run</strong> and <strong>Reset</strong></li>
 <li><a href="../modulation/adsr.html">ADSR Envelope</a>: shapes each step's note from the Gate output</li>
