@@ -231,9 +231,35 @@
 <p>On a phone or tablet, a patch opens zoomed out to fit the screen: pinch to zoom in, and drag the canvas to move around.</p>
 <p>Patches go in and out as files: <strong>💾 Save</strong> downloads the patch, and <strong>📂 Open</strong> picks one to upload. Each recipe in this manual can be played on its page.</p>
 <h2 id="download-a-release"><a class="header" href="#download-a-release">Download a release</a></h2>
-<p>Prebuilt binaries for Windows, macOS (Intel and Apple Silicon) and Linux are attached to each <a href="https://github.com/chrischaps/Modular/releases">release on GitHub</a>. Download the zip for your system, unzip it, and run <code>modular_synth</code>.</p>
-<p>For playing live on Windows, download <strong><code>modular_synth-windows-asio.zip</code></strong>, the low-latency build, instead. It runs exactly like the standard one, and can also use an audio interface's ASIO driver: see <a href="getting-started/installation.html#build-with-asio-windows-optional">Build with ASIO</a> for what that gives you, and skip the building.</p>
-<p>Releases are cut from time to time and can trail the source. This manual describes the current source, so if a feature here is missing from your copy, build from source.</p>
+<p>Each <a href="https://github.com/chrischaps/Modular/releases">release on GitHub</a> has a download for Windows, macOS (Apple Silicon and Intel) and Linux.</p>
+<h3 id="windows"><a class="header" href="#windows">Windows</a></h3>
+<p>Download <strong><code>modular_synth-windows-setup.exe</code></strong> and run it. It installs Modular for you alone, in <code>%LOCALAPPDATA%\Programs\Modular</code>, without asking for an administrator. It adds Modular to the Start Menu, and you can remove it from <strong>Settings → Apps → Installed apps</strong>, like any other app.</p>
+<p>For playing live, download <strong><code>modular_synth-windows-asio-setup.exe</code></strong>, the low-latency build, instead. It runs exactly like the standard one, and can also use an audio interface's ASIO driver: see <a href="getting-started/installation.html#build-with-asio-windows-optional">Build with ASIO</a> for what that gives you, and skip the building. Installing either one replaces the other.</p>
+<p>The first time, Windows may show <strong>"Windows protected your PC"</strong>: the downloads aren't signed yet. Click <strong>More info</strong>, then <strong>Run anyway</strong>.</p>
+<p>If you'd rather not install anything, the zips (<code>modular_synth-windows.zip</code> and <code>modular_synth-windows-asio.zip</code>) hold the same app as one file. Unzip it anywhere and run <code>modular_synth.exe</code>.</p>
+<h3 id="macos"><a class="header" href="#macos">macOS</a></h3>
+<p>Download the disk image for your Mac: <strong><code>modular_synth-macos-apple-silicon.dmg</code></strong> for an M-series Mac, or <strong><code>modular_synth-macos-intel.dmg</code></strong>. Open it and drag <strong>Modular Synth</strong> to <strong>Applications</strong>.</p>
+<p>The app isn't signed by Apple yet, so the first time, macOS says it can't check it for malicious software. <strong>Right-click</strong> (or Control-click) Modular Synth in Applications and choose <strong>Open</strong>, then <strong>Open</strong> again. After that it opens normally. On recent versions of macOS, if there's no <strong>Open</strong> button, go to <strong>System Settings → Privacy &amp; Security</strong> and click <strong>Open Anyway</strong> beside the message about Modular Synth.</p>
+<h3 id="linux"><a class="header" href="#linux">Linux</a></h3>
+<p>Download <code>modular_synth-linux.zip</code>, unzip it, and run <code>modular_synth</code>. If it won't start, mark it as a program first: <code>chmod +x modular_synth</code>.</p>
+<h2 id="updates"><a class="header" href="#updates">Updates</a></h2>
+<p>Once a day, Modular asks GitHub whether a newer release is out. When one is, the dot after the version number in the bottom-right corner lights up blue, and a note says what's new. Click the version number to see the note again.</p>
+<ul>
+<li><strong>What's New</strong> shows the release notes for every version since yours.</li>
+<li><strong>Install</strong> downloads the new version, checks it against the release's published checksums (<code>SHA256SUMS</code>), puts it in place and restarts. Your patch, including changes you haven't saved, your audio and MIDI devices, and your view of the canvas come back as they were. If the patch has unsaved changes, Modular offers to save them first. Install waits while a recording is running.</li>
+<li><strong>Later</strong> puts the note away; the dot stays lit. <strong>Skip this version</strong> stops offering that version; a newer one is still offered.</li>
+<li><strong>Help → Check for Updates…</strong> checks now, and says so if you're up to date.</li>
+</ul>
+<p><strong>What the check sends:</strong> one request to GitHub's public list of releases, saying it comes from <code>modular_synth</code> and which version. Nothing about you or your computer, and no usage data. A check that doesn't work, when you're offline say, does nothing visible and tries again next time. To stop checking altogether, turn off <strong>Help → Check for Updates Automatically</strong>; Modular then makes no requests at all.</p>
+<p><strong>Rolling back:</strong> the version you updated from stays beside the new one, and <strong>Help → Roll Back to …</strong> swaps back to it and restarts. The version you left is skipped, so it isn't offered again straight away.</p>
+<p>Where Modular can't replace itself, <strong>Install</strong> becomes <strong>Download</strong>, which opens the release page:</p>
+<ul>
+<li>A copy built from source (<code>cargo run</code>), which only says that an update exists.</li>
+<li>A copy in a folder it can't write to, such as <code>Program Files</code>.</li>
+<li>macOS, until the app is signed: macOS doesn't let a downloaded app replace itself.</li>
+<li>Linux, when a package manager installed it.</li>
+</ul>
+<p>Each copy updates to the same kind of download it came from: the low-latency Windows build to the next low-latency build, the standard one to the standard one.</p>
 <h2 id="build-from-source"><a class="header" href="#build-from-source">Build from source</a></h2>
 <h3 id="install-rust"><a class="header" href="#install-rust">Install Rust</a></h3>
 <p>Install the Rust toolchain with <a href="https://rustup.rs/">rustup</a>:</p>
@@ -285,7 +311,7 @@ cargo run --release
 </li>
 </ol>
 <p>Then choose <strong>ASIO</strong> at the top of the <strong>Output</strong> menu. See <a href="getting-started/../modules/sources/audio-input.html#low-latency-with-asio-windows">Audio Input</a> for choosing a buffer size.</p>
-<p>Steinberg licenses the ASIO SDK under the GPLv3 (or its own proprietary terms). Modular's source is MIT, but a binary built with ASIO includes the SDK, so if you share one, the GPLv3 applies to it. The low-latency download is such a binary: it's distributed under the GPLv3, with the licence and a notice in its zip, and the exact SDK it was built from is attached to the same release (<code>asio-sdk-source.zip</code>). The other downloads leave ASIO out and stay MIT.</p>
+<p>Steinberg licenses the ASIO SDK under the GPLv3 (or its own proprietary terms). Modular's source is MIT, but a binary built with ASIO includes the SDK, so if you share one, the GPLv3 applies to it. The low-latency download is such a binary: it's distributed under the GPLv3, with the GPL, Steinberg's licence for the SDK and a notice in its zip and installer. The exact SDK it was built from (ASIO SDK 2.3.4, pinned by its checksum in <code>release.yml</code>) is attached to the same release as <code>asio-sdk-source.zip</code>. The other downloads leave ASIO out and stay MIT.</p>
 <h2 id="command-line"><a class="header" href="#command-line">Command line</a></h2>
 <p>Pass a patch file to open it instead of First Sound:</p>
 <pre><code class="language-bash">cargo run --release -- patches/lush-pad.json
@@ -328,6 +354,7 @@ cargo run --release
 <tr><td><strong>Edit</strong></td><td><strong>↩ Undo</strong> and <strong>↪ Redo</strong>. Hover either to see which edit it will undo or redo.</td></tr>
 <tr><td><strong>〰 Cables</strong></td><td>How signal flow is drawn along cables: <strong>Chevrons</strong>, <strong>Dots</strong> or <strong>Comets</strong></td></tr>
 <tr><td><strong>◉ Knobs</strong></td><td>How knobs are drawn: <strong>LED ring</strong>, <strong>Hybrid</strong>, <strong>Arc</strong>, <strong>Machined</strong> or <strong>Classic</strong></td></tr>
+<tr><td><strong>❓ Help</strong></td><td><strong>📖 Manual</strong> opens this manual. <strong>Check for Updates…</strong>, <strong>Check for Updates Automatically</strong>, and <strong>Roll Back</strong> after an update: see <a href="getting-started/installation.html#updates">Updates</a></td></tr>
 <tr><td><strong>Output</strong></td><td>The audio device to play through</td></tr>
 <tr><td><strong>Input</strong></td><td>The microphone, guitar or line input that <a href="getting-started/../modules/sources/audio-input.html">Audio Input</a> modules hear. It starts at <strong>None</strong>: nothing is opened until you choose a device. A filled dot (●) means it's open.</td></tr>
 <tr><td><strong>MIDI In</strong></td><td>The MIDI controller to listen to. A filled dot (●) means it's connected.</td></tr>
@@ -335,7 +362,7 @@ cargo run --release
 </div>
 <p>At the right end, the toolbar shows a CPU meter while the patch plays, the device's sample rate and channel count, and whether the audio engine is running. While an input is open, <strong>In</strong> shows how much audio is held between the input and output devices, in milliseconds; it turns amber for a moment after a dropout. Hover it for details.</p>
 <h2 id="the-status-bar"><a class="header" href="#the-status-bar">The status bar</a></h2>
-<p>The status bar reports what just happened: a file saved, modules pasted, a cable refused and why. When there's nothing to report, it counts the modules and cables in the patch. On the right it names the open patch, with a dot (●) if it has unsaved changes.</p>
+<p>The status bar reports what just happened: a file saved, modules pasted, a cable refused and why. When there's nothing to report, it counts the modules and cables in the patch. On the right it names the open patch, with a dot (●) if it has unsaved changes. At the far right is the version, with a small dot after it that lights up blue when a newer version is out: click it to see what's new, or, while it's dark, to check.</p>
 <p>If a patch loads with problems (a module this version doesn't know, a cable to a jack that no longer exists), a <strong>⚠ load warning</strong> appears on the right. Hover it to read the warnings; click it to dismiss them.</p>
 <h2 id="moving-around-the-canvas"><a class="header" href="#moving-around-the-canvas">Moving around the canvas</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>To</th><th>Do this</th></tr></thead><tbody>
