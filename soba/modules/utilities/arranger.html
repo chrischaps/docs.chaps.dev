@@ -211,9 +211,10 @@
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Steps</strong></td><td>1 – 96</td><td>16</td><td>How many clocks make a bar: 16 for a Clock at 1/16 in 4/4, 12 for 3/4</td></tr>
 <tr><td><strong>Loop to</strong></td><td>Off, 1 – 32</td><td>1</td><td>The section to go back to after the last one, or <strong>Off</strong> to stop there</td></tr>
+<tr><td><strong>Width</strong></td><td>Compact, Wide, Extra wide</td><td>Compact</td><td>How wide the timeline is drawn: 440, 760 or 1080 points. Wide or Extra wide suits a long song read whole on a big screen. The module plays the same at any width</td></tr>
 </tbody></table>
 </div>
-<p>The sections, their names and lengths, the lanes' names and glides, and every section's cue for every lane are edited on the timeline, and patches save them.</p>
+<p>The sections, their names and lengths, the lanes' names and glides, and every section's cue for every lane are edited on the timeline, and patches save them. So is <strong>Width</strong>. The jacks keep their rows at every width, and so do the lanes beside them.</p>
 <h2 id="writing-a-song"><a class="header" href="#writing-a-song">Writing a song</a></h2>
 <p>The song runs left to right across the node. Each section is a block as wide as its share of the bars, though a short one keeps enough room to click. The blocks sit beside the song's own jacks: Section, Trig, Bar, Last and End. Each lane is drawn on the two rows its <strong>CV</strong> and <strong>Gate</strong> jacks hang from, so a lane reads straight across into its cables.</p>
 <p>A lane is named for what its cable drives (a Mixer's <strong>Level 2</strong>, say) until you give it a name. The bar count at the top left shows where the song is, and the section playing is lit green, with its name in the header too.</p>
@@ -229,6 +230,16 @@
 <p>The bar under the timeline does the same for the section you picked. <strong>◀</strong> and <strong>▶</strong> step through the sections. The bars field sets its length. <strong>+</strong> adds a blank section after it, and <strong>Copy</strong> adds a copy. <strong>◀ Move</strong> and <strong>Move ▶</strong> swap it with its neighbours, and <strong>Delete</strong> takes it out. <strong>Loop to</strong> follows the section it named when sections move.</p>
 <p>A section's final bar is shaded, since that's where a fill goes. Every edit is one step of <a href="../../getting-started/interface-overview.html#the-toolbar">undo</a>, named for what it did ("Groove · Pad jumps to 48%").</p>
 <p><strong>Name…</strong>, at the left of the bar under the lanes' names, names the Arranger itself. The name shows in its header beside the section playing, and an Arranger that follows this one calls it by its name.</p>
+<p>A name too long for its block is cut short with "…". Hover the block and the whole name shows on a tag just above it. Pick the section and the bar under the timeline shows it in full too.</p>
+<h3 id="zooming-in"><a class="header" href="#zooming-in">Zooming in</a></h3>
+<p>A long song packs its short sections tight: in a 128-bar song a one-bar fill is a sliver. Zoom the timeline rather than the whole canvas:</p>
+<ul>
+<li><strong>Ctrl+scroll</strong> over the timeline (or pinch, on a trackpad) zooms it about the pointer, in as far as two bars across.</li>
+<li><strong>Scroll</strong> over the timeline, once it's zoomed in, moves along the song. While it shows the whole song, the scroll wheel zooms the canvas as usual.</li>
+<li>The thin <strong>strip</strong> over the ruler is the whole song in little, with the part in view framed. <strong>Drag</strong> along it to move the view, or <strong>click</strong> somewhere to go there. <strong>Double-click</strong> it to see the whole song again.</li>
+</ul>
+<p>Zoomed in, the ruler numbers the bars inside each section, and each section's name stays in view as you move past its start. While the song plays, the view turns the page whenever the playhead nears its right edge, so the playhead stays in view. It waits a few seconds after you move the view yourself.</p>
+<p>The zoom belongs to the editor, like the section you picked. It isn't saved with the patch and isn't a step of undo. For a song you want to read whole, set <strong>Width</strong> instead.</p>
 <h2 id="more-than-eight-lanes-follow"><a class="header" href="#more-than-eight-lanes-follow">More than eight lanes: Follow</a></h2>
 <p>A song can need more than eight lanes. Patch one Arranger's <strong>Section</strong> output into another's <strong>Follow</strong> input, and the second one <em>follows</em> the first. It has the first one's sections, the same number of them, as long, with the same names, and the same <strong>Steps</strong> and <strong>Loop to</strong>. Its lanes are its own, and you edit them on its own face as before.</p>
 <ul>
