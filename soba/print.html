@@ -4389,6 +4389,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <tr><td><strong>Reset</strong></td><td>Gate (Green)</td><td>A rising edge starts over: the next clock starts section 1</td></tr>
 <tr><td><strong>Jump</strong></td><td>Gate (Green)</td><td>A rising edge goes to the section <strong>Jump To</strong> picks, at the next bar line</td></tr>
 <tr><td><strong>Jump To</strong></td><td>Control (Orange)</td><td>The section a Jump goes to, as its number ÷ 32 (section 1 is 0, section 5 is 4/32). It reads the same as the <strong>Section</strong> output</td></tr>
+<tr><td><strong>Follow</strong></td><td>Control (Orange)</td><td>Patch another Arranger's <strong>Section</strong> here to <a href="modules/utilities/arranger.html#more-than-eight-lanes-follow">follow</a> it: its sections become this one's</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs-34"><a class="header" href="#outputs-34">Outputs</a></h2>
@@ -4423,6 +4424,16 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 </ul>
 <p>The bar under the timeline does the same for the section you picked. <strong>◀</strong> and <strong>▶</strong> step through the sections. The bars field sets its length. <strong>+</strong> adds a blank section after it, and <strong>Copy</strong> adds a copy. <strong>◀ Move</strong> and <strong>Move ▶</strong> swap it with its neighbours, and <strong>Delete</strong> takes it out. <strong>Loop to</strong> follows the section it named when sections move.</p>
 <p>A section's final bar is shaded, since that's where a fill goes. Every edit is one step of <a href="modules/utilities/../../getting-started/interface-overview.html#the-toolbar">undo</a>, named for what it did ("Groove · Pad jumps to 48%").</p>
+<p><strong>Name…</strong>, at the left of the bar under the lanes' names, names the Arranger itself. The name shows in its header beside the section playing, and an Arranger that follows this one calls it by its name.</p>
+<h2 id="more-than-eight-lanes-follow"><a class="header" href="#more-than-eight-lanes-follow">More than eight lanes: Follow</a></h2>
+<p>A song can need more than eight lanes. Patch one Arranger's <strong>Section</strong> output into another's <strong>Follow</strong> input, and the second one <em>follows</em> the first. It has the first one's sections, the same number of them, as long, with the same names, and the same <strong>Steps</strong> and <strong>Loop to</strong>. Its lanes are its own, and you edit them on its own face as before.</p>
+<ul>
+<li><strong>Edit the sections on the leader.</strong> On the follower they can be picked but not changed, and its bar says <strong>Follows Desk</strong> (or whatever the leader is called). Its <strong>Steps</strong> knob and <strong>Loop to</strong> are the leader's too.</li>
+<li><strong>The follower's cues move with their sections.</strong> Add, copy, move or delete a section on the leader, and the follower does the same with its own cues. Lengthening or renaming a section does too. The leader's edit and the follower's are one step of undo, so undo takes both back.</li>
+<li><strong>Unpatch Follow</strong> and the follower keeps the sections it had, and you can edit them on it again.</li>
+<li><strong>Chains.</strong> A follower can lead another, so three Arrangers give 24 lanes. A chain can't come back round: an Arranger that would end up following itself refuses the cable and says why. <strong>Follow</strong> takes only an Arranger's <strong>Section</strong>.</li>
+</ul>
+<p>Following happens in the editor, not in the sound. Two Arrangers that count the same Clock already change section on the same sample, so the cable only keeps their sections the same while you write. A patch plays the same with it or without it.</p>
 <h2 id="cues"><a class="header" href="#cues">Cues</a></h2>
 <p>Each section gives each lane one of four cues as the section starts:</p>
 <div class="table-wrapper"><table><thead><tr><th>Cue</th><th>What the lane does</th></tr></thead><tbody>
@@ -4456,12 +4467,12 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <tr><td><code>3000850</code></td><td>Hit at 85%</td></tr>
 </tbody></table>
 </div>
-<p>The sections' lengths are <code>Length 01</code> to <code>Length 32</code>, the lanes' glides <code>Glide 1</code> to <code>Glide 8</code>, and <strong>Sections</strong> is how many sections the song has. The names you give sections and lanes are saved with the module as labels.</p>
+<p>The sections' lengths are <code>Length 01</code> to <code>Length 32</code>, the lanes' glides <code>Glide 1</code> to <code>Glide 8</code>, and <strong>Sections</strong> is how many sections the song has. The names you give sections and lanes, and the Arranger's own name, are saved with the module as labels. A follower saves its own copy of its leader's sections, so it plays them even where Follow isn't known.</p>
 <h2 id="tips-2"><a class="header" href="#tips-2">Tips</a></h2>
 <ol>
 <li><strong>Faders at zero.</strong> On a <a href="modules/utilities/./mixer.html">Mixer</a>, set a channel's <strong>Level</strong> knob to 0 and patch a lane into its <strong>Level</strong> input. The lane then is the fader.</li>
 <li><strong>Fills.</strong> Either give each phrase a one-bar <strong>Fill</strong> section that jumps the drum lane to the fill pattern, or patch <strong>Last Bar</strong> into something that plays a fill.</li>
-<li><strong>Two Arrangers, one song.</strong> Arrangers on the same Clock play in lockstep. When eight lanes aren't enough, give a second Arranger the same sections. <a href="modules/utilities/../../recipes/from-one-sine.html">From One Sine</a> splits its score into faders and cues this way.</li>
+<li><strong>Two Arrangers, one song.</strong> When eight lanes aren't enough, clock a second Arranger from the same Clock and patch the first one's <strong>Section</strong> into its <strong>Follow</strong> (see <a href="modules/utilities/arranger.html#more-than-eight-lanes-follow">Follow</a>). <a href="modules/utilities/../../recipes/from-one-sine.html">From One Sine</a> splits its score into faders and cues this way.</li>
 <li><strong>Pedals.</strong> Hit a Looper's <strong>Rec</strong> at the start of a section to record it, and its <strong>Clear</strong> at the top of the song so each pass starts fresh.</li>
 <li><strong>A brightness lane.</strong> Ramp a lane over a build and patch it through an <a href="modules/utilities/./attenuverter.html">Attenuverter</a> into filter cutoffs or drive amounts: the whole build opens up together.</li>
 <li><strong>A shorter song.</strong> Set <strong>Loop to</strong> a later section, and the intro plays only once.</li>
@@ -5830,14 +5841,15 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <h3 id="the-score"><a class="header" href="#the-score">The score</a></h3>
 <pre><code class="language-text">[Clock Gate] ──&gt; [Desk Clock]
              ──&gt; [Cues Clock]
+[Desk Section] ──&gt; [Cues Follow]              (Cues follows Desk's sections)
 [Desk Lane 6] ──&gt; [Mixer Body Level 2]        (the pad, both sides)
               ──&gt; [Mixer Body Level 3]
 [Cues Lane 3] ──&gt; [Mixer Sky Level 4]         (the riser's level)
 [Cues Gate 3] ──&gt; [Riser ADSR Gate]           (and its envelope)
 </code></pre>
 <p>Both Arrangers count the Clock's sixteenths, sixteen to a bar, through the same 24 sections: First Sound, Echo, Sparkles, Arp, Pulse, Bass, Bells, Riser, Groove, Fill, Lift, Fill, Memory, Answer, Build, Everything, Fill, Second Wave, Lead Returns, Fill, Return, Sine Returns, Thinning and One Sine. They change section on the same clock edge as the sequencers step on, so the score and the music can't drift apart. <strong>Loop to</strong> is 1, so the song goes round again.</p>
-<p><strong>Desk</strong>, the Arranger on the right, has a lane for each fader: the sine, arpeggio, bells, sparkles, bass, pad, wind and lead. On the Echoes, Body and Sky mixers each channel's <strong>Level</strong> knob is at zero, and its <strong>Level</strong> input adds the lane on top. Most sections jump a fader to a new level on their downbeat, and the rest hold it. The mixer adds a control voltage without smoothing it, so each lane has a <strong>Glide</strong>: a second for the pad, wind and sparkles, 0.8 s for the sine, 0.3 s for the lead, and 40 ms for the arp, bass and bells, which still land on the downbeat but never cut a tail short.</p>
-<p><strong>Cues</strong>, on the left, has the rest. <strong>Drums</strong> picks the drum pattern (see <a href="recipes/from-one-sine.html#drums-and-fills">Drums and fills</a>). <strong>Crash</strong> hits on the downbeat of each big section, and its level is the cymbal's accent. <strong>Riser</strong> jumps to 30% for the Riser section and 32% for the Build. Its CV is the riser's level, and its gate holds the riser's envelope open for exactly those four bars. <strong>Heat</strong> ramps up through the opening, 8% to 48% over seven sections, and keeps climbing to its peak at Everything. Through two Attenuverters it opens the pad's Ladder and drives the bass harder. <strong>Memory</strong> is the Looper's level, and <strong>Rec</strong> and <strong>Clear</strong> hit its pedals.</p>
+<p><strong>Desk</strong>, the Arranger on the left, has a lane for each fader: the sine, arpeggio, bells, sparkles, bass, pad, wind and lead. On the Echoes, Body and Sky mixers each channel's <strong>Level</strong> knob is at zero, and its <strong>Level</strong> input adds the lane on top. Most sections jump a fader to a new level on their downbeat, and the rest hold it. The mixer adds a control voltage without smoothing it, so each lane has a <strong>Glide</strong>: a second for the pad, wind and sparkles, 0.8 s for the sine, 0.3 s for the lead, and 40 ms for the arp, bass and bells, which still land on the downbeat but never cut a tail short.</p>
+<p><strong>Cues</strong>, on the right, has the rest. It <a href="recipes/../modules/utilities/arranger.html#more-than-eight-lanes-follow">follows</a> Desk: Desk's <strong>Section</strong> is patched into its <strong>Follow</strong>, so its sections are always Desk's, and an edit to them on Desk is made on Cues too. <strong>Drums</strong> picks the drum pattern (see <a href="recipes/from-one-sine.html#drums-and-fills">Drums and fills</a>). <strong>Crash</strong> hits on the downbeat of each big section, and its level is the cymbal's accent. <strong>Riser</strong> jumps to 30% for the Riser section and 32% for the Build. Its CV is the riser's level, and its gate holds the riser's envelope open for exactly those four bars. <strong>Heat</strong> ramps up through the opening, 8% to 48% over seven sections, and keeps climbing to its peak at Everything. Through two Attenuverters it opens the pad's Ladder and drives the bass harder. <strong>Memory</strong> is the Looper's level, and <strong>Rec</strong> and <strong>Clear</strong> hit its pedals.</p>
 <h3 id="harmony-a-chord-a-bar"><a class="header" href="#harmony-a-chord-a-bar">Harmony, a chord a bar</a></h3>
 <pre><code class="language-text">[Clock Divider ÷16 Trig] ──&gt; [Roots Clock], [Pad Voice 1–3 Clock]
 [Roots Pitch] ──&gt; [Pad Root Oscillator V/Oct]
@@ -5877,8 +5889,8 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 </code></pre>
 <p>The sine, arpeggio, bells and sparkles share the Echoes mixer, whose send feeds a ping-pong tape delay on dotted eighths. Its output passes through a big hall and comes back on Body's <strong>Return</strong>. Body carries the bass, the pad in stereo and the wind. Sky carries the lead, the Looper's two sides and the riser. The two kit mixers chain into Body, and Body into Sky. Each chain cable carries a mixer's mix and its sends together, so the sends of all four ride along to Sky, where one plate reverb serves them. Echoes keeps its send for the delay.</p>
 <h2 id="variations-11"><a class="header" href="#variations-11">Variations</a></h2>
-<p><strong>Rearrange it.</strong> Drag a lane on the Desk up or down in any section to move that fader, or right-click it to ramp instead of jump. Delete a <strong>Fill</strong> section on both Arrangers for a phrase of groove without a fill. Keep the two Arrangers' sections the same: they play one song.</p>
-<p><strong>A shorter song.</strong> Set both Arrangers' <strong>Loop to</strong> to 9, the Groove. The opening plays once, and then the song goes round from the groove to the end.</p>
+<p><strong>Rearrange it.</strong> Drag a lane on the Desk up or down in any section to move that fader, or right-click it to ramp instead of jump. Delete a <strong>Fill</strong> section on the Desk for a phrase of groove without a fill: Cues follows, and its cues for the Fill go with it.</p>
+<p><strong>A shorter song.</strong> Set the Desk's <strong>Loop to</strong> to 9, the Groove, and Cues follows. The opening plays once, and then the song goes round from the groove to the end.</p>
 <p><strong>Remember something else.</strong> Patch the Arp's VCA into the Looper's <strong>In L</strong> instead of the sine. The breakdown then hears the arpeggio, slowed and backwards.</p>
 <p><strong>Brighter all through.</strong> Raise the <strong>Offset</strong> on the pad's brightness Attenuverter: each 0.1 opens the Ladder a tenth of an octave further, all song long.</p>
 <p><strong>Straighter.</strong> Set the Clock's <strong>Swing</strong> to 50%. Arp, bass and drums all straighten together, because they share its sixteenths.</p>

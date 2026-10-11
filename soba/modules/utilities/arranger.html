@@ -192,6 +192,7 @@
 <tr><td><strong>Reset</strong></td><td>Gate (Green)</td><td>A rising edge starts over: the next clock starts section 1</td></tr>
 <tr><td><strong>Jump</strong></td><td>Gate (Green)</td><td>A rising edge goes to the section <strong>Jump To</strong> picks, at the next bar line</td></tr>
 <tr><td><strong>Jump To</strong></td><td>Control (Orange)</td><td>The section a Jump goes to, as its number ÷ 32 (section 1 is 0, section 5 is 4/32). It reads the same as the <strong>Section</strong> output</td></tr>
+<tr><td><strong>Follow</strong></td><td>Control (Orange)</td><td>Patch another Arranger's <strong>Section</strong> here to <a href="#more-than-eight-lanes-follow">follow</a> it: its sections become this one's</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -226,6 +227,16 @@
 </ul>
 <p>The bar under the timeline does the same for the section you picked. <strong>◀</strong> and <strong>▶</strong> step through the sections. The bars field sets its length. <strong>+</strong> adds a blank section after it, and <strong>Copy</strong> adds a copy. <strong>◀ Move</strong> and <strong>Move ▶</strong> swap it with its neighbours, and <strong>Delete</strong> takes it out. <strong>Loop to</strong> follows the section it named when sections move.</p>
 <p>A section's final bar is shaded, since that's where a fill goes. Every edit is one step of <a href="../../getting-started/interface-overview.html#the-toolbar">undo</a>, named for what it did ("Groove · Pad jumps to 48%").</p>
+<p><strong>Name…</strong>, at the left of the bar under the lanes' names, names the Arranger itself. The name shows in its header beside the section playing, and an Arranger that follows this one calls it by its name.</p>
+<h2 id="more-than-eight-lanes-follow"><a class="header" href="#more-than-eight-lanes-follow">More than eight lanes: Follow</a></h2>
+<p>A song can need more than eight lanes. Patch one Arranger's <strong>Section</strong> output into another's <strong>Follow</strong> input, and the second one <em>follows</em> the first. It has the first one's sections, the same number of them, as long, with the same names, and the same <strong>Steps</strong> and <strong>Loop to</strong>. Its lanes are its own, and you edit them on its own face as before.</p>
+<ul>
+<li><strong>Edit the sections on the leader.</strong> On the follower they can be picked but not changed, and its bar says <strong>Follows Desk</strong> (or whatever the leader is called). Its <strong>Steps</strong> knob and <strong>Loop to</strong> are the leader's too.</li>
+<li><strong>The follower's cues move with their sections.</strong> Add, copy, move or delete a section on the leader, and the follower does the same with its own cues. Lengthening or renaming a section does too. The leader's edit and the follower's are one step of undo, so undo takes both back.</li>
+<li><strong>Unpatch Follow</strong> and the follower keeps the sections it had, and you can edit them on it again.</li>
+<li><strong>Chains.</strong> A follower can lead another, so three Arrangers give 24 lanes. A chain can't come back round: an Arranger that would end up following itself refuses the cable and says why. <strong>Follow</strong> takes only an Arranger's <strong>Section</strong>.</li>
+</ul>
+<p>Following happens in the editor, not in the sound. Two Arrangers that count the same Clock already change section on the same sample, so the cable only keeps their sections the same while you write. A patch plays the same with it or without it.</p>
 <h2 id="cues"><a class="header" href="#cues">Cues</a></h2>
 <p>Each section gives each lane one of four cues as the section starts:</p>
 <div class="table-wrapper"><table><thead><tr><th>Cue</th><th>What the lane does</th></tr></thead><tbody>
@@ -259,12 +270,12 @@
 <tr><td><code>3000850</code></td><td>Hit at 85%</td></tr>
 </tbody></table>
 </div>
-<p>The sections' lengths are <code>Length 01</code> to <code>Length 32</code>, the lanes' glides <code>Glide 1</code> to <code>Glide 8</code>, and <strong>Sections</strong> is how many sections the song has. The names you give sections and lanes are saved with the module as labels.</p>
+<p>The sections' lengths are <code>Length 01</code> to <code>Length 32</code>, the lanes' glides <code>Glide 1</code> to <code>Glide 8</code>, and <strong>Sections</strong> is how many sections the song has. The names you give sections and lanes, and the Arranger's own name, are saved with the module as labels. A follower saves its own copy of its leader's sections, so it plays them even where Follow isn't known.</p>
 <h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
 <ol>
 <li><strong>Faders at zero.</strong> On a <a href="./mixer.html">Mixer</a>, set a channel's <strong>Level</strong> knob to 0 and patch a lane into its <strong>Level</strong> input. The lane then is the fader.</li>
 <li><strong>Fills.</strong> Either give each phrase a one-bar <strong>Fill</strong> section that jumps the drum lane to the fill pattern, or patch <strong>Last Bar</strong> into something that plays a fill.</li>
-<li><strong>Two Arrangers, one song.</strong> Arrangers on the same Clock play in lockstep. When eight lanes aren't enough, give a second Arranger the same sections. <a href="../../recipes/from-one-sine.html">From One Sine</a> splits its score into faders and cues this way.</li>
+<li><strong>Two Arrangers, one song.</strong> When eight lanes aren't enough, clock a second Arranger from the same Clock and patch the first one's <strong>Section</strong> into its <strong>Follow</strong> (see <a href="#more-than-eight-lanes-follow">Follow</a>). <a href="../../recipes/from-one-sine.html">From One Sine</a> splits its score into faders and cues this way.</li>
 <li><strong>Pedals.</strong> Hit a Looper's <strong>Rec</strong> at the start of a section to record it, and its <strong>Clear</strong> at the top of the song so each pass starts fresh.</li>
 <li><strong>A brightness lane.</strong> Ramp a lane over a build and patch it through an <a href="./attenuverter.html">Attenuverter</a> into filter cutoffs or drive amounts: the whole build opens up together.</li>
 <li><strong>A shorter song.</strong> Set <strong>Loop to</strong> a later section, and the intro plays only once.</li>
