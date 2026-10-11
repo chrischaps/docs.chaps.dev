@@ -221,7 +221,8 @@
 <li><strong>Click</strong> a section to pick it. The bar under the timeline shows it.</li>
 <li><strong>Double-click</strong> a section to rename it. Press Enter to keep the name, or Escape to leave it.</li>
 <li><strong>Drag</strong> a lane up or down inside a section to set the level that section takes it to. A section that held the lane now jumps it.</li>
-<li><strong>Right-click</strong> a lane inside a section for how it gets there (see <a href="#cues">Cues</a>), its level, and a ramp's length.</li>
+<li><strong>Shift-drag</strong> a lane inside a section to set where its ramp starts. Any other cue becomes a ramp from there to its level, or for a Hold, to where the lane was.</li>
+<li><strong>Right-click</strong> a lane inside a section for how it gets there (see <a href="#cues">Cues</a>), its level, and a ramp's length, curve and start.</li>
 <li><strong>Double-click</strong> a lane's name to rename it. <strong>Right-click</strong> it to set its <strong>Glide</strong>, or to clear it.</li>
 <li><strong>Right-click</strong> a section for its length, and to add, copy, move or delete it.</li>
 </ul>
@@ -242,14 +243,25 @@
 <div class="table-wrapper"><table><thead><tr><th>Cue</th><th>What the lane does</th></tr></thead><tbody>
 <tr><td><strong>Hold</strong></td><td>Carries on as it was. If it was ramping, the ramp carries on. A new section holds every lane</td></tr>
 <tr><td><strong>Jump</strong></td><td>Goes straight to the level, on the downbeat</td></tr>
-<tr><td><strong>Ramp</strong></td><td>Glides from wherever it is to the level, over the whole section or over a number of bars. A ramp longer than its section carries on through the sections after it that hold</td></tr>
+<tr><td><strong>Ramp</strong></td><td>Glides to the level over the whole section or over a number of bars, on one of four <a href="#ramps">curves</a>. It starts from wherever the lane is, or from a level of its own. A ramp longer than its section carries on through the sections after it that hold</td></tr>
 <tr><td><strong>Hit</strong></td><td>Goes to the level for half a step, then back: a trigger, with the level riding on the CV, for a Drum's <strong>Trig</strong> and <strong>Accent</strong> or a Looper's <strong>Rec</strong></td></tr>
 </tbody></table>
 </div>
-<p>A ramp follows an S-curve: it leaves gently and arrives gently. That makes a Mixer's <strong>Level</strong> fade without a click, however slow or quick the ramp.</p>
+<h3 id="ramps"><a class="header" href="#ramps">Ramps</a></h3>
+<p><img src="../../images/arranger-curves.svg" alt="The four ramp curves: S-curve, Linear, Exp and Log" /></p>
+<p>A ramp takes one of four shapes, chosen in its right-click menu and drawn to shape on the lane:</p>
+<div class="table-wrapper"><table><thead><tr><th>Curve</th><th>Shape</th><th>Suits</th></tr></thead><tbody>
+<tr><td><strong>S-curve</strong></td><td>Leaves gently and arrives gently, like a hand on a fader. The default, and how every ramp moved before there was a choice</td><td>Fades. A Mixer's <strong>Level</strong> moves without a click, however slow or quick the ramp</td></tr>
+<tr><td><strong>Linear</strong></td><td>The same pace all the way</td><td>A steady build, or a tempo-like push</td></tr>
+<tr><td><strong>Exp</strong></td><td>Slow to start, fast to finish: a fifth of the way there at half time</td><td>A filter sweep or a riser that rushes into the downbeat</td></tr>
+<tr><td><strong>Log</strong></td><td>Fast to start, slow to finish: four fifths of the way there at half time</td><td>A swell that settles, or a fade that tails away</td></tr>
+</tbody></table>
+</div>
+<p>Exp and Log are mirror images, so an Exp fade-out holds on and then drops away, and a Log one falls quickly and then lingers.</p>
+<p><strong>From</strong> sets where a ramp starts. <strong>Where it is</strong> carries on from the lane's level as the section starts. <strong>A level</strong> jumps the lane there on the downbeat, as a Jump would, gate dip and Glide included, and ramps from there. A part can then come in at one level and grow through the same section: a pad that enters at 28% and swells to 42% over twelve bars is one cue.</p>
 <h3 id="the-gate"><a class="header" href="#the-gate">The gate</a></h3>
 <p>A lane's <strong>Gate</strong> is high while the lane is above zero. One lane can therefore be a part's level and its envelope's gate at once. A riser that jumps to 30% for a section and back to 0 is heard for that section and gated for exactly as long.</p>
-<p>When a Jump or Hit lands while the gate is already high, the gate drops for one sample first, so an envelope starts again. A ramp up from zero opens the gate as it leaves zero.</p>
+<p>When a Jump or Hit lands while the gate is already high, the gate drops for one sample first, so an envelope starts again. So does a ramp that starts from a level of its own. A ramp up from zero opens the gate as it leaves zero.</p>
 <h3 id="glide"><a class="header" href="#glide">Glide</a></h3>
 <p>A Jump moves on one sample, and a Mixer's <strong>Level</strong> adds its CV without smoothing, so a jump under a ringing note clicks. <strong>Glide</strong> smooths the lane's CV: it's how long the CV takes to move all the way from 0 to 1, so 1 s brings a half-way fader up in half a second, the same as a <a href="./sample-hold.html">Sample &amp; Hold</a>'s <strong>Slew</strong>. A second or so suits a pad, and 40 ms keeps a rhythmic part on the beat while still saving its tails. The gate follows the cue, not the glide.</p>
 <p>Leave <strong>Glide</strong> at 0 on a lane that picks something: a <a href="./trigger-sequencer.html">Trigger Sequencer</a>'s or <a href="./sequencer.html#pattern-cv">Step Sequencer</a>'s <strong>Pattern</strong>, say. The sequencer reads the CV on the downbeat, the same sample the lane jumps on, and a glide would still be on its way there.</p>
@@ -261,15 +273,19 @@
 <p>After the last section, the song goes back to <strong>Loop to</strong>, and <strong>End</strong> fires. With <strong>Loop to</strong> off, <strong>End</strong> fires and the song stops where it is. The lanes keep their last levels, and the bars stop counting, until a Reset, a Jump or the next Play.</p>
 <p><strong>Jump</strong> waits for the next bar line, so a live change of section always lands on the beat. Patch a button, a <a href="../midi/keyboard.html">Keyboard</a> gate or a <a href="./logic.html">Logic</a> decision into <strong>Jump</strong>, and a constant or a <a href="./sample-hold.html">Sample &amp; Hold</a> into <strong>Jump To</strong>. While a Jump waits, the section it's going to is outlined green.</p>
 <h2 id="how-patches-store-it"><a class="header" href="#how-patches-store-it">How patches store it</a></h2>
-<p>Every section's cue for every lane is one parameter, named for both: <code>Section 03 Lane 2</code> is section 3's cue for lane 2. Its value reads as digits, <strong>move</strong>, <strong>ramp bars</strong> and <strong>level</strong> in tenths of a percent:</p>
+<p>Every section's cue for every lane is one parameter, named for both: <code>Section 03 Lane 2</code> is section 3's cue for lane 2. Its value reads as digits, <strong>move</strong>, <strong>ramp bars</strong> and <strong>level</strong> in tenths of a percent. The move is 0 Hold, 1 Jump, 2 Ramp and 3 Hit, and a ramp on another curve takes 4 Linear, 5 Exp or 6 Log:</p>
 <div class="table-wrapper"><table><thead><tr><th>Value</th><th>Cue</th></tr></thead><tbody>
 <tr><td><code>0</code></td><td>Hold</td></tr>
 <tr><td><code>1000700</code></td><td>Jump to 70%</td></tr>
-<tr><td><code>2000500</code></td><td>Ramp to 50% over the section</td></tr>
-<tr><td><code>2080250</code></td><td>Ramp to 25% over 8 bars</td></tr>
+<tr><td><code>2000500</code></td><td>Ramp to 50% over the section, on the S-curve</td></tr>
+<tr><td><code>2080250</code></td><td>Ramp to 25% over 8 bars, on the S-curve</td></tr>
+<tr><td><code>4000500</code></td><td>Ramp to 50% over the section, in a line</td></tr>
+<tr><td><code>5160900</code></td><td>Ramp to 90% over 16 bars, on Exp</td></tr>
+<tr><td><code>6040000</code></td><td>Ramp to 0% over 4 bars, on Log</td></tr>
 <tr><td><code>3000850</code></td><td>Hit at 85%</td></tr>
 </tbody></table>
 </div>
+<p>A ramp's start is a second parameter, <code>Section 03 Lane 2 From</code>: the level in tenths of a percent (<code>280</code> starts at 28%), or <code>-1</code> to start from where the lane is. Patches saved before ramps had curves and starts have no From parameters and only 2 for ramps, so they play as they always did.</p>
 <p>The sections' lengths are <code>Length 01</code> to <code>Length 32</code>, the lanes' glides <code>Glide 1</code> to <code>Glide 8</code>, and <strong>Sections</strong> is how many sections the song has. The names you give sections and lanes, and the Arranger's own name, are saved with the module as labels. A follower saves its own copy of its leader's sections, so it plays them even where Follow isn't known.</p>
 <h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
 <ol>
