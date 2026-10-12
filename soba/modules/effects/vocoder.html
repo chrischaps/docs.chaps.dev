@@ -183,7 +183,7 @@
                         <h1 id="vocoder"><a class="header" href="#vocoder">Vocoder</a></h1>
 <p><strong>Module ID</strong> <code>fx.vocoder</code> · <strong>Category</strong> Effect</p>
 <p><img src="../../images/module-vocoder.png" alt="Vocoder Module" />
-<em>Mid-word: a bar for each band shows how loud the voice is there, and the column on the right shows its highs</em></p>
+<em>Frozen mid-word: a bar for each band shows how loud the voice was there, held solid while the snowflake shows. Flatten is halfway</em></p>
 <p>The Vocoder makes one sound speak with another's mouth. It takes the <strong>spectral envelope</strong> of a <strong>modulator</strong>, usually a voice: which parts of the spectrum are loud and which are quiet, moment to moment. It then lays that envelope over a <strong>carrier</strong>, usually a synth chord. The chord takes on the voice's vowels and consonants and keeps its own pitch and harmony. It's the sound of Kraftwerk's robots, Herbie Hancock's <em>I Thought It Was You</em>, and Air's <em>Sexy Boy</em>.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
 <ol>
@@ -199,11 +199,17 @@
 <li><strong>Sibilance</strong> lets the voice's own highs, above the bank, straight through.</li>
 <li><strong>Unvoiced</strong> swaps the carrier for noise while the voice hisses.</li>
 </ul>
+<p>Two more change how the bank itself plays:</p>
+<ul>
+<li><strong>Freeze</strong> holds every band where it is, so a vowel lasts as long as the chord does.</li>
+<li><strong>Flatten</strong> evens out the carrier's own spectrum before the voice's is put on it, so a dull carrier speaks as clearly as a bright one.</li>
+</ul>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Carrier</strong></td><td>Audio (Blue)</td><td>The sound that's played: a synth, a chord, noise. A polyphonic cable is summed, so a whole chord can come in on one cable</td></tr>
 <tr><td><strong>Modulator</strong></td><td>Audio (Blue)</td><td>The sound whose spectrum the carrier wears: a voice from a <a href="../sources/sampler.html">Sampler</a> or an <a href="../sources/audio-input.html">Audio Input</a>, or drums</td></tr>
 <tr><td><strong>Formant</strong></td><td>Control (Orange)</td><td>Adds to the Formant knob: +1 moves the carrier's bands an octave up</td></tr>
+<tr><td><strong>Freeze</strong></td><td>Gate (Green)</td><td>While high, the bands hold where they are. Patched, it takes over from the <strong>Freeze</strong> switch</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -216,9 +222,11 @@
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Bands</strong></td><td>8 / 16 / 24</td><td>16</td><td>How finely the spectrum is split (dropdown on the node)</td></tr>
+<tr><td><strong>Freeze</strong></td><td>Off / On</td><td>Off</td><td>Holds every band where it is (a switch on the node)</td></tr>
 <tr><td><strong>Attack</strong></td><td>0.5 – 200 ms</td><td>4 ms</td><td>How fast a band opens when the voice gets louder there</td></tr>
 <tr><td><strong>Release</strong></td><td>5 ms – 2 s</td><td>40 ms</td><td>How fast a band closes again</td></tr>
 <tr><td><strong>Formant</strong></td><td>−1 – +1 oct</td><td>0</td><td>The carrier's bands against the voice's: up for a smaller throat, down for a larger one</td></tr>
+<tr><td><strong>Flatten</strong></td><td>0 – 100%</td><td>0%</td><td>How far the carrier's own spectrum is evened out before the voice is put on it</td></tr>
 <tr><td><strong>Sibil</strong> (Sibilance)</td><td>0 – 100%</td><td>25%</td><td>How much of the voice's highs pass straight through</td></tr>
 <tr><td><strong>Unvoic</strong> (Unvoiced)</td><td>0 – 100%</td><td>25%</td><td>How far noise replaces the carrier while the voice hisses</td></tr>
 <tr><td><strong>Width</strong></td><td>0 – 100%</td><td>50%</td><td>How far apart the odd and even bands sit</td></tr>
@@ -234,6 +242,8 @@
 <li><strong>Formant.</strong> When Formant moves the carrier's bands, each bar leaves a white cap where the carrier plays it, joined to its own foot by a slanting line. The shift shows top right.</li>
 <li><strong>Sibilance.</strong> The strip on the right is the range Sibilance passes. Its column is the voice's level up there, lit as brightly as the knob lets it through.</li>
 <li><strong>Unvoiced.</strong> While the voice hisses and Unvoiced lets noise in, the bank glitters.</li>
+<li><strong>Freeze.</strong> Frozen, the bars stop and turn solid, with icy caps, and a snowflake sits beside the band count. The sibilance column goes dark, because the voice's own highs are muted while the bands hold.</li>
+<li><strong>The feet.</strong> The dots under the bars lie along the carrier's slope as the bank plays it. A dull carrier's feet fall away to the right. Turn up <strong>Flatten</strong> and they level out, and a faint line stays behind on the slope the carrier came in with. Hover over the display to read both slopes in dB an octave.</li>
 </ul>
 <h2 id="shaping-the-sound"><a class="header" href="#shaping-the-sound">Shaping the sound</a></h2>
 <p><strong>Bands.</strong> Eight bands sound like a machine talking: rough, buzzy and only just readable, the classic robot. Sixteen is the all-rounder. Twenty-four is the clearest and most like the voice itself. Loudness stays within a few dB whichever you choose. Changing Bands fades the bank out and in over a few milliseconds, so it never clicks.</p>
@@ -242,8 +252,17 @@
 <p><strong>Sibilance and Unvoiced.</strong> Consonants like "s", "t" and "f" are mostly noise above 4 kHz, where many carriers have little to give. <strong>Sibilance</strong> passes the voice's own highs straight through, so they stay crisp. <strong>Unvoiced</strong> handles the hiss inside the bank. When the voice's level above 4 kHz grows past 30% of its whole level, noise starts replacing the carrier, and by 60% it has replaced it as far as the knob allows. The "s" is then spoken by noise, through the voice's own bands. With no carrier at all, Unvoiced still lets the consonants through on their own. Vowels don't trigger it.</p>
 <p><strong>Width.</strong> At 0% the vocoder is mono. Wider, neighbouring bands split left and right, and the voice seems to fill the space between the speakers. At 100% each side carries only its own bands.</p>
 <p><strong>Mix.</strong> At 0% you hear only the carrier, centred. In between, a little of the raw chord fills the gaps between the words.</p>
+<p><strong>Freeze.</strong> Sing an "ahh", switch on Freeze, and every band holds exactly where it was. Now play chords: each one says the same vowel for as long as you hold it, and you can stop singing. The voice's own highs (the Sibilance path) are muted while frozen, so whatever you say next doesn't leak through, and the Unvoiced noise holds where it was too. Switch Freeze off and the bands carry on from where they were held, at the Attack and Release rates, so there's no jump. Patch a gate into the <strong>Freeze</strong> input and it takes over from the switch: high holds, low lets go.</p>
+<p><strong>Flatten.</strong> The bank can only put the voice where the carrier has something to give. A dull carrier, like a pad through a low-pass filter or a triangle or sine chord, is loud low down and nearly silent at 2 kHz, where much of a vowel lives. Its words come out muffled. Flatten measures the carrier in each band and lifts the quiet bands and lowers the loud ones until they're even, before the voice's levels are applied. At 0% the carrier keeps its own tilt, exactly as before. At 100% every band of the carrier is the same level, the "spectral whitening" of modern vocoders. In between, it goes that share of the way, in dB. Flattened, a triangle chord speaks its vowels as plainly as a saw does unflattened.</p>
+<p>A few things keep Flatten clean:</p>
+<ul>
+<li>A band is lifted no more than about 40 dB above where the carrier has it, and nothing below −100 dBFS is lifted at all, so empty bands and a silent carrier don't turn into hiss.</li>
+<li>When a new note fills a band that was being lifted, the lift comes off at once, so the note doesn't burst through.</li>
+<li>The vocoder stays about as loud as you turn it, within a dB or so. The level every band is brought to is weighted by where the voice has been over the last second, so evening the carrier out doesn't turn down the bands the voice uses most. A chord and a voice are both loudest low down.</li>
+</ul>
+<p>Flatten can only even out what the carrier has. A pure sine chord has nothing above its top note, and there's nothing there to lift, so give it a little brightness first: a triangle or a soft saw is plenty. A bright saw is already close to even across the bank, so Flatten changes it little.</p>
 <h2 id="carriers-that-work"><a class="header" href="#carriers-that-work">Carriers that work</a></h2>
-<p>The vocoder can only carry what the carrier has to give. A <strong>bright, sustained</strong> carrier works best: saws, pulses, a supersaw, a chord on a polyphonic cable, or noise for a whisper. A dark, filtered pad has nothing up high for the voice's upper bands to open, so the words come out muffled. Filter the carrier after the vocoder, not before.</p>
+<p>The vocoder can only carry what the carrier has to give. A <strong>bright, sustained</strong> carrier works best: saws, pulses, a supersaw, a chord on a polyphonic cable, or noise for a whisper. A dark, filtered pad has nothing up high for the voice's upper bands to open, so the words come out muffled. Filter the carrier after the vocoder, not before, or turn up <strong>Flatten</strong> to bring out what highs it has.</p>
 <p><strong>Keep the carrier low.</strong> A carrier's harmonics are where the vowels get drawn, and a high note spaces them too far apart to trace the formants. Measured with speech recognition on a spoken line, a saw at A2 or A3 kept about 60% of the words, and the same saw at A4 about 20%. A chord voiced low and wide, held while the words move, works best of all. <a href="../../recipes/clair-de-satellite.html">Clair de Satellite</a> sings on the string section's chord for this reason, not on its melody.</p>
 <p>The output follows both inputs: a loud chord and a loud voice make a loud vocoder. A five-note chord of detuned saws arrives several times louder than one voice, so turn the vocoder down after it, on a <a href="../utilities/mixer.html">Mixer</a> strip.</p>
 <h2 id="bypass"><a class="header" href="#bypass">Bypass</a></h2>
@@ -257,6 +276,7 @@
 <tr><td>Small and bright</td><td>16</td><td>3 ms</td><td>35 ms</td><td>+0.5 oct</td><td>35%</td><td>40%</td></tr>
 </tbody></table>
 </div>
+<p>Any of these works on a dull carrier with <strong>Flatten</strong> at 70 to 100%. Freeze and Flatten start off.</p>
 <h2 id="patch-ideas"><a class="header" href="#patch-ideas">Patch ideas</a></h2>
 <p><strong>A phrase that speaks on every chord.</strong> A <a href="../sources/sampler.html">Sampler</a> in One-Shot plays a recorded line, and a <a href="../utilities/divider.html">Clock Divider</a> fires it every two bars. A <a href="../utilities/chord-sequencer.html">Chord Sequencer</a> plays the chords on a saw voice. The <a href="../../recipes/soba-speaks.html">Soba Speaks</a> example is built this way:</p>
 <pre><code class="language-text">[Sampler L] ──&gt; [Vocoder Modulator]
@@ -267,6 +287,12 @@
 <p><strong>Your own voice.</strong> Patch an <a href="../sources/audio-input.html">Audio Input</a>'s <strong>L</strong> into <strong>Modulator</strong>, and speak or sing into a microphone while the chords play. Wear headphones, or the mic will hear the speakers and the vocoder will start to howl.</p>
 <p><strong>Drums that play chords.</strong> Patch a drum loop into <strong>Modulator</strong> and a held chord into <strong>Carrier</strong>. The chord pulses in the rhythm of the drums: the kick opens the low bands, and the hats open the high ones.</p>
 <p><strong>A whisper.</strong> Patch <a href="../sources/noise.html">Noise</a> (white) into <strong>Carrier</strong> and the voice comes back whispered, with no pitch at all.</p>
+<p><strong>A vowel to play chords on.</strong> Sing or play a sustained vowel into <strong>Modulator</strong> and switch on <strong>Freeze</strong> mid-vowel. Now the <a href="../utilities/chord-sequencer.html">Chord Sequencer</a> or a keyboard plays the chords, and each one comes out as "ahh" or "ooh", with no voice needed any more. A long <strong>Release</strong> before you freeze softens the held vowel.</p>
+<p><strong>A stutter of held vowels.</strong> Patch a <a href="../utilities/divider.html">Clock Divider</a>'s <strong>Gate</strong> into <strong>Freeze</strong> while a voice speaks. Each gate holds the syllable it lands on for as long as the gate is high, then lets the voice run on until the next one. Short gates on the beat give a rhythmic, chopped vocal, and longer ones give a held word at the start of each bar.</p>
+<pre><code class="language-text">[Clock Divider Gate] ──&gt; [Vocoder Freeze]
+[Sampler L] ──&gt; [Vocoder Modulator]
+</code></pre>
+<p><strong>A pad that speaks.</strong> A triangle chord, or a saw through a low-pass, makes a soft pad but a mumbling vocoder. Turn <strong>Flatten</strong> up to 100% and the vowels come through. Mix the pad back in beside the vocoder and it still sounds soft.</p>
 <h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>
 <ul>
 <li><a href="../sources/audio-input.html">Audio Input</a>: a live voice to vocode</li>
