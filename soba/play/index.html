@@ -17,8 +17,8 @@
 
     
 <script type="module">
-import init, * as bindings from './soba-32ae375658449517.js';
-const wasm = await init({ module_or_path: './soba-32ae375658449517_bg.wasm' });
+import init, * as bindings from './soba-651af1bace8da22d.js';
+const wasm = await init({ module_or_path: './soba-651af1bace8da22d_bg.wasm' });
 
 
 window.wasmBindings = bindings;
@@ -27,6 +27,9 @@ window.wasmBindings = bindings;
 dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
 
 </script>
+    <!-- The examples' samples, fetched when a patch first plays one rather
+         than carried in the wasm (src/persistence/example_fetch.rs) -->
+    
 
     <script>
         // Browsers hold a page's sound until it's clicked or a key is pressed
@@ -151,7 +154,7 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
         @keyframes flow { to { stroke-dashoffset: -24; } }
         @media (prefers-reduced-motion: reduce) { #loading .flow { animation: none; } }
     </style>
-<link rel="modulepreload" href="./soba-32ae375658449517.js" crossorigin="anonymous" integrity="sha384-obuv19mRFZ0aT7mifRj26CbfYlewDWtTgHsi5C0h5aPHEpGUyeeFDSCuY4+uR1bp"><link rel="preload" href="./soba-32ae375658449517_bg.wasm" crossorigin="anonymous" integrity="sha384-BOVVTqrEF8kHIjf0PorQcEUkHyjGQfUL4i5dWVOYMAvoFoYdf/NxYa2wYDcs3UFk" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="./soba-651af1bace8da22d.js" crossorigin="anonymous" integrity="sha384-lYpemvMfUDOZGgzoddRjSDINFvp2XTdfkS2Docxh2HwkqlTVd+Q68YW9QA0QUXcm"><link rel="preload" href="./soba-651af1bace8da22d_bg.wasm" crossorigin="anonymous" integrity="sha384-dFFZFuHkhtNApmywcyX9dPoL1g3k/GJPte07gP+5WoJbd5mt70DTcNRpOmAiprAx" as="fetch" type="application/wasm"></head>
 
 <body>
     <canvas id="soba"></canvas>
