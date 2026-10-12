@@ -181,7 +181,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="shoreline"><a class="header" href="#shoreline">Shoreline</a></h1>
-<p>Surf rolls in and draws back, and a glass chime somewhere up the beach turns in the wind. Nothing here is a recording, and nothing repeats: a single <a href="../modules/sources/noise.html">Noise</a> module makes the water, decides when each wave arrives, and picks every note the chime plays. It plays itself; press Play and let it run.</p>
+<p>Surf rolls in and draws back, and a glass chime somewhere up the beach turns in the wind. Nothing here is a recording, and nothing repeats: a single <a href="../modules/sources/noise.html">Noise</a> module makes the water, decides when each wave arrives, and picks every note the chime plays. It plays itself; press Play and let it run. It all comes back off tape, like a field recording made on a portable deck.</p>
 <blockquote>
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Shoreline</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
 The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patches/shoreline.json"><code>patches/shoreline.json</code></a>.</p>
@@ -189,12 +189,13 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <iframe class="patch-embed" src="../play/?patch=shoreline" title="Shoreline, playable in the browser" loading="lazy"></iframe>
 *Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Soba**.*
 <p><img src="../images/recipe-shoreline.png" alt="The Shoreline patch" />
-<em>The chime runs along the top and the surf along the bottom. The Noise module on the left feeds both.</em></p>
+<em>The chime runs along the top and the surf along the bottom. The Noise module on the left feeds both, and the two meet on tape at the bottom right.</em></p>
 <h2 id="what-it-teaches"><a class="header" href="#what-it-teaches">What it teaches</a></h2>
 <ul>
 <li><strong>Noise as sound.</strong> Pink and brown noise through a moving lowpass filter make convincing surf.</li>
 <li><strong>Noise as decision.</strong> White noise, sampled on a clock, chooses notes. Noise's smooth <strong>Random</strong> output decides how fast the waves come, whether the chime rings at all, and how hard it's struck.</li>
 <li><strong>One source, many voices.</strong> Every output of the Noise module is patched, and each does a different job. Because one random signal drives both the waves and the chime, the two move together: when the wind picks up, the waves come quicker and the chime starts to ring. When it drops, the chime falls silent.</li>
+<li><strong>A field recording.</strong> The surf and the chime meet on a Mixer and go to tape together, which gives the scene a little sway and grain, as if someone had recorded it on the beach.</li>
 </ul>
 <h2 id="modules"><a class="header" href="#modules">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
@@ -210,7 +211,9 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="../modules/utilities/mix.html">Mix</a></td><td><strong>Level 1</strong> 100%, <strong>Level 2</strong> 60%</td></tr>
 <tr><td><a href="../modules/utilities/vca.html">VCA</a> (surf)</td><td><strong>Level</strong> 90%, <strong>CV Amt</strong> 75%</td></tr>
 <tr><td><a href="../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 500 Hz, <strong>Res</strong> 15%</td></tr>
-<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
+<tr><td><a href="../modules/utilities/mixer.html">Mixer</a></td><td><strong>Return</strong> 71%, <strong>Master</strong> +3 dB, the rest at their defaults</td></tr>
+<tr><td><a href="../modules/effects/tape.html">Tape</a></td><td><strong>Speed</strong> 15 ips, <strong>Sat</strong> 35%, <strong>Age</strong> 20%, <strong>Hiss</strong> 8%, <strong>Wow</strong> 20%, <strong>Flut</strong> 15%, <strong>Width</strong> 30%</td></tr>
+<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 100%</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
@@ -219,7 +222,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 [Noise Brown] ──&gt; [Mix In 2]
 [Mix Out] ──&gt; [VCA (surf) In]
 [VCA (surf) Out] ──&gt; [SVF Filter In]
-[SVF Filter LowPass] ──&gt; [Audio Output Mono]
+[SVF Filter LowPass] ──&gt; [Mixer Ch 1]
 </code></pre>
 <p>Pink noise has the even, rushing quality of water. Brown noise, mixed in a little lower, adds the deep rumble underneath. The lowpass filter at 500 Hz takes off the hiss and leaves something that sounds far away.</p>
 <h3 id="the-waves"><a class="header" href="#the-waves">The waves</a></h3>
@@ -250,11 +253,24 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <h3 id="space"><a class="header" href="#space">Space</a></h3>
 <pre><code class="language-text">[VCA (chime) Out] ──&gt; [Reverb In L]
                   ──&gt; [Reverb In R]
-[Reverb Out L] ──&gt; [Audio Output Left]
-[Reverb Out R] ──&gt; [Audio Output Right]
+[Reverb Out L] ──&gt; [Mixer Return L]
+[Reverb Out R] ──&gt; [Mixer Return R]
 </code></pre>
-<p>A large, six-second reverb spreads the chime across the stereo field and blurs each note into the next. The surf skips the reverb and goes straight to <strong>Mono</strong>. That keeps the water close and the chime farther off.</p>
+<p>A large, six-second reverb spreads the chime across the stereo field and blurs each note into the next. The surf skips the reverb and goes straight to the Mixer's <strong>Ch 1</strong>, in the middle. That keeps the water close and the chime farther off.</p>
+<p>The reverb comes back on the Mixer's <strong>Return</strong>. Nothing is sent from the Mixer here, so the Return is simply a stereo input. A sound in the middle of the Mixer is 3 dB down on each side, so <strong>Master</strong> at +3 dB brings the surf back to full level, and <strong>Return</strong> at 71% (−3 dB) keeps the chime where it was.</p>
+<h3 id="on-tape"><a class="header" href="#on-tape">On tape</a></h3>
+<pre><code class="language-text">[Mixer Out L/R] ──&gt; [Tape In L/R]
+[Tape Out L/R] ──&gt; [Audio Output Left/Right]
+</code></pre>
+<p>The whole scene is recorded onto tape at 15 ips, gently:</p>
+<ul>
+<li><strong>Sat</strong> at 35% rounds off the crests of the surf, a breaker's roar squashed slightly, as a small recorder squashes it. That takes about 2 dB off the surf's loudness, so the Audio Output's <strong>Vol</strong> is at 100% rather than the usual 80% to win it back. The head bump also adds body to the low rumble.</li>
+<li><strong>Wow</strong> at 20% sways the pitch by about ±1.5 cents. On the surf you won't hear it, but each ringing chime note bends a hair, like a chime heard on a recording rather than in the room.</li>
+<li><strong>Age</strong> at 20% and <strong>Hiss</strong> at 8% add a little grain. The hiss mostly hides in the surf and only shows in the calms.</li>
+</ul>
+<p>To hear the difference, select the Tape and press <strong>Ctrl+B</strong> to bypass it. Bypassed, the scene is about 2 dB louder, because the Output is making up what the tape takes. To make it more of a memory than a recording, set <strong>Speed</strong> to 7½ ips and turn <strong>Wow</strong> up to 50% and <strong>Age</strong> to 60%: the chime starts to waver, the surf dulls, and dropouts come and go.</p>
 <h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
+<p><strong>An old tape.</strong> On the Tape, set <strong>Speed</strong> to 7½ ips, <strong>Age</strong> to 70%, <strong>Hiss</strong> to 30%, <strong>Wow</strong> to 60% and <strong>Flut</strong> to 40%. It's the same beach, found years later on a tape in a drawer.</p>
 <p><strong>Stormier.</strong> Raise the LFO's <strong>Rate</strong> to 0.3 Hz and the filter's <strong>Res</strong> to 40%. Swap the <strong>Level 1</strong> and <strong>Level 2</strong> settings on the Mix for a heavier, browner sea.</p>
 <p><strong>A wider chime.</strong> Turn Noise <strong>Level</strong> up to 100% and the chime ranges a full octave either way. The surf gets louder too, so lower the surf VCA's <strong>Level</strong> to match.</p>
 <p><strong>Gentler wind.</strong> Lower the ADSR's <strong>Vel</strong> to 40% so calm and gusty strikes differ less.</p>
@@ -266,6 +282,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <ul>
 <li><a href="../modules/sources/noise.html">Noise</a> – every output used here, explained</li>
 <li><a href="../modules/utilities/sample-hold.html">Sample &amp; Hold</a> – turning noise into notes</li>
+<li><a href="../modules/effects/tape.html">Tape</a> – what each knob does to a mix</li>
 <li><a href="./generative-ambient.html">Generative Ambient</a> – variety from cycles that don't line up, and chance kept in key</li>
 <li><a href="./rhythmic-sequence.html">Rhythmic Sequence</a> – noise as a hi-hat</li>
 </ul>

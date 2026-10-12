@@ -2906,6 +2906,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 [Tape Out L] ──&gt; [Audio Output Left]
 [Tape Out R] ──&gt; [Audio Output Right]
 </code></pre>
+<p><a href="modules/effects/../../recipes/afterglow.html">Afterglow</a>, <a href="modules/effects/../../recipes/shoreline.html">Shoreline</a> and <a href="modules/effects/../../recipes/clair-de-satellite.html">Clair de Satellite</a> all end this way. Each recipe says what its tape adds.</p>
 <p><strong>A warped moment.</strong> Patch an <a href="modules/effects/../utilities/arranger.html">Arranger</a> lane into <strong>Wow</strong>, with the knob low. Ramp the lane up through a breakdown and back down for the drop, and the whole mix bends out of shape and back.</p>
 <p><strong>Breathing tape.</strong> A slow <a href="modules/effects/../modulation/lfo.html">LFO</a>, around 0.05 Hz, into <strong>Wow</strong> with a small depth makes the sway itself come and go.</p>
 <p><strong>Spin down the ending.</strong> An Arranger lane into <strong>Stop</strong>, jumping high on the last section, with a 2–4 s Stop Time: the song winds down to nothing instead of fading out. See <a href="modules/effects/tape.html#with-an-arranger">With an Arranger</a>.</p>
@@ -5153,7 +5154,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <li><a href="recipes/./shoreline.html">Shoreline</a> – another patch that plays itself, where chance does the varying</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="shoreline"><a class="header" href="#shoreline">Shoreline</a></h1>
-<p>Surf rolls in and draws back, and a glass chime somewhere up the beach turns in the wind. Nothing here is a recording, and nothing repeats: a single <a href="recipes/../modules/sources/noise.html">Noise</a> module makes the water, decides when each wave arrives, and picks every note the chime plays. It plays itself; press Play and let it run.</p>
+<p>Surf rolls in and draws back, and a glass chime somewhere up the beach turns in the wind. Nothing here is a recording, and nothing repeats: a single <a href="recipes/../modules/sources/noise.html">Noise</a> module makes the water, decides when each wave arrives, and picks every note the chime plays. It plays itself; press Play and let it run. It all comes back off tape, like a field recording made on a portable deck.</p>
 <blockquote>
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Shoreline</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
 The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patches/shoreline.json"><code>patches/shoreline.json</code></a>.</p>
@@ -5161,12 +5162,13 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <iframe class="patch-embed" src="../play/?patch=shoreline" title="Shoreline, playable in the browser" loading="lazy"></iframe>
 *Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Soba**.*
 <p><img src="recipes/../images/recipe-shoreline.png" alt="The Shoreline patch" />
-<em>The chime runs along the top and the surf along the bottom. The Noise module on the left feeds both.</em></p>
+<em>The chime runs along the top and the surf along the bottom. The Noise module on the left feeds both, and the two meet on tape at the bottom right.</em></p>
 <h2 id="what-it-teaches-6"><a class="header" href="#what-it-teaches-6">What it teaches</a></h2>
 <ul>
 <li><strong>Noise as sound.</strong> Pink and brown noise through a moving lowpass filter make convincing surf.</li>
 <li><strong>Noise as decision.</strong> White noise, sampled on a clock, chooses notes. Noise's smooth <strong>Random</strong> output decides how fast the waves come, whether the chime rings at all, and how hard it's struck.</li>
 <li><strong>One source, many voices.</strong> Every output of the Noise module is patched, and each does a different job. Because one random signal drives both the waves and the chime, the two move together: when the wind picks up, the waves come quicker and the chime starts to ring. When it drops, the chime falls silent.</li>
+<li><strong>A field recording.</strong> The surf and the chime meet on a Mixer and go to tape together, which gives the scene a little sway and grain, as if someone had recorded it on the beach.</li>
 </ul>
 <h2 id="modules-7"><a class="header" href="#modules-7">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
@@ -5182,7 +5184,9 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="recipes/../modules/utilities/mix.html">Mix</a></td><td><strong>Level 1</strong> 100%, <strong>Level 2</strong> 60%</td></tr>
 <tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a> (surf)</td><td><strong>Level</strong> 90%, <strong>CV Amt</strong> 75%</td></tr>
 <tr><td><a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 500 Hz, <strong>Res</strong> 15%</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a></td><td><strong>Return</strong> 71%, <strong>Master</strong> +3 dB, the rest at their defaults</td></tr>
+<tr><td><a href="recipes/../modules/effects/tape.html">Tape</a></td><td><strong>Speed</strong> 15 ips, <strong>Sat</strong> 35%, <strong>Age</strong> 20%, <strong>Hiss</strong> 8%, <strong>Wow</strong> 20%, <strong>Flut</strong> 15%, <strong>Width</strong> 30%</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 100%</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built-6"><a class="header" href="#how-its-built-6">How it's built</a></h2>
@@ -5191,7 +5195,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 [Noise Brown] ──&gt; [Mix In 2]
 [Mix Out] ──&gt; [VCA (surf) In]
 [VCA (surf) Out] ──&gt; [SVF Filter In]
-[SVF Filter LowPass] ──&gt; [Audio Output Mono]
+[SVF Filter LowPass] ──&gt; [Mixer Ch 1]
 </code></pre>
 <p>Pink noise has the even, rushing quality of water. Brown noise, mixed in a little lower, adds the deep rumble underneath. The lowpass filter at 500 Hz takes off the hiss and leaves something that sounds far away.</p>
 <h3 id="the-waves"><a class="header" href="#the-waves">The waves</a></h3>
@@ -5222,11 +5226,24 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <h3 id="space"><a class="header" href="#space">Space</a></h3>
 <pre><code class="language-text">[VCA (chime) Out] ──&gt; [Reverb In L]
                   ──&gt; [Reverb In R]
-[Reverb Out L] ──&gt; [Audio Output Left]
-[Reverb Out R] ──&gt; [Audio Output Right]
+[Reverb Out L] ──&gt; [Mixer Return L]
+[Reverb Out R] ──&gt; [Mixer Return R]
 </code></pre>
-<p>A large, six-second reverb spreads the chime across the stereo field and blurs each note into the next. The surf skips the reverb and goes straight to <strong>Mono</strong>. That keeps the water close and the chime farther off.</p>
+<p>A large, six-second reverb spreads the chime across the stereo field and blurs each note into the next. The surf skips the reverb and goes straight to the Mixer's <strong>Ch 1</strong>, in the middle. That keeps the water close and the chime farther off.</p>
+<p>The reverb comes back on the Mixer's <strong>Return</strong>. Nothing is sent from the Mixer here, so the Return is simply a stereo input. A sound in the middle of the Mixer is 3 dB down on each side, so <strong>Master</strong> at +3 dB brings the surf back to full level, and <strong>Return</strong> at 71% (−3 dB) keeps the chime where it was.</p>
+<h3 id="on-tape"><a class="header" href="#on-tape">On tape</a></h3>
+<pre><code class="language-text">[Mixer Out L/R] ──&gt; [Tape In L/R]
+[Tape Out L/R] ──&gt; [Audio Output Left/Right]
+</code></pre>
+<p>The whole scene is recorded onto tape at 15 ips, gently:</p>
+<ul>
+<li><strong>Sat</strong> at 35% rounds off the crests of the surf, a breaker's roar squashed slightly, as a small recorder squashes it. That takes about 2 dB off the surf's loudness, so the Audio Output's <strong>Vol</strong> is at 100% rather than the usual 80% to win it back. The head bump also adds body to the low rumble.</li>
+<li><strong>Wow</strong> at 20% sways the pitch by about ±1.5 cents. On the surf you won't hear it, but each ringing chime note bends a hair, like a chime heard on a recording rather than in the room.</li>
+<li><strong>Age</strong> at 20% and <strong>Hiss</strong> at 8% add a little grain. The hiss mostly hides in the surf and only shows in the calms.</li>
+</ul>
+<p>To hear the difference, select the Tape and press <strong>Ctrl+B</strong> to bypass it. Bypassed, the scene is about 2 dB louder, because the Output is making up what the tape takes. To make it more of a memory than a recording, set <strong>Speed</strong> to 7½ ips and turn <strong>Wow</strong> up to 50% and <strong>Age</strong> to 60%: the chime starts to waver, the surf dulls, and dropouts come and go.</p>
 <h2 id="variations-5"><a class="header" href="#variations-5">Variations</a></h2>
+<p><strong>An old tape.</strong> On the Tape, set <strong>Speed</strong> to 7½ ips, <strong>Age</strong> to 70%, <strong>Hiss</strong> to 30%, <strong>Wow</strong> to 60% and <strong>Flut</strong> to 40%. It's the same beach, found years later on a tape in a drawer.</p>
 <p><strong>Stormier.</strong> Raise the LFO's <strong>Rate</strong> to 0.3 Hz and the filter's <strong>Res</strong> to 40%. Swap the <strong>Level 1</strong> and <strong>Level 2</strong> settings on the Mix for a heavier, browner sea.</p>
 <p><strong>A wider chime.</strong> Turn Noise <strong>Level</strong> up to 100% and the chime ranges a full octave either way. The surf gets louder too, so lower the surf VCA's <strong>Level</strong> to match.</p>
 <p><strong>Gentler wind.</strong> Lower the ADSR's <strong>Vel</strong> to 40% so calm and gusty strikes differ less.</p>
@@ -5238,6 +5255,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <ul>
 <li><a href="recipes/../modules/sources/noise.html">Noise</a> – every output used here, explained</li>
 <li><a href="recipes/../modules/utilities/sample-hold.html">Sample &amp; Hold</a> – turning noise into notes</li>
+<li><a href="recipes/../modules/effects/tape.html">Tape</a> – what each knob does to a mix</li>
 <li><a href="recipes/./generative-ambient.html">Generative Ambient</a> – variety from cycles that don't line up, and chance kept in key</li>
 <li><a href="recipes/./rhythmic-sequence.html">Rhythmic Sequence</a> – noise as a hi-hat</li>
 </ul>
@@ -5637,7 +5655,7 @@ c hat    X . x . X . x . X . . . . . . .
 <li><a href="recipes/../modules/modulation/clock.html">Clock</a> – tempo and swing</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="afterglow"><a class="header" href="#afterglow">Afterglow</a></h1>
-<p>A patch that plays itself and sounds finished: a soft, plucked arpeggio rolls through a four-chord progression over a warm pad. Its notes bounce between the speakers on dotted-eighth tape echoes. A Step Sequencer plays the arpeggio. A Chord Sequencer moves it from chord to chord and plays the same chords on the pad: Fmaj9, Cadd9, G6, Am9.</p>
+<p>A patch that plays itself and sounds finished: a soft, plucked arpeggio rolls through a four-chord progression over a warm pad. Its notes bounce between the speakers on dotted-eighth tape echoes, and the whole mix plays back off tape. A Step Sequencer plays the arpeggio. A Chord Sequencer moves it from chord to chord and plays the same chords on the pad: Fmaj9, Cadd9, G6, Am9.</p>
 <blockquote>
 <p><strong>Load it:</strong> choose <strong>📚 Examples → Afterglow</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
 The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patches/afterglow.json"><code>patches/afterglow.json</code></a>.</p>
@@ -5645,7 +5663,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <iframe class="patch-embed" src="../play/?patch=afterglow" title="Afterglow, playable in the browser" loading="lazy"></iframe>
 *Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Soba**.*
 <p><img src="recipes/../images/recipe-afterglow.png" alt="The Afterglow patch" />
-<em>The arpeggio voice and the effects run along the top, and the pad runs along the bottom. The cable from the Chord Sequencer's <strong>Root</strong> up to the arpeggio's oscillator is what moves the arpeggio from chord to chord.</em></p>
+<em>The arpeggio voice and the effects run along the top, ending on tape, and the pad runs along the bottom. The cable from the Chord Sequencer's <strong>Root</strong> up to the arpeggio's oscillator is what moves the arpeggio from chord to chord.</em></p>
 <h2 id="what-it-teaches-11"><a class="header" href="#what-it-teaches-11">What it teaches</a></h2>
 <ul>
 <li><strong>Transposing with a second sequencer.</strong> Pitch inputs add up, so one sequencer can shift another's notes. Here the Chord Sequencer's <strong>Root</strong> moves the arpeggio over four chords.</li>
@@ -5653,6 +5671,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <li><strong>Chords on one cable.</strong> The Chord Sequencer sends each chord down a polyphonic cable, voiced and voice-led, with the bass underneath. One pad voice plays the whole progression.</li>
 <li><strong>Chords without a third.</strong> Sus2 shapes are neither major nor minor, so the same arpeggio shape works on any root.</li>
 <li><strong>Two voices, one space.</strong> A bright lead and a dark pad share one chorus, delay and reverb, so they sound as if they're in the same room.</li>
+<li><strong>A mix on tape.</strong> A Tape module last in the chain softens the peaks and lets the pitch sway a little, for the warmth of a record rather than a computer.</li>
 </ul>
 <h2 id="modules-12"><a class="header" href="#modules-12">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
@@ -5673,6 +5692,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="recipes/../modules/effects/chorus.html">Chorus</a></td><td><strong>Rate</strong> 0.3 Hz, <strong>Depth</strong> 35%, <strong>Delay</strong> 12 ms, <strong>Voices</strong> 2, <strong>Mix</strong> 35%</td></tr>
 <tr><td><a href="recipes/../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Sync</strong> 1/8D, <strong>FB</strong> 45%, <strong>Mix</strong> 30%, <strong>HiCut</strong> 3.5 kHz, <strong>LoCut</strong> 350 Hz, <strong>P-P</strong> on, <strong>Tape</strong> on</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 80%, <strong>Decay</strong> 5 s, <strong>PreD</strong> 30 ms, <strong>Mix</strong> 35%, <strong>Mod</strong> 30%</td></tr>
+<tr><td><a href="recipes/../modules/effects/tape.html">Tape</a></td><td><strong>Speed</strong> 15 ips, <strong>Sat</strong> 35%, <strong>Age</strong> 20%, <strong>Hiss</strong> 8%, <strong>Wow</strong> 20%, <strong>Flut</strong> 15%, <strong>Width</strong> 30%</td></tr>
 <tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 100%</td></tr>
 </tbody></table>
 </div>
@@ -5714,9 +5734,20 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 [Mixer Out L/R] ──&gt; [Chorus In L/R]
 [Chorus Out L/R] ──&gt; [Stereo Delay In L/R]
 [Stereo Delay Out L/R] ──&gt; [Reverb In L/R]
-[Reverb Out L/R] ──&gt; [Audio Output Left/Right]
+[Reverb Out L/R] ──&gt; [Tape In L/R]
 </code></pre>
 <p>The Mixer sets the arpeggio a little to the right and keeps the pad, which carries the bass, in the middle. Its <strong>Master</strong> at +3 dB wins back the 3 dB that panning takes from a centred sound on each side. The Chorus widens both parts. The Stereo Delay is synced to a dotted eighth, which is three sixteenths. Each echo therefore falls between the notes of the arpeggio, and <strong>Ping-Pong</strong> moves it to the other speaker. The arpeggio sounds busier than it is, the echoes stay in time with it, and the rhythm keeps moving. <strong>Tape</strong> gives the repeats a little wobble and wear. <strong>LoCut</strong> keeps the bass out of the echoes, so the low end stays clean. The first echo of each note leaves from the arpeggio's side and lands on the other, so the echoes answer the notes across the room. A medium reverb with a five-second tail puts everything in the same room.</p>
+<h3 id="on-tape-1"><a class="header" href="#on-tape-1">On tape</a></h3>
+<pre><code class="language-text">[Reverb Out L/R] ──&gt; [Tape In L/R]
+[Tape Out L/R] ──&gt; [Audio Output Left/Right]
+</code></pre>
+<p>Last of all, the whole mix is recorded onto tape and played back. The settings are gentle, a well-kept machine at 15 ips, and each knob adds one thing:</p>
+<ul>
+<li><strong>Sat</strong> at 35% pushes the mix into the record head. The plucks' attacks round off, so the peaks come down about 1.5 dB while the mix gets slightly louder (about 0.5 LU). The arpeggio sits into the pad instead of on top of it, and the head bump adds weight to the bass.</li>
+<li><strong>Wow</strong> at 20% sways the pitch by about ±1.5 cents, too little to hear as out of tune. The chords seem to breathe. <strong>Flut</strong> adds a faint shiver, and <strong>Width</strong> lets the two sides sway a little apart, which widens the pad.</li>
+<li><strong>Age</strong> at 20% takes a little off the top, and <strong>Hiss</strong> at 8% leaves a quiet bed of tape noise that you only notice in the gaps.</li>
+</ul>
+<p>To hear what the tape adds, select it and press <strong>Ctrl+B</strong> to bypass it, then press it again. For more of it, turn up <strong>Wow</strong> first. Around 40% the chords start to go seasick, which can be lovely for a few bars. Then try <strong>Speed</strong> at 7½ ips, which sways deeper and dulls the top, like a cassette. For less, set <strong>Speed</strong> to 30 ips and <strong>Wow</strong> to 0, so only the glue of <strong>Sat</strong> is left.</p>
 <h2 id="variations-9"><a class="header" href="#variations-9">Variations</a></h2>
 <p><strong>A new progression.</strong> Right-click a Chord Sequencer step to change its root and type. Roots on C, D, F, G and A keep the arpeggio in C major, and types like Dm9 or G6 suit them. E and B roots add an F♯ or a C♯ to the arpeggio, which can sound lovely, but the arpeggio and the pad won't share a key.</p>
 <p><strong>A longer progression.</strong> Set the Chord Sequencer's <strong>Steps</strong> to 8 and fill in four more chords, for example Fmaj9 Cadd9 G6 Am9 Fmaj9 Cadd9 Dm9 G6.</p>
@@ -5725,12 +5756,14 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <p><strong>A different arpeggio.</strong> Set the Step Sequencer's <strong>Dir</strong> to P-P to rock back and forth, or Rnd for a new order every bar. Any order of the four notes still fits the chord.</p>
 <p><strong>Triplet shimmer.</strong> Set the delay's <strong>Sync</strong> to 1/8T. The echoes now land in threes against the sixteenths.</p>
 <p><strong>Glassier.</strong> Switch Oscillator 1's <strong>Wave</strong> to Tri and raise the Ladder Filter's <strong>Cutoff</strong> to 2 kHz. The pluck goes from felt to glass.</p>
+<p><strong>A worn cassette.</strong> On the Tape, set <strong>Speed</strong> to 7½ ips, <strong>Age</strong> to 45%, <strong>Hiss</strong> to 25% and <strong>Wow</strong> to 55%. The arpeggio sways like a tape that's been played every day for a summer.</p>
 <p><strong>Slower and wider.</strong> Turn the Clock down to 70 BPM. The delay follows the new tempo. Then raise the Reverb's <strong>Decay</strong> to 9 s and its <strong>Mix</strong> to 50%.</p>
 <h2 id="related-13"><a class="header" href="#related-13">Related</a></h2>
 <ul>
 <li><a href="recipes/../modules/utilities/chord-sequencer.html">Chord Sequencer</a> – chord types, voicing and the bass voice</li>
 <li><a href="recipes/../modules/utilities/sequencer.html">Step Sequencer</a> – editing steps and the EOC output</li>
 <li><a href="recipes/../modules/sources/oscillator.html">Oscillator</a> – V/Oct and Exp FM</li>
+<li><a href="recipes/../modules/effects/tape.html">Tape</a> – what each knob does to a mix, and more starting points</li>
 <li><a href="recipes/./generative-ambient.html">Generative Ambient</a> – one sequencer, and a second voice that wanders in key</li>
 <li><a href="recipes/./rhythmic-sequence.html">Rhythmic Sequence</a> – the same dotted-eighth delay under an acid bassline</li>
 </ul>
