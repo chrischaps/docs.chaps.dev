@@ -4171,7 +4171,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <h2 id="outputs-32"><a class="header" href="#outputs-32">Outputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Pitch</strong></td><td>Control (Orange), poly</td><td>One channel per note of the chord, as V/Oct, lowest first</td></tr>
-<tr><td><strong>Gate</strong></td><td>Gate (Green), poly</td><td>The chord's gate, the same on every channel. Stays high across a tie</td></tr>
+<tr><td><strong>Gate</strong></td><td>Gate (Green), poly</td><td>The chord's gate, one channel per note. The channels rise together, or one after another with <strong>Strum</strong>. Stays high across a tie</td></tr>
 <tr><td><strong>Velocity</strong></td><td>Control (Orange), poly</td><td>The step's velocity, 0 to 1, on every channel</td></tr>
 <tr><td><strong>Root</strong></td><td>Control (Orange)</td><td>The chord's root as V/Oct, in the octave the step was written in</td></tr>
 <tr><td><strong>Bass</strong></td><td>Control (Orange)</td><td>The slash chord's bass note, at or below the root; the root when there's no slash</td></tr>
@@ -4184,11 +4184,13 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <tr><td><strong>Gate</strong> (Gate Length)</td><td>1 – 100%</td><td>100%</td><td>How long each chord is held, as a share of the step. 100% holds it up to the next clock</td></tr>
 <tr><td><strong>Voices</strong></td><td>1 – 8</td><td>4</td><td>How many channels the cables carry: the notes in each chord</td></tr>
 <tr><td><strong>Range</strong></td><td>1 – 6</td><td>3</td><td>The octave the chord's lowest note sits in. 4 is middle C's octave</td></tr>
+<tr><td><strong>Strum</strong></td><td>0 – 100 ms</td><td>0 ms</td><td>Time between one note's gate and the next, as a guitar or harp sounds a chord (see <a href="modules/utilities/chord-sequencer.html#strum">Strum</a>). At 0 every note is struck at once</td></tr>
 <tr><td><strong>Dir</strong> (Direction)</td><td>Fwd / Bwd / P-P / Rnd</td><td>Fwd</td><td>Playback order</td></tr>
 <tr><td><strong>Voicing</strong></td><td>Close / Open / Spread</td><td>Close</td><td>How the notes are spread out (below)</td></tr>
 <tr><td><strong>Voice lead</strong> (Voice Leading)</td><td>on / off</td><td>on</td><td>Each chord takes the inversion nearest the last</td></tr>
 <tr><td><strong>Bass voice</strong></td><td>on / off</td><td>off</td><td>Puts the bass note under the chord as the first channel (below)</td></tr>
 <tr><td><strong>Rootless</strong></td><td>on / off</td><td>off</td><td>The chord leaves out its root first, for a bass that plays it elsewhere (below). Always so with <strong>Bass voice</strong> on</td></tr>
+<tr><td><strong>Strum dir</strong></td><td>Up / Down / Alt</td><td>Up</td><td>Where a strum starts: on the lowest note, on the highest, or on each in turn, clock by clock</td></tr>
 </tbody></table>
 </div>
 <p>Each step also stores a root (a note, with its octave), a type, a bass (the root, or one of the twelve notes), a gate, a velocity, a tie, and a top (Auto, or the chord tone to put on top). A new Chord Sequencer starts on Cmaj7, Am7, Fmaj7, G7, with the roots walking down from C2. Patch a <a href="modules/utilities/../modulation/clock.html">Clock</a> into it and it plays a progression straight away.</p>
@@ -4289,6 +4291,22 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <li><strong>Before the first clock</strong>, the cables already carry the first chord, with the gate low. A voice whose VCA is always a little open plays that chord quietly from the start.</li>
 </ul>
 <p>Edits are heard at once. Change the chord that's playing, or <strong>Voices</strong>, <strong>Voicing</strong> or <strong>Range</strong>, and the notes move to match without waiting for the next clock.</p>
+<h2 id="strum"><a class="header" href="#strum">Strum</a></h2>
+<p>Normally every note of a chord starts on the same sample. That suits pads and string machines, but a chord sounds stiff on a guitar, a harp or an electric piano, whose players never strike all the notes at once. <strong>Strum</strong> delays each channel's gate by its place in the chord: at 20 ms, the second note starts 20 ms after the first, the third 40 ms after, and so on.</p>
+<p><strong>Strum dir</strong> decides which end starts:</p>
+<ul>
+<li><strong>Up</strong> starts on the lowest note, like a guitar's downstroke from the bass string, or a harp rolling a chord upward.</li>
+<li><strong>Down</strong> starts on the highest note.</li>
+<li><strong>Alt</strong> strums up on one clock and down on the next, like a rhythm guitarist's hand going down and up in time. The hand keeps moving through rests and ties, so the strokes stay on the beat they belong to: the first clock after <strong>Reset</strong> strums up, the next down, and so on.</li>
+</ul>
+<p>Until the strum reaches a note, that channel keeps playing the chord before, as a string rings until it's struck again. When the strum reaches it, its pitch changes and its gate drops for one sample and rises, all on the same channel. The pitch never arrives after the gate, so no note is struck on the last chord's pitch.</p>
+<ul>
+<li><strong>Ties</strong> are never struck again. A tied chord still changes its notes in strum order, one channel after another, under gates that stay high: the chord rolls from one to the next without an attack.</li>
+<li><strong>A strum fits inside its step.</strong> Once the clock has been measured, the notes are spaced no further apart than the step divided by the number of voices. The last note then sounds before the next chord's first, however fast the clock. Until the clock has been measured, the first chord after <strong>▶ Play</strong> takes the full <strong>Strum</strong> spacing. If the next clock comes before its upper notes, they're skipped.</li>
+<li><strong>Gate</strong> applies to each note from its own strike, so every note of a strummed chord is held equally long.</li>
+<li><strong>Bass voice</strong> is the first channel, so <strong>Up</strong> strums the bass first and <strong>Down</strong> strums it last.</li>
+</ul>
+<p>For a guitar, 10 to 30 ms is a quick strum, and around 50 ms a slow one. A harp's rolled chord is 60 to 100 ms. Sixteenth notes at a fast tempo leave little room, so there the strum shortens to fit the step.</p>
 <h2 id="example-patches"><a class="header" href="#example-patches">Example patches</a></h2>
 <h3 id="a-pad-that-plays-a-progression"><a class="header" href="#a-pad-that-plays-a-progression">A pad that plays a progression</a></h3>
 <pre><code class="language-text">[Clock Gate] ──&gt; [Chord Sequencer Clock]
@@ -4303,7 +4321,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 [Chord Sequencer Bass] ──&gt; [Oscillator V/Oct] (a second, mono voice)
 [Chord Sequencer Gate] ──&gt; [ADSR Gate]       (the bass's envelope)
 </code></pre>
-<p><strong>Voicing</strong> Close, <strong>Range</strong> 4, <strong>Gate</strong> around 60%, and velocities that vary from step to step. Write the roots in octave 2 so <strong>Bass</strong> plays a real bass line, slash notes included.</p>
+<p><strong>Voicing</strong> Close, <strong>Range</strong> 4, <strong>Gate</strong> around 60%, and velocities that vary from step to step. Write the roots in octave 2 so <strong>Bass</strong> plays a real bass line, slash notes included. A <strong>Strum</strong> of 10 to 15 ms loosens the chords the way a player's hand does.</p>
 <h3 id="moving-an-arpeggio-through-the-chords"><a class="header" href="#moving-an-arpeggio-through-the-chords">Moving an arpeggio through the chords</a></h3>
 <p>Patch <strong>Root</strong> into an oscillator's <strong>Exp FM</strong> (at 1.0 octave per volt) while a Step Sequencer plays an arpeggio into its <strong>V/Oct</strong>. The oscillator adds the two pitches, so the arpeggio follows the chord roots. <a href="modules/utilities/../../recipes/afterglow.html">Afterglow</a> is built this way, with the chords themselves on a pad underneath.</p>
 <h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
@@ -4313,6 +4331,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <li><strong>Ties on a pad</strong> turn a progression into one long breath.</li>
 <li><strong>Dir Rnd</strong> over a set of related chords (Fmaj7, Am7, Cmaj7, Em7) makes ambient harmony that never quite repeats.</li>
 <li><strong>EOC</strong> can clock a second sequencer once per progression, or a Clock Divider for a turnaround every few passes.</li>
+<li><strong>Strummed rhythm guitar:</strong> clock at eighth notes, write each chord on two steps, set <strong>Strum dir</strong> to Alt and <strong>Strum</strong> to about 25 ms, and give the upstrokes a lower velocity. <strong>Voicing</strong> Spread with five or six voices and <strong>Bass voice</strong> on spreads the notes out like a guitar's six strings.</li>
 </ol>
 <h2 id="related-modules-32"><a class="header" href="#related-modules-32">Related Modules</a></h2>
 <ul>
