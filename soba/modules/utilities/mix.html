@@ -186,7 +186,7 @@
 <em>Four inputs, a level each, one sum.</em></p>
 <p>Mix adds up to four signals into one, each at its own level. It's the plain sum a patch reaches for most often: two envelopes into one filter's <strong>Cutoff</strong>, two noise colours into one VCA, a pad's oscillators into one filter, or an LFO and an envelope moving the same knob together.</p>
 <p>Audio and control signals both patch in, so the same module mixes sound or modulation. To place sounds left and right, send them to a shared reverb, or mute and solo them as you play, use the <a href="./mixer.html">Mixer</a>.</p>
-<p>Mix is polyphonic. A polyphonic cable stays one: each voice is summed on its own, with the same levels, and a mono cable into another input joins every voice.</p>
+<p>Mix is polyphonic. A polyphonic cable stays one: each voice is summed on its own, with the same levels, and a mono cable into another input joins every voice. Switch on <strong>Sum Voices</strong> to add a polyphonic cable's voices together as well, into one channel (see <a href="#a-chord-into-one-filter">A chord into one filter</a>).</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In 1</strong> – <strong>In 4</strong></td><td>Audio (Blue)</td><td>The signals to add. Control signals patch in too</td></tr>
@@ -200,6 +200,7 @@
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Knob</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>1</strong> – <strong>4</strong> (Level 1 – 4)</td><td>0 – 100%</td><td>100%</td><td>How much of each input joins the sum</td></tr>
+<tr><td><strong>Sum Voices</strong></td><td>on / off</td><td>off</td><td>Adds a polyphonic cable's voices into one channel too. Off, each voice is mixed on its own</td></tr>
 </tbody></table>
 </div>
 <p>The levels are smoothed, so you can ride them while the patch plays without clicks.</p>
@@ -224,6 +225,15 @@
 [Mix Out] ──&gt; [SVF Filter In]
 </code></pre>
 <p><a href="../../recipes/generative-ambient.html">Generative Ambient</a> starts from this: a triangle melody over a steady second oscillator, slightly out of tune with each other, so they beat.</p>
+<h3 id="a-chord-into-one-filter"><a class="header" href="#a-chord-into-one-filter">A chord into one filter</a></h3>
+<p>A <a href="./chord-sequencer.html">Chord Sequencer</a> plays its chord on one polyphonic cable, and one Oscillator plays a saw for each voice. A filter after it filters each voice on its own, so a Ladder Filter's drive saturates each saw by itself, and the voices never rub against each other in the filter. To drive the chord as one sound, the way a pad of separate oscillators into one filter sounds, sum the voices first:</p>
+<pre><code class="language-text">[Chord Sequencer Root]  ──&gt; [Oscillator A V/Oct]   (the bass, an octave down)
+[Chord Sequencer Pitch] ──&gt; [Oscillator B V/Oct]   (three voices)
+[Oscillator A Out] ──&gt; [Mix In 1]
+[Oscillator B Out] ──&gt; [Mix In 2]                  (Sum Voices on)
+[Mix Out] ──&gt; [Ladder Filter In]
+</code></pre>
+<p>With <strong>Sum Voices</strong> on, the bass joins the sum once. With it off, the bass would join each of the chord's three voices, and come out three times as loud once they were added together. <a href="../../recipes/from-one-sine.html">From One Sine</a> builds its pad this way.</p>
 <h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>
 <ul>
 <li><a href="./mixer.html">Mixer</a>: a stereo console, with pan, width, sends, mute and solo</li>
