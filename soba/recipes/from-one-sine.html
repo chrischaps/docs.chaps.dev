@@ -246,12 +246,12 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="../modules/effects/distortion.html">Distortion</a></td><td>Bass, <strong>Tube</strong></td></tr>
 <tr><td><a href="../modules/effects/eq.html">3-Band EQ</a></td><td>Bass: lows up, boxiness out</td></tr>
 <tr><td><a href="../modules/utilities/mix.html">Mix</a></td><td>The pad's root and chord, <strong>Sum Voices</strong> on</td></tr>
-<tr><td><a href="../modules/utilities/mixer.html">Mixer</a> ×5</td><td>Two for the kit, and Echoes, Body and Sky</td></tr>
+<tr><td><a href="../modules/utilities/mixer.html">Mixer</a> ×5</td><td>Two for the kit, and Echoes, Body and Sky. Sky's <strong>Master</strong> −2.9 dB sets the level onto the tape</td></tr>
 <tr><td><a href="../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Sync</strong> 1/8D, <strong>P-P</strong> and <strong>Tape</strong> on, on the Echoes send</td></tr>
 <tr><td><a href="../modules/effects/reverb.html">Reverb</a> ×2</td><td>A hall on Echoes, a plate on the send everyone shares</td></tr>
 <tr><td><a href="../modules/visualization/oscilloscope.html">Oscilloscope</a></td><td>The mix and the kick, to watch</td></tr>
 <tr><td><a href="../modules/effects/tape.html">Tape</a></td><td>On the master, 15 ips: <strong>Wow</strong> and <strong>Flutter</strong> 10%, <strong>Saturation</strong> 25%, <strong>Age</strong> 10%, <strong>Hiss</strong> 4%. The Tape Arranger's lane adds to Wow</td></tr>
-<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Volume</strong> 74%, <strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
+<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Volume</strong> 80%, <strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
@@ -340,7 +340,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 [Tape Arranger Lane 1] ──&gt; [Tape Wow]          (the Wow lane)
 [Mixer Sky Out L/R] ──&gt; [Tape In L/R] ──&gt; [Audio Output Left/Right]
 </code></pre>
-<p>The whole mix goes onto a <a href="../modules/effects/tape.html">Tape</a> last. For most of the song it's a well-kept machine at 15 ips. <strong>Wow</strong> and <strong>Flutter</strong> are at 10%, which sways the pitch by less than a cent. <strong>Saturation</strong> at 25% rounds the loud sections a little, and there's a touch of <strong>Age</strong> and <strong>Hiss</strong>. The record head squashes the loudest sections by up to a decibel, so the Output's <strong>Volume</strong> is up a little, to 74%, and the song is as loud as it was.</p>
+<p>The whole mix goes onto a <a href="../modules/effects/tape.html">Tape</a> last. For most of the song it's a well-kept machine at 15 ips. <strong>Wow</strong> and <strong>Flutter</strong> are at 10%, which sways the pitch by less than a cent. <strong>Saturation</strong> at 25% rounds the loud sections a little, and there's a touch of <strong>Age</strong> and <strong>Hiss</strong>. The record head squashes the loudest sections by up to a decibel. Sky's <strong>Master</strong> at −2.9 dB sets how hard the mix meets the head, with the Output's <strong>Volume</strong> at its usual 80%, and leaves the song at −16 LUFS, where every example sits.</p>
 <p>The tape earns its place in the breakdown. The Looper plays the opening back reversed, the rack remembering how it began, and memories don't hold their pitch. A third Arranger, <strong>Tape</strong>, follows Desk as Cues does. Its one lane is patched into the Tape's <strong>Wow</strong>, where it adds to the knob:</p>
 <div class="table-wrapper"><table><thead><tr><th>Section</th><th>Wow lane</th><th>What you hear</th></tr></thead><tbody>
 <tr><td>Memory</td><td>Log ramp to 45% over 4 bars</td><td>The warp arrives with the ghost, which swells in over the same four bars. The whole mix sways by about 12 cents</td></tr>

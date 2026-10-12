@@ -317,7 +317,7 @@ cargo run --release
 <p>Pass a patch file to open it instead of First Sound:</p>
 <pre><code class="language-bash">cargo run --release -- patches/lush-pad.json
 </code></pre>
-<p>The <code>render</code> tool plays a patch into a WAV file without opening the app or using an audio device, then prints each channel's peak and RMS level and the mix's loudness:</p>
+<p>The <code>render</code> tool plays a patch into a WAV file without opening the app or using an audio device, then prints each channel's peak and RMS level, the mix's loudness, and how hard the patch drives the output limiter:</p>
 <pre><code class="language-bash">cargo run --release --bin render -- patches/fm-synthesis.json out.wav --seconds 5
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Option</th><th>Default</th><th>Effect</th></tr></thead><tbody>
@@ -336,12 +336,14 @@ cargo run --release
   L: peak   -4.8 dBFS   rms  -22.2 dBFS
   R: peak   -4.3 dBFS   rms  -21.4 dBFS
   loudness -17.4 LUFS   range 12.3 LU
+  limiter in   -4.3 dBFS   took 0.0 dB at most, 0% of the time over 1 dB
 against before.wav:
   L: peak   -1.5 dB     rms   -1.0 dB
   R: peak   -1.2 dB     rms   -0.9 dB
   loudness  -1.3 LU     range -0.1 LU
 </code></pre>
 <p><strong>Loudness</strong> is integrated loudness after ITU-R BS.1770-4, the measure streaming services normalize to. It weights the mix the way the ear does, so it's the number to compare when you want to know whether a change made a patch sound louder. RMS overweights the bass: above, it says the darker pad lost 1 dB, but the ear hears the treble it lost and puts it at 1.3. <strong>Range</strong> is the EBU loudness range, the spread between the quiet and loud passages. It reads <code>--</code> on renders shorter than three seconds.</p>
+<p><strong>Limiter</strong> is how hard the patch drives the <a href="getting-started/../modules/output/audio-output.html">Audio Output</a>'s limiter: the highest peak going into it, which can be over 0 dBFS, the most it turned the output down, and for how much of the render it took off more than 1 dB. The limiter is there to catch accidents. A patch whose peaks stay under −1 dBFS leaves it idle, as every example does. The examples also sit within a decibel or so of −16 LUFS, so switching between them doesn't jump in volume; aim there to match them.</p>
 <h2 id="microphone-access"><a class="header" href="#microphone-access">Microphone access</a></h2>
 <p>Soba opens a microphone or other input only when you choose one in the toolbar's <strong>Input</strong> menu.</p>
 <ul>
@@ -4839,8 +4841,8 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 700 Hz, <strong>Res</strong> 30%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (filter)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 300 ms, <strong>Sus</strong> 30%, <strong>Rel</strong> 200 ms</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (amp)</td><td><strong>Atk</strong> 5 ms, <strong>Dec</strong> 200 ms, <strong>Sus</strong> 70%, <strong>Rel</strong> 300 ms</td></tr>
-<tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a></td><td>Defaults</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 60%</td></tr>
+<tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a></td><td><strong>Level</strong> 54%</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
@@ -4895,9 +4897,9 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a> (modulator)</td><td>Defaults</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (modulator)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 500 ms, <strong>Sus</strong> 10%, <strong>Rel</strong> 500 ms</td></tr>
 <tr><td><a href="recipes/../modules/sources/oscillator.html">Oscillator</a> (carrier)</td><td><strong>Wave</strong> Sine, <strong>FM</strong> 2.5</td></tr>
-<tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a> (carrier)</td><td>Defaults</td></tr>
+<tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a> (carrier)</td><td><strong>Level</strong> 42%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (carrier)</td><td><strong>Atk</strong> 1 ms, <strong>Dec</strong> 2 s, <strong>Sus</strong> 0%, <strong>Rel</strong> 1 s</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 55%</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built-1"><a class="header" href="#how-its-built-1">How it's built</a></h2>
@@ -5033,7 +5035,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <h2 id="modules-4"><a class="header" href="#modules-4">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
 <tr><td><a href="recipes/../modules/midi/poly-midi.html">Poly MIDI</a></td><td>Defaults: 8 voices, Rotate</td></tr>
-<tr><td><a href="recipes/../modules/sources/sampler.html">Sampler</a></td><td><code>samples/fm-bell-c4.wav</code>, <strong>Mode</strong> Gated, <strong>Root</strong> C4, <strong>Rel</strong> 700 ms, <strong>Level</strong> 45%</td></tr>
+<tr><td><a href="recipes/../modules/sources/sampler.html">Sampler</a></td><td><code>samples/fm-bell-c4.wav</code>, <strong>Mode</strong> Gated, <strong>Root</strong> C4, <strong>Rel</strong> 700 ms, <strong>Level</strong> 33%</td></tr>
 <tr><td><a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 5.2 kHz, <strong>Res</strong> 10%</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 60%, <strong>Decay</strong> 3 s, <strong>Damp</strong> 50%, <strong>PreD</strong> 25 ms, <strong>Mod</strong> 30%, <strong>Mix</strong> 30%</td></tr>
 <tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
@@ -5274,7 +5276,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 500 Hz, <strong>Res</strong> 15%</td></tr>
 <tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a></td><td><strong>Return</strong> 71%, <strong>Master</strong> +3 dB, the rest at their defaults</td></tr>
 <tr><td><a href="recipes/../modules/effects/tape.html">Tape</a></td><td><strong>Speed</strong> 15 ips, <strong>Sat</strong> 35%, <strong>Age</strong> 20%, <strong>Hiss</strong> 8%, <strong>Wow</strong> 20%, <strong>Flut</strong> 15%, <strong>Width</strong> 30%</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 100%</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 85%</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built-6"><a class="header" href="#how-its-built-6">How it's built</a></h2>
@@ -5325,7 +5327,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 </code></pre>
 <p>The whole scene is recorded onto tape at 15 ips, gently:</p>
 <ul>
-<li><strong>Sat</strong> at 35% rounds off the crests of the surf, a breaker's roar squashed slightly, as a small recorder squashes it. That takes about 2 dB off the surf's loudness, so the Audio Output's <strong>Vol</strong> is at 100% rather than the usual 80% to win it back. The head bump also adds body to the low rumble.</li>
+<li><strong>Sat</strong> at 35% rounds off the crests of the surf, a breaker's roar squashed slightly, as a small recorder squashes it. That takes about 2 dB off the surf's loudness, which the Audio Output's <strong>Vol</strong> at 85% wins back. The head bump also adds body to the low rumble.</li>
 <li><strong>Wow</strong> at 20% sways the pitch by about ±1.5 cents. On the surf you won't hear it, but each ringing chime note bends a hair, like a chime heard on a recording rather than in the room.</li>
 <li><strong>Age</strong> at 20% and <strong>Hiss</strong> at 8% add a little grain. The hiss mostly hides in the surf and only shows in the calms.</li>
 </ul>
@@ -5500,9 +5502,9 @@ crash    on the downbeat after each fill
 <tr><td><a href="recipes/../modules/utilities/mix.html">Mix</a> (kick and snare)</td><td><strong>Level 1</strong> 60% kick, <strong>Level 2</strong> 40% snare body, <strong>Level 3</strong> 45% snare noise</td></tr>
 <tr><td><a href="recipes/../modules/effects/compressor.html">Compressor</a></td><td><strong>Thresh</strong> -16 dB, <strong>Ratio</strong> 3:1, <strong>Atk</strong> 8 ms, <strong>Rel</strong> 120 ms, <strong>Mkup</strong> 2 dB</td></tr>
 <tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (drum bus)</td><td><strong>Level 1</strong> 100%, centred; <strong>Send 1</strong> 15%; <strong>Master</strong> +3 dB</td></tr>
-<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (main)</td><td>Hats 44% at R 30 / R 35, toms 40%, crash 36% at L 40; every <strong>Send</strong> 25%; <strong>Master</strong> −2 dB</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (main)</td><td>Hats 44% at R 30 / R 35, toms 40%, crash 36% at L 40; every <strong>Send</strong> 25%; <strong>Master</strong> −1.4 dB</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 35%, <strong>Decay</strong> 0.9 s, <strong>Damp</strong> 55%, <strong>PreD</strong> 2.5 ms, <strong>Mix</strong> 100%</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 91%</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
 </tbody></table>
 </div>
 <p>All drum envelopes have a 1 ms attack and 0% sustain. The sequencers' gates are a fixed 99 ms (<strong>Gate of</strong> 100 ms), so each envelope's <strong>Release</strong> matches its <strong>Decay</strong>: the sound falls at the same rate after the gate closes.</p>
@@ -5610,9 +5612,9 @@ toms     . . . . . G . . . . . . . D . A#
 <tr><td><a href="recipes/../modules/sources/drum.html">Drum</a> (closed hat)</td><td><strong>Type</strong> Closed Hat, <strong>Decay</strong> 35%, <strong>Tone</strong> 60%, <strong>Snap</strong> 40%, <strong>Level</strong> 70%</td></tr>
 <tr><td><a href="recipes/../modules/sources/drum.html">Drum</a> (open hat)</td><td><strong>Type</strong> Open Hat, <strong>Decay</strong> 55%, <strong>Tone</strong> 60%, <strong>Snap</strong> 45%, <strong>Level</strong> 60%</td></tr>
 <tr><td><a href="recipes/../modules/sources/drum.html">Drum</a> (toms)</td><td><strong>Type</strong> Tom, <strong>Decay</strong> 45%, <strong>Tone</strong> 30%, <strong>Snap</strong> 40%, <strong>Level</strong> 80%</td></tr>
-<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a></td><td>Snare 80% centre, closed hat 55% and open hat 50% at R 25, toms 70% at L 30; the kick on <strong>Return L</strong>; <strong>Master</strong> 0 dB</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a></td><td>Snare 80% centre, closed hat 55% and open hat 50% at R 25, toms 70% at L 30; the kick on <strong>Return L</strong>; <strong>Master</strong> +3.6 dB</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 30%, <strong>Decay</strong> 0.6 s, <strong>Damp</strong> 60%, <strong>PreD</strong> 8 ms, <strong>Mix</strong> 14%</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 90%</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built-9"><a class="header" href="#how-its-built-9">How it's built</a></h2>
@@ -5711,9 +5713,9 @@ c hat    X . x . X . x . X . . . . . . .
 <tr><td><a href="recipes/../modules/sources/drum.html">Drum</a> (cowbell)</td><td><strong>Type</strong> Cowbell, <strong>Decay</strong> 35%, <strong>Tone</strong> 50%, <strong>Snap</strong> 50%, <strong>Level</strong> 50%</td></tr>
 <tr><td><a href="recipes/../modules/sources/drum.html">Drum</a> (cymbal)</td><td><strong>Type</strong> Cymbal, <strong>Decay</strong> 70%, <strong>Tone</strong> 55%, <strong>Snap</strong> 50%, <strong>Level</strong> 50%</td></tr>
 <tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (skins)</td><td>Snare 75% at R 10, tom 70% at L 30, rim 50% at R 45, cowbell 45% at L 45; the kick on <strong>Return L</strong></td></tr>
-<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (metal)</td><td>Closed hat 55% and open hat 50% at R 30, cymbal 45% at L 25; the skins Mixer on <strong>Chain In</strong></td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (metal)</td><td>Closed hat 55% and open hat 50% at R 30, cymbal 45% at L 25; the skins Mixer on <strong>Chain In</strong>; <strong>Master</strong> +4.2 dB</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 30%, <strong>Decay</strong> 0.6 s, <strong>Damp</strong> 60%, <strong>PreD</strong> 8 ms, <strong>Mix</strong> 14%</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 90%</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built-10"><a class="header" href="#how-its-built-10">How it's built</a></h2>
@@ -5881,7 +5883,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="recipes/../modules/effects/chorus.html">Chorus</a></td><td><strong>Rate</strong> 0.35 Hz, <strong>Depth</strong> 25%, <strong>Delay</strong> 10 ms, <strong>Mix</strong> 25%</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 45%, <strong>Decay</strong> 1.6 s, <strong>Damp</strong> 55%, <strong>PreD</strong> 12 ms, <strong>Mix</strong> 22%, <strong>Mod</strong> 20%</td></tr>
 <tr><td><a href="recipes/../modules/effects/tape.html">Tape</a></td><td><strong>Speed</strong> 15 ips, <strong>Sat</strong> 30%, <strong>Age</strong> 20%, <strong>Hiss</strong> 5%, <strong>Wow</strong> 12%, <strong>Flut</strong> 10%, <strong>Width</strong> 25%</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 100%</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built-12"><a class="header" href="#how-its-built-12">How it's built</a></h2>
@@ -5969,10 +5971,10 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a></td><td><strong>Level</strong> 50%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a></td><td><strong>Atk</strong> 400 ms, <strong>Dec</strong> 200 ms, <strong>Sus</strong> 100%, <strong>Rel</strong> 1.5 s, <strong>Vel</strong> 0%</td></tr>
 <tr><td><a href="recipes/../modules/effects/vocoder.html">Vocoder</a></td><td><strong>Bands</strong> 16, <strong>Attack</strong> 3 ms, <strong>Release</strong> 35 ms, <strong>Formant</strong> 0, <strong>Sibil</strong> 35%, <strong>Unvoic</strong> 40%, <strong>Width</strong> 60%, <strong>Mix</strong> 100%</td></tr>
-<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (the mix)</td><td><strong>Level 1</strong> and <strong>Level 2</strong> 28%, <strong>Pan 1</strong> L 80, <strong>Pan 2</strong> R 80. <strong>Level 3</strong> 40%, <strong>Width 3</strong> 60%</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> (the mix)</td><td><strong>Level 1</strong> and <strong>Level 2</strong> 28%, <strong>Pan 1</strong> L 80, <strong>Pan 2</strong> R 80. <strong>Level 3</strong> 40%, <strong>Width 3</strong> 60%, <strong>Master</strong> −1.2 dB</td></tr>
 <tr><td><a href="recipes/../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Sync</strong> 1/8D, <strong>FB</strong> 35%, <strong>Mix</strong> 22%, <strong>HiCut</strong> 4 kHz, <strong>LoCut</strong> 300 Hz, <strong>P-P</strong> on, <strong>Tape</strong> on</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 75%, <strong>Decay</strong> 4 s, <strong>PreD</strong> 25 ms, <strong>Mix</strong> 30%, <strong>Mod</strong> 30%</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 100%, <strong>Limiter</strong> on</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%, <strong>Limiter</strong> on</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built-13"><a class="header" href="#how-its-built-13">How it's built</a></h2>
@@ -6062,9 +6064,9 @@ sangsih       E  D        E     E        A  C |     D  C        A     D        G
 <tr><td><a href="recipes/../modules/sources/oscillator.html">Oscillator</a> + <a href="recipes/../modules/filters/svf-filter.html">SVF Filter</a> (pad)</td><td><strong>Wave</strong> Saw, <strong>Oct</strong> -1, <strong>Voices</strong> 3, <strong>Detune</strong> 30%, <strong>Spread</strong> 80%; LowPass, <strong>Cutoff</strong> 650 Hz, <strong>Res</strong> 10%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/adsr.html">ADSR Envelope</a> (pad)</td><td><strong>Atk</strong> 4 s, <strong>Dec</strong> 1 s, <strong>Sus</strong> 100%, <strong>Rel</strong> 6 s</td></tr>
 <tr><td><a href="recipes/../modules/utilities/vca.html">VCA</a> ×4</td><td>Defaults</td></tr>
-<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a></td><td><strong>Level 1</strong> 50% at L 45, <strong>Level 2</strong> 50% at R 45, <strong>Level 3</strong> 45%, <strong>Level 4</strong> 30%</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a></td><td><strong>Level 1</strong> 50% at L 45, <strong>Level 2</strong> 50% at R 45, <strong>Level 3</strong> 45%, <strong>Level 4</strong> 30%, <strong>Master</strong> +2.8 dB</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 75%, <strong>Decay</strong> 3.5 s, <strong>Damp</strong> 45%, <strong>PreD</strong> 20 ms, <strong>Mix</strong> 30%</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 75%</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built-14"><a class="header" href="#how-its-built-14">How it's built</a></h2>
@@ -6182,12 +6184,12 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="recipes/../modules/effects/distortion.html">Distortion</a></td><td>Bass, <strong>Tube</strong></td></tr>
 <tr><td><a href="recipes/../modules/effects/eq.html">3-Band EQ</a></td><td>Bass: lows up, boxiness out</td></tr>
 <tr><td><a href="recipes/../modules/utilities/mix.html">Mix</a></td><td>The pad's root and chord, <strong>Sum Voices</strong> on</td></tr>
-<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> ×5</td><td>Two for the kit, and Echoes, Body and Sky</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> ×5</td><td>Two for the kit, and Echoes, Body and Sky. Sky's <strong>Master</strong> −2.9 dB sets the level onto the tape</td></tr>
 <tr><td><a href="recipes/../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Sync</strong> 1/8D, <strong>P-P</strong> and <strong>Tape</strong> on, on the Echoes send</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a> ×2</td><td>A hall on Echoes, a plate on the send everyone shares</td></tr>
 <tr><td><a href="recipes/../modules/visualization/oscilloscope.html">Oscilloscope</a></td><td>The mix and the kick, to watch</td></tr>
 <tr><td><a href="recipes/../modules/effects/tape.html">Tape</a></td><td>On the master, 15 ips: <strong>Wow</strong> and <strong>Flutter</strong> 10%, <strong>Saturation</strong> 25%, <strong>Age</strong> 10%, <strong>Hiss</strong> 4%. The Tape Arranger's lane adds to Wow</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Volume</strong> 74%, <strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Volume</strong> 80%, <strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built-15"><a class="header" href="#how-its-built-15">How it's built</a></h2>
@@ -6276,7 +6278,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 [Tape Arranger Lane 1] ──&gt; [Tape Wow]          (the Wow lane)
 [Mixer Sky Out L/R] ──&gt; [Tape In L/R] ──&gt; [Audio Output Left/Right]
 </code></pre>
-<p>The whole mix goes onto a <a href="recipes/../modules/effects/tape.html">Tape</a> last. For most of the song it's a well-kept machine at 15 ips. <strong>Wow</strong> and <strong>Flutter</strong> are at 10%, which sways the pitch by less than a cent. <strong>Saturation</strong> at 25% rounds the loud sections a little, and there's a touch of <strong>Age</strong> and <strong>Hiss</strong>. The record head squashes the loudest sections by up to a decibel, so the Output's <strong>Volume</strong> is up a little, to 74%, and the song is as loud as it was.</p>
+<p>The whole mix goes onto a <a href="recipes/../modules/effects/tape.html">Tape</a> last. For most of the song it's a well-kept machine at 15 ips. <strong>Wow</strong> and <strong>Flutter</strong> are at 10%, which sways the pitch by less than a cent. <strong>Saturation</strong> at 25% rounds the loud sections a little, and there's a touch of <strong>Age</strong> and <strong>Hiss</strong>. The record head squashes the loudest sections by up to a decibel. Sky's <strong>Master</strong> at −2.9 dB sets how hard the mix meets the head, with the Output's <strong>Volume</strong> at its usual 80%, and leaves the song at −16 LUFS, where every example sits.</p>
 <p>The tape earns its place in the breakdown. The Looper plays the opening back reversed, the rack remembering how it began, and memories don't hold their pitch. A third Arranger, <strong>Tape</strong>, follows Desk as Cues does. Its one lane is patched into the Tape's <strong>Wow</strong>, where it adds to the knob:</p>
 <div class="table-wrapper"><table><thead><tr><th>Section</th><th>Wow lane</th><th>What you hear</th></tr></thead><tbody>
 <tr><td>Memory</td><td>Log ramp to 45% over 4 bars</td><td>The warp arrives with the ghost, which swells in over the same four bars. The whole mix sways by about 12 cents</td></tr>
@@ -6360,11 +6362,11 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="recipes/../modules/effects/vocoder.html">Vocoder</a></td><td><strong>Bands</strong> 24, attack 2 ms, release 35 ms, <strong>Sibilance</strong> 60%, <strong>Unvoiced</strong> 50%</td></tr>
 <tr><td><a href="recipes/../modules/modulation/slope.html">Slope</a></td><td>The satellite's Doppler fall</td></tr>
 <tr><td><a href="recipes/../modules/effects/eq.html">3-Band EQ</a></td><td>The voice's lows cut and highs lifted, before the vocoder</td></tr>
-<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> ×4</td><td>Top (with the tape echo), Drums, Band and Room (with the hall), on one chain</td></tr>
+<tr><td><a href="recipes/../modules/utilities/mixer.html">Mixer</a> ×4</td><td>Top (with the tape echo), Drums, Band and Room (with the hall), on one chain. Room's <strong>Master</strong> −3.7 dB sets the level onto the tape</td></tr>
 <tr><td><a href="recipes/../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Sync</strong> 1/8D, <strong>P-P</strong> and <strong>Tape</strong> on</td></tr>
 <tr><td><a href="recipes/../modules/effects/reverb.html">Reverb</a></td><td>The hall everyone shares</td></tr>
 <tr><td><a href="recipes/../modules/effects/tape.html">Tape</a></td><td>15 ips, a little saturation, wow and age</td></tr>
-<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
+<tr><td><a href="recipes/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%, <strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
 </tbody></table>
 </div>
 <p>The rest are the voices' own envelopes, VCAs, filters, LFOs and Mixes.</p>

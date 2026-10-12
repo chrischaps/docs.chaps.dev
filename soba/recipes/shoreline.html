@@ -213,7 +213,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="../modules/filters/svf-filter.html">SVF Filter</a></td><td><strong>Cutoff</strong> 500 Hz, <strong>Res</strong> 15%</td></tr>
 <tr><td><a href="../modules/utilities/mixer.html">Mixer</a></td><td><strong>Return</strong> 71%, <strong>Master</strong> +3 dB, the rest at their defaults</td></tr>
 <tr><td><a href="../modules/effects/tape.html">Tape</a></td><td><strong>Speed</strong> 15 ips, <strong>Sat</strong> 35%, <strong>Age</strong> 20%, <strong>Hiss</strong> 8%, <strong>Wow</strong> 20%, <strong>Flut</strong> 15%, <strong>Width</strong> 30%</td></tr>
-<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 100%</td></tr>
+<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 85%</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
@@ -264,7 +264,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 </code></pre>
 <p>The whole scene is recorded onto tape at 15 ips, gently:</p>
 <ul>
-<li><strong>Sat</strong> at 35% rounds off the crests of the surf, a breaker's roar squashed slightly, as a small recorder squashes it. That takes about 2 dB off the surf's loudness, so the Audio Output's <strong>Vol</strong> is at 100% rather than the usual 80% to win it back. The head bump also adds body to the low rumble.</li>
+<li><strong>Sat</strong> at 35% rounds off the crests of the surf, a breaker's roar squashed slightly, as a small recorder squashes it. That takes about 2 dB off the surf's loudness, which the Audio Output's <strong>Vol</strong> at 85% wins back. The head bump also adds body to the low rumble.</li>
 <li><strong>Wow</strong> at 20% sways the pitch by about ±1.5 cents. On the surf you won't hear it, but each ringing chime note bends a hair, like a chime heard on a recording rather than in the room.</li>
 <li><strong>Age</strong> at 20% and <strong>Hiss</strong> at 8% add a little grain. The hiss mostly hides in the surf and only shows in the calms.</li>
 </ul>
