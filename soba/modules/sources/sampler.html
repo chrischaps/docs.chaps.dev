@@ -185,6 +185,7 @@
 <p><img src="../../images/module-sampler.png" alt="Sampler Module" />
 <em>A five-note chord on a looped bell. The orange flags mark the loop and the blue ones what plays. Each white line is a voice, circling inside the loop at its own speed.</em></p>
 <p>Sampler plays a WAV file. Patch a gate in and it plays one-shots: a kick under a sequencer, a vocal chop, a door slam. Patch in V/Oct as well and a polyphonic gate, and it becomes an instrument: one recorded note spread across the keyboard, each key playing it at its own pitch.</p>
+<p>Set <strong>Slices</strong> and it becomes a chopped break: the recording is cut into equal slices, and each key plays one of them.</p>
 <p>Every other sound in Soba is synthesized. The Sampler brings in sound you've recorded, or one Soba rendered itself, and keeps it with the patch.</p>
 <h2 id="loading-a-file"><a class="header" href="#loading-a-file">Loading a file</a></h2>
 <ul>
@@ -196,10 +197,11 @@
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>A rising edge starts a note. In <strong>Gated</strong> mode the falling edge lets it go. A polyphonic gate plays a voice per channel</td></tr>
-<tr><td><strong>V/Oct</strong></td><td>Control (Orange)</td><td>Pitch, 1 V an octave. 0 V (C4) plays the <strong>Root</strong> note: the recording as it was made. Read all the time, so pitch bend and glide work</td></tr>
+<tr><td><strong>V/Oct</strong></td><td>Control (Orange)</td><td>Pitch, 1 V an octave. 0 V (C4) plays the <strong>Root</strong> note: the recording as it was made. Read all the time, so pitch bend and glide work. When sliced, it picks the slice instead, as each note starts</td></tr>
 <tr><td><strong>Velocity</strong></td><td>Control (Orange)</td><td>Each note's level, 0 to 1, read as the note starts. Unpatched, every note is full</td></tr>
-<tr><td><strong>Start</strong></td><td>Control (Orange)</td><td>Added to the <strong>Start</strong> knob as each note begins. 1 V is the whole recording</td></tr>
+<tr><td><strong>Start</strong></td><td>Control (Orange)</td><td>Added to the <strong>Start</strong> knob as each note begins. 1 V is the whole recording, or the whole slice when sliced</td></tr>
 <tr><td><strong>Speed</strong></td><td>Control (Orange)</td><td>Added to the <strong>Speed</strong> knob while the note plays, as on tape: pitch follows, and below zero it plays backwards</td></tr>
+<tr><td><strong>Slice</strong></td><td>Control (Orange)</td><td>When sliced, picks a slice as each note begins: 0 to 1 across the slices, added to the note's own. Does nothing with <strong>Slices</strong> off</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -219,14 +221,15 @@
 <tr><td><strong>Lp End</strong> (Loop End)</td><td>0 – 100%</td><td>100%</td><td>Where the loop turns back. Kept between Start and End</td></tr>
 <tr><td><strong>Tune</strong></td><td>±24 st</td><td>0 st</td><td>Transpose in semitones</td></tr>
 <tr><td><strong>Fine</strong></td><td>±100 cents</td><td>0</td><td>Fine tuning</td></tr>
-<tr><td><strong>Root</strong></td><td>C-1 – G9</td><td>C4</td><td>The note the recording was made at. Playing it plays the recording unchanged</td></tr>
+<tr><td><strong>Slices</strong></td><td>Off, 2 – 64</td><td>Off</td><td>Cuts <strong>Start</strong>–<strong>End</strong> into equal slices, each played by its own key. See <a href="#slices">Slices</a></td></tr>
+<tr><td><strong>Root</strong></td><td>C-1 – G9</td><td>C4</td><td>The note the recording was made at. Playing it plays the recording unchanged. When sliced, the key that plays slice 1</td></tr>
 <tr><td><strong>Speed</strong></td><td>−2 – 2×</td><td>1×</td><td>Tape speed. 2 is twice as fast and an octave up, 0.5 half as fast and an octave down, and below 0 plays backwards</td></tr>
 <tr><td><strong>Atk</strong> (Attack)</td><td>1 ms – 2 s</td><td>2 ms</td><td>How long each note takes to fade in</td></tr>
 <tr><td><strong>Rel</strong> (Release)</td><td>1 ms – 5 s</td><td>10 ms</td><td>How long a note takes to fade out once let go</td></tr>
 <tr><td><strong>Level</strong></td><td>0 – 100%</td><td>80%</td><td>Output level</td></tr>
 </tbody></table>
 </div>
-<p>The four region knobs sit in the top row, under the waveform where their markers are. You can drag the markers instead of the knobs.</p>
+<p>The four region knobs sit in the top row, under the waveform where their markers are. You can drag the markers instead of the knobs. <strong>Slices</strong> and <strong>Root</strong> start the second row, since together they say which key plays which slice.</p>
 <h2 id="playing-it"><a class="header" href="#playing-it">Playing it</a></h2>
 <h3 id="one-shots"><a class="header" href="#one-shots">One-shots</a></h3>
 <p>Patch a sequencer's <strong>Gate</strong> into <strong>Gate</strong>, and its <strong>Velocity</strong> into <strong>Velocity</strong>. Leave <strong>V/Oct</strong> unpatched and every hit plays at the recording's own pitch. <strong>One-Shot</strong> mode plays each hit to the end, however short the gate.</p>
@@ -239,6 +242,18 @@
 <p><strong>Start</strong> and <strong>End</strong> set the part of the recording a note plays. The rest of the waveform sinks into the background. A note fades out over its last 3 ms, so a recording cut mid-sound doesn't click at the end.</p>
 <p>With <strong>Loop</strong> on, a note plays from <strong>Start</strong> to <strong>Lp End</strong>, then goes round. <strong>Forward</strong> jumps back to <strong>Lp St</strong>. <strong>Ping-Pong</strong> turns around and plays backwards to <strong>Lp St</strong>, then forwards again. A loop over whole cycles of a steady sound is seamless. Elsewhere, set the loop points where the waveform crosses zero, or use Ping-Pong, which never jumps.</p>
 <p>In <strong>Gated</strong> mode a looping note keeps looping through its release, then fades. In <strong>One-Shot</strong> mode a looping note never ends. It plays until a new note takes its voice or the transport stops. That's a drone: a field recording slowed down an octave, looping forever.</p>
+<h2 id="slices"><a class="header" href="#slices">Slices</a></h2>
+<p>Set <strong>Slices</strong> to cut the recording into equal parts, and each key plays one part: <strong>Root</strong> (C4 unless you move it) plays slice 1, C#4 slice 2, D4 slice 3, and so on up the keys. This is how samplers lay a chopped drum break or a set of vocal phrases across the keyboard.</p>
+<ul>
+<li><strong>Each slice plays only itself.</strong> A note starts at its slice's start and stops at its end, with the same 3 ms fade as at <strong>End</strong>. In <strong>One-Shot</strong> mode a short gate still plays the whole slice. In <strong>Gated</strong> mode the note stops at the slice's end or when the gate falls, whichever comes first.</li>
+<li><strong>The key picks the slice, not the pitch.</strong> <strong>V/Oct</strong> no longer transposes. <strong>Tune</strong>, <strong>Fine</strong> and <strong>Speed</strong> still do, and a slice played faster goes by sooner. Notes below <strong>Root</strong>, or past the last slice, play nothing.</li>
+<li><strong>Slices divide Start–End.</strong> Move <strong>Start</strong> past a silence at the head of the file and the slices are cut from there.</li>
+<li><strong>A loop goes round the slice.</strong> With <strong>Loop</strong> on, a held note in <strong>Gated</strong> mode repeats its slice until it's let go. That's a stutter. The <strong>Lp St</strong> and <strong>Lp End</strong> markers step aside while sliced.</li>
+<li><strong>Backwards</strong>, at negative <strong>Speed</strong>, a slice plays from its end to its start.</li>
+<li><strong>Start</strong> CV moves where a note starts inside its slice. 0.5 V starts halfway in.</li>
+</ul>
+<p>Patch an <a href="../utilities/arranger.html">Arranger</a> lane, a <a href="../utilities/sample-hold.html">Sample &amp; Hold</a> or an LFO into <strong>Slice</strong> to pick slices without a keyboard. Its value spreads evenly across them, 0 for the first and 1 for the last, and adds to whatever the note picked. With <strong>V/Oct</strong> unpatched, <strong>Slice</strong> alone chooses.</p>
+<p>On the display, rules divide the waveform into its slices, numbered while they're wide enough to read. The slice a voice is playing glows. Hover a slice to see which key plays it.</p>
 <h2 id="voices"><a class="header" href="#voices">Voices</a></h2>
 <p>Sampler is polyphonic. Each channel of the <strong>Gate</strong> cable is a voice of its own, with its own pitch, velocity and place in the recording. <a href="../midi/poly-midi.html">Poly MIDI</a> hands each new note the next voice. When all its voices are busy, it takes the oldest note's voice, which lets go of the old note over 5 ms as the new one starts. Retriggering a note that's still sounding does the same, so fast repeated notes never click.</p>
 <p>Loading a new file while notes play fades them out over 5 ms. The next notes play the new file.</p>
@@ -280,6 +295,10 @@
 <p>One Sampler per sound, each in <strong>One-Shot</strong> mode, into a <a href="../utilities/mixer.html">Mixer</a> to place them. Mix them with <a href="./drum.html">Drum</a> voices for a kit that's part recorded and part synthesized.</p>
 <h3 id="a-drone-from-anything"><a class="header" href="#a-drone-from-anything">A drone from anything</a></h3>
 <p>Load a long recording (rain, a room, a held note) and set <strong>Speed</strong> to 0.5, <strong>Loop</strong> to <strong>Ping-Pong</strong> with the loop over a steady stretch, <strong>Atk</strong> to 2 s and <strong>Mode</strong> to <strong>One-Shot</strong>. One gate starts a drone an octave down that never ends. Two Samplers on the same file, one at <strong>Speed</strong> 0.5 and one at 0.749 (a fifth above it), make a chord.</p>
+<h3 id="a-chopped-break"><a class="header" href="#a-chopped-break">A chopped break</a></h3>
+<p>Load a one-bar drum loop and set <strong>Slices</strong> to 8 or 16, so each slice is an eighth or a sixteenth note. Patch a <a href="../utilities/sequencer.html">Step Sequencer</a>'s <strong>Pitch</strong> into <strong>V/Oct</strong> and its <strong>Gate</strong> into <strong>Gate</strong>, clocked at the same division. Steps on C4, C#4, D4… play the break as recorded. Change a step's note and that step plays another hit. Patch a <a href="../utilities/sample-hold.html">Sample &amp; Hold</a> of noise into <strong>Slice</strong> instead of <strong>V/Oct</strong> and the break rearranges itself on every hit.</p>
+<h3 id="many-lines-in-one-file"><a class="header" href="#many-lines-in-one-file">Many lines in one file</a></h3>
+<p>The <a href="../../recipes/clair-de-satellite.html">Clair de Satellite</a> example keeps all eight of its sung lines in one file, a line to a slice. A Step Sequencer that steps every two bars sings line <em>k</em> on note C4 + <em>k</em>.</p>
 <h3 id="scrubbing"><a class="header" href="#scrubbing">Scrubbing</a></h3>
 <p>Patch a slow <a href="../modulation/lfo.html">LFO</a> into <strong>Start</strong>, and a Clock into <strong>Gate</strong>. Each note starts a little further into the recording, so a spoken phrase or a melody comes out in stutters that wander through it.</p>
 <h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>

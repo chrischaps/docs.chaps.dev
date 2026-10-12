@@ -212,7 +212,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <li><strong>Chords on one cable.</strong> Two <a href="../modules/utilities/chord-sequencer.html">Chord Sequencers</a> play the same sixteen-bar progression: close and voice-led for the Rhodes, spread and tied for the strings. The slash basses (Am/G#, Am7/G, D9/F#) make the walking line on the <strong>Bass</strong> output.</li>
 <li><strong>A rhythm from one module, chords from another.</strong> The Rhodes takes its notes from a Chord Sequencer and its rhythm from a <a href="../modules/utilities/sequencer.html">Step Sequencer</a>'s gate. A mono gate into a polyphonic voice strikes every note of the chord.</li>
 <li><strong>A vocoder that can be understood.</strong> A vocoder reads words best from a carrier that is low, dense and held. Here that's the strings' spread chord, with its lows filtered off. The voice is brightened and compressed on its way in, and the vocoder's attack and release are kept short. A carrier up in a melody's register, an octave or two higher, loses most of the words.</li>
-<li><strong>Many lines in one sample.</strong> The voice's eight lines sit in twelve equal slots of one file. A Step Sequencer that steps every two bars picks a slot through the <a href="../modules/sources/sampler.html">Sampler</a>'s <strong>Start</strong> input: note C4 + <em>k</em> starts <em>k</em>/12 of the way in.</li>
+<li><strong>Many lines in one sample.</strong> The voice's eight lines are eight <a href="../modules/sources/sampler.html#slices">slices</a> of one file. A Step Sequencer that steps every two bars picks a line by note: C4 sings the first, C#4 the second, and so on.</li>
 <li><strong>Groups as instruments.</strong> Each part is a group with named jacks: Bass takes <strong>Clock</strong>, <strong>Reset</strong>, <strong>Pattern</strong> and <strong>Bass note</strong>, and gives <strong>Out</strong>. A few knobs are pinned to each group's face.</li>
 <li><strong>Slides.</strong> The Solo's lead glides into chosen notes, the way a Minimoog player slurs a phrase.</li>
 <li><strong>The song on tape.</strong> The whole mix runs through <a href="../modules/effects/tape.html">Tape</a>, and an Arranger lane on its <strong>Wow</strong> input warps it in the Ring.</li>
@@ -249,7 +249,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <p>The verse is a line cliché: Am9, Am/G#, Am7/G, D9/F#, then Fmaj9, Em7, Dm9 and E7. The chorus lifts to Fmaj7, G11, Em7, Am7, Dm9, G13, Cmaj9 and E7. The roots are written in octave 2, so the <strong>Bass</strong> output is a bass line and the bass voice only adds a riff over it: the note, its octave, and slides between them.</p>
 <p>The strings' Chord Sequencer ties every step, so the String Machine's swell never restarts and the chords change under one long breath. The Rhodes' is untied, and its gate comes from the comping sequencer.</p>
 <h3 id="the-voice"><a class="header" href="#the-voice">The voice</a></h3>
-<pre><code class="language-text">[Lyrics Pitch] ──&gt; [Sampler Start]          (note 60 + k plays slot k)
+<pre><code class="language-text">[Lyrics Pitch] ──&gt; [Sampler V/Oct]          (8 slices: note 60 + k sings line k + 1)
 [Lyrics Gate]  ──&gt; [Sampler Gate]           (Gated: one line, then stop)
 [Sampler L] ──&gt; [EQ] ──&gt; [Compressor] ──&gt; [Vocoder Modulator]
 [Strings' Chord Sequencer Pitch] ──&gt; [Saw] ──&gt; [Chorus] ──&gt; [SVF high-pass] ──&gt; [Vocoder Carrier]
