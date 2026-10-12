@@ -279,7 +279,7 @@ cargo run --release
 <p>Pass a patch file to open it instead of First Sound:</p>
 <pre><code class="language-bash">cargo run --release -- patches/lush-pad.json
 </code></pre>
-<p>The <code>render</code> tool plays a patch into a WAV file without opening the app or using an audio device, then prints each channel's peak and RMS level:</p>
+<p>The <code>render</code> tool plays a patch into a WAV file without opening the app or using an audio device, then prints each channel's peak and RMS level and the mix's loudness:</p>
 <pre><code class="language-bash">cargo run --release --bin render -- patches/fm-synthesis.json out.wav --seconds 5
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Option</th><th>Default</th><th>Effect</th></tr></thead><tbody>
@@ -289,9 +289,21 @@ cargo run --release
 <tr><td><code>--audition</code></td><td>off</td><td>Plays a short phrase into the patch's Keyboard, MIDI Note and Poly MIDI modules</td></tr>
 <tr><td><code>--input FILE.wav</code></td><td>none</td><td>What <a href="../modules/sources/audio-input.html">Audio Input</a> modules hear, in place of an input device. It must be at the render's sample rate</td></tr>
 <tr><td><code>--cue FILE.txt</code></td><td>none</td><td>Parameter changes to play into the patch as it renders, one per line: <code>&lt;seconds&gt; param &lt;module&gt;[#n] &lt;parameter&gt; &lt;value&gt;</code>, as in a capture script. Press a <a href="../modules/utilities/looper.html">Looper</a>'s footswitches this way</td></tr>
+<tr><td><code>--compare FILE.wav</code></td><td>none</td><td>An earlier render to measure against: prints how far peak, RMS, loudness and range have moved since</td></tr>
 </tbody></table>
 </div>
 <p>A patch that waits for a player renders silence unless something inside it plays notes (a Clock or Step Sequencer, say) or you add <code>--audition</code>. Audio Input modules render silence unless you give them a file with <code>--input</code>. <a href="../modules/sources/sampler.html">Samplers</a> find their files relative to the patch, as the app does.</p>
+<p>Here Lush Pad's filter has been closed from 2500 Hz to 833 Hz since <code>before.wav</code>:</p>
+<pre><code class="language-text">rendered 'Lush Pad' (8.00 s @ 48000 Hz) -&gt; after.wav
+  L: peak   -4.8 dBFS   rms  -22.2 dBFS
+  R: peak   -4.3 dBFS   rms  -21.4 dBFS
+  loudness -17.4 LUFS   range 12.3 LU
+against before.wav:
+  L: peak   -1.5 dB     rms   -1.0 dB
+  R: peak   -1.2 dB     rms   -0.9 dB
+  loudness  -1.3 LU     range -0.1 LU
+</code></pre>
+<p><strong>Loudness</strong> is integrated loudness after ITU-R BS.1770-4, the measure streaming services normalize to. It weights the mix the way the ear does, so it's the number to compare when you want to know whether a change made a patch sound louder. RMS overweights the bass: above, it says the darker pad lost 1 dB, but the ear hears the treble it lost and puts it at 1.3. <strong>Range</strong> is the EBU loudness range, the spread between the quiet and loud passages. It reads <code>--</code> on renders shorter than three seconds.</p>
 <h2 id="microphone-access"><a class="header" href="#microphone-access">Microphone access</a></h2>
 <p>Soba opens a microphone or other input only when you choose one in the toolbar's <strong>Input</strong> menu.</p>
 <ul>
