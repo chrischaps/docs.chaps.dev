@@ -2915,7 +2915,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 <ul>
 <li><a href="modules/effects/./delay.html">Stereo Delay</a>: the same tape machine, on the echoes only</li>
 <li><a href="modules/effects/./distortion.html">Distortion</a>: Tube saturates without the wobble or the dulling</li>
-<li><a href="modules/effects/../output/audio-output.html">Audio Output</a>: Character, a fixed soft clip on the master</li>
+<li><a href="modules/effects/../output/audio-output.html">Audio Output</a>: Character, a fixed soft clip on the master's peaks. See <a href="modules/effects/../output/audio-output.html#character-or-tape">Character or Tape?</a></li>
 <li><a href="modules/effects/../utilities/arranger.html">Arranger</a> and <a href="modules/effects/../modulation/lfo.html">LFO</a>: move Wow, and press Stop</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="compressor"><a class="header" href="#compressor">Compressor</a></h1>
@@ -4669,7 +4669,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Vol</strong> (Volume)</td><td>0 – 100%</td><td>80%</td><td>Master volume</td></tr>
 <tr><td><strong>Limiter</strong></td><td>On / Off</td><td>On</td><td>Catches peaks before they can clip</td></tr>
-<tr><td><strong>Character</strong></td><td>On / Off</td><td>Off</td><td>Gentle soft-clip saturation, for color</td></tr>
+<tr><td><strong>Character</strong></td><td>On / Off</td><td>Off</td><td>Rounds off peaks above -3 dBFS, for a little warmth. See <a href="modules/output/audio-output.html#character-or-tape">Character or Tape?</a></td></tr>
 </tbody></table>
 </div>
 <h2 id="routing"><a class="header" href="#routing">Routing</a></h2>
@@ -4685,6 +4685,11 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <li><strong>Limiter</strong> (when on). A stereo-linked, look-ahead peak limiter with a ceiling of -0.3 dBFS. It sees each peak 1 ms before it arrives and turns the gain down just in time, so peaks are caught rather than clipped. It lets go quickly after a single transient and more slowly when it's working continuously, so it neither ducks audibly nor pumps. Linking the channels keeps the stereo image from shifting. The output never goes over the ceiling.</li>
 </ol>
 <p>The limiter's look-ahead delays the output by 1 ms. The delay stays in place when the limiter is off, so switching it doesn't shift the timing.</p>
+<h2 id="character-or-tape"><a class="header" href="#character-or-tape">Character or Tape?</a></h2>
+<p>Character and the <a href="modules/output/../effects/tape.html">Tape</a> module both add warmth, but they do different jobs.</p>
+<p><strong>Character</strong> works only on the peaks. It has no memory and no tone of its own: below -3 dBFS it does nothing, and above that it rounds every sample off on the same curve, whatever its pitch. Quiet passages pass through unchanged, and loud ones gain a little density and reach the limiter a little softer. It needs no setting up, and on a patch that never gets loud it changes nothing.</p>
+<p><strong>Tape</strong> colours everything that passes through it, quiet or loud. You patch it in front of the output, and it has its own level calibration (0 VU is a sine at -18 dBFS RMS). The record head squashes the treble first, the head bump lifts the lows, the top end rolls off with speed and age, and wow, flutter and hiss make the sound move. Putting a patch on tape is a decision about how the whole patch sounds.</p>
+<p>The two work together. Tape colours the mix, Character rounds whatever peaks still reach the output, and the limiter holds the ceiling. <a href="modules/output/../../recipes/clair-de-satellite.html">Clair de Satellite</a> uses the whole chain. <a href="modules/output/../../recipes/from-one-sine.html">From One Sine</a> uses Character alone.</p>
 <h2 id="the-meter"><a class="header" href="#the-meter">The meter</a></h2>
 <p>The node shows a stereo peak meter, one bar per channel, scaled from -48 to +6 dBFS.</p>
 <ul>
