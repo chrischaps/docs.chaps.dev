@@ -194,6 +194,16 @@
 <li>In the browser, drag a file onto the page the same way.</li>
 </ul>
 <p>Loading a file is a step you can undo. A file is read and converted once. Samplers that play the same file share it.</p>
+<p>Opening or dropping a file plays it once, from <strong>Start</strong> to <strong>End</strong>, so you hear what you chose. Undoing back to an earlier file doesn't.</p>
+<h2 id="hearing-it"><a class="header" href="#hearing-it">Hearing it</a></h2>
+<p>You don't have to patch anything to hear what a Sampler holds.</p>
+<ul>
+<li><strong>▶</strong>, beside the file's name, plays it from <strong>Start</strong> to <strong>End</strong> and stops there. It plays at the Sampler's <strong>Tune</strong> and <strong>Fine</strong>, at a <strong>Speed</strong> of 1. Press it again (it shows ■ while playing) to stop.</li>
+<li><strong>Alt-click</strong> the waveform to play from that point to <strong>End</strong>. Past <strong>End</strong>, it plays on to the end of the file. With Alt held, a dashed line follows the pointer to show where it will start. Dragging the markers works as before.</li>
+</ul>
+<p>This works whether the transport is running or not. What you hear is the file itself, not the patch: it plays dry, beside the patch rather than through it, after the Audio Output's limiter, 6 dB below the file's own level. It isn't in a recording made with <strong>Record</strong>. It's how a sampler's or a DAW's file preview works.</p>
+<p>One file plays at a time. Starting another, from this Sampler or any other, fades the first out over 5 ms. Deleting the Sampler or giving it another file stops it.</p>
+<p>While it plays, a white playhead capped at both ends shows where it is, with the part it has played washed faintly behind it. The voices' playheads are lines with a blue dot, so the two never look alike.</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>A rising edge starts a note. In <strong>Gated</strong> mode the falling edge lets it go. A polyphonic gate plays a voice per channel</td></tr>
@@ -260,7 +270,7 @@
 <h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
 <p>The waveform shows the whole recording, scaled to fill the panel. What plays is lit blue, and the loop is washed orange. <strong>Start</strong> and <strong>End</strong> have blue flags at the foot, and the loop points orange flags at the head. Drag any of them like a knob. Hover a marker to see what it is, or the waveform to see the file's path, length and format.</p>
 <p>Every voice draws a white playhead where it is in the recording, as bright as it is loud. A chord is several lines moving at their own speeds, and a released note fades where it stands.</p>
-<p>Under the waveform are the file's name and length. A file that can't be found shows its name in orange. An empty Sampler asks for a file.</p>
+<p>Under the waveform are <strong>▶</strong> (see <a href="#hearing-it">Hearing it</a>) and the file's name and length. A file that can't be found shows its name in orange. An empty Sampler asks for a file.</p>
 <h2 id="files-and-patches"><a class="header" href="#files-and-patches">Files and patches</a></h2>
 <p>The Sampler plays WAV files: 8-, 16-, 24- or 32-bit integer, or 32-bit float. Mono files play on both sides. Files with more than two channels play their first two. Each file is resampled to your audio device's rate when it loads, and again if the device's rate changes.</p>
 <p>A Sampler keeps up to <strong>five minutes</strong> of audio, about 115 MB of stereo at 48 kHz. A longer file is cut to its first five minutes, and the status bar says so.</p>
