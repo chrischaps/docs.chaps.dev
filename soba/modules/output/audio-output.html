@@ -218,7 +218,7 @@
 <p>Character and the <a href="../effects/tape.html">Tape</a> module both add warmth, but they do different jobs.</p>
 <p><strong>Character</strong> works only on the peaks. It has no memory and no tone of its own: below -3 dBFS it does nothing, and above that it rounds every sample off on the same curve, whatever its pitch. Quiet passages pass through unchanged, and loud ones gain a little density and reach the limiter a little softer. It needs no setting up, and on a patch that never gets loud it changes nothing.</p>
 <p><strong>Tape</strong> colours everything that passes through it, quiet or loud. You patch it in front of the output, and it has its own level calibration (0 VU is a sine at -18 dBFS RMS). The record head squashes the treble first, the head bump lifts the lows, the top end rolls off with speed and age, and wow, flutter and hiss make the sound move. Putting a patch on tape is a decision about how the whole patch sounds.</p>
-<p>The two work together. Tape colours the mix, Character rounds whatever peaks still reach the output, and the limiter holds the ceiling. <a href="../../recipes/clair-de-satellite.html">Clair de Satellite</a> uses the whole chain. <a href="../../recipes/from-one-sine.html">From One Sine</a> uses Character alone.</p>
+<p>The two work together. Tape colours the mix, Character rounds whatever peaks still reach the output, and the limiter holds the ceiling. <a href="../../recipes/clair-de-satellite.html">Clair de Satellite</a> and <a href="../../recipes/from-one-sine.html">From One Sine</a> use the whole chain.</p>
 <h2 id="the-meter"><a class="header" href="#the-meter">The meter</a></h2>
 <p>The node shows a stereo peak meter, one bar per channel, scaled from -48 to +6 dBFS.</p>
 <ul>

@@ -181,8 +181,8 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="from-one-sine"><a class="header" href="#from-one-sine">From One Sine</a></h1>
-<p>A whole song in one patch: four and a half minutes of D minor at 112 BPM, from a first note to a last one, with nobody at the keys. It opens the way every patch in this manual opens, on one sine wave playing a short tune, and part by part the rest of the rack joins in: a pad, an arpeggio, a bass, drums, bells, a supersaw lead. In the breakdown a <a href="../modules/utilities/looper.html">Looper</a> plays the opening back to itself, reversed and an octave down. The song ends where it began, on the sine alone.</p>
-<p>Nothing outside the patch tells it what to do. Two <a href="../modules/utilities/arranger.html">Arrangers</a> are the score: they count the song in bars, through 22 named sections, and each of their lanes rides one part's fader, picks a pattern for the drums or the melody, strikes the crash or presses a pedal. Eighty modules play their part, of 28 kinds. Left running, it plays the song again from the top.</p>
+<p>A whole song in one patch: four and a half minutes of D minor at 112 BPM, from a first note to a last one, with nobody at the keys. It opens the way every patch in this manual opens, on one sine wave playing a short tune, and part by part the rest of the rack joins in: a pad, an arpeggio, a bass, drums, bells, a supersaw lead. In the breakdown a <a href="../modules/utilities/looper.html">Looper</a> plays the opening back to itself, reversed and an octave down, and the tape the whole song is played onto starts to warp. The song ends where it began, on the sine alone.</p>
+<p>Nothing outside the patch tells it what to do. Three <a href="../modules/utilities/arranger.html">Arrangers</a> are the score: they count the song in bars, through 22 named sections, and each of their lanes rides one part's fader, picks a pattern for the drums or the melody, strikes the crash, presses a pedal or bends the tape. Seventy-seven modules play their part, of 30 kinds. Left running, it plays the song again from the top.</p>
 <blockquote>
 <p><strong>Load it:</strong> choose <strong>📚 Examples → From One Sine</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
 The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patches/from-one-sine.json"><code>patches/from-one-sine.json</code></a>.</p>
@@ -190,7 +190,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <iframe class="patch-embed" src="../play/?patch=from-one-sine" title="From One Sine, playable in the browser" loading="lazy"></iframe>
 *Or play it here: press **▶ Play** in the corner. The full app is a click away under **Open in Soba**.*
 <p><img src="../images/recipe-from-one-sine.png" alt="The From One Sine patch" />
-<em>The whole song at the widest zoom, at the drop. The score's two Arrangers and the harmony are on the top left, the instruments are in strips with signal running left to right, the drums run along the bottom, and the mixing desk is on the right. Orange cables from the score reach every fader.</em></p>
+<em>The whole song at the widest zoom, at the drop. The score's three Arrangers and the harmony are on the top left, the instruments are in strips with signal running left to right, the drums run along the bottom, and the mixing desk is on the right, with the master tape in amber. Orange cables from the score reach every fader.</em></p>
 <h2 id="the-song"><a class="header" href="#the-song">The song</a></h2>
 <iframe class="patch-film" src="https://www.youtube-nocookie.com/embed/xvmurP7NABw?rel=0" title="From One Sine, filmed in Soba as it plays" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>
 *The whole song, filmed in the app as it plays. The camera follows the score: it opens close on the lone sine, visits each part as it enters, pulls back to the whole rack for the drop, and ends where it began. [Watch on YouTube](https://youtu.be/xvmurP7NABw).*
@@ -200,8 +200,8 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td>17–32</td><td>Pulse</td><td>The sine rests. The arpeggio steps forward, then the bass and the bells come in, over a heartbeat of kick, rim and offbeat hats. A small riser leads out.</td></tr>
 <tr><td>33–48</td><td>Groove</td><td>A crash, and the full beat. The pad ducks under the kick. A fill closes the section.</td></tr>
 <tr><td>49–64</td><td>Lift</td><td>The motif comes back on a seven-voice supersaw, and this time it doesn't stop at four bars: it grows into a sixteen-bar line that runs the length of the progression. The pad and bass grow brighter.</td></tr>
-<tr><td>65–80</td><td>Memory</td><td>The drums, bass and lead drop out. The Looper's take of bars 5–8 plays reversed at half speed under the open pad and sparkles. The sine answers its own ghost with the motif played forward. Then a four-bar build with a riser, where the line's last phrase turns back toward the top.</td></tr>
-<tr><td>81–96</td><td>Everything</td><td>Drums, bass, arpeggio, pad, bells, sparkles and the lead's whole line at once, at the brightest the score sets.</td></tr>
+<tr><td>65–80</td><td>Memory</td><td>The drums, bass and lead drop out. The Looper's take of bars 5–8 plays reversed at half speed under the open pad and sparkles. The sine answers its own ghost with the motif played forward. The master tape starts to waver as the ghost comes in. Then a four-bar build with a riser, where the line's last phrase turns back toward the top and the tape bends further out of true.</td></tr>
+<tr><td>81–96</td><td>Everything</td><td>The tape snaps back to speed. Drums, bass, arpeggio, pad, bells, sparkles and the lead's whole line at once, at the brightest the score sets.</td></tr>
 <tr><td>97–112</td><td>Second wave</td><td>The lead rests and the sine sings the line over the groove instead, with the ghost underneath. The lead returns for its second half.</td></tr>
 <tr><td>113–128</td><td>Return</td><td>The lead fades and the drums fall back to the pulse. Then the sine returns to the motif alone, and the other parts fade away around it in the reverse of the order they came, until it's alone again.</td></tr>
 </tbody></table>
@@ -216,6 +216,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <li><strong>A progression as a lead sheet.</strong> One <a href="../modules/utilities/chord-sequencer.html">Chord Sequencer</a> holds sixteen bars of chords, and voice leading moves the pad's voices by step from one to the next. Its <strong>Root</strong> plays the bass and transposes the arpeggio and bass line through <strong>Exp FM</strong>.</li>
 <li><strong>A chord as one sound.</strong> The pad's three voices ride one polyphonic cable, and a <a href="../modules/utilities/mix.html">Mix</a> with <strong>Sum Voices</strong> on adds them into one channel, so the Ladder Filter drives the chord as a whole.</li>
 <li><strong>Hits press buttons.</strong> A Hit is a trigger with a level on it: the crash and its accent, and the Looper's <strong>Rec</strong> and <strong>Clear</strong>.</li>
+<li><strong>A moment on tape.</strong> A <a href="../modules/effects/tape.html">Tape</a> on the master is almost transparent for most of the song. A lane into its <strong>Wow</strong> bends the whole mix out of shape through the breakdown and snaps it back for the drop.</li>
 <li><strong>Sidechain ducking.</strong> The <a href="../modules/effects/compressor.html">Compressor</a> on the pad listens to the kick.</li>
 <li><strong>Send and return.</strong> Four <a href="../modules/utilities/mixer.html">Mixers</a> chain their mixes and their sends along one cable each, so one delay and two reverbs serve the whole song.</li>
 </ul>
@@ -223,7 +224,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Role</th></tr></thead><tbody>
 <tr><td><a href="../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 112, <strong>Div</strong> 1/16, <strong>Swing</strong> 54%</td></tr>
 <tr><td><a href="../modules/utilities/divider.html">Clock Divider</a> ×4</td><td>Beats (÷4), eighths (÷2), bars (÷16), and ÷3 for the sparkles</td></tr>
-<tr><td><a href="../modules/utilities/arranger.html">Arranger</a> ×2</td><td>The score: 22 sections, 128 bars. <strong>Desk</strong> rides eight faders. <strong>Cues</strong> picks the drum pattern and the melody's, strikes the crash, holds the riser, sets the brightness and the Looper's level, and presses its pedals</td></tr>
+<tr><td><a href="../modules/utilities/arranger.html">Arranger</a> ×3</td><td>The score: 22 sections, 128 bars. <strong>Desk</strong> rides eight faders. <strong>Cues</strong> picks the drum pattern and the melody's, strikes the crash, holds the riser, sets the brightness and the Looper's level, and presses its pedals. <strong>Tape</strong> warps the master through the breakdown</td></tr>
 <tr><td><a href="../modules/utilities/sample-hold.html">Sample &amp; Hold</a></td><td>Samples the sparkles' random voltage</td></tr>
 <tr><td><a href="../modules/utilities/chord-sequencer.html">Chord Sequencer</a></td><td>The harmony, a chord a bar: <strong>Voices</strong> 3, <strong>Range</strong> 4, <strong>Rootless</strong></td></tr>
 <tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a> ×5</td><td>The motif and the line it grows into (quarters, four patterns), the arp and bass (sixteenths), the bells (eighths)</td></tr>
@@ -249,7 +250,8 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Sync</strong> 1/8D, <strong>P-P</strong> and <strong>Tape</strong> on, on the Echoes send</td></tr>
 <tr><td><a href="../modules/effects/reverb.html">Reverb</a> ×2</td><td>A hall on Echoes, a plate on the send everyone shares</td></tr>
 <tr><td><a href="../modules/visualization/oscilloscope.html">Oscilloscope</a></td><td>The mix and the kick, to watch</td></tr>
-<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
+<tr><td><a href="../modules/effects/tape.html">Tape</a></td><td>On the master, 15 ips: <strong>Wow</strong> and <strong>Flutter</strong> 10%, <strong>Saturation</strong> 25%, <strong>Age</strong> 10%, <strong>Hiss</strong> 4%. The Tape Arranger's lane adds to Wow</td></tr>
+<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Volume</strong> 74%, <strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
@@ -262,12 +264,13 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 [Cues Lane 3] ──&gt; [Mixer Sky Level 4]         (the riser's level)
 [Cues Gate 3] ──&gt; [Riser ADSR Gate]           (and its envelope)
 </code></pre>
-<p>Both Arrangers count the Clock's sixteenths, sixteen to a bar, through the same 22 sections: First Sound, Echo, Sparkles, Arp, Pulse, Bass, Bells, Riser, Groove, Fill, Lift, Fill, Memory, Answer, Build, Everything, Fill, Second Wave, Lead Returns, Fill, Return and One Sine. They change section on the same clock edge as the sequencers step on, so the score and the music can't drift apart. <strong>Loop to</strong> is 1, so the song goes round again.</p>
+<p>All three Arrangers count the Clock's sixteenths, sixteen to a bar, through the same 22 sections: First Sound, Echo, Sparkles, Arp, Pulse, Bass, Bells, Riser, Groove, Fill, Lift, Fill, Memory, Answer, Build, Everything, Fill, Second Wave, Lead Returns, Fill, Return and One Sine. They change section on the same clock edge as the sequencers step on, so the score and the music can't drift apart. <strong>Loop to</strong> is 1, so the song goes round again.</p>
 <p><strong>Desk</strong>, the Arranger on the left, has a lane for each fader: the sine, arpeggio, bells, sparkles, bass, pad, wind and lead. On the Echoes, Body and Sky mixers each channel's <strong>Level</strong> knob is at zero, and its <strong>Level</strong> input adds the lane on top.</p>
 <p>The faders swell and fade more than they jump. The wind breathes in over the first twelve bars on a Log curve. Echo brings the pad in at 28% and ramps it in a line to 42% over twelve bars, through Sparkles and Arp, which hold. The sparkles rise over eight bars and thin away over the next twelve as the band arrives. The arpeggio swells in under the sine, then lifts into the Pulse as the sine rests. The bass and the bells come in on swells of their own. Where the music turns on a downbeat (a crash, the breakdown, the drop) the faders still jump: everything that leaves at Memory, or comes back at Everything, goes or comes at once.</p>
 <p>One Sine, the last twelve bars, is the score's longest fade. Each part falls on its own curve over its own length, so they leave one after another in the reverse of the order they came: bells, bass, arpeggio, sparkles, pad and wind. Meanwhile the sine climbs a little, to stand alone at the end, as it began. The pad and wind, the bed under everything, fade last, on the gentler S-curve.</p>
 <p>The mixer adds a control voltage without smoothing it, so each lane has a <strong>Glide</strong> for its jumps: a second for the pad, wind and sparkles, 0.8 s for the sine, 0.3 s for the lead, and 40 ms for the arp, bass and bells, which still land on the downbeat but never cut a tail short.</p>
 <p><strong>Cues</strong>, on the right, has the rest. It <a href="../modules/utilities/arranger.html#more-than-eight-lanes-follow">follows</a> Desk: Desk's <strong>Section</strong> is patched into its <strong>Follow</strong>, so its sections are always Desk's, and an edit to them on Desk is made on Cues too. <strong>Drums</strong> picks the drum pattern (see <a href="#drums-and-fills">Drums and fills</a>). <strong>Crash</strong> hits on the downbeat of each big section, and its level is the cymbal's accent. <strong>Riser</strong> jumps to 30% for the Riser section and 32% for the Build. Its CV is the riser's level, and its gate holds the riser's envelope open for exactly those four bars. <strong>Heat</strong> ramps up through the opening, 8% to 48% over seven sections, and keeps climbing through the groove. The Build drops it to 50% and sweeps it up an Exp curve to its peak, 86%, on the drop. The ending darkens it back down to 10% as the parts fade. Through two Attenuverters it opens the pad's Ladder and drives the bass harder. <strong>Memory</strong> is the Looper's level. It swells in over the breakdown's first four bars and recedes under the Build's riser. <strong>Rec</strong> and <strong>Clear</strong> hit the Looper's pedals. <strong>Line</strong> picks the melody's pattern (see <a href="#the-motif-and-the-line">The motif and the line</a>).</p>
+<p><strong>Tape</strong>, on the far right, follows Desk too. It has one lane, <strong>Wow</strong>, which bends the master tape through the breakdown (see <a href="#a-warped-memory">A warped memory</a>).</p>
 <h3 id="harmony-a-chord-a-bar"><a class="header" href="#harmony-a-chord-a-bar">Harmony, a chord a bar</a></h3>
 <pre><code class="language-text">[Clock Divider ÷16 Trig] ──&gt; [Chord Sequencer Clock]
 [Chord Sequencer Root] ──&gt; [Pad Root Oscillator V/Oct]
@@ -326,12 +329,28 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <pre><code class="language-text">[Mixer Kit 2 Chain Out] ──&gt; [Mixer Kit Chain In]
 [Mixer Kit Chain Out] ──&gt; [Mixer Body Chain In]
 [Mixer Body Chain Out] ──&gt; [Mixer Sky Chain In]
-[Mixer Sky Out L/R] ──&gt; [Audio Output Left/Right]
+[Mixer Sky Out L/R] ──&gt; [Tape In L/R] ──&gt; [Audio Output Left/Right]
 [Mixer Sky Send L/R] ──&gt; [Plate Reverb In L/R] ──&gt; [Mixer Sky Return L/R]
 [Mixer Echoes Send L/R] ──&gt; [Stereo Delay] ──&gt; [Mixer Echoes Return L/R]
 [Mixer Echoes Out L/R] ──&gt; [Hall Reverb] ──&gt; [Mixer Body Return L/R]
 </code></pre>
-<p>The sine, arpeggio, bells and sparkles share the Echoes mixer, whose send feeds a ping-pong tape delay on dotted eighths. Its output passes through a big hall and comes back on Body's <strong>Return</strong>. Body carries the bass, the pad in stereo and the wind. Sky carries the lead, the Looper's two sides and the riser. The two kit mixers chain into Body, and Body into Sky. Each chain cable carries a mixer's mix and its sends together, so the sends of all four ride along to Sky, where one plate reverb serves them. Echoes keeps its send for the delay.</p>
+<p>The sine, arpeggio, bells and sparkles share the Echoes mixer, whose send feeds a ping-pong tape delay on dotted eighths. Its output passes through a big hall and comes back on Body's <strong>Return</strong>. Body carries the bass, the pad in stereo and the wind. Sky carries the lead, the Looper's two sides and the riser. The two kit mixers chain into Body, and Body into Sky. Each chain cable carries a mixer's mix and its sends together, so the sends of all four ride along to Sky, where one plate reverb serves them. Echoes keeps its send for the delay. Sky's mix goes onto tape on its way to the Audio Output.</p>
+<h3 id="a-warped-memory"><a class="header" href="#a-warped-memory">A warped memory</a></h3>
+<pre><code class="language-text">[Desk Section] ──&gt; [Tape Arranger Follow]
+[Tape Arranger Lane 1] ──&gt; [Tape Wow]          (the Wow lane)
+[Mixer Sky Out L/R] ──&gt; [Tape In L/R] ──&gt; [Audio Output Left/Right]
+</code></pre>
+<p>The whole mix goes onto a <a href="../modules/effects/tape.html">Tape</a> last. For most of the song it's a well-kept machine at 15 ips. <strong>Wow</strong> and <strong>Flutter</strong> are at 10%, which sways the pitch by less than a cent. <strong>Saturation</strong> at 25% rounds the loud sections a little, and there's a touch of <strong>Age</strong> and <strong>Hiss</strong>. The record head squashes the loudest sections by up to a decibel, so the Output's <strong>Volume</strong> is up a little, to 74%, and the song is as loud as it was.</p>
+<p>The tape earns its place in the breakdown. The Looper plays the opening back reversed, the rack remembering how it began, and memories don't hold their pitch. A third Arranger, <strong>Tape</strong>, follows Desk as Cues does. Its one lane is patched into the Tape's <strong>Wow</strong>, where it adds to the knob:</p>
+<div class="table-wrapper"><table><thead><tr><th>Section</th><th>Wow lane</th><th>What you hear</th></tr></thead><tbody>
+<tr><td>Memory</td><td>Log ramp to 45% over 4 bars</td><td>The warp arrives with the ghost, which swells in over the same four bars. The whole mix sways by about 12 cents</td></tr>
+<tr><td>Answer</td><td>Hold</td><td>The sine answers its ghost on the same wavering tape</td></tr>
+<tr><td>Build</td><td>Exp ramp to 75%</td><td>The sway deepens under the riser, to nearly 30 cents by the last bar: a held breath</td></tr>
+<tr><td>Everything</td><td>Jump to 0</td><td>On the drop's downbeat the tape snaps back to speed</td></tr>
+</tbody></table>
+</div>
+<p>Wow's swing grows with the square of the setting, so the knob's 10% alone is under half a cent, the knob and lane together at 55% are 12 cents, and at 85% they're 29. The drop lands harder for coming out of a lurch. The Tape glides the depth of its wobble over 300 ms, so the jump back to 0 is a snap and not a click. First Sound jumps the lane to 0 as well, so the song comes round on steady tape.</p>
+<p>The warp needs an Arranger of its own because Cues has no lane to spare. Its <strong>Rec</strong> and <strong>Clear</strong> lanes are only used for their gates, but a lane that rose through the breakdown would raise its gate too, and press the Looper's pedal.</p>
 <h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
 <p><strong>Rearrange it.</strong> Drag a lane on the Desk up or down in any section to move that fader, or right-click it to ramp instead of jump. Delete a <strong>Fill</strong> section on the Desk for a phrase of groove without a fill: Cues follows, and its cues for the Fill go with it.</p>
 <p><strong>A shorter song.</strong> Set the Desk's <strong>Loop to</strong> to 9, the Groove, and Cues follows. The opening plays once, and then the song goes round from the groove to the end.</p>
@@ -340,10 +359,12 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <p><strong>Each voice through its own filter.</strong> Switch off the pad Mix's <strong>Sum Voices</strong>. The Ladder then filters each voice on its own, and the pad comes out cleaner and about a decibel louder. The root saw now joins all three voices, so turn the Mix's <strong>Level 1</strong> down to a third (18%) to keep the bass where it was.</p>
 <p><strong>Remember something else.</strong> Patch the Arp's VCA into the Looper's <strong>In L</strong> instead of the sine. The breakdown then hears the arpeggio, slowed and backwards.</p>
 <p><strong>Brighter all through.</strong> Raise the <strong>Offset</strong> on the pad's brightness Attenuverter: each 0.1 opens the Ladder a tenth of an octave further, all song long.</p>
+<p><strong>More or less warp.</strong> The Build's cue on the Tape Arranger sets how far the tape bends before the drop. At 90% it lurches by 40 cents; at 40% it only wavers. Pull the cable out of the Tape's <strong>Wow</strong> and the breakdown plays on steady tape.</p>
 <p><strong>Straighter.</strong> Set the Clock's <strong>Swing</strong> to 50%. Arp, bass and drums all straighten together, because they share its sixteenths.</p>
 <h2 id="related"><a class="header" href="#related">Related</a></h2>
 <ul>
 <li><a href="../modules/utilities/arranger.html">Arranger</a>: sections, lanes, and the cues that move them</li>
+<li><a href="../modules/effects/tape.html">Tape</a>: the master tape, and its Wow input</li>
 <li><a href="./afterglow.html">Afterglow</a>: transposing an arpeggio with a second sequencer</li>
 <li><a href="./roll-call.html">Roll Call</a>: one Trigger Sequencer, eight drums</li>
 <li><a href="./live-looper.html">Live Looper</a>: the Looper with your own instrument</li>
