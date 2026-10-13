@@ -183,7 +183,7 @@
                         <h1 id="vca"><a class="header" href="#vca">VCA</a></h1>
 <p><strong>Module ID</strong> <code>util.vca</code> · <strong>Category</strong> Utility</p>
 <p><img src="../../images/module-vca.png" alt="VCA Module" />
-<em>Level sets the ceiling; whatever arrives at CV opens the gate up to it.</em></p>
+<em>Level sets the ceiling; whatever arrives at CV opens the gate up to it. Here Level is at 80% and an envelope holds a note at 44%: the orange arc runs from the one down to the other.</em></p>
 <p>A VCA (voltage-controlled amplifier) sets how loud a signal is, moment to moment, from a control signal. Patch an envelope into <strong>CV</strong> and a droning oscillator becomes a note that starts when you press a key and fades when you let go. Patch an LFO in instead and you have tremolo.</p>
 <p>The VCA doesn't care what it's amplifying. Run an LFO through it instead of audio and the CV now sets how much modulation gets through, which is how you make vibrato that fades in or a filter wobble that follows an envelope.</p>
 <p>The VCA is polyphonic. Patch a polyphonic voice through it and every voice gets its own gain, set by its own channel of the CV cable.</p>
@@ -210,6 +210,7 @@
 Out  = In × gain
 </code></pre>
 <p>With <strong>CV Amt</strong> at 100% (the default), the gain is <strong>Level</strong> times the CV: silent at CV 0, full Level at CV 1. Lower <strong>CV Amt</strong> and the VCA never closes completely. At 50%, a CV of 0 leaves the signal at half Level, so the envelope or LFO only takes away half the volume. That's a quick way to get a gentle tremolo, or a note that dips rather than stops.</p>
+<p>While <strong>CV</strong> is patched, the <strong>Level</strong> knob shows the gain the VCA is running. An orange arc runs from where you set it down to a bead at the gain, and the number under the knob reads it in orange. Under an envelope, the bead falls back with each note, and a faint swath shows how far the notes have opened.</p>
 <p>The response is linear: a CV of 0.5 gives half the amplitude. Envelopes with curved stages (see <a href="../modulation/adsr.html">ADSR Envelope</a>) give the fade its shape.</p>
 <p>Both knobs are smoothed, so turning them while a note plays doesn't click.</p>
 <h3 id="bipolar-signals-into-cv"><a class="header" href="#bipolar-signals-into-cv">Bipolar signals into CV</a></h3>
