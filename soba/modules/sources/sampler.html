@@ -220,6 +220,25 @@
 <p>When a take ends it's written as a WAV beside the patch, as <code>&lt;patch name&gt; samples/Take 1.wav</code>, <code>Take 2.wav</code> and so on, and the Sampler's file names it. That's a step you can undo: undo gives the Sampler back the file it had before. Saving the patch saves the take with it, and opening the patch plays it again.</p>
 <p>A patch that hasn't been saved yet, a new one or an example, keeps its takes in a temporary folder until you save it. <strong>Save As</strong> then copies them beside the patch with its other samples. In the browser there's no folder beside the patch, so a take lives only in the session, as a dropped file does.</p>
 <p>Room for a take is set aside, a minute of stereo (about 23 MB at 48 kHz), when something is patched into <strong>In</strong>, so recording never has to find memory mid-take. Unpatch <strong>In</strong> and it's given back.</p>
+<h2 id="trim-and-normalize"><a class="header" href="#trim-and-normalize">Trim and Normalize</a></h2>
+<p>A take comes in raw: silence at each end, whatever level the mic gave it, perhaps a bump before the first word. Click the file's name, under the waveform, for two fixes. They work on any file the Sampler plays, not only takes.</p>
+<ul>
+<li><strong>Trim to the sound</strong> cuts the recording from where its sound begins to 300 ms after it ends.</li>
+<li><strong>Normalize peak to −1 dBFS</strong> turns the whole recording up (or down) until its loudest sample is at −1 dBFS. Its shape is unchanged.</li>
+<li><strong>Normalize RMS to −16 dBFS</strong> sets the level of the sound itself, so recordings sit at one level: a quiet take and a loud one come out alike. Up to 6 dB of peaks over −1 dBFS are taken down by a gentle look-ahead limiter. A peak louder than that, such as a popped "p", lowers the whole recording instead, and the status bar says by how much it fell short.</li>
+</ul>
+<p><img src="../../images/sampler-trim.png" alt="Trim, previewed on the Sampler&#39;s face" />
+<em>A spoken line with room at both ends, and <strong>Trim to the sound</strong> under the pointer. The hatched parts would go: 1.12 s from the start, up to the breath before the first word, and 1.42 s from the end. The crop marks frame what stays.</em></p>
+<p>Each item says what it would do before you choose it: how much each end loses, or how many dB the level moves. While the pointer is on an item, the waveform shows it too. A trim veils the parts it would cut and sets crop marks round what it keeps. A level writes its change across the panel, since the waveform is always drawn to fill it.</p>
+<p>Neither touches the original. Each writes a new WAV beside the patch, in <code>&lt;patch name&gt; samples</code>, named for what was done (<code>Take 1 trimmed.wav</code>, then <code>Take 1 trimmed normalized.wav</code>), and the Sampler plays it once, as it does a file just opened. It's a step you can undo: undo brings back the untouched file. A trim moves <strong>Start</strong>, <strong>End</strong> and the loop's markers with the sound, so they mark the same moments in it. A marker in a part that was cut goes to that end. Sliced, the slices are cut from what's left.</p>
+<h3 id="where-the-sound-begins"><a class="header" href="#where-the-sound-begins">Where the sound begins</a></h3>
+<p>The rule is the one the <a href="../../recipes/soba-speaks.html">Soba Speaks</a> example's voice was made with (<code>tools/voice/record.py</code>). The recording is measured in 10 ms steps, with any rumble under 70 Hz left out of the measurement. The room's level is that of its quietest tenth.</p>
+<ul>
+<li>The sound begins at the first <strong>sustained</strong> sound: one that lasts at least 80 ms, within 30 dB of the loudest and at least 10 dB over the room. A lone thump or lip smack is too short to count.</li>
+<li>From there the start walks back while the level keeps falling, to keep the breath before a word or a note's attack. It stops in the dip before anything earlier, such as a bumped stand, or where the level reaches the room, and never walks back more than 300 ms.</li>
+<li>The sound ends 300 ms after the last sustained sound, so a word can breathe out and a note ring.</li>
+</ul>
+<p>A cut start fades in over 5 ms, and a cut end fades out over 80 ms. A recording with no quiet room to cut, a drone or a pad, has nothing to trim. Neither does one that's already been trimmed.</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>A rising edge starts a note. In <strong>Gated</strong> mode the falling edge lets it go. A polyphonic gate plays a voice per channel</td></tr>
@@ -291,7 +310,7 @@
 <h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
 <p>The waveform shows the whole recording, scaled to fill the panel. What plays is lit blue, and the loop is washed orange. <strong>Start</strong> and <strong>End</strong> have blue flags at the foot, and the loop points orange flags at the head. Drag any of them like a knob. Hover a marker to see what it is, or the waveform to see the file's path, length and format.</p>
 <p>Every voice draws a white playhead where it is in the recording, as bright as it is loud. A chord is several lines moving at their own speeds, and a released note fades where it stands.</p>
-<p>Under the waveform are <strong>▶</strong> (see <a href="#hearing-it">Hearing it</a>), the file's name and length, and <strong>Rec</strong> (see <a href="#recording-into-it">Recording into it</a>), dim until something is patched into <strong>In</strong> and the patch is playing. A file that can't be found shows its name in orange. An empty Sampler asks for a file.</p>
+<p>Under the waveform are <strong>▶</strong> (see <a href="#hearing-it">Hearing it</a>), the file's name and length, which open <a href="#trim-and-normalize">Trim and Normalize</a>, and <strong>Rec</strong> (see <a href="#recording-into-it">Recording into it</a>), dim until something is patched into <strong>In</strong> and the patch is playing. A file that can't be found shows its name in orange. An empty Sampler asks for a file.</p>
 <h2 id="files-and-patches"><a class="header" href="#files-and-patches">Files and patches</a></h2>
 <p>The Sampler plays WAV files: 8-, 16-, 24- or 32-bit integer, or 32-bit float. Mono files play on both sides. Files with more than two channels play their first two. Each file is resampled to your audio device's rate when it loads, and again if the device's rate changes.</p>
 <p>A Sampler keeps up to <strong>five minutes</strong> of audio, about 115 MB of stereo at 48 kHz. A longer file is cut to its first five minutes, and the status bar says so.</p>
