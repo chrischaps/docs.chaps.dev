@@ -1431,7 +1431,7 @@ against before.wav:
 <h2 id="loading-a-file"><a class="header" href="#loading-a-file">Loading a file</a></h2>
 <ul>
 <li>Click <strong>Open…</strong> under the waveform, or click an empty Sampler's display, and choose a WAV.</li>
-<li>Drag a WAV from your file manager onto a Sampler to replace its file. Drop one on empty canvas and a new Sampler appears there, already playing it. The node lights up under the file while you drag, to show where it will land.</li>
+<li>Drag a WAV from your file manager onto a Sampler to replace its file. Drop one on empty canvas and a new Sampler appears there, already playing it. The node lights up under the file while you drag, to show where it will land, and plays the file from <strong>Start</strong> to <strong>End</strong> with its waveform on the panel. That way you can audition files from the file manager before you choose one. It stops when the file leaves the node or you give up the drag, and a file dropped while it plays carries on. (In the browser a file can only be heard once it's dropped.)</li>
 <li>In the browser, drag a file onto the page the same way.</li>
 </ul>
 <p>Loading a file is a step you can undo. A file is read and converted once. Samplers that play the same file share it.</p>
@@ -1644,7 +1644,7 @@ against before.wav:
 </ul>
 <p>A rest remembers what it was, so clicking it again plays it as before. Right-click a step for all of these, <strong>Back to slice n, as it was</strong>, <strong>Shuffle the slices</strong> (every step a slice at random, each slice once) and <strong>Reset every step</strong>. Every edit is a step you can undo.</p>
 <h2 id="loading-a-break"><a class="header" href="#loading-a-break">Loading a break</a></h2>
-<p>Load a file as on the Sampler: click <strong>Open…</strong>, or the empty panel, or drag a WAV onto the node. It plays once when it loads, so you hear what you chose, and <strong>▶</strong> plays it again at any time, dry, beside the patch. <strong>Alt-click</strong> a slice to hear just that slice.</p>
+<p>Load a file as on the Sampler: click <strong>Open…</strong>, or the empty panel, or drag a WAV onto the node. While a dragged file is over the node you hear it, so you can audition files before you drop one. It plays once when it loads, so you hear what you chose, and <strong>▶</strong> plays it again at any time, dry, beside the patch. <strong>Alt-click</strong> a slice to hear just that slice.</p>
 <p>The file should be the loop itself, start to end: a break cut on its downbeats, as you'd cut one to loop it in a sampler. The <a href="modules/sources/../../recipes/cut-up.html">Cut-Up</a> example's break is made by Soba's own Drums (<code>tools/breaks/make_break.py</code>), so it's free to use however you like.</p>
 <h2 id="slicing-at-the-hits-1"><a class="header" href="#slicing-at-the-hits-1">Slicing at the hits</a></h2>
 <p><strong>Slices</strong> cuts the loop into 2 to 64 equal slices. Eighth notes suit a swung break, since swing moves the sixteenths in between, not the eighths. Turn it past 64 to <strong>Onsets</strong> and the loop is cut at its hits instead, exactly as on the <a href="modules/sources/./sampler.html#slicing-at-the-hits">Sampler</a>: <strong>Sens</strong> chooses how many hits count, and the markers drag, come off the panel and are added by double-click.</p>
