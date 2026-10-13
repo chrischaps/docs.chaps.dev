@@ -3715,25 +3715,27 @@ Out  = In × gain
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mixer"><a class="header" href="#mixer">Mixer</a></h1>
 <p><strong>Module ID</strong> <code>util.mixer</code> · <strong>Category</strong> Utility</p>
 <p><img src="modules/utilities/../../images/module-mixer.png" alt="Mixer Module" />
-<em>Four channel strips, a row each, over the bus row: the return, the master and the outputs.</em></p>
-<p>The Mixer is a small stereo console. It brings up to four channels together into a stereo pair, and each one has its own level, pan, width, send, mute and solo. Use it to place sounds left and right, to pan one to and fro with an LFO, to open a polyphonic pad across the stereo field, or to share one reverb among every channel. For more than four channels, chain Mixers: one cable carries a Mixer's whole mix and its sends into the next.</p>
+<em>Four channel strips, a row each, over the bus row: the return, the master and the outputs. An LFO rides channel 2's Send and a slower one the Return: the orange arc on each knob runs from where it's set to where the CV has taken it.</em></p>
+<p>The Mixer is a small stereo console. It brings up to four channels together into a stereo pair, and each one has its own level, pan, width, send, mute and solo. Use it to place sounds left and right, to pan one to and fro with an LFO, to open a polyphonic pad across the stereo field, or to share one reverb among every channel and let a score ride how much of the room each part gets. For more than four channels, chain Mixers: one cable carries a Mixer's whole mix and its sends into the next.</p>
 <p>Audio and control signals both patch into a channel. To add up CVs or mono signals, without placing them in the stereo field, use the smaller <a href="modules/utilities/./mix.html">Mix</a>.</p>
 <h2 id="reading-the-node"><a class="header" href="#reading-the-node">Reading the node</a></h2>
 <p>The Mixer is a console turned on its side. Each channel is one row, read left to right the way its signal travels:</p>
 <ul>
-<li><strong>Its jacks</strong>, on the left edge: <strong>in</strong> for the channel, then <strong>lvl</strong> and <strong>pan</strong>, CV for its level and its pan. A jack's label lights up when it's patched.</li>
+<li><strong>Its jacks</strong>, on the left edge: <strong>in</strong> for the channel, then <strong>lvl</strong>, <strong>pan</strong> and <strong>snd</strong>, CV for its level, its pan and its send. A jack's label lights up when it's patched.</li>
 <li><strong>Its number</strong>, in the channel's colour.</li>
-<li><strong>Its lane</strong> of the stereo field, from <strong>L</strong> to <strong>R</strong>. A light shows where the channel sits. A polyphonic channel has a light per voice, fanned out by its <strong>Width</strong>. The lights brighten with the channel's level. A channel with its <strong>Send</strong> up blooms sideways along its lane, wider the more it sends, the way a sound spreads into a room. A hollow ring is a voice with nothing to play, and a grey ring is a channel you can't hear, because it's muted or another channel is soloed.</li>
+<li><strong>Its lane</strong> of the stereo field, from <strong>L</strong> to <strong>R</strong>. A light shows where the channel sits. A polyphonic channel has a light per voice, fanned out by its <strong>Width</strong>. The lights brighten with the channel's level. A channel with its <strong>Send</strong> up, by its knob or its CV, blooms sideways along its lane, wider the more it sends, the way a sound spreads into a room. A hollow ring is a voice with nothing to play, and a grey ring is a channel you can't hear, because it's muted or another channel is soloed.</li>
 <li><strong>Its meter</strong>: the level after its fader. It dims while the channel can't be heard.</li>
 <li><strong>Its knobs</strong>: <strong>Level</strong>, <strong>Pan</strong>, <strong>Width</strong> and <strong>Send</strong>, under the titles at the top.</li>
 <li><strong>M</strong> mutes the channel and turns red. <strong>S</strong> solos it and turns amber.</li>
 </ul>
-<p>Below the strips is the bus row. On the left come in the <strong>chain</strong> from another Mixer and the effect <strong>return</strong>. Their labels brighten with the level they bring. Then come the <strong>Return</strong> and <strong>Master</strong> knobs and the stereo output meter, and on the right, every output.</p>
+<p>Below the strips is the bus row. On the left come in the <strong>chain</strong> from another Mixer and the effect return (<strong>ret L</strong> and <strong>ret R</strong>). Their labels brighten with the level they bring. Under them, <strong>return</strong> takes CV for the <strong>Return</strong> knob. Then come the <strong>Return</strong> and <strong>Master</strong> knobs and the stereo output meter, and on the right, every output.</p>
 <h2 id="inputs-22"><a class="header" href="#inputs-22">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Ch 1</strong> – <strong>Ch 4</strong> (in)</td><td>Audio (Blue)</td><td>The channels. A polyphonic cable keeps its voices apart, for <strong>Width</strong></td></tr>
 <tr><td><strong>Level 1</strong> – <strong>Level 4</strong> (lvl)</td><td>Control (Orange)</td><td>CV added to each channel's level</td></tr>
 <tr><td><strong>Pan 1</strong> – <strong>Pan 4</strong> (pan)</td><td>Control (Orange)</td><td>CV added to each channel's pan. An LFO here pans it to and fro</td></tr>
+<tr><td><strong>Send 1</strong> – <strong>Send 4</strong> (snd)</td><td>Control (Orange)</td><td>CV added to each channel's send, so a score can step one part into the room alone</td></tr>
+<tr><td><strong>Return</strong> (return)</td><td>Control (Orange)</td><td>CV added to the <strong>Return</strong> knob. An <a href="modules/utilities/./arranger.html">Arranger</a> lane here is the whole room's fader</td></tr>
 <tr><td><strong>Chain In</strong></td><td>Bus (Steel)</td><td>Another Mixer's <strong>Chain Out</strong>: its mix joins this one after the faders, and its sends join this one's send bus</td></tr>
 <tr><td><strong>Return L</strong>, <strong>Return R</strong></td><td>Audio (Blue)</td><td>An effect's output, added to the mix at the <strong>Return</strong> knob. It may come from an effect fed by this same Mixer. <strong>Return R</strong> copies <strong>Return L</strong> when only the left is patched, so a mono source comes in centred</td></tr>
 </tbody></table>
@@ -3757,7 +3759,7 @@ Out  = In × gain
 <tr><td><strong>Master</strong></td><td>−60 – +6 dB</td><td>0 dB</td><td>Volume of the mix. At −60 dB it's silent. The sends don't follow it</td></tr>
 </tbody></table>
 </div>
-<p>Levels, pans, widths, sends, <strong>Return</strong> and <strong>Master</strong> are smoothed, so you can ride them while the patch plays without clicks. Mute and solo fade over 10 ms, so they don't click either. A <strong>Pan</strong> knob's arc grows outward from the centre, so you can read which side a channel leans to at a glance. The readout says the same: <strong>C</strong>, or <strong>L</strong> or <strong>R</strong> and how far, out of 100.</p>
+<p>Levels, pans, widths, sends, <strong>Return</strong> and <strong>Master</strong> are smoothed, so you can ride their knobs while the patch plays without clicks. CV isn't smoothed: it's heard as it comes, so an envelope can open a channel sharply (see <a href="modules/utilities/mixer.html#level-pan-send-and-return-cv">riding them from a score</a>). Mute and solo fade over 10 ms, so they don't click either. A <strong>Pan</strong> knob's arc grows outward from the centre, so you can read which side a channel leans to at a glance. The readout says the same: <strong>C</strong>, or <strong>L</strong> or <strong>R</strong> and how far, out of 100.</p>
 <h2 id="how-it-works-10"><a class="header" href="#how-it-works-10">How it works</a></h2>
 <pre><code class="language-text">Out L  = (Ch 1 × Level 1 × left(Pan 1) + … + Chain L + Return L × Return) × Master
 Out R  = (Ch 1 × Level 1 × right(Pan 1) + … + Chain R + Return R × Return) × Master
@@ -3767,9 +3769,11 @@ Send R = Ch 1 × Level 1 × right(Pan 1) × Send 1 + … + Chain Send R
 <h3 id="the-pan-law"><a class="header" href="#the-pan-law">The pan law</a></h3>
 <p>Panning is <strong>equal power</strong>: as a channel moves from left to right, one side fades as the other rises, and their power always adds up to the same. A sound swept across the field keeps its loudness all the way. In the centre each side is at −3 dB. Hard left, the right side is silent.</p>
 <p>So a channel panned centre is 3 dB quieter on each side than it went in. To win that back, set <strong>Master</strong> to +3 dB.</p>
-<h3 id="level-and-pan-cv"><a class="header" href="#level-and-pan-cv">Level and Pan CV</a></h3>
-<p>Both add to their knob. A <strong>Level</strong> CV can take a channel from silence to full, but never past 100% or below silence. A <strong>Pan</strong> CV of +1 moves a centred channel hard right, and a bipolar LFO swinging ±1 sweeps it from side to side. Set the <strong>Pan</strong> knob off centre and the LFO swings around that point instead, stopping at the edge.</p>
-<p>A patched knob shows an orange dot at its top right and keeps its own setting. The CV moves the sound around it.</p>
+<h3 id="level-pan-send-and-return-cv"><a class="header" href="#level-pan-send-and-return-cv">Level, Pan, Send and Return CV</a></h3>
+<p>Each adds to its knob. A <strong>Level</strong> CV can take a channel from silence to full, but never past 100% or below silence. A <strong>Pan</strong> CV of +1 moves a centred channel hard right, and a bipolar LFO swinging ±1 sweeps it from side to side. Set the <strong>Pan</strong> knob off centre and the LFO swings around that point instead, stopping at the edge.</p>
+<p><strong>Send</strong> and <strong>Return</strong> CV work the way <strong>Level</strong>'s does, from 0 to 100%. With a <strong>Send</strong> knob at 0, a lane at 1 is a full send: one part steps into the reverb alone while the rest stay dry. With the <strong>Return</strong> knob at 0, a lane into <strong>Return</strong> is the whole room's fader, so a song can open dry and close and bring the hall in for its second verse without spending two channels on the reverb.</p>
+<p>A patched knob shows an orange dot at its top right and keeps its own setting. While the patch plays, a thin orange arc runs round its edge from where the knob is set to a bead where the CV has carried it, so you can see a lane open the room.</p>
+<p>None of them smooths its CV. A jump from an <a href="modules/utilities/./arranger.html">Arranger</a> lane under a ringing note or a reverb tail clicks. Give the lane a <strong>Glide</strong> (40 ms saves a tail, a second suits a fade) or write the change as a <strong>Ramp</strong>, and the move is as smooth as a hand on a fader.</p>
 <h3 id="mute-and-solo"><a class="header" href="#mute-and-solo">Mute and solo</a></h3>
 <p><strong>M</strong> silences a channel. <strong>S</strong> solos it: while any channel is soloed, only the soloed ones are heard. Solo two channels to hear the pair. Mute wins over solo, so a muted channel stays silent even when it's soloed.</p>
 <p>A soloed channel keeps its sends, so you hear it in its room. The return is never silenced by a solo, and a mix arriving on <strong>Chain In</strong> is, as if it were one more channel that isn't soloed. Solo works on one Mixer at a time: soloing a channel on a Mixer earlier in a chain doesn't silence the channels of the ones after it.</p>
@@ -3824,6 +3828,12 @@ Send R = Ch 1 × Level 1 × right(Pan 1) × Send 1 + … + Chain Send R
 [Mixer Out R] ──&gt; [Audio Output Right]
 </code></pre>
 <p>Turn <strong>Send</strong> up on the channels that should sit further back. A vocal-like lead might send 20%, a pad 50%, and a bass nothing at all.</p>
+<h3 id="riding-the-room-from-a-score"><a class="header" href="#riding-the-room-from-a-score">Riding the room from a score</a></h3>
+<p>Two <a href="modules/utilities/./arranger.html">Arranger</a> lanes: one opens the hall for the second verse, the other lets the lead alone into it for the bridge:</p>
+<pre><code class="language-text">[Arranger Lane 1] ──&gt; [Mixer Return]   (Return knob at 0; lane ramps 0 → 1 over two bars)
+[Arranger Lane 2] ──&gt; [Mixer Send 2]   (Send 2 at 0; lane jumps to 0.6, Glide 1 s)
+</code></pre>
+<p>Every other channel keeps its own <strong>Send</strong>, so the room it opens is the one the mix already shares.</p>
 <h3 id="more-than-four-channels"><a class="header" href="#more-than-four-channels">More than four channels</a></h3>
 <p>Chain Mixers. The first one's mix and sends pass through the second on one cable:</p>
 <pre><code class="language-text">[Mixer A Chain Out] ──&gt; [Mixer B Chain In]
@@ -4911,12 +4921,13 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <li><strong>Pedals.</strong> Hit a Looper's <strong>Rec</strong> at the start of a section to record it, and its <strong>Clear</strong> at the top of the song so each pass starts fresh.</li>
 <li><strong>A brightness lane.</strong> Ramp a lane over a build and patch it through an <a href="modules/utilities/./attenuverter.html">Attenuverter</a> into filter cutoffs or drive amounts: the whole build opens up together.</li>
 <li><strong>A shorter song.</strong> Set <strong>Loop to</strong> a later section, and the intro plays only once.</li>
+<li><strong>Ride the room.</strong> Patch a lane into a <a href="modules/utilities/./mixer.html">Mixer</a>'s <strong>Return</strong> with its knob at 0, and the lane is the reverb's fader: dry and close for the opening, the hall for the second verse. A lane into one channel's <strong>Send</strong> steps just that part into the room.</li>
 </ol>
 <h2 id="related-2"><a class="header" href="#related-2">Related</a></h2>
 <ul>
 <li><a href="modules/utilities/../../recipes/from-one-sine.html">From One Sine</a> – a whole song on three Arrangers: eight faders; the drums, crash, riser, brightness, Looper pedals and the melody's patterns; and a lane that warps the master tape</li>
 <li><a href="modules/utilities/./trigger-sequencer.html">Trigger Sequencer</a> – patterns for an Arranger lane to pick</li>
-<li><a href="modules/utilities/./mixer.html">Mixer</a> – the faders a lane rides</li>
+<li><a href="modules/utilities/./mixer.html">Mixer</a> – the faders, sends and return a lane rides</li>
 <li><a href="modules/utilities/../modulation/clock.html">Clock</a> – tempo and swing</li>
 <li><a href="modules/utilities/./divider.html">Clock Divider</a> – phrases without a timeline</li>
 </ul>
