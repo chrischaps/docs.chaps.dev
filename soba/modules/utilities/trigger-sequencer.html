@@ -190,6 +190,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Clock</strong></td><td>Gate (Green)</td><td>Each rising edge plays the next step</td></tr>
 <tr><td><strong>Reset</strong></td><td>Gate (Green)</td><td>A rising edge starts over: the next clock plays step 1 of the Chain's first pattern</td></tr>
+<tr><td><strong>Run</strong></td><td>Gate (Green)</td><td>Steps advance only while this is high. With nothing patched, the sequencer runs</td></tr>
 <tr><td><strong>Pattern</strong></td><td>Control (Orange)</td><td>Picks the pattern for each new bar in place of the Chain: 0 to 0.25 is A, 0.25 to 0.5 is B, then C, and D from 0.75 up</td></tr>
 </tbody></table>
 </div>
@@ -249,6 +250,10 @@
 <h3 id="polymeter"><a class="header" href="#polymeter">Polymeter</a></h3>
 <p>A lane left at its default follows the bar. Give a lane its own length and it loops that many steps however long the bar is. A lane 3 steps long against a 16-step bar plays a figure of three over a bar of four, and the two only line up again after 3 bars. Two lanes of 3 and 5 against 16 meet the bar again after 15 bars.</p>
 <p>The bar and every lane count the same clock, so they drift against each other only on purpose. <strong>Reset</strong> starts them all together again.</p>
+<h3 id="stop-and-start"><a class="header" href="#stop-and-start">Stop and start</a></h3>
+<p>Patch a gate into <strong>Run</strong> to pause the pattern in place. While Run is low, clocks are ignored and the sequencer stays on its current step. A step that played just before Run fell still plays out its ratchet. When Run comes back high, the next clock plays the step after the one it stopped on. Hold Run low for whole bars and the Chain picks up as though those bars never came.</p>
+<p>The <a href="../modulation/clock.html">Clock</a>'s <strong>Run</strong> and <strong>Reset</strong> outputs are made for this. Patch them into <strong>Run</strong> and <strong>Reset</strong> and the pattern stops with the Clock and starts again from step 1 when it does, including when the Clock follows a DAW's MIDI clock and you press Play there.</p>
+<p>To let a song's last chord ring with no more hits, patch an <a href="./arranger.html">Arranger</a> lane's <strong>Gate</strong> into <strong>Run</strong> and bring the lane to zero for the closing bars.</p>
 <h2 id="how-patches-store-it"><a class="header" href="#how-patches-store-it">How patches store it</a></h2>
 <p>Every step is one parameter, named for its pattern, lane and step: <code>Step A1 01</code> is pattern A, lane 1, step 1. Its value reads as digits, <strong>ratchet</strong>, <strong>probability</strong>, <strong>velocity</strong>, and it's negative while the step is off:</p>
 <div class="table-wrapper"><table><thead><tr><th>Value</th><th>Step</th></tr></thead><tbody>
