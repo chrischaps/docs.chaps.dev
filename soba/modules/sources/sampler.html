@@ -183,10 +183,10 @@
                         <h1 id="sampler"><a class="header" href="#sampler">Sampler</a></h1>
 <p><strong>Module ID</strong> <code>source.sampler</code> · <strong>Category</strong> Source</p>
 <p><img src="../../images/module-sampler.png" alt="Sampler Module" />
-<em>A five-note chord on a looped bell. The orange flags mark the loop and the blue ones what plays. Each white line is a voice, circling inside the loop at its own speed.</em></p>
+<em>A five-note chord on a looped bell, and the file heard from <strong>▶</strong>. The orange flags mark the loop and the blue ones what plays. Each white line with a dot is a voice, circling inside the loop at its own speed. The line capped at both ends is <strong>▶</strong>'s, out in the bell's tail.</em></p>
 <p>Sampler plays a WAV file. Patch a gate in and it plays one-shots: a kick under a sequencer, a vocal chop, a door slam. Patch in V/Oct as well and a polyphonic gate, and it becomes an instrument: one recorded note spread across the keyboard, each key playing it at its own pitch.</p>
 <p>Set <strong>Slices</strong> and it becomes a chopped break: the recording is cut into equal slices, and each key plays one of them.</p>
-<p>Every other sound in Soba is synthesized. The Sampler brings in sound you've recorded, or one Soba rendered itself, and keeps it with the patch.</p>
+<p>Every other sound in Soba is synthesized. The Sampler brings in sound you've recorded, or one Soba rendered itself, and keeps it with the patch. It can make the recording itself, too: patch something into <strong>In</strong> and press <strong>Rec</strong> (see <a href="#recording-into-it">Recording into it</a>).</p>
 <h2 id="loading-a-file"><a class="header" href="#loading-a-file">Loading a file</a></h2>
 <ul>
 <li>Click <strong>Open…</strong> under the waveform, or click an empty Sampler's display, and choose a WAV.</li>
@@ -204,6 +204,22 @@
 <p>This works whether the transport is running or not. What you hear is the file itself, not the patch: it plays dry, beside the patch rather than through it, after the Audio Output's limiter, 6 dB below the file's own level. It isn't in a recording made with <strong>Record</strong>. It's how a sampler's or a DAW's file preview works.</p>
 <p>One file plays at a time. Starting another, from this Sampler or any other, fades the first out over 5 ms. Deleting the Sampler or giving it another file stops it.</p>
 <p>While it plays, a white playhead capped at both ends shows where it is, with the part it has played washed faintly behind it. The voices' playheads are lines with a blue dot, so the two never look alike.</p>
+<h2 id="recording-into-it"><a class="header" href="#recording-into-it">Recording into it</a></h2>
+<p>Patch something into <strong>In L</strong> (and <strong>In R</strong>, for stereo) and press the red <strong>Rec</strong> button beside <strong>Open…</strong>. Press it again to stop. There's no file dialog: the take plays at once, and becomes the Sampler's file.</p>
+<ul>
+<li><strong>Anything can be recorded.</strong> Patch an <a href="./audio-input.html">Audio Input</a> to record yourself. Patch the patch's own sound, a <a href="../effects/vocoder.html">Vocoder</a>'s output or a <a href="../utilities/mixer.html">Mixer</a>'s send, to <em>resample</em> it into a new instrument. One side patched records the same on both.</li>
+<li><strong>Start on a sound.</strong> Turn <strong>Thresh</strong> up from −∞ dB and Rec waits until <strong>In</strong> is that loud before it starts, keeping the 30 ms before. The take starts on your first word, not on reaching for the mouse. While it waits, the panel dims and shows how loud <strong>In</strong> is against the threshold.</li>
+<li><strong>Takes in bars.</strong> Set <strong>Take</strong> to a number of bars with a <a href="../modulation/clock.html">Clock</a> running. Rec then starts on the next bar line and stops after exactly that many bars, so the take is already a loop. A press up to 50 ms after a bar line counts as on it.</li>
+<li><strong>Stopping.</strong> Rec again, the <strong>Rec</strong> gate falling, the bars running out, or the room: a take lasts at most a minute. Stopping the transport ends a take there.</li>
+<li><strong>The Rec jack</strong> takes over from the button, as <strong>Freeze</strong> does on the Vocoder: the Sampler records while the gate is high. A sequencer's gate resamples a phrase on cue.</li>
+<li><strong>On a footswitch.</strong> Right-click <strong>Rec</strong> to learn a MIDI CC for it.</li>
+</ul>
+<p>Live input reaches the patch a round trip after it was played, so the take is written that much earlier, as the <a href="../utilities/looper.html">Looper</a>'s overdubs are. A take in bars begins with what you played on the bar line, within a few milliseconds at the latency your device reports. The patch's own sound has no round trip, and is taken as it comes.</p>
+<p>While a take comes in, the panel draws it in red, across a span that doubles whenever the take outgrows it, with the time so far in the corner and <strong>Rec</strong> showing ■. The Sampler goes on playing its old file until the take is done. Recording needs the patch playing.</p>
+<h3 id="where-takes-go"><a class="header" href="#where-takes-go">Where takes go</a></h3>
+<p>When a take ends it's written as a WAV beside the patch, as <code>&lt;patch name&gt; samples/Take 1.wav</code>, <code>Take 2.wav</code> and so on, and the Sampler's file names it. That's a step you can undo: undo gives the Sampler back the file it had before. Saving the patch saves the take with it, and opening the patch plays it again.</p>
+<p>A patch that hasn't been saved yet, a new one or an example, keeps its takes in a temporary folder until you save it. <strong>Save As</strong> then copies them beside the patch with its other samples. In the browser there's no folder beside the patch, so a take lives only in the session, as a dropped file does.</p>
+<p>Room for a take is set aside, a minute of stereo (about 23 MB at 48 kHz), when something is patched into <strong>In</strong>, so recording never has to find memory mid-take. Unpatch <strong>In</strong> and it's given back.</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>A rising edge starts a note. In <strong>Gated</strong> mode the falling edge lets it go. A polyphonic gate plays a voice per channel</td></tr>
@@ -212,6 +228,9 @@
 <tr><td><strong>Start</strong></td><td>Control (Orange)</td><td>Added to the <strong>Start</strong> knob as each note begins. 1 V is the whole recording, or the whole slice when sliced</td></tr>
 <tr><td><strong>Speed</strong></td><td>Control (Orange)</td><td>Added to the <strong>Speed</strong> knob while the note plays, as on tape: pitch follows, and below zero it plays backwards</td></tr>
 <tr><td><strong>Slice</strong></td><td>Control (Orange)</td><td>When sliced, picks a slice as each note begins: 0 to 1 across the slices, added to the note's own. Does nothing with <strong>Slices</strong> off</td></tr>
+<tr><td><strong>In L</strong></td><td>Audio (Blue)</td><td>What <strong>Rec</strong> records. Patched alone, it records on both sides</td></tr>
+<tr><td><strong>In R</strong></td><td>Audio (Blue)</td><td>The right side of what <strong>Rec</strong> records</td></tr>
+<tr><td><strong>Rec</strong></td><td>Gate (Green)</td><td>Records while high, starting as it rises (or as <strong>Take</strong> and <strong>Thresh</strong> say) and stopping as it falls. Patched, it takes over from the <strong>Rec</strong> button</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -225,6 +244,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Loop</strong></td><td>Off, Forward, Ping-Pong</td><td>Off</td><td>Off plays once. Forward jumps from Loop End back to Loop Start. Ping-Pong plays back and forth between them</td></tr>
 <tr><td><strong>Mode</strong></td><td>One-Shot, Gated</td><td>One-Shot</td><td>One-Shot plays to the end whatever the gate does. Gated lets go when the gate falls</td></tr>
+<tr><td><strong>Take</strong></td><td>Free, 1 – 16 bars</td><td>Free</td><td>Free records until Rec is pressed again. In bars, with a Clock running, a take starts on the next bar and lasts exactly that long</td></tr>
 <tr><td><strong>Start</strong></td><td>0 – 100%</td><td>0%</td><td>Where notes start, through the recording</td></tr>
 <tr><td><strong>End</strong></td><td>0 – 100%</td><td>100%</td><td>Where notes end</td></tr>
 <tr><td><strong>Lp St</strong> (Loop Start)</td><td>0 – 100%</td><td>0%</td><td>Where the loop begins. Kept between Start and End</td></tr>
@@ -237,9 +257,10 @@
 <tr><td><strong>Atk</strong> (Attack)</td><td>1 ms – 2 s</td><td>2 ms</td><td>How long each note takes to fade in</td></tr>
 <tr><td><strong>Rel</strong> (Release)</td><td>1 ms – 5 s</td><td>10 ms</td><td>How long a note takes to fade out once let go</td></tr>
 <tr><td><strong>Level</strong></td><td>0 – 100%</td><td>80%</td><td>Output level</td></tr>
+<tr><td><strong>Thresh</strong> (Rec Threshold)</td><td>−∞ – 0 dB</td><td>−∞ dB</td><td>At −∞ a take starts as soon as Rec is pressed. Turned up, it waits until <strong>In</strong> is this loud</td></tr>
 </tbody></table>
 </div>
-<p>The four region knobs sit in the top row, under the waveform where their markers are. You can drag the markers instead of the knobs. <strong>Slices</strong> and <strong>Root</strong> start the second row, since together they say which key plays which slice.</p>
+<p>The four region knobs sit in the top row, under the waveform where their markers are. You can drag the markers instead of the knobs. <strong>Slices</strong> and <strong>Root</strong> start the second row, since together they say which key plays which slice. <strong>Thresh</strong> sits on its own at the foot, since it's for recording.</p>
 <h2 id="playing-it"><a class="header" href="#playing-it">Playing it</a></h2>
 <h3 id="one-shots"><a class="header" href="#one-shots">One-shots</a></h3>
 <p>Patch a sequencer's <strong>Gate</strong> into <strong>Gate</strong>, and its <strong>Velocity</strong> into <strong>Velocity</strong>. Leave <strong>V/Oct</strong> unpatched and every hit plays at the recording's own pitch. <strong>One-Shot</strong> mode plays each hit to the end, however short the gate.</p>
@@ -270,7 +291,7 @@
 <h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
 <p>The waveform shows the whole recording, scaled to fill the panel. What plays is lit blue, and the loop is washed orange. <strong>Start</strong> and <strong>End</strong> have blue flags at the foot, and the loop points orange flags at the head. Drag any of them like a knob. Hover a marker to see what it is, or the waveform to see the file's path, length and format.</p>
 <p>Every voice draws a white playhead where it is in the recording, as bright as it is loud. A chord is several lines moving at their own speeds, and a released note fades where it stands.</p>
-<p>Under the waveform are <strong>▶</strong> (see <a href="#hearing-it">Hearing it</a>) and the file's name and length. A file that can't be found shows its name in orange. An empty Sampler asks for a file.</p>
+<p>Under the waveform are <strong>▶</strong> (see <a href="#hearing-it">Hearing it</a>), the file's name and length, and <strong>Rec</strong> (see <a href="#recording-into-it">Recording into it</a>), dim until something is patched into <strong>In</strong> and the patch is playing. A file that can't be found shows its name in orange. An empty Sampler asks for a file.</p>
 <h2 id="files-and-patches"><a class="header" href="#files-and-patches">Files and patches</a></h2>
 <p>The Sampler plays WAV files: 8-, 16-, 24- or 32-bit integer, or 32-bit float. Mono files play on both sides. Files with more than two channels play their first two. Each file is resampled to your audio device's rate when it loads, and again if the device's rate changes.</p>
 <p>A Sampler keeps up to <strong>five minutes</strong> of audio, about 115 MB of stereo at 48 kHz. A longer file is cut to its first five minutes, and the status bar says so.</p>
@@ -315,7 +336,8 @@
 <ul>
 <li><a href="../midi/poly-midi.html">Poly MIDI</a>: plays the Sampler as an instrument, a voice per key</li>
 <li><a href="../utilities/trigger-sequencer.html">Trigger Sequencer</a> and <a href="../utilities/sequencer.html">Step Sequencer</a>: one-shots in time</li>
-<li><a href="./audio-input.html">Audio Input</a>: outside sound live, as it happens, where the Sampler plays it back from a file</li>
+<li><a href="./audio-input.html">Audio Input</a>: outside sound live, as it happens. Patched into <strong>In</strong>, the Sampler records it</li>
+<li><a href="../utilities/looper.html">Looper</a>: records and layers live loops, where the Sampler records a take to play from a key or a gate</li>
 <li><a href="./drum.html">Drum</a>: synthesized drums to sit beside recorded ones</li>
 <li><a href="../effects/vocoder.html">Vocoder</a>: a recorded voice that makes a chord speak, as in the <a href="../../recipes/soba-speaks.html">Soba Speaks</a> example</li>
 </ul>
