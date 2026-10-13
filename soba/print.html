@@ -370,7 +370,7 @@ against before.wav:
 <tr><td><strong>Edit</strong></td><td><strong>↩ Undo</strong> and <strong>↪ Redo</strong>. Hover either to see which edit it will undo or redo.</td></tr>
 <tr><td><strong>〰 Cables</strong></td><td>How signal flow is drawn along cables: <strong>Chevrons</strong>, <strong>Dots</strong> or <strong>Comets</strong>. <strong>Under modules and labels</strong> sets how much of a cable shows through a module, frame title or note it passes behind (15% at first)</td></tr>
 <tr><td><strong>◉ Knobs</strong></td><td>How knobs are drawn: <strong>LED ring</strong>, <strong>Hybrid</strong>, <strong>Arc</strong>, <strong>Machined</strong> or <strong>Classic</strong></td></tr>
-<tr><td><strong>❓ Help</strong></td><td><strong>📖 Manual</strong> opens this manual. <strong>Check for Updates…</strong>, <strong>Check for Updates Automatically</strong>, and <strong>Roll Back</strong> after an update: see <a href="getting-started/installation.html#updates">Updates</a></td></tr>
+<tr><td><strong>❓ Help</strong></td><td><strong>📖 Manual</strong> opens this manual, and <strong>⌨ Keyboard Shortcuts</strong> (<code>F1</code>) lists the <a href="getting-started/interface-overview.html#keyboard-shortcuts">shortcuts</a>. <strong>Check for Updates…</strong>, <strong>Check for Updates Automatically</strong>, and <strong>Roll Back</strong> after an update: see <a href="getting-started/installation.html#updates">Updates</a></td></tr>
 <tr><td><strong>Output</strong></td><td>The audio device to play through</td></tr>
 <tr><td><strong>Input</strong></td><td>The microphone, guitar or line input that <a href="getting-started/../modules/sources/audio-input.html">Audio Input</a> modules hear. It starts at <strong>None</strong>: nothing is opened until you choose a device. A filled dot (●) means it's open.</td></tr>
 <tr><td><strong>MIDI In</strong></td><td>The MIDI controller to listen to. A filled dot (●) means it's connected.</td></tr>
@@ -562,31 +562,57 @@ against before.wav:
 <li>Linux: <code>~/.local/share/soba/app.ron</code></li>
 </ul>
 <h2 id="keyboard-shortcuts"><a class="header" href="#keyboard-shortcuts">Keyboard shortcuts</a></h2>
+<p><strong>Help ▸ Keyboard Shortcuts</strong>, or <code>F1</code>, shows these in the app too, with the letter keys drawn as the piano they play.</p>
+<h3 id="canvas"><a class="header" href="#canvas">Canvas</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
 <tr><td><code>Space</code> or <code>Tab</code></td><td>Quick add a module at the cursor</td></tr>
-<tr><td><code>Tab</code></td><td>Open the selected group</td></tr>
-<tr><td><code>Ctrl + G</code></td><td>Group the selected modules</td></tr>
-<tr><td><code>Ctrl + Alt + G</code></td><td>Ungroup the selected group</td></tr>
-<tr><td><code>F2</code></td><td>Rename the selected group</td></tr>
+<tr><td><code>F</code></td><td>Zoom to the selection, or with nothing selected, to fit the whole patch</td></tr>
+<tr><td><code>Shift + F</code></td><td>Zoom to fit the whole patch</td></tr>
+<tr><td><code>F1</code></td><td>Show or hide the Keyboard Shortcuts window</td></tr>
+<tr><td><code>Escape</code></td><td>Close the add menu, quick-add box or Keyboard Shortcuts window, cancel MIDI Learn, finish typing a frame's name or a note, or go back out of a group</td></tr>
+</tbody></table>
+</div>
+<h3 id="editing"><a class="header" href="#editing">Editing</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
 <tr><td><code>Delete</code> or <code>Backspace</code></td><td>Delete the selected modules, frames and notes</td></tr>
 <tr><td><code>Ctrl + D</code></td><td>Duplicate the selected modules, frames and notes</td></tr>
 <tr><td><code>Ctrl + C</code> / <code>Ctrl + X</code></td><td>Copy / cut the selected modules, frames and notes</td></tr>
 <tr><td><code>Ctrl + V</code></td><td>Paste at the cursor</td></tr>
-<tr><td><code>F</code></td><td>Zoom to the selection, or with nothing selected, to fit the whole patch</td></tr>
-<tr><td><code>Shift + F</code></td><td>Zoom to fit the whole patch</td></tr>
 <tr><td><code>Ctrl + Shift + F</code></td><td>Frame the selected modules</td></tr>
 <tr><td><code>Ctrl + B</code></td><td>Bypass or switch on the selected filters and effects</td></tr>
 <tr><td><code>Ctrl + Z</code></td><td>Undo</td></tr>
 <tr><td><code>Ctrl + Shift + Z</code> or <code>Ctrl + Y</code></td><td>Redo</td></tr>
+</tbody></table>
+</div>
+<h3 id="knobs-1"><a class="header" href="#knobs-1">Knobs</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>Shift</code> + drag</td><td>Fine knob adjustment</td></tr>
+<tr><td>Double-click a knob</td><td>Reset it to its default</td></tr>
+</tbody></table>
+</div>
+<h3 id="groups-1"><a class="header" href="#groups-1">Groups</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>Ctrl + G</code></td><td>Group the selected modules</td></tr>
+<tr><td><code>Ctrl + Alt + G</code></td><td>Ungroup the selected group</td></tr>
+<tr><td><code>Tab</code></td><td>Open the selected group</td></tr>
+<tr><td><code>F2</code></td><td>Rename the selected group</td></tr>
+</tbody></table>
+</div>
+<h3 id="file"><a class="header" href="#file">File</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
 <tr><td><code>Ctrl + N</code></td><td>New patch</td></tr>
 <tr><td><code>Ctrl + O</code></td><td>Open a patch</td></tr>
 <tr><td><code>Ctrl + S</code></td><td>Save</td></tr>
 <tr><td><code>Ctrl + Shift + S</code></td><td>Save as</td></tr>
-<tr><td><code>Escape</code></td><td>Close the add menu or quick-add box, cancel MIDI Learn, finish typing a frame's name or a note, or go back out of a group</td></tr>
-<tr><td><code>Shift</code> + drag</td><td>Fine knob adjustment</td></tr>
-<tr><td>Double-click a knob</td><td>Reset it to its default</td></tr>
 </tbody></table>
-</div><div style="break-before: page; page-break-before: always;"></div><h1 id="your-first-patch"><a class="header" href="#your-first-patch">Your First Patch</a></h1>
+</div>
+<h3 id="playing-1"><a class="header" href="#playing-1">Playing</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>Ctrl + R</code></td><td>Record, or end the take</td></tr>
+</tbody></table>
+</div>
+<p>The letter keys play notes: see <a href="getting-started/interface-overview.html#the-computer-keyboard">The computer keyboard</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="your-first-patch"><a class="header" href="#your-first-patch">Your First Patch</a></h1>
 <p>In this tutorial you build a playable synthesizer voice from an empty canvas: an oscillator for the tone, a keyboard to play it, an envelope and a VCA to shape each note, and a filter to color it. It takes about fifteen minutes, and each step adds one idea you'll use in every patch after this one.</p>
 <p><img src="getting-started/../images/tutorial-complete-patch.png" alt="The finished patch: Keyboard, Oscillator, SVF Filter, VCA, ADSR Envelope and Audio Output" />
 <em>Where you'll end up.</em></p>
@@ -895,7 +921,7 @@ against before.wav:
 <h2 id="precision"><a class="header" href="#precision">Precision</a></h2>
 <p>The Clock counts its beat precisely enough that every pulse lands within a sample of where it belongs, even after ten minutes, so a slow phrase clock and a fast sixteenth clock started together stay together.</p>
 <p>Modules read the transport once per block of audio (a few milliseconds). Within the block, a synced LFO moves on at the tempo it read. When the beat jumps, as when the Clock restarts or a MIDI master suddenly changes tempo, a synced LFO can be up to one block late in following it. On a steady tempo, and from the next beat on, it's exact.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="groups-1"><a class="header" href="#groups-1">Groups</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="groups-2"><a class="header" href="#groups-2">Groups</a></h1>
 <p>A good voice (an oscillator, a filter, a VCA and an envelope) is the same few modules in patch after patch, and three voices side by side turn into a wall of cables. A <strong>group</strong> collapses modules into one node of your own. It has jacks where cables crossed into and out of the selection, plus any you add, and the controls you choose to keep on its face. Open it to work on what's inside. Save it to <strong>My Modules</strong>, and it's in the add menu of every patch.</p>
 <p><img src="concepts/../images/groups-outside.png" alt="A group called Voice, playing, with a Wave dropdown and four knobs on its face" />
 <em>Voice holds an oscillator, an envelope and a VCA. Its face shows them in miniature, with the oscillator's <strong>Wave</strong> and four knobs pinned.</em></p>
@@ -1810,7 +1836,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 </code></pre>
 <p>That's C4 to E5, a little over an octave. The top letter row plays too, in the same octave: <strong>Q</strong> is C4, <strong>R</strong> is E4 and <strong>I</strong> is B4, and <strong>W E T Y U O P</strong> are the black keys from C♯4 to D♯5. Turn <strong>Oct</strong> to move the whole range.</p>
 <p>The piano display plays too. Hold a key with the mouse, or a finger on a touch screen, and it plays like a computer key; slide across the keys and the pitch follows, legato. It's how the Keyboard is played on a phone.</p>
-<h2 id="playing-1"><a class="header" href="#playing-1">Playing</a></h2>
+<h2 id="playing-2"><a class="header" href="#playing-2">Playing</a></h2>
 <p>The Keyboard plays legato. The first key raises the gate, and while any key is held the gate stays up: pressing another key moves <strong>Pitch</strong> to it without retriggering the envelope, so overlapping your key presses slurs one note into the next. To retrigger, release every key before playing the next one.</p>
 <p>When several keys are held, <strong>Priority</strong> picks the one that sounds:</p>
 <ul>

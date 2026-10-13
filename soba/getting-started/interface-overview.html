@@ -192,7 +192,7 @@
 <tr><td><strong>Edit</strong></td><td><strong>↩ Undo</strong> and <strong>↪ Redo</strong>. Hover either to see which edit it will undo or redo.</td></tr>
 <tr><td><strong>〰 Cables</strong></td><td>How signal flow is drawn along cables: <strong>Chevrons</strong>, <strong>Dots</strong> or <strong>Comets</strong>. <strong>Under modules and labels</strong> sets how much of a cable shows through a module, frame title or note it passes behind (15% at first)</td></tr>
 <tr><td><strong>◉ Knobs</strong></td><td>How knobs are drawn: <strong>LED ring</strong>, <strong>Hybrid</strong>, <strong>Arc</strong>, <strong>Machined</strong> or <strong>Classic</strong></td></tr>
-<tr><td><strong>❓ Help</strong></td><td><strong>📖 Manual</strong> opens this manual. <strong>Check for Updates…</strong>, <strong>Check for Updates Automatically</strong>, and <strong>Roll Back</strong> after an update: see <a href="installation.html#updates">Updates</a></td></tr>
+<tr><td><strong>❓ Help</strong></td><td><strong>📖 Manual</strong> opens this manual, and <strong>⌨ Keyboard Shortcuts</strong> (<code>F1</code>) lists the <a href="#keyboard-shortcuts">shortcuts</a>. <strong>Check for Updates…</strong>, <strong>Check for Updates Automatically</strong>, and <strong>Roll Back</strong> after an update: see <a href="installation.html#updates">Updates</a></td></tr>
 <tr><td><strong>Output</strong></td><td>The audio device to play through</td></tr>
 <tr><td><strong>Input</strong></td><td>The microphone, guitar or line input that <a href="../modules/sources/audio-input.html">Audio Input</a> modules hear. It starts at <strong>None</strong>: nothing is opened until you choose a device. A filled dot (●) means it's open.</td></tr>
 <tr><td><strong>MIDI In</strong></td><td>The MIDI controller to listen to. A filled dot (●) means it's connected.</td></tr>
@@ -384,31 +384,57 @@
 <li>Linux: <code>~/.local/share/soba/app.ron</code></li>
 </ul>
 <h2 id="keyboard-shortcuts"><a class="header" href="#keyboard-shortcuts">Keyboard shortcuts</a></h2>
+<p><strong>Help ▸ Keyboard Shortcuts</strong>, or <code>F1</code>, shows these in the app too, with the letter keys drawn as the piano they play.</p>
+<h3 id="canvas"><a class="header" href="#canvas">Canvas</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
 <tr><td><code>Space</code> or <code>Tab</code></td><td>Quick add a module at the cursor</td></tr>
-<tr><td><code>Tab</code></td><td>Open the selected group</td></tr>
-<tr><td><code>Ctrl + G</code></td><td>Group the selected modules</td></tr>
-<tr><td><code>Ctrl + Alt + G</code></td><td>Ungroup the selected group</td></tr>
-<tr><td><code>F2</code></td><td>Rename the selected group</td></tr>
+<tr><td><code>F</code></td><td>Zoom to the selection, or with nothing selected, to fit the whole patch</td></tr>
+<tr><td><code>Shift + F</code></td><td>Zoom to fit the whole patch</td></tr>
+<tr><td><code>F1</code></td><td>Show or hide the Keyboard Shortcuts window</td></tr>
+<tr><td><code>Escape</code></td><td>Close the add menu, quick-add box or Keyboard Shortcuts window, cancel MIDI Learn, finish typing a frame's name or a note, or go back out of a group</td></tr>
+</tbody></table>
+</div>
+<h3 id="editing"><a class="header" href="#editing">Editing</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
 <tr><td><code>Delete</code> or <code>Backspace</code></td><td>Delete the selected modules, frames and notes</td></tr>
 <tr><td><code>Ctrl + D</code></td><td>Duplicate the selected modules, frames and notes</td></tr>
 <tr><td><code>Ctrl + C</code> / <code>Ctrl + X</code></td><td>Copy / cut the selected modules, frames and notes</td></tr>
 <tr><td><code>Ctrl + V</code></td><td>Paste at the cursor</td></tr>
-<tr><td><code>F</code></td><td>Zoom to the selection, or with nothing selected, to fit the whole patch</td></tr>
-<tr><td><code>Shift + F</code></td><td>Zoom to fit the whole patch</td></tr>
 <tr><td><code>Ctrl + Shift + F</code></td><td>Frame the selected modules</td></tr>
 <tr><td><code>Ctrl + B</code></td><td>Bypass or switch on the selected filters and effects</td></tr>
 <tr><td><code>Ctrl + Z</code></td><td>Undo</td></tr>
 <tr><td><code>Ctrl + Shift + Z</code> or <code>Ctrl + Y</code></td><td>Redo</td></tr>
-<tr><td><code>Ctrl + N</code></td><td>New patch</td></tr>
-<tr><td><code>Ctrl + O</code></td><td>Open a patch</td></tr>
-<tr><td><code>Ctrl + S</code></td><td>Save</td></tr>
-<tr><td><code>Ctrl + Shift + S</code></td><td>Save as</td></tr>
-<tr><td><code>Escape</code></td><td>Close the add menu or quick-add box, cancel MIDI Learn, finish typing a frame's name or a note, or go back out of a group</td></tr>
+</tbody></table>
+</div>
+<h3 id="knobs-1"><a class="header" href="#knobs-1">Knobs</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
 <tr><td><code>Shift</code> + drag</td><td>Fine knob adjustment</td></tr>
 <tr><td>Double-click a knob</td><td>Reset it to its default</td></tr>
 </tbody></table>
 </div>
+<h3 id="groups-1"><a class="header" href="#groups-1">Groups</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>Ctrl + G</code></td><td>Group the selected modules</td></tr>
+<tr><td><code>Ctrl + Alt + G</code></td><td>Ungroup the selected group</td></tr>
+<tr><td><code>Tab</code></td><td>Open the selected group</td></tr>
+<tr><td><code>F2</code></td><td>Rename the selected group</td></tr>
+</tbody></table>
+</div>
+<h3 id="file"><a class="header" href="#file">File</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>Ctrl + N</code></td><td>New patch</td></tr>
+<tr><td><code>Ctrl + O</code></td><td>Open a patch</td></tr>
+<tr><td><code>Ctrl + S</code></td><td>Save</td></tr>
+<tr><td><code>Ctrl + Shift + S</code></td><td>Save as</td></tr>
+</tbody></table>
+</div>
+<h3 id="playing-1"><a class="header" href="#playing-1">Playing</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>Ctrl + R</code></td><td>Record, or end the take</td></tr>
+</tbody></table>
+</div>
+<p>The letter keys play notes: see <a href="#the-computer-keyboard">The computer keyboard</a>.</p>
+
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
