@@ -191,6 +191,8 @@
 <tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>A rising edge starts the attack; a falling edge starts the release</td></tr>
 <tr><td><strong>Retrig</strong></td><td>Gate (Green)</td><td>While the gate is held, a rising edge restarts the attack from the current level</td></tr>
 <tr><td><strong>Velocity</strong></td><td>Control (Orange)</td><td>Note velocity (0.0 to 1.0), read at each note-on. Scales the peak; see <strong>Vel</strong></td></tr>
+<tr><td><strong>Attack</strong>, <strong>Decay</strong>, <strong>Release</strong></td><td>Control (Orange)</td><td>Stretch the stage's time around its knob, in octaves: +1 doubles it, −1 halves it. See <a href="#stage-cv">Stage CV</a></td></tr>
+<tr><td><strong>Sustain</strong></td><td>Control (Orange)</td><td>Added to the <strong>Sus</strong> knob's level</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -234,6 +236,14 @@
 </ul>
 <p>Sustain is a fraction of the peak, so a soft note sustains lower too. With velocity patched, the node's display draws a faint second envelope for the softest note. The gap between the two lines is your dynamic range.</p>
 <p>With nothing patched into <strong>Velocity</strong>, every note peaks at 1.0, whatever the knob says.</p>
+<h2 id="stage-cv"><a class="header" href="#stage-cv">Stage CV</a></h2>
+<p>Each stage has a jack beside its knob. CV there moves the stage around where the knob puts it, so the knob stays the starting point and the cable bends it:</p>
+<ul>
+<li><strong>Attack</strong>, <strong>Decay</strong> and <strong>Release</strong> count in octaves of time. +1 doubles the knob's time, +2 quadruples it, and −1 halves it. A 500 ms release with +3 patched in rings for 4 s. The time stays within the knob's 1 ms – 10 s.</li>
+<li><strong>Sustain</strong> adds to the knob's level, so +0.3 lifts a 40% sustain to 70%.</li>
+</ul>
+<p>The envelope reads CV on every sample, not just at each note. A cue that lands while a release is already falling stretches what's left of it, and the curve bends there without a step.</p>
+<p>While a stage's jack is patched, an orange dot sits by its knob, and the display draws that stage the way the envelope is running it, with its letter lit. When a lane ramps the release out, you can watch the tail widen.</p>
 <h2 id="patch-examples"><a class="header" href="#patch-examples">Patch examples</a></h2>
 <h3 id="volume-envelope"><a class="header" href="#volume-envelope">Volume envelope</a></h3>
 <pre><code class="language-text">[Keyboard Gate] ──&gt; [ADSR Gate]
@@ -257,6 +267,15 @@
 [Attenuverter Out] ──&gt; [SVF Filter Cutoff]
 </code></pre>
 <p>The filter closes as the note opens and opens again as it releases, for "backwards" sweeps. On a filter you can skip the Attenuverter: patch the envelope straight into <strong>Cutoff</strong> and turn the filter's <strong>CV Amt</strong> below zero.</p>
+<h3 id="harder-notes-ring-longer"><a class="header" href="#harder-notes-ring-longer">Harder notes ring longer</a></h3>
+<pre><code class="language-text">[Keyboard Velocity] ──&gt; [ADSR Velocity]
+                    ──&gt; [ADSR Decay]
+</code></pre>
+<p>A struck string rings longer when it's struck harder. With a short decay and no sustain, velocity into <strong>Decay</strong> gives a full-strength note twice the knob's decay and the softest one the knob's own. For a gentler spread, run velocity through an <a href="../utilities/attenuverter.html">Attenuverter</a> first. Pitch CV into <strong>Decay</strong> through an Attenuverter turned below zero makes high notes shorter, the way a piano's are.</p>
+<h3 id="a-last-chord-that-rings"><a class="header" href="#a-last-chord-that-rings">A last chord that rings</a></h3>
+<pre><code class="language-text">[Arranger Lane 3] ──&gt; [ADSR Release]
+</code></pre>
+<p>The plucks keep their short release all song. In the last section a lane rises from 0 to 1 or 2 and holds, and the final chord rings for a second or more instead of a few hundred milliseconds. Ramp the lane so the tails lengthen as the song slows.</p>
 <h3 id="retriggering-a-held-note"><a class="header" href="#retriggering-a-held-note">Retriggering a held note</a></h3>
 <pre><code class="language-text">[Clock Gate] ──&gt; [ADSR Retrig]
 </code></pre>
@@ -271,7 +290,7 @@
 </tbody></table>
 </div>
 <h2 id="polyphony"><a class="header" href="#polyphony">Polyphony</a></h2>
-<p>The ADSR Envelope is polyphonic. Patch a polyphonic gate (from <a href="../midi/poly-midi.html">Poly MIDI</a>) into <strong>Gate</strong> and every voice gets its own envelope, with its own stage and level, so each note of a chord attacks and releases on its own. See <a href="../../concepts/polyphony.html">Polyphony</a>.</p>
+<p>The ADSR Envelope is polyphonic. Patch a polyphonic gate (from <a href="../midi/poly-midi.html">Poly MIDI</a>) into <strong>Gate</strong> and every voice gets its own envelope, with its own stage and level, so each note of a chord attacks and releases on its own. Polyphonic velocity into <strong>Decay</strong> gives each note its own decay; a mono cable, like an Arranger lane, moves every voice together. The display shows the first voice. See <a href="../../concepts/polyphony.html">Polyphony</a>.</p>
 <h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>
 <ul>
 <li><a href="../utilities/vca.html">VCA</a> to shape loudness with the envelope</li>
