@@ -224,7 +224,7 @@ c hat    X . x . X . x . X . . . . . . .
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
 <tr><td><a href="../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 104, <strong>Div</strong> 1/16, <strong>Gate</strong> 50%, <strong>Swing</strong> 57%</td></tr>
 <tr><td><a href="../modules/utilities/trigger-sequencer.html">Trigger Sequencer</a></td><td><strong>Steps</strong> 16, <strong>Gate</strong> 50%, <strong>Accent</strong> 35%. Chain <code>C A A B</code>. Rim lane 3 steps long, cowbell lane 5</td></tr>
-<tr><td><a href="../modules/sources/drum.html">Drum</a> (kick)</td><td><strong>Type</strong> Kick, <strong>Tune</strong> -1 st, <strong>Decay</strong> 45%, <strong>Tone</strong> 35%, <strong>Snap</strong> 55%, <strong>Level</strong> 85%</td></tr>
+<tr><td><a href="../modules/sources/drum.html">Drum</a> (kick)</td><td><strong>Type</strong> Kick, <strong>Tune</strong> -1 st, <strong>Decay</strong> 75%, <strong>Tone</strong> 35%, <strong>Snap</strong> 55%, <strong>Level</strong> 85%</td></tr>
 <tr><td><a href="../modules/sources/drum.html">Drum</a> (snare)</td><td><strong>Type</strong> Snare, <strong>Tune</strong> +1 st, <strong>Decay</strong> 40%, <strong>Tone</strong> 55%, <strong>Snap</strong> 65%, <strong>Level</strong> 80%</td></tr>
 <tr><td><a href="../modules/sources/drum.html">Drum</a> (closed hat)</td><td><strong>Type</strong> Closed Hat, <strong>Decay</strong> 35%, <strong>Tone</strong> 60%, <strong>Snap</strong> 40%, <strong>Level</strong> 70%</td></tr>
 <tr><td><a href="../modules/sources/drum.html">Drum</a> (open hat)</td><td><strong>Type</strong> Open Hat, <strong>Decay</strong> 55%, <strong>Tone</strong> 60%, <strong>Snap</strong> 45%, <strong>Level</strong> 60%</td></tr>
@@ -233,7 +233,7 @@ c hat    X . x . X . x . X . . . . . . .
 <tr><td><a href="../modules/sources/drum.html">Drum</a> (cowbell)</td><td><strong>Type</strong> Cowbell, <strong>Decay</strong> 35%, <strong>Tone</strong> 50%, <strong>Snap</strong> 50%, <strong>Level</strong> 50%</td></tr>
 <tr><td><a href="../modules/sources/drum.html">Drum</a> (cymbal)</td><td><strong>Type</strong> Cymbal, <strong>Decay</strong> 70%, <strong>Tone</strong> 55%, <strong>Snap</strong> 50%, <strong>Level</strong> 50%</td></tr>
 <tr><td><a href="../modules/utilities/mixer.html">Mixer</a> (skins)</td><td>Snare 75% at R 10, tom 70% at L 30, rim 50% at R 45, cowbell 45% at L 45; the kick on <strong>Return L</strong></td></tr>
-<tr><td><a href="../modules/utilities/mixer.html">Mixer</a> (metal)</td><td>Closed hat 55% and open hat 50% at R 30, cymbal 45% at L 25; the skins Mixer on <strong>Chain In</strong>; <strong>Master</strong> +4.2 dB</td></tr>
+<tr><td><a href="../modules/utilities/mixer.html">Mixer</a> (metal)</td><td>Closed hat 55% and open hat 50% at R 30, cymbal 45% at L 25; the skins Mixer on <strong>Chain In</strong>; <strong>Master</strong> +3.8 dB</td></tr>
 <tr><td><a href="../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 30%, <strong>Decay</strong> 0.6 s, <strong>Damp</strong> 60%, <strong>PreD</strong> 8 ms, <strong>Mix</strong> 14%</td></tr>
 <tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%</td></tr>
 </tbody></table>
@@ -250,6 +250,7 @@ c hat    X . x . X . x . X . . . . . . .
 <p>Accents raise the velocity of every hit on beats 1 to 4 a third of the way to full, so the downbeats lean forward without any lane being louder overall.</p>
 <h3 id="two-mixers"><a class="header" href="#two-mixers">Two mixers</a></h3>
 <p>Five drums go to the first Mixer: the kick on its <strong>Return L</strong>, which puts it in the centre, and the snare, tom, rim and cowbell on its four channels. That Mixer's <strong>Chain Out</strong> comes into the second one's <strong>Chain In</strong>, on one cable, and the second adds the hats and the cymbal and sends the whole kit through a small room.</p>
+<p>The kick's <strong>Decay</strong> is long, at 75%, and that is what sets the kit's level. The kick is most of the kit's loudness, and its loudest instant is the first few milliseconds of each hit. A longer body adds loudness without raising that peak, so the kit plays as loud as the other examples and its peaks still stay under the Output's limiter. At 45% it had to play nearly 3 dB quieter.</p>
 <h2 id="try-this"><a class="header" href="#try-this">Try this</a></h2>
 <p><strong>Edit the groove.</strong> Click a pad to add or remove a hit, drag it for velocity, or Shift + click it for a roll. Each change is one undo step.</p>
 <p><strong>Write your own fill.</strong> Right-click the <strong>A</strong> tab and copy it to <strong>D</strong>. Change D's last bar-quarter, then click the Chain's last bar until it reads <strong>D</strong>.</p>
