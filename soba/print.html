@@ -4451,8 +4451,16 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <ul>
 <li><strong>Touch.</strong> A MIDI keyboard writes how hard you played each note into the step's <strong>Velocity</strong>, so a line played with accents keeps them. The letter keys have no touch, so they leave the velocity alone.</li>
 <li><strong>Legato.</strong> Hold a note until the next one goes down and the first step ties into the second. Let go first and it doesn't. The phrasing you play is the phrasing written, as on a hardware step-record. A click on the piano has no length, so it never writes a tie.</li>
-<li><strong>The letter keys</strong> play the piano with <strong>Z</strong> on its lowest C, so <strong>‹ ›</strong> move them an octave as well. While the piano is open the letter keys belong to it, so the patch's Keyboard modules don't hear them. A MIDI keyboard still plays the patch as usual, so you hear each note once, through the patch, as it's written.</li>
+<li><strong>The letter keys</strong> play the piano with <strong>Z</strong> on its lowest C, so <strong>‹ ›</strong> move them an octave as well. While the piano is open the letter keys belong to it, so the patch's Keyboard modules don't hear them. A MIDI keyboard still plays the patch as usual.</li>
 </ul>
+<h3 id="hearing-it-as-you-write"><a class="header" href="#hearing-it-as-you-write">Hearing it as you write</a></h3>
+<p>Each note you write sounds as it goes in, through whatever the sequencer is patched into, so you can hear the melody you're writing. The clock doesn't need to be running. The note plays on the sequencer's own <strong>Pitch</strong>, <strong>Gate</strong> and <strong>Velocity</strong>, in place of the sequence:</p>
+<ul>
+<li><strong>A key</strong> you hold on the letter keys sounds for as long as you hold it. One struck while another is still down slides the pitch over without a new attack, which is how it's written: tied.</li>
+<li><strong>A click</strong> on the piano is a short note, one <strong>Gate Length</strong> long.</li>
+<li><strong>A MIDI keyboard</strong> is played by the sequencer only when the patch has no MIDI Note or Poly MIDI module. If it has one, that module already plays your notes, so the sequencer leaves them to it and you hear each note once.</li>
+</ul>
+<p>Each note sounds as loud as its step will play it. Once you let go, the sequence takes over again at the next note it plays. If the clock was running, the note it played while your hand was down isn't heard.</p>
 <p>A note already held when the piano opens isn't written. Strike it again to write it.</p>
 <p>Velocities have no knob on the node. Each step plays at 100 until a MIDI keyboard writes its touch, or the patch file says otherwise. Patch <strong>Velocity</strong> into an envelope's <strong>Velocity</strong> input to hear the accents.</p>
 <h2 id="patterns-and-the-chain"><a class="header" href="#patterns-and-the-chain">Patterns and the Chain</a></h2>
