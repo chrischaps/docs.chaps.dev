@@ -215,7 +215,8 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="../modules/modulation/lfo.html">LFO</a> 2</td><td><strong>Rate</strong> 0.03 Hz, <strong>Wave</strong> Sine, <strong>Bipolar</strong> on</td></tr>
 <tr><td><a href="../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Time</strong> 600 ms, <strong>FB</strong> 50%, <strong>Mix</strong> 40%, <strong>HiCut</strong> 4 kHz, <strong>LoCut</strong> 200 Hz, <strong>P-P</strong> on</td></tr>
 <tr><td><a href="../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 90%, <strong>Decay</strong> 8 s, <strong>PreD</strong> 100 ms, <strong>Mix</strong> 60%</td></tr>
-<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 100%</td></tr>
+<tr><td><a href="../modules/utilities/mixer.html">Mixer</a></td><td><strong>Pan 1</strong> L 100, <strong>Pan 2</strong> R 100, <strong>Master</strong> +6 dB</td></tr>
+<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td>Defaults</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
@@ -256,10 +257,13 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 [VCA Out] ──&gt; [Stereo Delay In L]
 [Stereo Delay Out L] ──&gt; [Reverb In L]
 [Stereo Delay Out R] ──&gt; [Reverb In R]
-[Reverb Out L] ──&gt; [Audio Output Left]
-[Reverb Out R] ──&gt; [Audio Output Right]
+[Reverb Out L] ──&gt; [Mixer Ch 1]        (Pan L 100)
+[Reverb Out R] ──&gt; [Mixer Ch 2]        (Pan R 100)
+[Mixer Out L] ──&gt; [Audio Output Left]
+[Mixer Out R] ──&gt; [Audio Output Right]
 </code></pre>
 <p>The envelope's 300 ms attack takes the edge off each note and its 2-second release lets it ring into the next one. The Stereo Delay repeats every 600 ms with <strong>Ping-Pong</strong> on, so echoes bounce between the speakers. Its <strong>HiCut</strong> and <strong>LoCut</strong> darken and thin each repeat, so the echoes recede instead of building up. The Reverb's large room and 8-second tail turn it all into a wash.</p>
+<p>A wash that wide is quiet. Most of each note goes into the reverb's tail, and a soft triangle through a filter doesn't start out loud. Every stage up to the Reverb is already at full, and turning up the filter's <strong>Drive</strong> would add grit, not just level. So the Mixer is the patch's gain stage. The Reverb's two sides come in on two channels panned hard left and right, which keeps the stereo picture as it was, and <strong>Master</strong> at +6 dB brings the whole wash up to sit with the other examples. Its two spare channels are room for another voice.</p>
 <h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
 <p><strong>Really generative.</strong> Set the sequencer's <strong>Dir</strong> to Rnd. The notes now come in a random order, and because they're all from the pentatonic scale, every order works.</p>
 <p><strong>A busier second voice.</strong> Raise the Noise <strong>Rate</strong> to 1 Hz and the second voice runs up and down the scale. Turn it down to 0.05 Hz and it becomes a slowly changing drone.</p>
