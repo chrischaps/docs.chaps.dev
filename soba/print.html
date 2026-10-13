@@ -1397,7 +1397,7 @@ against before.wav:
 <p><img src="modules/sources/../../images/module-sampler.png" alt="Sampler Module" />
 <em>A five-note chord on a looped bell, and the file heard from <strong>▶</strong>. The orange flags mark the loop and the blue ones what plays. Each white line with a dot is a voice, circling inside the loop at its own speed. The line capped at both ends is <strong>▶</strong>'s, out in the bell's tail.</em></p>
 <p>Sampler plays a WAV file. Patch a gate in and it plays one-shots: a kick under a sequencer, a vocal chop, a door slam. Patch in V/Oct as well and a polyphonic gate, and it becomes an instrument: one recorded note spread across the keyboard, each key playing it at its own pitch.</p>
-<p>Set <strong>Slices</strong> and it becomes a chopped break: the recording is cut into equal slices, and each key plays one of them.</p>
+<p>Set <strong>Slices</strong> and it becomes a chopped break: the recording is cut into equal slices, or at each hit it finds, and each key plays one of them.</p>
 <p>Every other sound in Soba is synthesized. The Sampler brings in sound you've recorded, or one Soba rendered itself, and keeps it with the patch. It can make the recording itself, too: patch something into <strong>In</strong> and press <strong>Rec</strong> (see <a href="modules/sources/sampler.html#recording-into-it">Recording into it</a>).</p>
 <h2 id="loading-a-file"><a class="header" href="#loading-a-file">Loading a file</a></h2>
 <ul>
@@ -1482,16 +1482,17 @@ against before.wav:
 <tr><td><strong>Lp End</strong> (Loop End)</td><td>0 – 100%</td><td>100%</td><td>Where the loop turns back. Kept between Start and End</td></tr>
 <tr><td><strong>Tune</strong></td><td>±24 st</td><td>0 st</td><td>Transpose in semitones</td></tr>
 <tr><td><strong>Fine</strong></td><td>±100 cents</td><td>0</td><td>Fine tuning</td></tr>
-<tr><td><strong>Slices</strong></td><td>Off, 2 – 64</td><td>Off</td><td>Cuts <strong>Start</strong>–<strong>End</strong> into equal slices, each played by its own key. See <a href="modules/sources/sampler.html#slices">Slices</a></td></tr>
+<tr><td><strong>Slices</strong></td><td>Off, 2 – 64, Onsets</td><td>Off</td><td>Cuts <strong>Start</strong>–<strong>End</strong> into equal slices, or at <strong>Onsets</strong>, a marker where each hit begins. Each slice is played by its own key. See <a href="modules/sources/sampler.html#slices">Slices</a></td></tr>
 <tr><td><strong>Root</strong></td><td>C-1 – G9</td><td>C4</td><td>The note the recording was made at. Playing it plays the recording unchanged. When sliced, the key that plays slice 1</td></tr>
 <tr><td><strong>Speed</strong></td><td>−2 – 2×</td><td>1×</td><td>Tape speed. 2 is twice as fast and an octave up, 0.5 half as fast and an octave down, and below 0 plays backwards</td></tr>
 <tr><td><strong>Atk</strong> (Attack)</td><td>1 ms – 2 s</td><td>2 ms</td><td>How long each note takes to fade in</td></tr>
 <tr><td><strong>Rel</strong> (Release)</td><td>1 ms – 5 s</td><td>10 ms</td><td>How long a note takes to fade out once let go</td></tr>
 <tr><td><strong>Level</strong></td><td>0 – 100%</td><td>80%</td><td>Output level</td></tr>
 <tr><td><strong>Thresh</strong> (Rec Threshold)</td><td>−∞ – 0 dB</td><td>−∞ dB</td><td>At −∞ a take starts as soon as Rec is pressed. Turned up, it waits until <strong>In</strong> is this loud</td></tr>
+<tr><td><strong>Sens</strong> (Sensitivity)</td><td>0 – 100%</td><td>50%</td><td>Sliced by <strong>Onsets</strong>, how strong a hit must be to get a marker. See <a href="modules/sources/sampler.html#slicing-at-the-hits">Slicing at the hits</a></td></tr>
 </tbody></table>
 </div>
-<p>The four region knobs sit in the top row, under the waveform where their markers are. You can drag the markers instead of the knobs. <strong>Slices</strong> and <strong>Root</strong> start the second row, since together they say which key plays which slice. <strong>Thresh</strong> sits on its own at the foot, since it's for recording.</p>
+<p>The four region knobs sit in the top row, under the waveform where their markers are. You can drag the markers instead of the knobs. <strong>Slices</strong> and <strong>Root</strong> start the second row, since together they say which key plays which slice. <strong>Thresh</strong> and <strong>Sens</strong> sit at the foot. Each says how loud something must be to count: <strong>In</strong>, to start a take, and a hit, to get a slice marker.</p>
 <h2 id="playing-it"><a class="header" href="#playing-it">Playing it</a></h2>
 <h3 id="one-shots"><a class="header" href="#one-shots">One-shots</a></h3>
 <p>Patch a sequencer's <strong>Gate</strong> into <strong>Gate</strong>, and its <strong>Velocity</strong> into <strong>Velocity</strong>. Leave <strong>V/Oct</strong> unpatched and every hit plays at the recording's own pitch. <strong>One-Shot</strong> mode plays each hit to the end, however short the gate.</p>
@@ -1515,7 +1516,21 @@ against before.wav:
 <li><strong>Start</strong> CV moves where a note starts inside its slice. 0.5 V starts halfway in.</li>
 </ul>
 <p>Patch an <a href="modules/sources/../utilities/arranger.html">Arranger</a> lane, a <a href="modules/sources/../utilities/sample-hold.html">Sample &amp; Hold</a> or an LFO into <strong>Slice</strong> to pick slices without a keyboard. Its value spreads evenly across them, 0 for the first and 1 for the last, and adds to whatever the note picked. With <strong>V/Oct</strong> unpatched, <strong>Slice</strong> alone chooses.</p>
-<p>On the display, rules divide the waveform into its slices, numbered while they're wide enough to read. The slice a voice is playing glows. Hover a slice to see which key plays it.</p>
+<p>On the display, rules divide the waveform into its slices, numbered while they're wide enough to read. The slice a voice is playing glows. Hover a slice to see which key plays it. Sliced by <strong>Onsets</strong>, the rules are markers you can drag (see <a href="modules/sources/sampler.html#slicing-at-the-hits">Slicing at the hits</a>).</p>
+<h3 id="slicing-at-the-hits"><a class="header" href="#slicing-at-the-hits">Slicing at the hits</a></h3>
+<p>Equal slices suit a file laid out in slots, a line or a note to each. A drum break or a spoken phrase isn't equal. Its hits and words land where they land, and a hit pushed a little early or dragged a little late is the feel that makes a break worth sampling. Equal sixteenths would cut through those hits.</p>
+<p>Turn <strong>Slices</strong> past 64 to <strong>Onsets</strong> and the Sampler puts a marker where each hit begins: each drum, each syllable, each plucked note. Slice 1 runs from <strong>Start</strong> to the first marker, and each marker after that starts a slice of its own, up to <strong>End</strong>. As before, <strong>Root</strong> plays slice 1 and each key up plays the next.</p>
+<p><img src="modules/sources/../../images/sampler-onsets.png" alt="Onset markers on a swung break" />
+<em>Two bars of a swung break, sliced by <strong>Onsets</strong> at 50%: a marker at every kick, snare and hat, wherever the swing put it. The pointer is on the marker that starts slice 9.</em></p>
+<ul>
+<li><strong>Sens</strong> sets how many hits count. Turned down, only the loudest hits get a marker: the kick and the snare. Turned up, ghost notes, hi-hats and quieter syllables get one too. The markers move as you turn it.</li>
+<li><strong>The markers are where the sound rises.</strong> The recording is split into four bands, from the bass up. A hit is a moment when several of them suddenly get louder together: a quiet hi-hat over a ringing kick still counts, in the top band. A marker goes a millisecond before its hit, so the slice keeps the whole attack.</li>
+<li><strong>Drag a marker</strong> (the white tabs along the top) to move it. <strong>Drag it off the panel</strong>, up or down, to take it away, and <strong>double-click</strong> between markers to add one. Each change is a step you can undo.</li>
+<li><strong>Markers you've moved are kept with the patch.</strong> Turning <strong>Sens</strong> finds them afresh, letting go of what you moved. Undo brings them back.</li>
+<li><strong>A new file finds them afresh</strong> too, as does a new take. <strong>Trim to the sound</strong> moves them with the sound.</li>
+<li><strong>Up to 64 slices.</strong> Markers outside <strong>Start</strong>–<strong>End</strong> cut nothing and are drawn faint. So are markers past the 63rd, and the last slice runs on to <strong>End</strong>.</li>
+</ul>
+<p>The hits are found once, when the file loads. Turning <strong>Sens</strong> only chooses among them, so the markers move as soon as it turns. They're found on the file as it was recorded, so they're the same whatever your device's rate, and the <a href="modules/sources/../../getting-started/installation.html#command-line"><code>render</code></a> tool hears the same slices.</p>
 <h2 id="voices"><a class="header" href="#voices">Voices</a></h2>
 <p>Sampler is polyphonic. Each channel of the <strong>Gate</strong> cable is a voice of its own, with its own pitch, velocity and place in the recording. <a href="modules/sources/../midi/poly-midi.html">Poly MIDI</a> hands each new note the next voice. When all its voices are busy, it takes the oldest note's voice, which lets go of the old note over 5 ms as the new one starts. Retriggering a note that's still sounding does the same, so fast repeated notes never click.</p>
 <p>Loading a new file while notes play fades them out over 5 ms. The next notes play the new file.</p>
@@ -1533,7 +1548,7 @@ against before.wav:
 </ul>
 <p><strong>Save As</strong> copies samples from outside the patch's folder into a folder beside it named <code>&lt;patch name&gt; samples</code>, and points the patch at the copies. The patch's folder then holds everything it needs to be shared. If the samples come to more than 50 MB, it asks first. Saving an example works the same way, so its samples come with the copy.</p>
 <p>A patch whose sample is missing still opens. The Sampler keeps the path but plays nothing, and the status bar lists the missing file with the other load warnings. Open the file again to fix it.</p>
-<p>In the patch file, the path is the module's <code>file</code> field. Modules without a file leave it out, so patches from before the Sampler read and save as they always did:</p>
+<p>In the patch file, the path is the module's <code>file</code> field. Slice markers you've moved are its <code>slice_markers</code>, with the <strong>Sens</strong> they were placed at, as fractions of the recording. Modules without either leave them out, so patches from before the Sampler read and save as they always did:</p>
 <pre><code class="language-json">{
   "id": 2,
   "module_id": "source.sampler",
@@ -1558,7 +1573,7 @@ against before.wav:
 <h3 id="a-drone-from-anything"><a class="header" href="#a-drone-from-anything">A drone from anything</a></h3>
 <p>Load a long recording (rain, a room, a held note) and set <strong>Speed</strong> to 0.5, <strong>Loop</strong> to <strong>Ping-Pong</strong> with the loop over a steady stretch, <strong>Atk</strong> to 2 s and <strong>Mode</strong> to <strong>One-Shot</strong>. One gate starts a drone an octave down that never ends. Two Samplers on the same file, one at <strong>Speed</strong> 0.5 and one at 0.749 (a fifth above it), make a chord.</p>
 <h3 id="a-chopped-break"><a class="header" href="#a-chopped-break">A chopped break</a></h3>
-<p>Load a one-bar drum loop and set <strong>Slices</strong> to 8 or 16, so each slice is an eighth or a sixteenth note. Patch a <a href="modules/sources/../utilities/sequencer.html">Step Sequencer</a>'s <strong>Pitch</strong> into <strong>V/Oct</strong> and its <strong>Gate</strong> into <strong>Gate</strong>, clocked at the same division. Steps on C4, C#4, D4… play the break as recorded. Change a step's note and that step plays another hit. Patch a <a href="modules/sources/../utilities/sample-hold.html">Sample &amp; Hold</a> of noise into <strong>Slice</strong> instead of <strong>V/Oct</strong> and the break rearranges itself on every hit.</p>
+<p>Load a one-bar drum loop and set <strong>Slices</strong> to 8 or 16, so each slice is an eighth or a sixteenth note. Or set it to <strong>Onsets</strong>, so each hit is a slice however it was played, and move any marker that landed somewhere you don't want it. Patch a <a href="modules/sources/../utilities/sequencer.html">Step Sequencer</a>'s <strong>Pitch</strong> into <strong>V/Oct</strong> and its <strong>Gate</strong> into <strong>Gate</strong>, clocked at the same division. Steps on C4, C#4, D4… play the break as recorded. Change a step's note and that step plays another hit. Patch a <a href="modules/sources/../utilities/sample-hold.html">Sample &amp; Hold</a> of noise into <strong>Slice</strong> instead of <strong>V/Oct</strong> and the break rearranges itself on every hit.</p>
 <h3 id="many-lines-in-one-file"><a class="header" href="#many-lines-in-one-file">Many lines in one file</a></h3>
 <p>The <a href="modules/sources/../../recipes/clair-de-satellite.html">Clair de Satellite</a> example keeps all eight of its sung lines in one file, a line to a slice. A Step Sequencer that steps every two bars sings line <em>k</em> on note C4 + <em>k</em>.</p>
 <h3 id="scrubbing"><a class="header" href="#scrubbing">Scrubbing</a></h3>
