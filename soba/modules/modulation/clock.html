@@ -193,6 +193,7 @@
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Sync</strong></td><td>Gate (Green)</td><td>A rising edge restarts the beat, so the next pulse starts right away</td></tr>
+<tr><td><strong>Tempo</strong></td><td>Control (Orange)</td><td>The <strong>BPM</strong> knob's jack. Bends the tempo around the knob by octaves: +1 doubles it, −1 halves it. See <a href="#tempo-cv">Tempo CV</a></td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -204,7 +205,7 @@
 </div>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
-<tr><td><strong>BPM</strong></td><td>20 – 300 BPM</td><td>120</td><td>Tempo in beats (quarter notes) per minute</td></tr>
+<tr><td><strong>BPM</strong></td><td>20 – 300 BPM</td><td>120</td><td>Tempo in beats (quarter notes) per minute. A cable in its jack bends it; see <a href="#tempo-cv">Tempo CV</a></td></tr>
 <tr><td><strong>Gate</strong></td><td>1 – 99%</td><td>50%</td><td>How much of each pulse the gate stays high</td></tr>
 <tr><td><strong>Div</strong></td><td>1, 1/2, 1/4, 1/8, 1/16</td><td>1/4</td><td>Dropdown on the node. Pulse rate relative to the beat</td></tr>
 <tr><td><strong>Run</strong></td><td>On / Off</td><td>On</td><td>Checkbox on the node. Off holds the gate low and pauses the clock; on starts it from the top</td></tr>
@@ -237,6 +238,22 @@
 <p>At <strong>Div</strong> 1/16 the pairs are eighth notes, so the off-beat sixteenths swing; at 1/8 the pairs are beats, and the off-beat eighths swing. The first pulse of every pair stays on the grid, so the downbeats, the bar length, a sequencer's <strong>EOC</strong> and a synced Delay or LFO are exactly where they'd be without swing. Only the late pulses move.</p>
 <p>Each late pulse's gate is shortened with its slot: <strong>Gate</strong> is a share of the time left before the next pulse, so even at 99% and 75% swing every pulse has its own edge. A <a href="../utilities/sequencer.html">Sequencer</a> on a swung clock does the same with its notes, long on the beat and short off it.</p>
 <p>Swing moves everything the Clock drives. To swing one part and not another, such as hats against a straight kick, give the swung part its own Clock at the same <strong>BPM</strong>, then press Stop and Play so both start from the top together. From then on they stay locked to the sample.</p>
+<h2 id="tempo-cv"><a class="header" href="#tempo-cv">Tempo CV</a></h2>
+<p>The <strong>BPM</strong> knob has a jack. A CV there bends the tempo around the knob, by octaves: +1 doubles it, −1 halves it. Because the steps are octaves, an even ramp in the CV is an even change to the ear, the way a player slows.</p>
+<div class="table-wrapper"><table><thead><tr><th>CV</th><th>Tempo</th></tr></thead><tbody>
+<tr><td><strong>0</strong></td><td>The knob's</td></tr>
+<tr><td><strong>−0.07</strong></td><td>5% slower</td></tr>
+<tr><td><strong>−0.15</strong></td><td>10% slower</td></tr>
+<tr><td><strong>−0.23</strong></td><td>15% slower</td></tr>
+<tr><td><strong>−0.42</strong></td><td>Three quarters</td></tr>
+<tr><td><strong>−1</strong></td><td>Half</td></tr>
+<tr><td><strong>+1</strong></td><td>Double</td></tr>
+</tbody></table>
+</div>
+<p>For any other change, the CV is log₂ of the new tempo over the old: log₂ 0.9 = −0.15 for 10% slower.</p>
+<p>The knob still turns while a cable is in its jack, and it reads the tempo the Clock is actually playing. The tempo stays within the knob's 20 to 300 BPM.</p>
+<p>Everything that keeps time by the Clock follows it. A sequencer's steps lengthen, and its gates with them, since a gate is a share of its step. An <a href="../utilities/arranger.html">Arranger</a>'s sections stay in bars and only their seconds change. A <a href="../utilities/divider.html">Clock Divider</a> counts the same pulses. The patch tempo bends too, so a synced Delay's echoes stretch and a synced LFO slows with the Clock.</p>
+<p>The jack can take a cable from a module the Clock itself drives, such as an Arranger's lane. That cable closes a loop, so the Clock hears it one block late, a few milliseconds that a tempo never notices. While the Clock follows MIDI, Tempo CV does nothing: the master sets the tempo.</p>
 <h2 id="sync-and-run"><a class="header" href="#sync-and-run">Sync and Run</a></h2>
 <p>A rising edge at <strong>Sync</strong> restarts the beat from the top. Use it to line the Clock up with another Clock, a sequencer's <strong>EOC</strong>, or any trigger. The Clock keeps its own tempo; Sync only moves where the beat falls. While the Clock follows MIDI, Sync does nothing: the MIDI clock places the beat.</p>
 <p>Unticking <strong>Run</strong> holds the gate low and stops the clock where it is. Ticking it again starts from the top of the bar, the way a drum machine's Play button does, and fires <strong>Reset</strong>. Patch <strong>Run</strong> and <strong>Reset</strong> into a <a href="../utilities/sequencer.html">Sequencer</a> and the sequence stops and starts with the Clock, always from step 1.</p>
@@ -278,6 +295,20 @@
 <p>Untick and tick the Clock's <strong>Run</strong>, or press Stop and Play in your DAW with <strong>Source</strong> on MIDI, and the sequence starts again from step 1 on the downbeat.</p>
 <h3 id="a-shuffled-groove"><a class="header" href="#a-shuffled-groove">A shuffled groove</a></h3>
 <p>Set <strong>Div</strong> to 1/16 and <strong>Swing</strong> to about 58% under a drum pattern. Every off-beat sixteenth lands a little late, and the hats stop sounding like a metronome. The <a href="../../recipes/backbeat.html">Backbeat</a> recipe has one to try it on.</p>
+<h3 id="slowing-into-the-last-chord-rit"><a class="header" href="#slowing-into-the-last-chord-rit">Slowing into the last chord (<em>rit.</em>)</a></h3>
+<pre><code class="language-text">[Clock Gate]       ──&gt; [Sequencer Clock]
+[Clock Gate]       ──&gt; [Arranger Clock]
+[Arranger Lane 1]  ──&gt; [Attenuverter In]   (Amount −0.23)
+[Attenuverter Out] ──&gt; [Clock Tempo]
+</code></pre>
+<p>Every pianist broadens into the last chord of a piece, and a sequenced patch can too. In the Arranger, set lane 1 to <strong>Jump</strong> to 0 at the start of the song, then to <strong>Ramp</strong> to 100% on <strong>Exp</strong> over the last two bars. The Attenuverter turns the lane into a slowing: at −0.23, the last bar ends 15% slower than it began, a gentle <em>ritardando</em>. At −0.42 it slows to three quarters, broad enough to hear as a gesture.</p>
+<p><strong>Exp</strong> holds the tempo nearly steady and then gives way into the end, as players do. <strong>Linear</strong> slows evenly, and <strong>Log</strong> slows at once and settles, more like a new, slower section (<em>meno mosso</em>) than an ending. Other moves on the same cable:</p>
+<ul>
+<li>A <strong>positive</strong> Amount turns the same ramp into an <em>accelerando</em>.</li>
+<li>A <strong>Jump</strong> changes tempo on a section's downbeat.</li>
+<li><strong>Glide</strong> on the lane eases a Jump, so the change takes a beat or two.</li>
+</ul>
+<p>Put the Arranger's last section after the ramp, with the final chord in it, and the chord lands at the slower tempo.</p>
 <h3 id="an-lfo-in-time"><a class="header" href="#an-lfo-in-time">An LFO in time</a></h3>
 <p>Set the LFO's <strong>Tempo</strong> to a division, such as 1 bar. It needs no cable from the Clock: it sweeps once a bar, from the Clock's downbeat.</p>
 <h3 id="echoes-in-time"><a class="header" href="#echoes-in-time">Echoes in time</a></h3>
@@ -289,7 +320,7 @@
 <ul>
 <li>The Clock is monophonic. It sends the same gate to every voice of a polyphonic module.</li>
 <li>The Clock runs with the transport. <strong>Stop</strong> halts it with the rest of the patch, and <strong>Play</strong> starts it again from the top of the beat.</li>
-<li>Following MIDI, the Clock ignores MIDI channels: clock messages have none.</li>
+<li>Following MIDI, the Clock ignores MIDI channels: clock messages have none. It ignores <strong>Tempo</strong> CV too.</li>
 <li>Clock ticks don't scroll through the <a href="../midi/midi-monitor.html">MIDI Monitor</a>, which would show little else. Start, Stop, Continue and Song Position do.</li>
 </ul>
 <h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>
