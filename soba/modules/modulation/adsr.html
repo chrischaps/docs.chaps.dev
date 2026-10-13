@@ -186,6 +186,7 @@
 <em>The display draws the same curve the audio follows.</em></p>
 <p>The ADSR Envelope gives each note a shape in time. When a gate goes high (a key goes down), it rises, falls to a held level, and when the gate goes low (the key comes up), it fades away: <strong>Attack</strong>, <strong>Decay</strong>, <strong>Sustain</strong>, <strong>Release</strong>. Patch it into a <a href="../utilities/vca.html">VCA</a> to shape a note's loudness, or into a filter's <strong>Cutoff</strong> to shape its brightness.</p>
 <p>Every stage takes exactly the time on its knob: a 100 ms release is silent 100 ms after you let go. Each stage's curve knob sets its shape, from a straight line to a deep analog curve.</p>
+<p>While a note plays, the display follows it: the stage it's in lights its letter, a dot rides the curve at the envelope's level, and the glow under the curve swells with it. A soft note's dot rides lower, at the peak its velocity gave it.</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>A rising edge starts the attack; a falling edge starts the release</td></tr>
@@ -243,7 +244,7 @@
 <li><strong>Sustain</strong> adds to the knob's level, so +0.3 lifts a 40% sustain to 70%.</li>
 </ul>
 <p>The envelope reads CV on every sample, not just at each note. A cue that lands while a release is already falling stretches what's left of it, and the curve bends there without a step.</p>
-<p>While a stage's jack is patched, its knob shows where the CV has taken it: an orange arc out to a bead on its rim, and the number under the knob in orange. The display draws that stage the way the envelope is running it, with its letter lit. When a lane ramps the release out, you can watch the tail widen.</p>
+<p>While a stage's jack is patched, its knob shows where the CV has taken it: an orange arc out to a bead on its rim, and the number under the knob in orange. The display draws that stage the way the envelope is running it, with its letter tinted. When a lane ramps the release out, you can watch the tail widen.</p>
 <h2 id="patch-examples"><a class="header" href="#patch-examples">Patch examples</a></h2>
 <h3 id="volume-envelope"><a class="header" href="#volume-envelope">Volume envelope</a></h3>
 <pre><code class="language-text">[Keyboard Gate] ──&gt; [ADSR Gate]

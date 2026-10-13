@@ -1145,6 +1145,7 @@ against before.wav:
 <li>a <strong>sub-oscillator</strong> one octave down;</li>
 <li><strong>unison</strong> of up to seven voices, with stereo spread. Seven detuned saws is the classic <em>supersaw</em>.</li>
 </ul>
+<p>The display draws a cycle of the wave at the Pulse Width, and reads the pitch the tune section sets. With more than one unison voice, the others are drawn faintly over it, sliding along the cycle at the rate each beats against the pitch: a gentle Detune drifts, a wide one shimmers. With <strong>Sub</strong> patched, two cycles show, with the sub's square under them.</p>
 <p>Every waveform is band-limited. Each voice runs at twice the sample rate with polyBLEP corrections on its edges and polyBLAMP corrections on its corners, then a halfband filter brings it back down. A 5 kHz saw's aliasing sits around -80 dB, so high notes and sync sweeps stay clean.</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
@@ -2057,6 +2058,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <em>The response curve on the node is computed from the filter itself, so it matches what you hear.</em></p>
 <p>The SVF (state variable filter) is the all-purpose filter: one input, four outputs, all running at once. <strong>LowPass</strong> darkens, <strong>HighPass</strong> thins, <strong>BandPass</strong> keeps a band around the cutoff and <strong>Notch</strong> takes one out. Patch whichever you need, or several at once, without switching modes.</p>
 <p>It is a 12 dB/octave filter with an analog-style resonance. Turn the resonance up and the peak grows and saturates rather than getting louder without limit; turn it all the way and the filter sings on its own as a clean sine at the cutoff. Cutoff moves in octaves, so a sweep sounds even from bass to treble, and it stays stable right up to 20 kHz.</p>
+<p>The display draws each output's response, the patched ones lit and the rest faint (with nothing patched, LowPass is lit). With CV in <strong>Cutoff</strong> or <strong>Resonance</strong>, the curves follow where the CV has taken the filter, a faint copy stays where the knobs put it, and the cutoff's tick on the floor turns orange: an envelope into Cutoff opens and closes the curve with each note. When the resonance is high enough to ring on its own, the peak glows and the display says <em>sings</em>.</p>
 <p>For a thicker, steeper lowpass, see the <a href="modules/filters/./ladder-filter.html">Ladder Filter</a>.</p>
 <h2 id="inputs-5"><a class="header" href="#inputs-5">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
@@ -2160,6 +2162,9 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <li><strong>A steep 24 dB/octave slope</strong> that darkens a sound decisively, plus a gentler 12 dB/octave tap from the middle of the ladder.</li>
 <li><strong>Saturation at every stage.</strong> Push it with <strong>Drive</strong> and it rounds off and thickens rather than clipping. The output never goes past full scale, however hard you drive it.</li>
 <li><strong>Bass compensation.</strong> The original ladder loses low end as resonance rises. This one adds the lost bass back, so turning up the resonance adds a peak without thinning the sound.</li>
+</ul>
+<p>The display draws LP24 and LP12, the patched ones lit, at the cutoff and resonance CV has taken them to, as on the <a href="modules/filters/./svf-filter.html">SVF Filter</a>. Past the top fifth of <strong>Resonance</strong>, where the ladder rings on its own, the peak glows and the display says <em>sings</em>.</p>
+<ul>
 <li><strong>Self-oscillation</strong> over the top fifth of the resonance knob: a sine at the cutoff frequency, in tune to within a cent or two.</li>
 <li><strong>2x oversampling.</strong> The saturators run at twice the sample rate, so a high note driven hard stays clean instead of picking up inharmonic aliasing.</li>
 </ul>
@@ -2259,6 +2264,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <em>The display draws the same curve the audio follows.</em></p>
 <p>The ADSR Envelope gives each note a shape in time. When a gate goes high (a key goes down), it rises, falls to a held level, and when the gate goes low (the key comes up), it fades away: <strong>Attack</strong>, <strong>Decay</strong>, <strong>Sustain</strong>, <strong>Release</strong>. Patch it into a <a href="modules/modulation/../utilities/vca.html">VCA</a> to shape a note's loudness, or into a filter's <strong>Cutoff</strong> to shape its brightness.</p>
 <p>Every stage takes exactly the time on its knob: a 100 ms release is silent 100 ms after you let go. Each stage's curve knob sets its shape, from a straight line to a deep analog curve.</p>
+<p>While a note plays, the display follows it: the stage it's in lights its letter, a dot rides the curve at the envelope's level, and the glow under the curve swells with it. A soft note's dot rides lower, at the peak its velocity gave it.</p>
 <h2 id="inputs-7"><a class="header" href="#inputs-7">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>A rising edge starts the attack; a falling edge starts the release</td></tr>
@@ -2316,7 +2322,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <li><strong>Sustain</strong> adds to the knob's level, so +0.3 lifts a 40% sustain to 70%.</li>
 </ul>
 <p>The envelope reads CV on every sample, not just at each note. A cue that lands while a release is already falling stretches what's left of it, and the curve bends there without a step.</p>
-<p>While a stage's jack is patched, its knob shows where the CV has taken it: an orange arc out to a bead on its rim, and the number under the knob in orange. The display draws that stage the way the envelope is running it, with its letter lit. When a lane ramps the release out, you can watch the tail widen.</p>
+<p>While a stage's jack is patched, its knob shows where the CV has taken it: an orange arc out to a bead on its rim, and the number under the knob in orange. The display draws that stage the way the envelope is running it, with its letter tinted. When a lane ramps the release out, you can watch the tail widen.</p>
 <h2 id="patch-examples-5"><a class="header" href="#patch-examples-5">Patch examples</a></h2>
 <h3 id="volume-envelope"><a class="header" href="#volume-envelope">Volume envelope</a></h3>
 <pre><code class="language-text">[Keyboard Gate] ──&gt; [ADSR Gate]
@@ -2377,7 +2383,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <p><img src="modules/modulation/../../images/module-lfo.png" alt="LFO Module" />
 <em>Synced to 1/4: the Rate knob reads the division, and the dot rides the waveform in step with the beat.</em></p>
 <p>The LFO (low-frequency oscillator) makes slow, repeating shapes for moving other modules: a filter that breathes, a vibrato, a tremolo, a pulse width that drifts. It runs from one cycle every 100 seconds up to 100 Hz, so it can also be pushed into the audio range for rough, buzzy modulation.</p>
-<p>The display on the node draws one cycle of the selected waveform, with a dot that travels along it at the LFO's actual phase. What you see is where the modulation is right now.</p>
+<p>The display on the node draws one cycle of the selected waveform, with a dot that travels along it at the LFO's actual phase, trailing a brighter stretch of the curve behind it. What you see is where the modulation is right now. Bipolar swings about a centre line; with Bipolar off, the wave stands on the floor, since it never goes below 0. A tick on the floor marks where the <strong>Phase</strong> knob starts the cycle. Across the top it reads the rate, after any Rate CV, or the division and the rate it comes to.</p>
 <h2 id="inputs-8"><a class="header" href="#inputs-8">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Rate</strong></td><td>Control (Orange)</td><td>Rate CV, 1 per octave: +1 doubles the rate, -1 halves it</td></tr>
