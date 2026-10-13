@@ -317,7 +317,7 @@ cargo run --release
 <p>Pass a patch file to open it instead of First Sound:</p>
 <pre><code class="language-bash">cargo run --release -- patches/lush-pad.json
 </code></pre>
-<p>The <code>render</code> tool plays a patch into a WAV file without opening the app or using an audio device, then prints each channel's peak and RMS level, the mix's loudness, and how hard the patch drives the output limiter:</p>
+<p>The <code>render</code> tool plays a patch into a WAV file without opening the app or using an audio device, then prints each channel's peak, true peak and RMS level, the mix's loudness, and how hard the patch drives the output limiter:</p>
 <pre><code class="language-bash">cargo run --release --bin render -- patches/fm-synthesis.json out.wav --seconds 5
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Option</th><th>Default</th><th>Effect</th></tr></thead><tbody>
@@ -327,21 +327,22 @@ cargo run --release
 <tr><td><code>--audition</code></td><td>off</td><td>Plays a short phrase into the patch's Keyboard, MIDI Note and Poly MIDI modules</td></tr>
 <tr><td><code>--input FILE.wav</code></td><td>none</td><td>What <a href="getting-started/../modules/sources/audio-input.html">Audio Input</a> modules hear, in place of an input device. It must be at the render's sample rate</td></tr>
 <tr><td><code>--cue FILE.txt</code></td><td>none</td><td>Parameter changes to play into the patch as it renders, one per line: <code>&lt;seconds&gt; param &lt;module&gt;[#n] &lt;parameter&gt; &lt;value&gt;</code>, as in a capture script. Press a <a href="getting-started/../modules/utilities/looper.html">Looper</a>'s footswitches this way</td></tr>
-<tr><td><code>--compare FILE.wav</code></td><td>none</td><td>An earlier render to measure against: prints how far peak, RMS, loudness and range have moved since</td></tr>
+<tr><td><code>--compare FILE.wav</code></td><td>none</td><td>An earlier render to measure against: prints how far peak, true peak, RMS, loudness and range have moved since</td></tr>
 </tbody></table>
 </div>
 <p>A patch that waits for a player renders silence unless something inside it plays notes (a Clock or Step Sequencer, say) or you add <code>--audition</code>. Audio Input modules render silence unless you give them a file with <code>--input</code>. <a href="getting-started/../modules/sources/sampler.html">Samplers</a> find their files relative to the patch, as the app does.</p>
 <p>Here Lush Pad's filter has been closed from 2500 Hz to 833 Hz since <code>before.wav</code>:</p>
 <pre><code class="language-text">rendered 'Lush Pad' (8.00 s @ 48000 Hz) -&gt; after.wav
-  L: peak   -4.8 dBFS   rms  -22.2 dBFS
-  R: peak   -4.3 dBFS   rms  -21.4 dBFS
+  L: peak   -4.8 dBFS   true   -4.7 dBTP   rms  -22.2 dBFS
+  R: peak   -4.3 dBFS   true   -4.3 dBTP   rms  -21.4 dBFS
   loudness -17.4 LUFS   range 12.3 LU
   limiter in   -4.3 dBFS   took 0.0 dB at most, 0% of the time over 1 dB
 against before.wav:
-  L: peak   -1.5 dB     rms   -1.0 dB
-  R: peak   -1.2 dB     rms   -0.9 dB
+  L: peak   -1.5 dB     true   -1.5 dB     rms   -1.0 dB
+  R: peak   -1.2 dB     true   -1.2 dB     rms   -0.9 dB
   loudness  -1.3 LU     range -0.1 LU
 </code></pre>
+<p><strong>True</strong> is the true peak, in dBTP, also after BS.1770-4: how high the waveform goes between the samples, which can be higher than at them. A converter playing the file, or an encoder squeezing it into an MP3 or a video, rebuilds that waveform and clips whatever goes over full scale, so a render whose samples all sit under 0 dBFS can still clip when it's played. A smooth pad reads its sample peak or a tenth above it. Sharp transients go higher: Backbeat's drums read 0.8 dB above their samples. Keep it under −1 dBTP to be safe.</p>
 <p><strong>Loudness</strong> is integrated loudness after ITU-R BS.1770-4, the measure streaming services normalize to. It weights the mix the way the ear does, so it's the number to compare when you want to know whether a change made a patch sound louder. RMS overweights the bass: above, it says the darker pad lost 1 dB, but the ear hears the treble it lost and puts it at 1.3. <strong>Range</strong> is the EBU loudness range, the spread between the quiet and loud passages. It reads <code>--</code> on renders shorter than three seconds.</p>
 <p><strong>Limiter</strong> is how hard the patch drives the <a href="getting-started/../modules/output/audio-output.html">Audio Output</a>'s limiter: the highest peak going into it, which can be over 0 dBFS, the most it turned the output down, and for how much of the render it took off more than 1 dB. The limiter is there to catch accidents. A patch whose peaks stay under −1 dBFS leaves it idle, as every example does. The examples also sit within a decibel or so of −16 LUFS, so switching between them doesn't jump in volume; aim there to match them.</p>
 <h2 id="microphone-access"><a class="header" href="#microphone-access">Microphone access</a></h2>
