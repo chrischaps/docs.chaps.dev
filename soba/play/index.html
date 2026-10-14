@@ -17,8 +17,8 @@
 
     
 <script type="module">
-import init, * as bindings from './soba-e0501fed8c92f80e.js';
-const wasm = await init({ module_or_path: './soba-e0501fed8c92f80e_bg.wasm' });
+import init, * as bindings from './soba-b56f4aee75298b53.js';
+const wasm = await init({ module_or_path: './soba-b56f4aee75298b53_bg.wasm' });
 
 
 window.wasmBindings = bindings;
@@ -154,7 +154,7 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
         @keyframes flow { to { stroke-dashoffset: -24; } }
         @media (prefers-reduced-motion: reduce) { #loading .flow { animation: none; } }
     </style>
-<link rel="modulepreload" href="./soba-e0501fed8c92f80e.js" crossorigin="anonymous" integrity="sha384-MmRDPvmN7VSnReWH4fk1PbZmqI2V/7MTRaFnZVPzyiH4LrmkUa9pWhsBiBHDh5HG"><link rel="preload" href="./soba-e0501fed8c92f80e_bg.wasm" crossorigin="anonymous" integrity="sha384-JbY1e5F/MBkBermOXLqx01s+UEEq2dJhjGqZ6ukTcGhLCNQRm/tVirhGbAAXrqWV" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="./soba-b56f4aee75298b53.js" crossorigin="anonymous" integrity="sha384-VeQk3Xm040/9OvTTldztXQUThjOWhUe33DtEBuAOCdryvHrH51MwrVe9HQ4iotAD"><link rel="preload" href="./soba-b56f4aee75298b53_bg.wasm" crossorigin="anonymous" integrity="sha384-qhe+lx5dm+x9r4l2TrSoCJhOOaMMs3cGw8Fj3OJmi/JgUZJZVN/ao2NQVbrgaOT6" as="fetch" type="application/wasm"></head>
 
 <body>
     <canvas id="soba"></canvas>
