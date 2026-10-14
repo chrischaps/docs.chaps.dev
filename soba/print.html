@@ -2075,6 +2075,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <p>The SVF (state variable filter) is the all-purpose filter: one input, four outputs, all running at once. <strong>LowPass</strong> darkens, <strong>HighPass</strong> thins, <strong>BandPass</strong> keeps a band around the cutoff and <strong>Notch</strong> takes one out. Patch whichever you need, or several at once, without switching modes.</p>
 <p>It is a 12 dB/octave filter with an analog-style resonance. Turn the resonance up and the peak grows and saturates rather than getting louder without limit; turn it all the way and the filter sings on its own as a clean sine at the cutoff. Cutoff moves in octaves, so a sweep sounds even from bass to treble, and it stays stable right up to 20 kHz.</p>
 <p>The display draws each output's response, the patched ones lit and the rest faint (with nothing patched, LowPass is lit). With CV in <strong>Cutoff</strong> or <strong>Resonance</strong>, the curves follow where the CV has taken the filter, a faint copy stays where the knobs put it, and the cutoff's tick on the floor turns orange: an envelope into Cutoff opens and closes the curve with each note. When the resonance is high enough to ring on its own, the peak glows and the display says <em>sings</em>.</p>
+<p>Beneath the curves lies the sound itself. What comes into <strong>In</strong> is a faint blue landscape, and what the lit output lets through is green over it, so the gap between them is what the filter is taking away, and a resonant peak shows where the green rises above the blue. It's scaled to the loudest part of what comes in, so a quiet sound fills the display as well as a loud one, and a polyphonic cable shows all its voices together. When the sound stops, the landscape sinks away and the curve's own glow fills in beneath it.</p>
 <p>For a thicker, steeper lowpass, see the <a href="modules/filters/./ladder-filter.html">Ladder Filter</a>.</p>
 <h2 id="inputs-5"><a class="header" href="#inputs-5">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
@@ -2178,12 +2179,11 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <li><strong>A steep 24 dB/octave slope</strong> that darkens a sound decisively, plus a gentler 12 dB/octave tap from the middle of the ladder.</li>
 <li><strong>Saturation at every stage.</strong> Push it with <strong>Drive</strong> and it rounds off and thickens rather than clipping. The output never goes past full scale, however hard you drive it.</li>
 <li><strong>Bass compensation.</strong> The original ladder loses low end as resonance rises. This one adds the lost bass back, so turning up the resonance adds a peak without thinning the sound.</li>
-</ul>
-<p>The display draws LP24 and LP12, the patched ones lit, at the cutoff and resonance CV has taken them to, as on the <a href="modules/filters/./svf-filter.html">SVF Filter</a>. Past the top fifth of <strong>Resonance</strong>, where the ladder rings on its own, the peak glows and the display says <em>sings</em>.</p>
-<ul>
 <li><strong>Self-oscillation</strong> over the top fifth of the resonance knob: a sine at the cutoff frequency, in tune to within a cent or two.</li>
 <li><strong>2x oversampling.</strong> The saturators run at twice the sample rate, so a high note driven hard stays clean instead of picking up inharmonic aliasing.</li>
 </ul>
+<p>The display draws LP24 and LP12, the patched ones lit, at the cutoff and resonance CV has taken them to, as on the <a href="modules/filters/./svf-filter.html">SVF Filter</a>. Past the top fifth of <strong>Resonance</strong>, where the ladder rings on its own, the peak glows and the display says <em>sings</em>.</p>
+<p>Beneath the curves lies the sound itself, as on the SVF: what comes in as a faint blue landscape, and what the lit output lets through in green over it. The green is measured rather than worked out from the curve, so the harmonics <strong>Drive</strong> adds show up too, as green rising where the blue was low.</p>
 <h2 id="inputs-6"><a class="header" href="#inputs-6">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In</strong></td><td>Audio (Blue)</td><td>Audio to filter</td></tr>
