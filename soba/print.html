@@ -2912,9 +2912,18 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 <div style="break-before: page; page-break-before: always;"></div><h1 id="distortion"><a class="header" href="#distortion">Distortion</a></h1>
 <p><strong>Module ID</strong> <code>fx.distortion</code> · <strong>Category</strong> Effect</p>
 <p><img src="modules/effects/../../images/module-distortion.png" alt="Distortion Module" />
-<em>The character of the curve on top, its color and level below</em></p>
+<em>A low sine into the folder: the whole curve lit, and the wave on the right folding back at its peaks</em></p>
 <p>The Distortion adds harmonics by pushing a signal into a curve: rounding it off, clipping it, folding it back on itself, or crushing it into steps. Five types cover everything from a touch of warmth on a bass to a sine folded into a buzzing, vocal tone.</p>
 <p>Every curve runs at four times the sample rate with antiderivative anti-aliasing (ADAA). Even full drive on a high note adds only harmonics of that note, not the inharmonic "digital fizz" a naive distortion folds back into the audible range. The dry signal is mixed in at the same oversampled rate and aligned to the sample, so <strong>Mix</strong> blends cleanly without comb filtering.</p>
+<h2 id="the-display-6"><a class="header" href="#the-display-6">The display</a></h2>
+<p>The display shows the bend and how far into it the sound goes.</p>
+<ul>
+<li><strong>The curve.</strong> On the left, what goes in runs across from −1 to 1, and what comes out runs up. It is the module's own curve for the chosen <strong>Type</strong>, after <strong>Drive</strong> (and for Fold, <strong>Sym</strong>), blended by <strong>Mix</strong> and scaled by <strong>Out</strong>. Soft is a gentle S, Hard flattens at the top, Fold zigzags back down, Tube leans, and Bit is a staircase with fewer steps the harder it's driven.</li>
+<li><strong>The lit stretch.</strong> The part of the curve the input reaches right now is lit, with a dot at each end, and it glows hotter as Drive rises. Turn up a quiet input and you can watch it walk into the bend.</li>
+<li><strong>The wave.</strong> On the right is one cycle of a sine at the input's level, faint, and over it what the curve makes of that sine. That is the shape the new harmonics come from: rounded shoulders for Soft, flat tops for Hard, extra wiggles for Fold.</li>
+<li><strong>Words.</strong> The top right gives the drive, in orange while <strong>Drive</strong> CV moves it. For Bit it gives the bits kept and the crushed rate instead.</li>
+</ul>
+<p><strong>Tone</strong> isn't drawn: it shapes the sound after the curve.</p>
 <h2 id="inputs-13"><a class="header" href="#inputs-13">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In</strong></td><td>Audio (Blue)</td><td>Signal to distort</td></tr>
@@ -3003,7 +3012,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 <p>A stereo source keeps its image: nothing patched into <strong>In L</strong> ever reaches <strong>Out R</strong>.</p>
 <p>With <strong>In R</strong> unpatched, In L feeds both sides and the chorus creates the width itself. Each right tap's LFO sits halfway between two left taps (180° away with one voice, 90° with two), so the two sides always bend in pitch in opposite directions.</p>
 <p>Changing <strong>Voices</strong> fades voices in or out and slides the rest to their new places on the cycle, so it never clicks.</p>
-<h2 id="the-display-6"><a class="header" href="#the-display-6">The display</a></h2>
+<h2 id="the-display-7"><a class="header" href="#the-display-7">The display</a></h2>
 <p>The display draws the voices sweeping over the last two seconds, newest at the right edge. Up and down is how far each tap reads behind <strong>Delay</strong>: the centre line is the Delay itself, and the faint lines either side are as far as <strong>Depth</strong> lets the taps swing.</p>
 <ul>
 <li><strong>Strands.</strong> Each voice is a strand in its own colour. The solid strand is its left tap, and the fainter one beside it is its right tap, half a voice-spacing behind. One voice draws a single wave, and four weave a braid. <strong>Rate</strong> sets how many cycles cross the panel, and <strong>Shape</strong> bends them from sine to triangle. A dot at the right edge marks where each voice is now.</li>
@@ -3306,7 +3315,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 <li><strong>Mkup</strong> adds gain back afterward, and <strong>Mix</strong> blends the result with the dry input.</li>
 </ol>
 <p>Attack and release shape the <em>gain reduction</em>, in dB, not the measured level. So a steady tone above the threshold comes out exactly where the ratio says it should, however fast or slow the timing knobs are set; attack and release only decide how it gets there.</p>
-<h2 id="the-display-7"><a class="header" href="#the-display-7">The display</a></h2>
+<h2 id="the-display-8"><a class="header" href="#the-display-8">The display</a></h2>
 <p>The display has two halves: the curve the compressor works to, and the last two seconds of it working.</p>
 <ul>
 <li><strong>The curve.</strong> On the left, the level the detector hears runs across and the output's level runs up, both from −60 dB to 0 dB. Below the threshold the curve follows the faint diagonal, where nothing changes. Past it the curve bends flatter by the ratio, through a soft band as wide as <strong>Knee</strong>. <strong>Mkup</strong> lifts the whole curve, and <strong>Mix</strong> pulls it back towards the diagonal.</li>
@@ -3451,7 +3460,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 </div>
 <p>The <strong>Formant</strong> input adds to the knob, and the sum stops at an octave either way. While it's patched, the knob stays live and sets the centre the CV works around.</p>
 <p>Attack and Release are the time a band takes to cover most of a change (63%), like the RC follower on an analog vocoder's band.</p>
-<h2 id="the-display-8"><a class="header" href="#the-display-8">The display</a></h2>
+<h2 id="the-display-9"><a class="header" href="#the-display-9">The display</a></h2>
 <p>Bars stand on a frequency axis, one per band, each as tall as the voice is in that band right now. Watch them while the voice speaks and you can see the vowels change. An "ee" lifts the bars at both ends, and an "oo" piles them up at the left.</p>
 <ul>
 <li><strong>Colours.</strong> Odd bands are cyan and even bands violet. The colours part as <strong>Width</strong> opens, to show which side each band plays on.</li>
@@ -3526,7 +3535,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 <p>The Clock is the patch's metronome. It sends a steady stream of gate pulses at a tempo you set, for stepping a <a href="modules/modulation/../utilities/sequencer.html">Sequencer</a>, firing envelopes on the beat, or triggering a <a href="modules/modulation/../utilities/sample-hold.html">Sample &amp; Hold</a>.</p>
 <p>It also sets the <strong>patch tempo and beat</strong>. Tempo-synced modules follow it without a cable: the <a href="modules/modulation/../effects/delay.html">Delay</a> with its <strong>Sync</strong> set to a note length, and the <a href="modules/modulation/./lfo.html">LFO</a> with its <strong>Tempo</strong> set to a division. See <a href="modules/modulation/../../concepts/tempo-and-sync.html">Tempo and Sync</a>.</p>
 <p>The Clock can keep its own time, or follow the <strong>MIDI clock</strong> of a DAW, drum machine or another synth, so the patch plays in time with them.</p>
-<h2 id="the-display-9"><a class="header" href="#the-display-9">The display</a></h2>
+<h2 id="the-display-10"><a class="header" href="#the-display-10">The display</a></h2>
 <p>Four lamps show the beats of the bar. The lamp of the beat playing flashes as the beat lands and fades through it, and the downbeat flashes brightest. A thin line under the lamps sweeps across the bar, with a dot where each pulse falls. With <strong>Swing</strong> turned up, the late pulses are drawn in orange, pushed along towards the next one. When the Clock stops, the beat it stopped on keeps a faint outline.</p>
 <p>Beside the lamps, a badge shows where the time comes from: <strong>INT</strong> for the Clock's own <strong>BPM</strong>, or <strong>MIDI</strong> when it follows a MIDI clock. The MIDI badge fills in while clock ticks are coming in. Hover over the display to see what the Clock is doing.</p>
 <h2 id="inputs-19"><a class="header" href="#inputs-19">Inputs</a></h2>
