@@ -183,7 +183,7 @@
                         <h1 id="stereo-delay"><a class="header" href="#stereo-delay">Stereo Delay</a></h1>
 <p><strong>Module ID</strong> <code>fx.delay</code> · <strong>Category</strong> Effect</p>
 <p><img src="../../images/module-delay.png" alt="Stereo Delay module" />
-<em>Ping-pong, Sync and Tape switch the character; the knobs set the echoes</em></p>
+<em>A clap into the left side only, ping-ponged on worn tape: the first echo lights on the left, the second comes back on the right</em></p>
 <p>The Stereo Delay plays back a copy of its input a moment later, then feeds that copy back in to make repeats. Filters in the feedback path darken or thin each repeat, <strong>P-P</strong> bounces the repeats between left and right, and <strong>Sync</strong> locks the time to the patch tempo.</p>
 <p>Switch on <strong>Tape</strong> and it becomes a worn tape echo: the repeats waver in pitch, saturate as they build, and get darker each time around. Push the feedback far enough and they run away into the classic dub swell. The <a href="./tape.html">Tape</a> module puts the same machine on a whole bus.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
@@ -193,6 +193,15 @@
 <li>The playback runs through <strong>HiCut</strong> and <strong>LoCut</strong>, is scaled by <strong>FB</strong>, and goes back into the line with the input. Each repeat passes through the filters once more than the one before it.</li>
 <li><strong>Mix</strong> blends the dry input with the playback.</li>
 </ol>
+<h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
+<p>The display draws the train of echoes. Time runs to the right from the moment a sound goes in. The first bar is the dry sound, and after it come the echoes, one delay time apart. Each echo is as loud as the feedback leaves it, on a decibel scale so a long tail stays readable. The left channel stands above the centre line and the right hangs below it.</p>
+<ul>
+<li><strong>Filters.</strong> Every repeat passes <strong>HiCut</strong> and <strong>LoCut</strong> once more, so each bar is a little warmer than the one before and a little thinner. Tape mode adds the tape's own darkening.</li>
+<li><strong>The sound going through.</strong> Each echo lights as the sound coming in reaches it, so a hit visibly walks down the train and fades. An echo lit to the top of its bar is as loud as the loudest thing that came in.</li>
+<li><strong>Ping-Pong.</strong> With <strong>P-P</strong> on, the echoes take turns: each side's second echo is the other side's first, come back across. It shows best with something only on one side, or a stereo source.</li>
+<li><strong>Tape.</strong> The bars blur and sway with the wow. Past unity, the feedback runs away and the header says so in orange.</li>
+<li><strong>Words.</strong> The top left gives the time, with the note length when <strong>Sync</strong> sets it, in orange while <strong>Time</strong> CV moves it. The top right gives the feedback and the switches that are on.</li>
+</ul>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In L</strong></td><td>Audio (Blue)</td><td>Left input</td></tr>

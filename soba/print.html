@@ -2610,7 +2610,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 <div style="break-before: page; page-break-before: always;"></div><h1 id="stereo-delay"><a class="header" href="#stereo-delay">Stereo Delay</a></h1>
 <p><strong>Module ID</strong> <code>fx.delay</code> · <strong>Category</strong> Effect</p>
 <p><img src="modules/effects/../../images/module-delay.png" alt="Stereo Delay module" />
-<em>Ping-pong, Sync and Tape switch the character; the knobs set the echoes</em></p>
+<em>A clap into the left side only, ping-ponged on worn tape: the first echo lights on the left, the second comes back on the right</em></p>
 <p>The Stereo Delay plays back a copy of its input a moment later, then feeds that copy back in to make repeats. Filters in the feedback path darken or thin each repeat, <strong>P-P</strong> bounces the repeats between left and right, and <strong>Sync</strong> locks the time to the patch tempo.</p>
 <p>Switch on <strong>Tape</strong> and it becomes a worn tape echo: the repeats waver in pitch, saturate as they build, and get darker each time around. Push the feedback far enough and they run away into the classic dub swell. The <a href="modules/effects/./tape.html">Tape</a> module puts the same machine on a whole bus.</p>
 <h2 id="how-it-works-1"><a class="header" href="#how-it-works-1">How it works</a></h2>
@@ -2620,6 +2620,15 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 <li>The playback runs through <strong>HiCut</strong> and <strong>LoCut</strong>, is scaled by <strong>FB</strong>, and goes back into the line with the input. Each repeat passes through the filters once more than the one before it.</li>
 <li><strong>Mix</strong> blends the dry input with the playback.</li>
 </ol>
+<h2 id="the-display-4"><a class="header" href="#the-display-4">The display</a></h2>
+<p>The display draws the train of echoes. Time runs to the right from the moment a sound goes in. The first bar is the dry sound, and after it come the echoes, one delay time apart. Each echo is as loud as the feedback leaves it, on a decibel scale so a long tail stays readable. The left channel stands above the centre line and the right hangs below it.</p>
+<ul>
+<li><strong>Filters.</strong> Every repeat passes <strong>HiCut</strong> and <strong>LoCut</strong> once more, so each bar is a little warmer than the one before and a little thinner. Tape mode adds the tape's own darkening.</li>
+<li><strong>The sound going through.</strong> Each echo lights as the sound coming in reaches it, so a hit visibly walks down the train and fades. An echo lit to the top of its bar is as loud as the loudest thing that came in.</li>
+<li><strong>Ping-Pong.</strong> With <strong>P-P</strong> on, the echoes take turns: each side's second echo is the other side's first, come back across. It shows best with something only on one side, or a stereo source.</li>
+<li><strong>Tape.</strong> The bars blur and sway with the wow. Past unity, the feedback runs away and the header says so in orange.</li>
+<li><strong>Words.</strong> The top left gives the time, with the note length when <strong>Sync</strong> sets it, in orange while <strong>Time</strong> CV moves it. The top right gives the feedback and the switches that are on.</li>
+</ul>
 <h2 id="inputs-10"><a class="header" href="#inputs-10">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In L</strong></td><td>Audio (Blue)</td><td>Left input</td></tr>
@@ -2798,7 +2807,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 <em>Pink noise through a warm low shelf, a cut in the middle and an airy top, with the pointer on the mid band</em></p>
 <p>The 3-Band EQ boosts or cuts three regions of the spectrum: a <strong>low shelf</strong> for the bass, a fully parametric <strong>mid band</strong>, and a <strong>high shelf</strong> for the treble. Use it to fit a sound into a patch, take the mud out of a pad, put an edge on a lead, or darken a reverb tail.</p>
 <p>Where a filter removes whole parts of the spectrum, an EQ leans on them, up to 15 dB either way. Every knob glides, so you can sweep the mid band while a note plays without zipper noise.</p>
-<h2 id="the-display-4"><a class="header" href="#the-display-4">The display</a></h2>
+<h2 id="the-display-5"><a class="header" href="#the-display-5">The display</a></h2>
 <p>The display draws the curve the three bands add up to, from 20 Hz on the left to 20 kHz on the right, and ±18 dB around the 0 dB line. Each band's own share is a faint tinted fill: the low shelf amber, the mid band violet and the high shelf blue. The bright line is their sum, with <strong>Out</strong> added. Every curve comes from the band's own filter, so it bends exactly as the sound does.</p>
 <p>You can shape the EQ on the curve itself:</p>
 <ul>
@@ -3280,7 +3289,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 <li><strong>Mkup</strong> adds gain back afterward, and <strong>Mix</strong> blends the result with the dry input.</li>
 </ol>
 <p>Attack and release shape the <em>gain reduction</em>, in dB, not the measured level. So a steady tone above the threshold comes out exactly where the ratio says it should, however fast or slow the timing knobs are set; attack and release only decide how it gets there.</p>
-<h2 id="the-display-5"><a class="header" href="#the-display-5">The display</a></h2>
+<h2 id="the-display-6"><a class="header" href="#the-display-6">The display</a></h2>
 <p>The display has two halves: the curve the compressor works to, and the last two seconds of it working.</p>
 <ul>
 <li><strong>The curve.</strong> On the left, the level the detector hears runs across and the output's level runs up, both from −60 dB to 0 dB. Below the threshold the curve follows the faint diagonal, where nothing changes. Past it the curve bends flatter by the ratio, through a soft band as wide as <strong>Knee</strong>. <strong>Mkup</strong> lifts the whole curve, and <strong>Mix</strong> pulls it back towards the diagonal.</li>
@@ -3425,7 +3434,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 </div>
 <p>The <strong>Formant</strong> input adds to the knob, and the sum stops at an octave either way. While it's patched, the knob stays live and sets the centre the CV works around.</p>
 <p>Attack and Release are the time a band takes to cover most of a change (63%), like the RC follower on an analog vocoder's band.</p>
-<h2 id="the-display-6"><a class="header" href="#the-display-6">The display</a></h2>
+<h2 id="the-display-7"><a class="header" href="#the-display-7">The display</a></h2>
 <p>Bars stand on a frequency axis, one per band, each as tall as the voice is in that band right now. Watch them while the voice speaks and you can see the vowels change. An "ee" lifts the bars at both ends, and an "oo" piles them up at the left.</p>
 <ul>
 <li><strong>Colours.</strong> Odd bands are cyan and even bands violet. The colours part as <strong>Width</strong> opens, to show which side each band plays on.</li>
@@ -3500,7 +3509,7 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 <p>The Clock is the patch's metronome. It sends a steady stream of gate pulses at a tempo you set, for stepping a <a href="modules/modulation/../utilities/sequencer.html">Sequencer</a>, firing envelopes on the beat, or triggering a <a href="modules/modulation/../utilities/sample-hold.html">Sample &amp; Hold</a>.</p>
 <p>It also sets the <strong>patch tempo and beat</strong>. Tempo-synced modules follow it without a cable: the <a href="modules/modulation/../effects/delay.html">Delay</a> with its <strong>Sync</strong> set to a note length, and the <a href="modules/modulation/./lfo.html">LFO</a> with its <strong>Tempo</strong> set to a division. See <a href="modules/modulation/../../concepts/tempo-and-sync.html">Tempo and Sync</a>.</p>
 <p>The Clock can keep its own time, or follow the <strong>MIDI clock</strong> of a DAW, drum machine or another synth, so the patch plays in time with them.</p>
-<h2 id="the-display-7"><a class="header" href="#the-display-7">The display</a></h2>
+<h2 id="the-display-8"><a class="header" href="#the-display-8">The display</a></h2>
 <p>Four lamps show the beats of the bar. The lamp of the beat playing flashes as the beat lands and fades through it, and the downbeat flashes brightest. A thin line under the lamps sweeps across the bar, with a dot where each pulse falls. With <strong>Swing</strong> turned up, the late pulses are drawn in orange, pushed along towards the next one. When the Clock stops, the beat it stopped on keeps a faint outline.</p>
 <p>Beside the lamps, a badge shows where the time comes from: <strong>INT</strong> for the Clock's own <strong>BPM</strong>, or <strong>MIDI</strong> when it follows a MIDI clock. The MIDI badge fills in while clock ticks are coming in. Hover over the display to see what the Clock is doing.</p>
 <h2 id="inputs-19"><a class="header" href="#inputs-19">Inputs</a></h2>
