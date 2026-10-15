@@ -434,7 +434,7 @@ against before.wav:
 <ul>
 <li><strong>One output can feed many inputs.</strong> Each gets the full signal.</li>
 <li><strong>Each input takes one cable.</strong> Dropping a new cable onto an occupied input replaces the old one.</li>
-<li><strong>No loops.</strong> A cable that would feed a module's output back into its own input, directly or through other modules, is refused.</li>
+<li><strong>No loops.</strong> A cable that would feed a module's output back into its own input, directly or through other modules, is refused, and the status bar names the modules round the loop.</li>
 <li><strong>To remove a cable,</strong> drag its end off the input jack and let go over empty canvas.</li>
 </ul>
 <p>Cables run behind the modules, and behind frame titles and notes, showing faintly through them so a route can still be followed without covering the controls or the words. <strong>〰 Cables ▸ Under modules and labels</strong> sets how faintly.</p>
@@ -801,7 +801,7 @@ against before.wav:
 <li><strong>An output can feed any number of inputs.</strong> Each one receives the full signal, with no loss of level.</li>
 <li><strong>An input takes one cable.</strong> Patching a second cable into an occupied input replaces the first.</li>
 <li><strong>Signal types must be compatible.</strong> Audio and control connect to each other freely, and a gate can drive a control input, but a gate input only accepts gates. The full table is on <a href="concepts/./signal-types.html#which-types-connect">Signal Types</a>. If a cable can't connect, Soba removes it and the status bar explains why.</li>
-<li><strong>A module can't patch into itself, and signals don't loop.</strong> Soba processes the patch in one direction, from sources to the output, so a cable that would feed a module's output back into its own input, directly or through other modules, has no effect. For echoes and feedback, use the <a href="concepts/../modules/effects/delay.html">Delay</a>'s <strong>Feedback</strong> knob.</li>
+<li><strong>A module can't patch into itself, and signals don't loop.</strong> Soba processes the patch in one direction, from sources to the output, so a cable that would feed a module's output back into its own input, directly or through other modules, is refused, and the status bar names the modules round the loop. A patch file holding such a cable opens without it and says which. The <a href="concepts/../modules/utilities/mixer.html">Mixer</a>'s <strong>Return</strong> jacks and the <a href="concepts/../modules/modulation/clock.html#tempo-cv">Clock</a>'s <strong>Tempo</strong> jack are the exceptions: they hear a loop one audio block late. For echoes and feedback, use the <a href="concepts/../modules/effects/delay.html">Delay</a>'s <strong>Feedback</strong> knob.</li>
 </ul>
 <h2 id="empty-jacks"><a class="header" href="#empty-jacks">Empty jacks</a></h2>
 <p>An input with nothing patched in isn't necessarily zero. Each jack has a resting value chosen so the module does something sensible on its own. A <a href="concepts/../modules/utilities/vca.html">VCA</a> with nothing in its <strong>CV</strong> jack plays at full level, for example, so you can hear its input before you add an envelope.</p>
