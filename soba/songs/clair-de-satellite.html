@@ -1,0 +1,314 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Clair de Satellite - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../concepts/connections.html"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../concepts/polyphony.html"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../concepts/tempo-and-sync.html"><strong aria-hidden="true">7.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../concepts/groups.html"><strong aria-hidden="true">8.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../modules/index.html"><strong aria-hidden="true">9.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../modules/sources/oscillator.html"><strong aria-hidden="true">9.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../modules/sources/noise.html"><strong aria-hidden="true">9.2.</strong> Noise</a></li><li class="chapter-item "><a href="../modules/sources/drum.html"><strong aria-hidden="true">9.3.</strong> Drum</a></li><li class="chapter-item "><a href="../modules/sources/sampler.html"><strong aria-hidden="true">9.4.</strong> Sampler</a></li><li class="chapter-item "><a href="../modules/sources/chopper.html"><strong aria-hidden="true">9.5.</strong> Chopper</a></li><li class="chapter-item "><a href="../modules/sources/audio-input.html"><strong aria-hidden="true">9.6.</strong> Audio Input</a></li><li class="chapter-item "><a href="../modules/midi/keyboard.html"><strong aria-hidden="true">9.7.</strong> Keyboard</a></li><li class="chapter-item "><a href="../modules/midi/midi-note.html"><strong aria-hidden="true">9.8.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../modules/midi/poly-midi.html"><strong aria-hidden="true">9.9.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../modules/filters/svf-filter.html"><strong aria-hidden="true">9.10.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../modules/filters/ladder-filter.html"><strong aria-hidden="true">9.11.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../modules/modulation/adsr.html"><strong aria-hidden="true">9.12.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../modules/modulation/lfo.html"><strong aria-hidden="true">9.13.</strong> LFO</a></li><li class="chapter-item "><a href="../modules/modulation/slope.html"><strong aria-hidden="true">9.14.</strong> Slope</a></li><li class="chapter-item "><a href="../modules/effects/delay.html"><strong aria-hidden="true">9.15.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../modules/effects/reverb.html"><strong aria-hidden="true">9.16.</strong> Reverb</a></li><li class="chapter-item "><a href="../modules/effects/eq.html"><strong aria-hidden="true">9.17.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../modules/effects/distortion.html"><strong aria-hidden="true">9.18.</strong> Distortion</a></li><li class="chapter-item "><a href="../modules/effects/chorus.html"><strong aria-hidden="true">9.19.</strong> Chorus</a></li><li class="chapter-item "><a href="../modules/effects/tape.html"><strong aria-hidden="true">9.20.</strong> Tape</a></li><li class="chapter-item "><a href="../modules/effects/slicer.html"><strong aria-hidden="true">9.21.</strong> Slicer</a></li><li class="chapter-item "><a href="../modules/effects/compressor.html"><strong aria-hidden="true">9.22.</strong> Compressor</a></li><li class="chapter-item "><a href="../modules/effects/vocoder.html"><strong aria-hidden="true">9.23.</strong> Vocoder</a></li><li class="chapter-item "><a href="../modules/modulation/clock.html"><strong aria-hidden="true">9.24.</strong> Clock</a></li><li class="chapter-item "><a href="../modules/utilities/vca.html"><strong aria-hidden="true">9.25.</strong> VCA</a></li><li class="chapter-item "><a href="../modules/utilities/attenuverter.html"><strong aria-hidden="true">9.26.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../modules/utilities/mix.html"><strong aria-hidden="true">9.27.</strong> Mix</a></li><li class="chapter-item "><a href="../modules/utilities/mixer.html"><strong aria-hidden="true">9.28.</strong> Mixer</a></li><li class="chapter-item "><a href="../modules/utilities/sample-hold.html"><strong aria-hidden="true">9.29.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../modules/utilities/quantizer.html"><strong aria-hidden="true">9.30.</strong> Quantizer</a></li><li class="chapter-item "><a href="../modules/utilities/divider.html"><strong aria-hidden="true">9.31.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../modules/utilities/logic.html"><strong aria-hidden="true">9.32.</strong> Logic</a></li><li class="chapter-item "><a href="../modules/utilities/looper.html"><strong aria-hidden="true">9.33.</strong> Looper</a></li><li class="chapter-item "><a href="../modules/visualization/oscilloscope.html"><strong aria-hidden="true">9.34.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../modules/visualization/dancer.html"><strong aria-hidden="true">9.35.</strong> Dancer</a></li><li class="chapter-item "><a href="../modules/utilities/sequencer.html"><strong aria-hidden="true">9.36.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/chord-sequencer.html"><strong aria-hidden="true">9.37.</strong> Chord Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">9.38.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/arranger.html"><strong aria-hidden="true">9.39.</strong> Arranger</a></li><li class="chapter-item "><a href="../modules/midi/midi-monitor.html"><strong aria-hidden="true">9.40.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../modules/output/audio-output.html"><strong aria-hidden="true">9.41.</strong> Audio Output</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../recipes/basic-subtractive.html"><strong aria-hidden="true">10.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../recipes/fm-synthesis.html"><strong aria-hidden="true">11.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../recipes/lush-pad.html"><strong aria-hidden="true">12.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../recipes/sampled-keys.html"><strong aria-hidden="true">13.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../recipes/live-looper.html"><strong aria-hidden="true">14.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../recipes/generative-ambient.html"><strong aria-hidden="true">15.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../recipes/shoreline.html"><strong aria-hidden="true">16.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../recipes/rhythmic-sequence.html"><strong aria-hidden="true">17.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../recipes/backbeat.html"><strong aria-hidden="true">18.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../recipes/drum-machine.html"><strong aria-hidden="true">19.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../recipes/roll-call.html"><strong aria-hidden="true">20.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../recipes/afterglow.html"><strong aria-hidden="true">21.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../recipes/front-porch.html"><strong aria-hidden="true">22.</strong> Front Porch</a></li><li class="chapter-item expanded "><a href="../recipes/soba-speaks.html"><strong aria-hidden="true">23.</strong> Soba Speaks</a></li><li class="chapter-item expanded "><a href="../recipes/held-vowels.html"><strong aria-hidden="true">24.</strong> Held Vowels</a></li><li class="chapter-item expanded "><a href="../recipes/interlock.html"><strong aria-hidden="true">25.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../recipes/cut-up.html"><strong aria-hidden="true">26.</strong> Cut-Up</a></li><li class="chapter-item expanded affix "><li class="part-title">Songs</li><li class="chapter-item expanded "><a href="../songs/from-one-sine.html"><strong aria-hidden="true">27.</strong> From One Sine</a></li><li class="chapter-item expanded "><a href="../songs/clair-de-satellite.html" class="active"><strong aria-hidden="true">28.</strong> Clair de Satellite</a></li><li class="chapter-item expanded "><a href="../songs/canopy.html"><strong aria-hidden="true">29.</strong> Canopy</a></li><li class="chapter-item expanded "><a href="../songs/orrery.html"><strong aria-hidden="true">30.</strong> Orrery</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/songs/clair-de-satellite.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="clair-de-satellite"><a class="header" href="#clair-de-satellite">Clair de Satellite</a></h1>
+<p>A song in the manner of the French duo Air: four minutes of A minor at 88 BPM, with a Rhodes, a string machine, a round bass, soft drums, tape echo, and a vocoder that sings on the chords. It opens on a satellite beeping over tape hiss and ends the same way. In between, a robot voice sings <em>Satellite… passing over you…</em>, and near the end it asks <em>can you hear me…</em> The band falls away for one bar, and a plain human voice answers: <em>still?</em></p>
+<p>The patch plays the whole song itself. Three <a href="../modules/utilities/arranger.html">Arrangers</a> are the score, in 19 sections. Each part of the band is a <a href="../concepts/groups.html">group</a> with jacks of its own, so the top level reads like a score: harmony, band, voice and desk. Open any group to see its insides.</p>
+<blockquote>
+<p><strong>Load it:</strong> choose <strong>📚 Examples → Clair de Satellite</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
+The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patches/clair-de-satellite.json"><code>patches/clair-de-satellite.json</code></a>.</p>
+</blockquote>
+<iframe class="patch-embed" src="../play/?patch=clair-de-satellite" title="Clair de Satellite, playable in the browser" loading="lazy"></iframe>
+<p><em>Or play it here: press <strong>▶ Play</strong> in the corner. The full app is a click away under <strong>Open in Soba</strong>. The score's three Arrangers run along the top, with the mixing desk at the right. Below them are the harmony (two Chord Sequencers, the Rhodes and the String Machine), the band (each part a group) and the voice.</em></p>
+<h2 id="the-song"><a class="header" href="#the-song">The song</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Bars</th><th>Section</th><th>What happens</th></tr></thead><tbody>
+<tr><td>1–8</td><td>Signal</td><td>A satellite beeps over tape hiss, each beep falling a little in pitch as it passes. The Rhodes fades in on the verse chords.</td></tr>
+<tr><td>9–16</td><td>Drift</td><td>The strings swell, the bass enters on whole notes and the drums on brushes, as the chorus chords lift into F major. The satellite fades.</td></tr>
+<tr><td>17–24</td><td>Verse</td><td>The groove, and the voice: <em>Satellite · passing over you · Satellite · every night, every night</em>.</td></tr>
+<tr><td>25–32</td><td>Chorus</td><td>A reedy whistle plays the hook while the strings open up.</td></tr>
+<tr><td>33–48</td><td>Verse II, Chorus II</td><td>Again, with FM bells, and the verse ends <em>can you hear me?</em></td></tr>
+<tr><td>49–56</td><td>Bridge</td><td>The drums drop out. The voice alternates <em>Clair de satellite</em> and <em>can you hear me?</em> over held chords, and the satellite returns.</td></tr>
+<tr><td>57–64</td><td>Build, Encore, Breath</td><td>A riser climbs under <em>I'm sending you signals · from so far away · Satellite</em>. The robot asks <em>can you hear me…</em>. Then the band falls away, and the plain voice answers: <em>still?</em></td></tr>
+<tr><td>65–72</td><td>Solo</td><td>A crash, and a Minimoog-style lead takes the verse melody.</td></tr>
+<tr><td>73–80</td><td>Last Chorus</td><td>Everything at once, the Rhodes comping harder.</td></tr>
+<tr><td>81–88</td><td>Outro</td><td>The first verse returns as the drums and bass thin out and the satellite comes back.</td></tr>
+<tr><td>89–93</td><td>Last Light, Ring</td><td>One last Am9. The sequencers stop, the chord rings out, and the tape sags as the signal dies.</td></tr>
+</tbody></table>
+</div>
+<p>Left running, the song starts again on the satellite.</p>
+<h2 id="what-it-teaches"><a class="header" href="#what-it-teaches">What it teaches</a></h2>
+<ul>
+<li><strong>Chords on one cable.</strong> Two <a href="../modules/utilities/chord-sequencer.html">Chord Sequencers</a> play the same sixteen-bar progression: close and voice-led for the Rhodes, spread and tied for the strings. The slash basses (Am/G#, Am7/G, D9/F#) make the walking line on the <strong>Bass</strong> output.</li>
+<li><strong>A rhythm from one module, chords from another.</strong> The Rhodes takes its notes from a Chord Sequencer and its rhythm from a <a href="../modules/utilities/sequencer.html">Step Sequencer</a>'s gate. A mono gate into a polyphonic voice strikes every note of the chord.</li>
+<li><strong>A vocoder that can be understood.</strong> A vocoder reads words best from a carrier that is low, dense and held. Here that's the strings' spread chord, with its lows filtered off. The voice is brightened and compressed on its way in, and the vocoder's attack and release are kept short. A carrier up in a melody's register, an octave or two higher, loses most of the words.</li>
+<li><strong>Many lines in one sample.</strong> The voice's eight lines are eight <a href="../modules/sources/sampler.html#slices">slices</a> of one file. A Step Sequencer that steps every two bars picks a line by note: C4 sings the first, C#4 the second, and so on.</li>
+<li><strong>Groups as instruments.</strong> Each part is a group with named jacks: Bass takes <strong>Clock</strong>, <strong>Reset</strong>, <strong>Pattern</strong> and <strong>Bass note</strong>, and gives <strong>Out</strong>. A few knobs are pinned to each group's face.</li>
+<li><strong>Slides.</strong> The Solo's lead glides into chosen notes, the way a Minimoog player slurs a phrase.</li>
+<li><strong>The song on tape.</strong> The whole mix runs through <a href="../modules/effects/tape.html">Tape</a>, and an Arranger lane on its <strong>Wow</strong> input warps it in the Ring.</li>
+</ul>
+<h2 id="modules"><a class="header" href="#modules">Modules</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Module</th><th>Role</th></tr></thead><tbody>
+<tr><td><a href="../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 88, <strong>Div</strong> 1/16, <strong>Swing</strong> 56%</td></tr>
+<tr><td><a href="../modules/utilities/arranger.html">Arranger</a> ×3</td><td>The score: 19 sections, 93 bars. <strong>Faders</strong> rides eight mixer channels, <strong>Cues</strong> picks patterns and strikes and warps, <strong>Voices</strong> brings in the vocoder and the plain voice</td></tr>
+<tr><td><a href="../modules/utilities/chord-sequencer.html">Chord Sequencer</a> ×2</td><td>The progression, a chord a bar, for the Rhodes and the strings</td></tr>
+<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a> ×6</td><td>The Rhodes' comping and the bass riff (sixteenths), the lead and hook (eighths, four chained patterns), the bells (quarters) and the lyrics (a step every two bars)</td></tr>
+<tr><td><a href="../modules/utilities/trigger-sequencer.html">Trigger Sequencer</a></td><td>The drums and the satellite's beeps: four patterns, picked by the Kit cue</td></tr>
+<tr><td><a href="../modules/utilities/divider.html">Clock Divider</a> ×3</td><td>Eighths, quarters, and every two bars</td></tr>
+<tr><td>Electric Piano, String Machine, FM Bell</td><td>From the <a href="../concepts/groups.html#the-library">Library</a>. The String Machine has a second output for stereo, and the bell a <strong>Root</strong> jack so it follows the chords</td></tr>
+<tr><td><a href="../modules/sources/oscillator.html">Oscillator</a> ×12</td><td>Bass, lead, hook, satellite and the vocoder's carrier, plus the Library voices' own</td></tr>
+<tr><td><a href="../modules/sources/drum.html">Drum</a> ×8</td><td>Kick (A1), snare, rim, tom, closed and open hats, a shaker and the crash</td></tr>
+<tr><td><a href="../modules/effects/compressor.html">Compressor</a> ×4</td><td>The kit's glue, the metals' level, the voice into the vocoder and the plain voice</td></tr>
+<tr><td><a href="../modules/sources/sampler.html">Sampler</a> ×2</td><td>The sung lines, and <em>still?</em></td></tr>
+<tr><td><a href="../modules/effects/vocoder.html">Vocoder</a></td><td><strong>Bands</strong> 24, attack 2 ms, release 35 ms, <strong>Sibilance</strong> 60%, <strong>Unvoiced</strong> 50%</td></tr>
+<tr><td><a href="../modules/modulation/slope.html">Slope</a></td><td>The satellite's Doppler fall</td></tr>
+<tr><td><a href="../modules/effects/eq.html">3-Band EQ</a></td><td>The voice's lows cut and highs lifted, before the vocoder</td></tr>
+<tr><td><a href="../modules/utilities/mixer.html">Mixer</a> ×4</td><td>Top (with the tape echo), Drums, Band and Room (with the hall), on one chain. Room's <strong>Master</strong> −3.7 dB sets the level onto the tape</td></tr>
+<tr><td><a href="../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Sync</strong> 1/8D, <strong>P-P</strong> and <strong>Tape</strong> on</td></tr>
+<tr><td><a href="../modules/effects/reverb.html">Reverb</a></td><td>The hall everyone shares</td></tr>
+<tr><td><a href="../modules/effects/tape.html">Tape</a></td><td>15 ips, a little saturation, wow and age</td></tr>
+<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 80%, <strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
+</tbody></table>
+</div>
+<p>The rest are the voices' own envelopes, VCAs, filters, LFOs and Mixes.</p>
+<h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
+<h3 id="the-score"><a class="header" href="#the-score">The score</a></h3>
+<p>Three Arrangers count the Clock's sixteenths through the same nineteen sections, from Signal to Ring. <strong>Faders</strong> has a lane per mixer channel: EP, Strings, Bass, Drums, Lead, Hook, Bells and Space. Each channel's <strong>Level</strong> knob is at zero, so the lane is the fader. <strong>Cues</strong> picks the patterns for the drums, the Rhodes' comping and the bass (A to D in quarters of the lane), hits the crash, raises the riser, holds the chords in the Ring, and warps the tape. <strong>Voices</strong> rides the vocoder and, on the Breath alone, the plain voice.</p>
+<p>A one-bar <strong>Fill</strong> closes most phrases. The Build is split into Build, Encore and Breath, so the reveal lands on its own bar: the robot's last line plays in Encore, and Breath drops the drums, bass and hook and dips the Rhodes and strings, so the one plain word is heard clearly.</p>
+<h3 id="harmony"><a class="header" href="#harmony">Harmony</a></h3>
+<p>The verse is a line cliché: Am9, Am/G#, Am7/G, D9/F#, then Fmaj9, Em7, Dm9 and E7. The chorus lifts to Fmaj7, G11, Em7, Am7, Dm9, G13, Cmaj9 and E7. The roots are written in octave 2, so the <strong>Bass</strong> output is a bass line and the bass voice only adds a riff over it: the note, its octave, and slides between them.</p>
+<p>The strings' Chord Sequencer ties every step, so the String Machine's swell never restarts and the chords change under one long breath. The Rhodes' is untied, and its gate comes from the comping sequencer.</p>
+<h3 id="the-voice"><a class="header" href="#the-voice">The voice</a></h3>
+<pre><code class="language-text">[Lyrics Pitch] ──&gt; [Sampler V/Oct]          (8 slices: note 60 + k sings line k + 1)
+[Lyrics Gate]  ──&gt; [Sampler Gate]           (Gated: one line, then stop)
+[Sampler L] ──&gt; [EQ] ──&gt; [Compressor] ──&gt; [Vocoder Modulator]
+[Strings' Chord Sequencer Pitch] ──&gt; [Saw] ──&gt; [Chorus] ──&gt; [SVF high-pass] ──&gt; [Vocoder Carrier]
+[Voices Gate 2] ──&gt; [Still Sampler Gate]    (the Breath)
+</code></pre>
+<p>The voice is the author's, cloned with ElevenLabs and saying each line once. The vocoder sings it on the strings' chord, voiced low and wide, where the harmonics sit close enough together to trace every vowel. The words and the chord move independently, as on Air's own vocoder songs.</p>
+<h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
+<ul>
+<li><strong>Sing it yourself.</strong> Patch an <a href="../modules/sources/audio-input.html">Audio Input</a>'s <strong>L</strong> into the Voice group's modulator path, in place of the Sampler, and sing over the chords. Wear headphones.</li>
+<li><strong>A smaller throat.</strong> Raise the vocoder's <strong>Formant</strong>, pinned to the Voice group's face, by a quarter octave.</li>
+<li><strong>All robot.</strong> The <em>still?</em> Sampler feeds the vocoder too. Mute the Room mixer's fourth strip, and give the Voices Arranger's Vocoder lane a Hold in Encore instead of its ramp to zero: the robot answers itself.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../songs/from-one-sine.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../songs/canopy.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../songs/from-one-sine.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../songs/canopy.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

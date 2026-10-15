@@ -1,0 +1,423 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>From One Sine - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../concepts/connections.html"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../concepts/polyphony.html"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../concepts/tempo-and-sync.html"><strong aria-hidden="true">7.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../concepts/groups.html"><strong aria-hidden="true">8.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../modules/index.html"><strong aria-hidden="true">9.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../modules/sources/oscillator.html"><strong aria-hidden="true">9.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../modules/sources/noise.html"><strong aria-hidden="true">9.2.</strong> Noise</a></li><li class="chapter-item "><a href="../modules/sources/drum.html"><strong aria-hidden="true">9.3.</strong> Drum</a></li><li class="chapter-item "><a href="../modules/sources/sampler.html"><strong aria-hidden="true">9.4.</strong> Sampler</a></li><li class="chapter-item "><a href="../modules/sources/chopper.html"><strong aria-hidden="true">9.5.</strong> Chopper</a></li><li class="chapter-item "><a href="../modules/sources/audio-input.html"><strong aria-hidden="true">9.6.</strong> Audio Input</a></li><li class="chapter-item "><a href="../modules/midi/keyboard.html"><strong aria-hidden="true">9.7.</strong> Keyboard</a></li><li class="chapter-item "><a href="../modules/midi/midi-note.html"><strong aria-hidden="true">9.8.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../modules/midi/poly-midi.html"><strong aria-hidden="true">9.9.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../modules/filters/svf-filter.html"><strong aria-hidden="true">9.10.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../modules/filters/ladder-filter.html"><strong aria-hidden="true">9.11.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../modules/modulation/adsr.html"><strong aria-hidden="true">9.12.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../modules/modulation/lfo.html"><strong aria-hidden="true">9.13.</strong> LFO</a></li><li class="chapter-item "><a href="../modules/modulation/slope.html"><strong aria-hidden="true">9.14.</strong> Slope</a></li><li class="chapter-item "><a href="../modules/effects/delay.html"><strong aria-hidden="true">9.15.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../modules/effects/reverb.html"><strong aria-hidden="true">9.16.</strong> Reverb</a></li><li class="chapter-item "><a href="../modules/effects/eq.html"><strong aria-hidden="true">9.17.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../modules/effects/distortion.html"><strong aria-hidden="true">9.18.</strong> Distortion</a></li><li class="chapter-item "><a href="../modules/effects/chorus.html"><strong aria-hidden="true">9.19.</strong> Chorus</a></li><li class="chapter-item "><a href="../modules/effects/tape.html"><strong aria-hidden="true">9.20.</strong> Tape</a></li><li class="chapter-item "><a href="../modules/effects/slicer.html"><strong aria-hidden="true">9.21.</strong> Slicer</a></li><li class="chapter-item "><a href="../modules/effects/compressor.html"><strong aria-hidden="true">9.22.</strong> Compressor</a></li><li class="chapter-item "><a href="../modules/effects/vocoder.html"><strong aria-hidden="true">9.23.</strong> Vocoder</a></li><li class="chapter-item "><a href="../modules/modulation/clock.html"><strong aria-hidden="true">9.24.</strong> Clock</a></li><li class="chapter-item "><a href="../modules/utilities/vca.html"><strong aria-hidden="true">9.25.</strong> VCA</a></li><li class="chapter-item "><a href="../modules/utilities/attenuverter.html"><strong aria-hidden="true">9.26.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../modules/utilities/mix.html"><strong aria-hidden="true">9.27.</strong> Mix</a></li><li class="chapter-item "><a href="../modules/utilities/mixer.html"><strong aria-hidden="true">9.28.</strong> Mixer</a></li><li class="chapter-item "><a href="../modules/utilities/sample-hold.html"><strong aria-hidden="true">9.29.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../modules/utilities/quantizer.html"><strong aria-hidden="true">9.30.</strong> Quantizer</a></li><li class="chapter-item "><a href="../modules/utilities/divider.html"><strong aria-hidden="true">9.31.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../modules/utilities/logic.html"><strong aria-hidden="true">9.32.</strong> Logic</a></li><li class="chapter-item "><a href="../modules/utilities/looper.html"><strong aria-hidden="true">9.33.</strong> Looper</a></li><li class="chapter-item "><a href="../modules/visualization/oscilloscope.html"><strong aria-hidden="true">9.34.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../modules/visualization/dancer.html"><strong aria-hidden="true">9.35.</strong> Dancer</a></li><li class="chapter-item "><a href="../modules/utilities/sequencer.html"><strong aria-hidden="true">9.36.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/chord-sequencer.html"><strong aria-hidden="true">9.37.</strong> Chord Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">9.38.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/arranger.html"><strong aria-hidden="true">9.39.</strong> Arranger</a></li><li class="chapter-item "><a href="../modules/midi/midi-monitor.html"><strong aria-hidden="true">9.40.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../modules/output/audio-output.html"><strong aria-hidden="true">9.41.</strong> Audio Output</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../recipes/basic-subtractive.html"><strong aria-hidden="true">10.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../recipes/fm-synthesis.html"><strong aria-hidden="true">11.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../recipes/lush-pad.html"><strong aria-hidden="true">12.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../recipes/sampled-keys.html"><strong aria-hidden="true">13.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../recipes/live-looper.html"><strong aria-hidden="true">14.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../recipes/generative-ambient.html"><strong aria-hidden="true">15.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../recipes/shoreline.html"><strong aria-hidden="true">16.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../recipes/rhythmic-sequence.html"><strong aria-hidden="true">17.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../recipes/backbeat.html"><strong aria-hidden="true">18.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../recipes/drum-machine.html"><strong aria-hidden="true">19.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../recipes/roll-call.html"><strong aria-hidden="true">20.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../recipes/afterglow.html"><strong aria-hidden="true">21.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../recipes/front-porch.html"><strong aria-hidden="true">22.</strong> Front Porch</a></li><li class="chapter-item expanded "><a href="../recipes/soba-speaks.html"><strong aria-hidden="true">23.</strong> Soba Speaks</a></li><li class="chapter-item expanded "><a href="../recipes/held-vowels.html"><strong aria-hidden="true">24.</strong> Held Vowels</a></li><li class="chapter-item expanded "><a href="../recipes/interlock.html"><strong aria-hidden="true">25.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../recipes/cut-up.html"><strong aria-hidden="true">26.</strong> Cut-Up</a></li><li class="chapter-item expanded affix "><li class="part-title">Songs</li><li class="chapter-item expanded "><a href="../songs/from-one-sine.html" class="active"><strong aria-hidden="true">27.</strong> From One Sine</a></li><li class="chapter-item expanded "><a href="../songs/clair-de-satellite.html"><strong aria-hidden="true">28.</strong> Clair de Satellite</a></li><li class="chapter-item expanded "><a href="../songs/canopy.html"><strong aria-hidden="true">29.</strong> Canopy</a></li><li class="chapter-item expanded "><a href="../songs/orrery.html"><strong aria-hidden="true">30.</strong> Orrery</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/songs/from-one-sine.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="from-one-sine"><a class="header" href="#from-one-sine">From One Sine</a></h1>
+<p>A whole song in one patch: four and a half minutes of D minor at 112 BPM, from a first note to a last one, with nobody at the keys. It opens the way every patch in this manual opens, on one sine wave playing a short tune, and part by part the rest of the rack joins in: a pad, an arpeggio, a bass, drums, bells, a supersaw lead. In the breakdown a <a href="../modules/utilities/looper.html">Looper</a> plays the opening back to itself, reversed and an octave down, and the tape the whole song is played onto starts to warp. The song ends where it began, on the sine alone.</p>
+<p>Nothing outside the patch tells it what to do. Three <a href="../modules/utilities/arranger.html">Arrangers</a> are the score: they count the song in bars, through 22 named sections, and each of their lanes rides one part's fader, picks a pattern for the drums or the melody, strikes the crash, presses a pedal or bends the tape. Seventy-seven modules play their part, of 30 kinds. Left running, it plays the song again from the top.</p>
+<blockquote>
+<p><strong>Load it:</strong> choose <strong>📚 Examples → From One Sine</strong> in the toolbar and press <strong>▶ Play</strong>. It needs no keyboard.
+The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patches/from-one-sine.json"><code>patches/from-one-sine.json</code></a>.</p>
+</blockquote>
+<iframe class="patch-embed" src="../play/?patch=from-one-sine" title="From One Sine, playable in the browser" loading="lazy"></iframe>
+<p><em>Or play it here: press <strong>▶ Play</strong> in the corner. The full app is a click away under <strong>Open in Soba</strong>. The score's three Arrangers and the harmony are on the top left, the instruments are in strips with signal running left to right, the drums run along the bottom, and the mixing desk is on the right, with the master tape in amber. Orange cables from the score reach every fader.</em></p>
+<h2 id="the-song"><a class="header" href="#the-song">The song</a></h2>
+<iframe class="patch-film" src="https://www.youtube-nocookie.com/embed/NlWGFWRZs-U?rel=0" title="From One Sine, filmed in Soba as it plays" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>
+<p><em>The whole song, filmed in the app as it plays. The camera follows the score: it opens close on the lone sine, visits each part as it enters, watches the master tape bend the mix through the build, pulls back to the whole rack for the drop, and ends where it began. <a href="https://youtu.be/NlWGFWRZs-U">Watch on YouTube</a>.</em></p>
+<p>Each section of the song is sixteen bars. On the Arrangers they're 22 sections: a new one wherever a part enters or the band changes, a one-bar <strong>Fill</strong> to close each phrase of the groove, and a long last one where the song fades back to its first sound.</p>
+<div class="table-wrapper"><table><thead><tr><th>Bars</th><th>Section</th><th>What happens</th></tr></thead><tbody>
+<tr><td>1–16</td><td>First Sound</td><td>The sine plays the motif alone, with echoes and a hall, over a breath of wind. The pad, then sparkles, then a soft arpeggio fade in around it. The Looper records bars 5–8.</td></tr>
+<tr><td>17–32</td><td>Pulse</td><td>The sine rests. The arpeggio steps forward, then the bass and the bells come in, over a heartbeat of kick, rim and offbeat hats. A small riser leads out.</td></tr>
+<tr><td>33–48</td><td>Groove</td><td>A crash, and the full beat. The pad ducks under the kick. A fill closes the section.</td></tr>
+<tr><td>49–64</td><td>Lift</td><td>The motif comes back on a seven-voice supersaw, and this time it doesn't stop at four bars: it grows into a sixteen-bar line that runs the length of the progression. The pad and bass grow brighter.</td></tr>
+<tr><td>65–80</td><td>Memory</td><td>The drums, bass and lead drop out. The Looper's take of bars 5–8 plays reversed at half speed under the open pad and sparkles. The sine answers its own ghost with the motif played forward. The master tape starts to waver as the ghost comes in. Then a four-bar build with a riser, where the line's last phrase turns back toward the top and the tape bends further out of true.</td></tr>
+<tr><td>81–96</td><td>Everything</td><td>The tape snaps back to speed. Drums, bass, arpeggio, pad, bells, sparkles and the lead's whole line at once, at the brightest the score sets.</td></tr>
+<tr><td>97–112</td><td>Second wave</td><td>The lead rests and the sine sings the line over the groove instead, with the ghost underneath. The lead returns for its second half.</td></tr>
+<tr><td>113–128</td><td>Return</td><td>The lead fades and the drums fall back to the pulse. Then the sine returns to the motif alone, and the other parts fade away around it in the reverse of the order they came, until it's alone again.</td></tr>
+</tbody></table>
+</div>
+<h2 id="what-it-teaches"><a class="header" href="#what-it-teaches">What it teaches</a></h2>
+<ul>
+<li><strong>A patch can hold its own arrangement.</strong> An <a href="../modules/utilities/arranger.html">Arranger</a> is a timeline of named sections, and its lanes are faders that move on cue. Each section jumps, ramps, holds or hits each lane as it starts.</li>
+<li><strong>Swells and fades.</strong> A Ramp can start from a level of its own and take a curve. The parts swell in on lines and fade out on <strong>Log</strong> curves, which fall fast and tail away, much as a fade sounds to the ear.</li>
+<li><strong>Smoothing a control voltage.</strong> A lane's <strong>Glide</strong> turns a jump into a glide, so a fader can move under a ringing note without a click: a second for the sustained parts, 40 ms for the rhythmic ones.</li>
+<li><strong>One lane, two jobs.</strong> A lane's <strong>Gate</strong> is high while the lane is above zero, so the riser's lane sets its level and opens its envelope for exactly its section.</li>
+<li><strong>A line longer than a sequencer's sixteen steps.</strong> The motif's sequencer holds four patterns, and an Arranger lane picks one for each pass through its <strong>Pattern</strong> input. Where the line should run on, the lane ramps in a straight line, so the four passes play A, B, C and D.</li>
+<li><strong>A progression as a lead sheet.</strong> One <a href="../modules/utilities/chord-sequencer.html">Chord Sequencer</a> holds sixteen bars of chords, and voice leading moves the pad's voices by step from one to the next. Its <strong>Root</strong> plays the bass and transposes the arpeggio and bass line through <strong>Exp FM</strong>.</li>
+<li><strong>A chord as one sound.</strong> The pad's three voices ride one polyphonic cable, and a <a href="../modules/utilities/mix.html">Mix</a> with <strong>Sum Voices</strong> on adds them into one channel, so the Ladder Filter drives the chord as a whole.</li>
+<li><strong>Hits press buttons.</strong> A Hit is a trigger with a level on it: the crash and its accent, and the Looper's <strong>Rec</strong> and <strong>Clear</strong>.</li>
+<li><strong>A moment on tape.</strong> A <a href="../modules/effects/tape.html">Tape</a> on the master is almost transparent for most of the song. A lane into its <strong>Wow</strong> bends the whole mix out of shape through the breakdown and snaps it back for the drop.</li>
+<li><strong>Sidechain ducking.</strong> The <a href="../modules/effects/compressor.html">Compressor</a> on the pad listens to the kick.</li>
+<li><strong>Send and return.</strong> Four <a href="../modules/utilities/mixer.html">Mixers</a> chain their mixes and their sends along one cable each, so one delay and two reverbs serve the whole song.</li>
+</ul>
+<h2 id="modules"><a class="header" href="#modules">Modules</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Module</th><th>Role</th></tr></thead><tbody>
+<tr><td><a href="../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 112, <strong>Div</strong> 1/16, <strong>Swing</strong> 54%</td></tr>
+<tr><td><a href="../modules/utilities/divider.html">Clock Divider</a> ×4</td><td>Beats (÷4), eighths (÷2), bars (÷16), and ÷3 for the sparkles</td></tr>
+<tr><td><a href="../modules/utilities/arranger.html">Arranger</a> ×3</td><td>The score: 22 sections, 128 bars. <strong>Desk</strong> rides eight faders. <strong>Cues</strong> picks the drum pattern and the melody's, strikes the crash, holds the riser, sets the brightness and the Looper's level, and presses its pedals. <strong>Tape</strong> warps the master through the breakdown</td></tr>
+<tr><td><a href="../modules/utilities/sample-hold.html">Sample &amp; Hold</a></td><td>Samples the sparkles' random voltage</td></tr>
+<tr><td><a href="../modules/utilities/chord-sequencer.html">Chord Sequencer</a></td><td>The harmony, a chord a bar: <strong>Voices</strong> 3, <strong>Range</strong> 4, <strong>Rootless</strong></td></tr>
+<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a> ×5</td><td>The motif and the line it grows into (quarters, four patterns), the arp and bass (sixteenths), the bells (eighths)</td></tr>
+<tr><td><a href="../modules/sources/oscillator.html">Oscillator</a> ×8</td><td>The sine, the supersaw lead (<strong>Voices</strong> 7), the pad's root saw and its chord saws (three voices on one cable), the arp (Square), the bass (Saw), the sparkles (Tri), the riser</td></tr>
+<tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a> ×7</td><td>One per voice, two for the bass (filter and amp)</td></tr>
+<tr><td><a href="../modules/filters/svf-filter.html">SVF Filter</a> ×4</td><td>Lead, arp, wind (band-pass) and riser (high-pass)</td></tr>
+<tr><td><a href="../modules/filters/ladder-filter.html">Ladder Filter</a> ×2</td><td>Pad and bass</td></tr>
+<tr><td><a href="../modules/utilities/vca.html">VCA</a> ×6</td><td>Each voice's envelope</td></tr>
+<tr><td><a href="../modules/modulation/lfo.html">LFO</a> ×3</td><td>The chorus depth and the wind's sweep (4 bars), the arp's pulse width (1 bar)</td></tr>
+<tr><td><a href="../modules/utilities/attenuverter.html">Attenuverter</a> ×3</td><td>Scaling: the pad's brightness, the bass drive, the arp's PWM</td></tr>
+<tr><td><a href="../modules/sources/noise.html">Noise</a> ×2</td><td>Pink wind, and the Random voltage for the sparkles</td></tr>
+<tr><td><a href="../modules/utilities/quantizer.html">Quantizer</a></td><td>D minor pentatonic for the sparkles</td></tr>
+<tr><td><a href="../modules/sources/sampler.html">Sampler</a></td><td>The bell from <a href="../recipes/sampled-keys.html">Sampled Keys</a></td></tr>
+<tr><td><a href="../modules/utilities/looper.html">Looper</a></td><td><strong>Bars</strong> 4, <strong>Speed</strong> ½×, <strong>Reverse</strong> on, <strong>Dry</strong> 0</td></tr>
+<tr><td><a href="../modules/sources/drum.html">Drum</a> ×8</td><td>Kick (tuned to A1), Snare, Clap, Closed Hat, Open Hat (choked by the closed hat), Rim, Tom (A2), and a Cymbal for the crash</td></tr>
+<tr><td><a href="../modules/utilities/trigger-sequencer.html">Trigger Sequencer</a></td><td>The drums: four patterns, picked by <strong>Pattern</strong> CV</td></tr>
+<tr><td><a href="../modules/effects/compressor.html">Compressor</a></td><td>Pad, sidechained by the kick</td></tr>
+<tr><td><a href="../modules/effects/chorus.html">Chorus</a></td><td>Pad, into stereo</td></tr>
+<tr><td><a href="../modules/effects/distortion.html">Distortion</a></td><td>Bass, <strong>Tube</strong></td></tr>
+<tr><td><a href="../modules/effects/eq.html">3-Band EQ</a></td><td>Bass: lows up, boxiness out</td></tr>
+<tr><td><a href="../modules/utilities/mix.html">Mix</a></td><td>The pad's root and chord, <strong>Sum Voices</strong> on</td></tr>
+<tr><td><a href="../modules/utilities/mixer.html">Mixer</a> ×5</td><td>Two for the kit, and Echoes, Body and Sky. Sky's <strong>Master</strong> −2.9 dB sets the level onto the tape</td></tr>
+<tr><td><a href="../modules/effects/delay.html">Stereo Delay</a></td><td><strong>Sync</strong> 1/8D, <strong>P-P</strong> and <strong>Tape</strong> on, on the Echoes send</td></tr>
+<tr><td><a href="../modules/effects/reverb.html">Reverb</a> ×2</td><td>A hall on Echoes, a plate on the send everyone shares</td></tr>
+<tr><td><a href="../modules/visualization/oscilloscope.html">Oscilloscope</a></td><td>The mix and the kick, to watch</td></tr>
+<tr><td><a href="../modules/effects/tape.html">Tape</a></td><td>On the master, 15 ips: <strong>Wow</strong> and <strong>Flutter</strong> 10%, <strong>Saturation</strong> 25%, <strong>Age</strong> 10%, <strong>Hiss</strong> 4%. The Tape Arranger's lane adds to Wow</td></tr>
+<tr><td><a href="../modules/output/audio-output.html">Audio Output</a></td><td><strong>Volume</strong> 80%, <strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
+</tbody></table>
+</div>
+<h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
+<h3 id="the-score"><a class="header" href="#the-score">The score</a></h3>
+<pre><code class="language-text">[Clock Gate] ──&gt; [Desk Clock]
+             ──&gt; [Cues Clock]
+[Desk Section] ──&gt; [Cues Follow]              (Cues follows Desk's sections)
+[Desk Lane 6] ──&gt; [Mixer Body Level 2]        (the pad, both sides)
+              ──&gt; [Mixer Body Level 3]
+[Cues Lane 3] ──&gt; [Mixer Sky Level 4]         (the riser's level)
+[Cues Gate 3] ──&gt; [Riser ADSR Gate]           (and its envelope)
+</code></pre>
+<p>All three Arrangers count the Clock's sixteenths, sixteen to a bar, through the same 22 sections: First Sound, Echo, Sparkles, Arp, Pulse, Bass, Bells, Riser, Groove, Fill, Lift, Fill, Memory, Answer, Build, Everything, Fill, Second Wave, Lead Returns, Fill, Return and One Sine. They change section on the same clock edge as the sequencers step on, so the score and the music can't drift apart. <strong>Loop to</strong> is 1, so the song goes round again.</p>
+<p><strong>Desk</strong>, the Arranger on the left, has a lane for each fader: the sine, arpeggio, bells, sparkles, bass, pad, wind and lead. On the Echoes, Body and Sky mixers each channel's <strong>Level</strong> knob is at zero, and its <strong>Level</strong> input adds the lane on top.</p>
+<p>The faders swell and fade more than they jump. The wind breathes in over the first twelve bars on a Log curve. Echo brings the pad in at 28% and ramps it in a line to 42% over twelve bars, through Sparkles and Arp, which hold. The sparkles rise over eight bars and thin away over the next twelve as the band arrives. The arpeggio swells in under the sine, then lifts into the Pulse as the sine rests. The bass and the bells come in on swells of their own. Where the music turns on a downbeat (a crash, the breakdown, the drop) the faders still jump: everything that leaves at Memory, or comes back at Everything, goes or comes at once.</p>
+<p>One Sine, the last twelve bars, is the score's longest fade. Each part falls on its own curve over its own length, so they leave one after another in the reverse of the order they came: bells, bass, arpeggio, sparkles, pad and wind. Meanwhile the sine climbs a little, to stand alone at the end, as it began. The pad and wind, the bed under everything, fade last, on the gentler S-curve.</p>
+<p>The mixer adds a control voltage without smoothing it, so each lane has a <strong>Glide</strong> for its jumps: a second for the pad, wind and sparkles, 0.8 s for the sine, 0.3 s for the lead, and 40 ms for the arp, bass and bells, which still land on the downbeat but never cut a tail short.</p>
+<p><strong>Cues</strong>, on the right, has the rest. It <a href="../modules/utilities/arranger.html#more-than-eight-lanes-follow">follows</a> Desk: Desk's <strong>Section</strong> is patched into its <strong>Follow</strong>, so its sections are always Desk's, and an edit to them on Desk is made on Cues too. <strong>Drums</strong> picks the drum pattern (see <a href="#drums-and-fills">Drums and fills</a>). <strong>Crash</strong> hits on the downbeat of each big section, and its level is the cymbal's accent. <strong>Riser</strong> jumps to 30% for the Riser section and 32% for the Build. Its CV is the riser's level, and its gate holds the riser's envelope open for exactly those four bars. <strong>Heat</strong> ramps up through the opening, 8% to 48% over seven sections, and keeps climbing through the groove. The Build drops it to 50% and sweeps it up an Exp curve to its peak, 86%, on the drop. The ending darkens it back down to 10% as the parts fade. Through two Attenuverters it opens the pad's Ladder and drives the bass harder. <strong>Memory</strong> is the Looper's level. It swells in over the breakdown's first four bars and recedes under the Build's riser. <strong>Rec</strong> and <strong>Clear</strong> hit the Looper's pedals. <strong>Line</strong> picks the melody's pattern (see <a href="#the-motif-and-the-line">The motif and the line</a>).</p>
+<p><strong>Tape</strong>, on the far right, follows Desk too. It has one lane, <strong>Wow</strong>, which bends the master tape through the breakdown (see <a href="#a-warped-memory">A warped memory</a>).</p>
+<h3 id="harmony-a-chord-a-bar"><a class="header" href="#harmony-a-chord-a-bar">Harmony, a chord a bar</a></h3>
+<pre><code class="language-text">[Clock Divider ÷16 Trig] ──&gt; [Chord Sequencer Clock]
+[Chord Sequencer Root] ──&gt; [Pad Root Oscillator V/Oct]
+                       ──&gt; [Arp Oscillator Exp FM]
+                       ──&gt; [Bass Oscillator Exp FM]
+[Chord Sequencer Pitch] ──&gt; [Pad Chord Oscillator V/Oct]   (three voices)
+[Pad Root Oscillator Out] ──&gt; [Mix In 1]
+[Pad Chord Oscillator Out] ──&gt; [Mix In 2]                  (Sum Voices on)
+</code></pre>
+<p>Sixteen bars of chords: Dm(add9), Bbmaj7, Fmaj7 and Cadd9 twice, then Gm7, Bbadd9, Dm, C, Gm7, Bbmaj7, Csus4 and C. A <a href="../modules/utilities/chord-sequencer.html">Chord Sequencer</a> takes a step a bar, so changing a chord is one edit.</p>
+<p><img src="../images/recipe-from-one-sine-harmony.png" alt="The Chord Sequencer in the Harmony frame, playing Everything" />
+<em>The harmony in Everything, on Gm7: the strip shows the pad's three voices, F, Bb and D. The steps name the chords, and the notches on the first Dm(add9) and the second Gm7 mark the two steps that name their top note.</em></p>
+<p>Its <strong>Root</strong> output plays each chord's root on a saw of its own, an octave down. <strong>Rootless</strong> is on, so the three voices on its <strong>Pitch</strong> cable leave the root to that saw and play the 3rds, 7ths and 9ths above it. <strong>Voice Leading</strong> gives each chord the inversion nearest the one before, so the voices move by step instead of jumping in parallel. Two steps also set a <strong>Top</strong>, the chord tone they want on top. The opening Dm(add9) keeps its 9th, E, at the top of the pad, so every pass round starts from the same voicing. The second Gm7 puts D on top, so the line climbs back up after the C, where voice leading alone would sink to Bb.</p>
+<p>The voices all come out of one Oscillator, three saws on one cable. A Ladder Filter on that cable would filter each voice on its own, and drive each one less hard than the whole chord. So the root saw and the chord meet in a <a href="../modules/utilities/mix.html">Mix</a> with <strong>Sum Voices</strong> on, which adds the three voices into one channel. Then one Ladder Filter drives the chord as a whole, the Compressor ducks it under the kick, and the Chorus spreads it into stereo.</p>
+<p>The arpeggio and the bass are written over C, and the <strong>Root</strong> moves them to each chord through <strong>Exp FM</strong> at 1 octave per volt, as in <a href="../recipes/afterglow.html">Afterglow</a>. That only stays in key if the shapes have no third, so the arpeggio is made of roots, ninths and fifths, and the bass of roots, fifths and octaves. Over these roots, every note they play is in D minor.</p>
+<h3 id="the-motif-and-the-line"><a class="header" href="#the-motif-and-the-line">The motif and the line</a></h3>
+<pre><code class="language-text">[Clock Divider ÷4 Trig] ──&gt; [Motif Clock]
+[Cues Lane 8] ──&gt; [Motif Pattern]             (the Line: a pattern a pass)
+[Motif Pitch] ──&gt; [Sine V/Oct], [Supersaw V/Oct]
+[Sine VCA Out] ──&gt; [Mixer Echoes Ch 1]
+               ──&gt; [Looper In L]
+[Cues Gate 6] ──&gt; [Looper Rec]
+[Clock Divider ÷16 Trig] ──&gt; [Looper Clock]
+[Looper Loop L/R] ──&gt; [Mixer Sky Ch 2/3]
+</code></pre>
+<p>The motif is four bars of quarter notes, A, D E | F, D | C, A C | G, with ties for the long notes. It leans on notes that both halves of the progression share. A over Dm is the fifth and over Gm the ninth. C over F is the fifth and over Dm the seventh. So it fits whichever chords it lands on.</p>
+<p>It's pattern <strong>A</strong> of the motif's <a href="../modules/utilities/sequencer.html">Step Sequencer</a>, and three more patterns make it a sixteen-bar line, one for each four bars of the progression. The second half of the progression gets patterns of its own, written to its chords, so the line follows the harmony instead of sitting over it:</p>
+<div class="table-wrapper"><table><thead><tr><th>Pattern</th><th>Over</th><th>Notes</th><th>Its part in the line</th></tr></thead><tbody>
+<tr><td>A</td><td>Dm(add9), Bbmaj7, Fmaj7, Cadd9</td><td>A, D E / F, D / C, A C / G</td><td>The motif. It ends open, on the fifth of C</td></tr>
+<tr><td>B</td><td>the same</td><td>A, F E / D, F / E, C A / C</td><td>The answer. It starts on the motif's note, leaps where the motif stepped, and comes to rest on C</td></tr>
+<tr><td>C</td><td>Gm7, Bbadd9, Dm, C</td><td>D, G A / F, D / F, D F / E</td><td>The motif a fourth higher, and the top of the line</td></tr>
+<tr><td>D</td><td>Gm7, Bbmaj7, Csus4, C</td><td>G, F E / D, Bb / C, A C / G</td><td>Down the scale, and home on the motif's own last two bars, which lead back to A</td></tr>
+</tbody></table>
+</div>
+<p><img src="../images/recipe-from-one-sine-line.png" alt="The motif&#39;s Step Sequencer at the Lift, playing pattern C" />
+<em>The motif's sequencer at the Lift, two bars into pattern C. C wears the green dot and D, ringed, comes next. The Chain is dimmed, because the orange cable into <strong>Pattern</strong> picks the patterns instead.</em></p>
+<p>The <strong>Line</strong> lane on Cues picks which pattern plays. The sequencer reads its <strong>Pattern</strong> input once a pass, on the clock that starts it, and each quarter of the range is a pattern, so 12.5% is the middle of A and 87.5% the middle of D. Where the song wants the motif alone, the lane jumps to A and stays there. Where it wants the whole line, the lane ramps in a straight line, <strong>Linear</strong>, from A to D over twelve bars. On the first beat of each pass it stands in the middle of the next pattern's quarter, so the four passes play A, B, C and D, and then it holds D. On the Cues timeline you can see where the line grows: a flat lane, then a slope.</p>
+<ul>
+<li><strong>First Sound:</strong> the sine plays the motif alone, four times. That's what the Looper keeps.</li>
+<li><strong>Lift:</strong> the lead plays the whole line for the first time.</li>
+<li><strong>Answer and Build:</strong> over its reversed ghost, the sine plays the motif forward. The Build plays D, and D's descent leads into the drop.</li>
+<li><strong>Everything:</strong> the whole line on the lead.</li>
+<li><strong>Second Wave:</strong> the sine sings the line, and the lead returns for C and D.</li>
+<li><strong>Return and One Sine:</strong> back to the motif alone, so the song ends as it began.</li>
+</ul>
+<p>The Looper listens to the sine. At bar 5, the Echo section hits <strong>Rec</strong>. With bar pulses on its <strong>Clock</strong> and <strong>Bars</strong> at 4, the take starts on the downbeat and closes itself after four bars. The Looper is set to <strong>½×</strong> and <strong>Rev</strong> from the start. Neither changes what it records, only how it plays it back, so the loop plays reversed, an octave down, at half speed: eight bars, landing on the progression's own eight-bar grid. Its level stays at zero until the breakdown. First Sound hits <strong>Clear</strong> at bar 1, so each time the song comes round the Looper records the opening afresh.</p>
+<h3 id="drums-and-fills"><a class="header" href="#drums-and-fills">Drums and fills</a></h3>
+<pre><code class="language-text">[Cues Lane 1] ──&gt; [Drum Trigger Sequencer Pattern]
+[Cues Gate 2] ──&gt; [Cymbal Trig]
+[Cues Lane 2] ──&gt; [Cymbal Accent]
+</code></pre>
+<p>The drum sequencer's <strong>Pattern</strong> input picks a pattern for each new bar in quarters: 0 to 0.25 is A, then B, C and D. A is silence, B is a pulse of kick, rim and offbeat hats, C is the groove, and D is a build: four-on-the-floor kicks, toms, and a snare roll whose ratchets climb to four hits a step.</p>
+<p>The <strong>Drums</strong> lane jumps to 0.10 for A, 0.35 for B, 0.52 for C and 0.85 for D. Each phrase of the groove ends on a one-bar <strong>Fill</strong> section, which jumps it to D for that bar, and the section after jumps it back. The sequencer reads its <strong>Pattern</strong> on the same sample the lane jumps, so the lane has no Glide.</p>
+<p>The closed hat's gate chokes the open hat. The kick is tuned to A1, the fifth of D, and the tom to A2, so the drums sit in the key.</p>
+<h3 id="the-desk"><a class="header" href="#the-desk">The desk</a></h3>
+<pre><code class="language-text">[Mixer Kit 2 Chain Out] ──&gt; [Mixer Kit Chain In]
+[Mixer Kit Chain Out] ──&gt; [Mixer Body Chain In]
+[Mixer Body Chain Out] ──&gt; [Mixer Sky Chain In]
+[Mixer Sky Out L/R] ──&gt; [Tape In L/R] ──&gt; [Audio Output Left/Right]
+[Mixer Sky Send L/R] ──&gt; [Plate Reverb In L/R] ──&gt; [Mixer Sky Return L/R]
+[Mixer Echoes Send L/R] ──&gt; [Stereo Delay] ──&gt; [Mixer Echoes Return L/R]
+[Mixer Echoes Out L/R] ──&gt; [Hall Reverb] ──&gt; [Mixer Body Return L/R]
+</code></pre>
+<p>The sine, arpeggio, bells and sparkles share the Echoes mixer, whose send feeds a ping-pong tape delay on dotted eighths. Its output passes through a big hall and comes back on Body's <strong>Return</strong>. Body carries the bass, the pad in stereo and the wind. Sky carries the lead, the Looper's two sides and the riser. The two kit mixers chain into Body, and Body into Sky. Each chain cable carries a mixer's mix and its sends together, so the sends of all four ride along to Sky, where one plate reverb serves them. Echoes keeps its send for the delay. Sky's mix goes onto tape on its way to the Audio Output.</p>
+<h3 id="a-warped-memory"><a class="header" href="#a-warped-memory">A warped memory</a></h3>
+<pre><code class="language-text">[Desk Section] ──&gt; [Tape Arranger Follow]
+[Tape Arranger Lane 1] ──&gt; [Tape Wow]          (the Wow lane)
+[Mixer Sky Out L/R] ──&gt; [Tape In L/R] ──&gt; [Audio Output Left/Right]
+</code></pre>
+<p>The whole mix goes onto a <a href="../modules/effects/tape.html">Tape</a> last. For most of the song it's a well-kept machine at 15 ips. <strong>Wow</strong> and <strong>Flutter</strong> are at 10%, which sways the pitch by less than a cent. <strong>Saturation</strong> at 25% rounds the loud sections a little, and there's a touch of <strong>Age</strong> and <strong>Hiss</strong>. The record head squashes the loudest sections by up to a decibel. Sky's <strong>Master</strong> at −2.9 dB sets how hard the mix meets the head, with the Output's <strong>Volume</strong> at its usual 80%, and leaves the song at −16 LUFS, where every example sits.</p>
+<p>The tape earns its place in the breakdown. The Looper plays the opening back reversed, the rack remembering how it began, and memories don't hold their pitch. A third Arranger, <strong>Tape</strong>, follows Desk as Cues does. Its one lane is patched into the Tape's <strong>Wow</strong>, where it adds to the knob:</p>
+<div class="table-wrapper"><table><thead><tr><th>Section</th><th>Wow lane</th><th>What you hear</th></tr></thead><tbody>
+<tr><td>Memory</td><td>Log ramp to 45% over 4 bars</td><td>The warp arrives with the ghost, which swells in over the same four bars. The whole mix sways by about 12 cents</td></tr>
+<tr><td>Answer</td><td>Hold</td><td>The sine answers its ghost on the same wavering tape</td></tr>
+<tr><td>Build</td><td>Exp ramp to 75%</td><td>The sway deepens under the riser, to nearly 30 cents by the last bar: a held breath</td></tr>
+<tr><td>Everything</td><td>Jump to 0</td><td>On the drop's downbeat the tape snaps back to speed</td></tr>
+</tbody></table>
+</div>
+<p>Wow's swing grows with the square of the setting, so the knob's 10% alone is under half a cent, the knob and lane together at 55% are 12 cents, and at 85% they're 29. The drop lands harder for coming out of a lurch. The Tape glides the depth of its wobble over 300 ms, so the jump back to 0 is a snap and not a click. First Sound jumps the lane to 0 as well, so the song comes round on steady tape.</p>
+<p>The warp needs an Arranger of its own because Cues has no lane to spare. Its <strong>Rec</strong> and <strong>Clear</strong> lanes are only used for their gates, but a lane that rose through the breakdown would raise its gate too, and press the Looper's pedal.</p>
+<h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
+<p><strong>Rearrange it.</strong> Drag a lane on the Desk up or down in any section to move that fader, or right-click it to ramp instead of jump. Delete a <strong>Fill</strong> section on the Desk for a phrase of groove without a fill: Cues follows, and its cues for the Fill go with it.</p>
+<p><strong>A shorter song.</strong> Set the Desk's <strong>Loop to</strong> to 9, the Groove, and Cues follows. The opening plays once, and then the song goes round from the groove to the end.</p>
+<p><strong>The line all through.</strong> Pull the Line cable out of the motif sequencer's <strong>Pattern</strong>. Its Chain is A B C D, so the sine plays the whole line from the very first bar, and the breakdown remembers the answer, B, instead of the motif.</p>
+<p><strong>Other chords.</strong> Right-click a step of the Chord Sequencer and pick another type: one edit, and the pad, the arpeggio and the bass all follow. Keep the roots, which the arpeggio and bass are tuned to. Dm9 on the first step adds a C to the opening, and Bbmaj9 on the second puts a C over the Bb.</p>
+<p><strong>Each voice through its own filter.</strong> Switch off the pad Mix's <strong>Sum Voices</strong>. The Ladder then filters each voice on its own, and the pad comes out cleaner and about a decibel louder. The root saw now joins all three voices, so turn the Mix's <strong>Level 1</strong> down to a third (18%) to keep the bass where it was.</p>
+<p><strong>Remember something else.</strong> Patch the Arp's VCA into the Looper's <strong>In L</strong> instead of the sine. The breakdown then hears the arpeggio, slowed and backwards.</p>
+<p><strong>Brighter all through.</strong> Raise the <strong>Offset</strong> on the pad's brightness Attenuverter: each 0.1 opens the Ladder a tenth of an octave further, all song long.</p>
+<p><strong>More or less warp.</strong> The Build's cue on the Tape Arranger sets how far the tape bends before the drop. At 90% it lurches by 40 cents; at 40% it only wavers. Pull the cable out of the Tape's <strong>Wow</strong> and the breakdown plays on steady tape.</p>
+<p><strong>Straighter.</strong> Set the Clock's <strong>Swing</strong> to 50%. Arp, bass and drums all straighten together, because they share its sixteenths.</p>
+<h2 id="related"><a class="header" href="#related">Related</a></h2>
+<ul>
+<li><a href="../modules/utilities/arranger.html">Arranger</a>: sections, lanes, and the cues that move them</li>
+<li><a href="../modules/effects/tape.html">Tape</a>: the master tape, and its Wow input</li>
+<li><a href="../recipes/afterglow.html">Afterglow</a>: transposing an arpeggio with a second sequencer</li>
+<li><a href="../recipes/roll-call.html">Roll Call</a>: one Trigger Sequencer, eight drums</li>
+<li><a href="../recipes/live-looper.html">Live Looper</a>: the Looper with your own instrument</li>
+<li><a href="../recipes/interlock.html">Interlock</a>: Logic deciding whose turn it is</li>
+<li><a href="../concepts/tempo-and-sync.html">Tempo and Sync</a>: one Clock for the whole patch</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../recipes/cut-up.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../songs/clair-de-satellite.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../recipes/cut-up.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../songs/clair-de-satellite.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
