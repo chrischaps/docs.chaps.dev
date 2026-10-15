@@ -183,7 +183,7 @@
                         <h1 id="chorus"><a class="header" href="#chorus">Chorus</a></h1>
 <p><strong>Module ID</strong> <code>fx.chorus</code> · <strong>Category</strong> Effect</p>
 <p><img src="../../images/module-chorus.png" alt="Chorus Module" />
-<em>Voices and Shape are dropdowns; the knobs set the sweep</em></p>
+<em>Toms on every beat through three voices: the braid weaves slowly and lights where each hit passed</em></p>
 <p>The Chorus thickens a sound by layering copies of it, each delayed by a few milliseconds that keep changing. The moving delays bend each copy's pitch slightly up and down, and the copies beat against each other and against the original, the way several players on the same part never quite line up.</p>
 <p>It is true stereo, and it makes a mono source wide on its own. Short delays and a little feedback take it into flanging.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
@@ -197,6 +197,14 @@
 <p>A stereo source keeps its image: nothing patched into <strong>In L</strong> ever reaches <strong>Out R</strong>.</p>
 <p>With <strong>In R</strong> unpatched, In L feeds both sides and the chorus creates the width itself. Each right tap's LFO sits halfway between two left taps (180° away with one voice, 90° with two), so the two sides always bend in pitch in opposite directions.</p>
 <p>Changing <strong>Voices</strong> fades voices in or out and slides the rest to their new places on the cycle, so it never clicks.</p>
+<h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
+<p>The display draws the voices sweeping over the last two seconds, newest at the right edge. Up and down is how far each tap reads behind <strong>Delay</strong>: the centre line is the Delay itself, and the faint lines either side are as far as <strong>Depth</strong> lets the taps swing.</p>
+<ul>
+<li><strong>Strands.</strong> Each voice is a strand in its own colour. The solid strand is its left tap, and the fainter one beside it is its right tap, half a voice-spacing behind. One voice draws a single wave, and four weave a braid. <strong>Rate</strong> sets how many cycles cross the panel, and <strong>Shape</strong> bends them from sine to triangle. A dot at the right edge marks where each voice is now.</li>
+<li><strong>Light.</strong> The strands light up where sound came in, so the braid glows with whatever passes through it.</li>
+<li><strong>Feedback.</strong> Positive <strong>FB</strong> thickens the strands. Negative FB, the hollow flanger sound, turns them hollow and violet.</li>
+<li><strong>Words.</strong> The top left gives the rate and delay, with the rate in orange while <strong>Rate</strong> CV moves it. The top right gives the number of voices and the feedback.</li>
+</ul>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In L</strong></td><td>Audio (Blue)</td><td>Left input</td></tr>
