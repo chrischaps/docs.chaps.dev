@@ -204,7 +204,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td>Electric Piano (from the <a href="../concepts/groups.html#the-library">Library</a>)</td><td>As it comes</td></tr>
 <tr><td><a href="../modules/utilities/trigger-sequencer.html">Trigger Sequencer</a></td><td><strong>Steps</strong> 16. Lane 1 (the stomp) on steps 1, 5, 9 and 13. Lane 2 (the shaker) on every step at ×2, velocity 60% on the odd steps and 82% on the even ones</td></tr>
 <tr><td><a href="../modules/sources/drum.html">Drum</a> (the stomp)</td><td><strong>Type</strong> Kick, <strong>Tune</strong> +5 st, <strong>Decay</strong> 25%, <strong>Tone</strong> 45%, <strong>Snap</strong> 30%, <strong>Level</strong> 90%</td></tr>
-<tr><td><a href="../modules/sources/drum.html">Drum</a> (the shaker)</td><td><strong>Type</strong> Closed Hat, <strong>Decay</strong> 35%, <strong>Tone</strong> 70%, <strong>Snap</strong> 90%, <strong>Level</strong> 100%</td></tr>
+<tr><td><a href="../modules/sources/drum.html">Drum</a> (the shaker)</td><td><strong>Type</strong> Shaker, <strong>Decay</strong> 40%, <strong>Tone</strong> 70%, <strong>Snap</strong> 60%, <strong>Level</strong> 100%</td></tr>
 <tr><td><a href="../modules/effects/chorus.html">Chorus</a></td><td><strong>Rate</strong> 0.35 Hz, <strong>Depth</strong> 25%, <strong>Delay</strong> 10 ms, <strong>Mix</strong> 25%</td></tr>
 <tr><td><a href="../modules/utilities/mixer.html">Mixer</a></td><td>Ch 1 and 2 (the piano) hard left and right at 100%, Ch 3 (the stomp) in the centre at 80%, Ch 4 (the shaker) R 35 at 100%</td></tr>
 <tr><td><a href="../modules/effects/reverb.html">Reverb</a></td><td><strong>Size</strong> 45%, <strong>Decay</strong> 1.6 s, <strong>Damp</strong> 55%, <strong>PreD</strong> 12 ms, <strong>Mix</strong> 22%, <strong>Mod</strong> 20%</td></tr>
@@ -248,7 +248,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <pre><code class="language-text">[Clock Gate]  ──&gt; [Trigger Sequencer Clock]
 [Clock Reset] ──&gt; [Trigger Sequencer Reset]
 [Trigger Sequencer Gate 1 / Vel 1] ──&gt; [Drum (Kick) Trig / Accent]
-[Trigger Sequencer Gate 2 / Vel 2] ──&gt; [Drum (Closed Hat) Trig / Accent]
+[Trigger Sequencer Gate 2 / Vel 2] ──&gt; [Drum (Shaker) Trig / Accent]
 </code></pre>
 <p>Someone on the porch keeps time with their heel, and someone else plays a shaker. The Trigger Sequencer takes the same eighth-note Clock as the Chord Sequencer, and its 16 steps are the same two bars, so each pad sits under one stroke of the hand. The Clock's <strong>Reset</strong> goes to both sequencers, so they start the loop together every time <strong>Run</strong> is ticked.</p>
 <div class="table-wrapper"><table><thead><tr><th>Step</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead><tbody>
@@ -259,12 +259,12 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 </div>
 <p>The second bar is the same, with the downbeat stomp at 74.</p>
 <p><strong>The stomp</strong> is a heel on wooden boards: a Kick tuned up five semitones, to about 64 Hz, with a short <strong>Decay</strong>. <strong>Snap</strong> at 30% makes the pitch fall less, so the hit is a round thump, and it leaves a little knock of wood in it. <strong>Tone</strong> at 45% adds enough drive for the thump to be heard on small speakers. It lands on 1 and 3, and its velocity, through the Drum's <strong>Accent</strong>, makes the first beat of the bar a little heavier than the third.</p>
-<p><strong>The shaker</strong> is the Closed Hat with its <strong>Snap</strong> at 90%, so it's nearly all hiss and hardly any metal. Each step is a ×2 <a href="../modules/utilities/trigger-sequencer.html#ratchets">ratchet</a>, two grains evenly spaced across the eighth, so an eighth-note lane plays sixteenths. Its velocity follows the strum: 60% under a downstroke and 82% under an upstroke. A shaker player's wrist pushes against the guitarist's, so the offbeats lift where the piano's strokes are lightest. The shaker keeps going through the tied steps, where the hand moves without striking.</p>
+<p><strong>The shaker</strong> is the Drum's Shaker: a band of hiss around 7 kHz whose grains swell in over a few milliseconds, as the beads arrive, rather than striking like a hat. <strong>Snap</strong> at 60% lets the beads rattle a little inside each grain. Each step is a ×2 <a href="../modules/utilities/trigger-sequencer.html#ratchets">ratchet</a>, two grains evenly spaced across the eighth, so an eighth-note lane plays sixteenths. Its velocity follows the strum: 60% under a downstroke and 82% under an upstroke. The softer grains swell in more slowly too, as a looser wrist does. A shaker player's wrist pushes against the guitarist's, so the offbeats lift where the piano's strokes are lightest. The shaker keeps going through the tied steps, where the hand moves without striking.</p>
 <h3 id="the-room"><a class="header" href="#the-room">The room</a></h3>
 <pre><code class="language-text">[Electric Piano Out] ──&gt; [Chorus In L]
 [Chorus Out L/R]     ──&gt; [Mixer Ch 1 / Ch 2]   (panned hard left and right)
 [Drum (Kick) Out]    ──&gt; [Mixer Ch 3]
-[Drum (Closed Hat) Out] ──&gt; [Mixer Ch 4]
+[Drum (Shaker) Out]  ──&gt; [Mixer Ch 4]
 [Mixer Out L/R]      ──&gt; [Reverb In L/R]
 [Reverb Out L/R]     ──&gt; [Tape In L/R]
 [Tape Out L/R]       ──&gt; [Audio Output Left/Right]
