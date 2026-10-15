@@ -186,12 +186,14 @@
 <em>A line cliché, Am9 to E7. The keyboard strip shows Dm9 sounding: the bass voice in amber on D2, and the chord in orange above it, a dot for each voice. Esus4 is tied into E7, so the suspension resolves without a new attack.</em></p>
 <p>The Chord Sequencer plays a progression. Each of its 16 steps holds a chord: a root, a chord type and, if you like, a slash bass. Each clock pulse moves it on one chord. It sends that chord out as polyphonic <strong>Pitch</strong>, <strong>Gate</strong> and <strong>Velocity</strong>, one channel per note, the way <a href="../midi/poly-midi.html">Poly MIDI</a> sends the notes you hold. So any polyphonic voice, every <a href="../../concepts/groups.html">Library</a> voice included, plays it with nothing else in between.</p>
 <p>It voices the chords itself. The notes go close together, opened out, or spread wide, in the octave you choose. With <strong>Voice Leading</strong> on, each chord takes the inversion nearest the one before. The voices then move a step or stay put from chord to chord, the way a pianist's hands do, rather than jumping in parallel. Changing one chord means changing one step.</p>
+<p>It holds four patterns, A to D, and plays them in the order its <strong>Chain</strong> gives, so one Chord Sequencer can play a 64-chord progression, or a song's verse, chorus and coda through the same voices (see <a href="#patterns-and-the-chain">Patterns and the Chain</a>).</p>
 <p>The <strong>Root</strong> and <strong>Bass</strong> outputs carry single notes as well: a bass line to play on a second voice, or a pitch to move an arpeggio around (see <a href="../../recipes/afterglow.html">Afterglow</a>).</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Clock</strong></td><td>Gate (Green)</td><td>Each rising edge moves to the next chord</td></tr>
 <tr><td><strong>Reset</strong></td><td>Gate (Green)</td><td>A rising edge jumps back to step 1</td></tr>
 <tr><td><strong>Run</strong></td><td>Gate (Green)</td><td>Steps advance only while this is high. With nothing patched, the sequencer runs</td></tr>
+<tr><td><strong>Pattern</strong></td><td>Control (Orange)</td><td>Picks the pattern for each pass in place of the Chain: 0 to 0.25 is A, 0.25 to 0.5 is B, then C, and D from 0.75 up</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -201,12 +203,12 @@
 <tr><td><strong>Velocity</strong></td><td>Control (Orange), poly</td><td>The step's velocity, 0 to 1, on every channel, or shaded along the strum by <strong>Taper</strong></td></tr>
 <tr><td><strong>Root</strong></td><td>Control (Orange)</td><td>The chord's root as V/Oct, in the octave the step was written in</td></tr>
 <tr><td><strong>Bass</strong></td><td>Control (Orange)</td><td>The slash chord's bass note, at or below the root; the root when there's no slash</td></tr>
-<tr><td><strong>EOC</strong></td><td>Gate (Green)</td><td>End of cycle: a 1 ms pulse each time the progression comes round</td></tr>
+<tr><td><strong>EOC</strong></td><td>Gate (Green)</td><td>End of cycle: a 1 ms pulse each time the whole Chain comes round. With a cable in <strong>Pattern</strong>, each time a pattern does</td></tr>
 </tbody></table>
 </div>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
-<tr><td><strong>Steps</strong></td><td>1 – 16</td><td>4</td><td>How many chords play before the progression loops</td></tr>
+<tr><td><strong>Steps</strong></td><td>1 – 16</td><td>4</td><td>How many chords each pattern plays before the next pass</td></tr>
 <tr><td><strong>Gate</strong> (Gate Length)</td><td>1 – 100%</td><td>100%</td><td>How long each chord is held, as a share of the step. 100% holds it up to the next clock</td></tr>
 <tr><td><strong>Voices</strong></td><td>1 – 8</td><td>4</td><td>How many channels the cables carry: the notes in each chord</td></tr>
 <tr><td><strong>Range</strong></td><td>1 – 6</td><td>3</td><td>The octave the chord's lowest note sits in. 4 is middle C's octave</td></tr>
@@ -220,7 +222,7 @@
 <tr><td><strong>Taper</strong> (Strum Taper)</td><td>−100 – 100%</td><td>0%</td><td>Softens the notes struck later in a strum, down to nothing at 100%. Below 0 they grow louder instead (see <a href="#taper">Taper</a>)</td></tr>
 </tbody></table>
 </div>
-<p>Each step also stores a root (a note, with its octave), a type, a bass (the root, or one of the twelve notes), a gate, a velocity, a tie, a top (Auto, or the chord tone to put on top), and a strum (Auto, Up or Down). A new Chord Sequencer starts on Cmaj7, Am7, Fmaj7, G7, with the roots walking down from C2. Patch a <a href="../modulation/clock.html">Clock</a> into it and it plays a progression straight away.</p>
+<p>Each of the 16 steps of each pattern also stores a root (a note, with its octave), a type, a bass (the root, or one of the twelve notes), a gate, a velocity, a tie, a top (Auto, or the chord tone to put on top), and a strum (Auto, Up or Down). The Chain has up to eight slots. Every knob and switch above is shared by all four patterns. A new Chord Sequencer starts every pattern on Cmaj7, Am7, Fmaj7, G7, with the roots walking down from C2. Patch a <a href="../modulation/clock.html">Clock</a> into it and it plays a progression straight away.</p>
 <h2 id="writing-chords"><a class="header" href="#writing-chords">Writing chords</a></h2>
 <p>Each step shows its chord's name, with a slash bass written under it. A line along the foot of the step shows its velocity, a notch in its head shows that it names its top note, and a small arrow in its corner that it names its own strum, up or down. Steps beyond <strong>Steps</strong> are hidden, not lost.</p>
 <ul>
@@ -260,6 +262,12 @@
 <li><strong>You hear the chord as it will play.</strong> While your hand is down, the sequencer plays the chord on its own cables, so the patch's voices sound it whether or not the Clock is running. You hear it already named and voiced: in the <strong>Range</strong> octave, as many notes as <strong>Voices</strong>, with your top note on top and the bass on the first channel if <strong>Bass Voice</strong> is on. Am/G# and G#dim7 sound different, even though you played the same keys. With <strong>Voice lead</strong> on, it's led from the chord before it, as the pattern will reach it once it loops, so a progression you type in sounds as it will play, whatever order you write its steps in. (Ping-pong and random reach a step from more than one chord, so with those you hear it in root position.) With <strong>Strum</strong> up, it's rolled the way its step will be struck: the step's own stroke, or <strong>Strum Dir</strong>'s, with <strong>Alt</strong> taking the step's place in the bar (up on the step a Reset starts on, then down and up in turn), and shaded by <strong>Strum Taper</strong>. Only the first key strikes. Fingers that land after it change the notes under the hand, and strings the strum hasn't reached yet take the new notes on their turn, so a chord you land a little unevenly still sounds as one stroke. When you let go, the chord fades out on its release, and the sequence comes back with its next chord. If the patch has a MIDI module, it already plays the MIDI keyboard, so only chords with letter keys in them are heard this way. The patch must be playing for any of this to sound.</li>
 </ul>
 <p>While the popover is open, the letter keys belong to it, the way a text field takes them. The Keyboard modules don't hear them, so writing chords plays the chord, not the patch's lead. The letter keys play the popover's piano, with <strong>Z</strong> on its lowest C, and <strong>‹ ›</strong> move them an octave as well. A MIDI keyboard still plays the patch as usual. Each chord you play is one undo step.</p>
+<h2 id="patterns-and-the-chain"><a class="header" href="#patterns-and-the-chain">Patterns and the Chain</a></h2>
+<p>The tabs under the steps pick which pattern you're editing: clicking, dragging, the popover and chords played in all write to the pattern on show. The one playing wears a green dot, and the one coming next a green ring. The playing step's outline only shows on the pattern playing. Which tab is open isn't saved with the patch. <strong>Right-click</strong> a tab to copy its pattern to another, to start a chorus from the verse, or to clear it. Clearing turns every step into a rest but keeps the chords.</p>
+<p>The <strong>Chain</strong> is the order the patterns play in, a pass each, round and round, as on the <a href="./sequencer.html#patterns-and-the-chain">Step Sequencer</a>: <strong>click</strong> a slot to change its pattern, <strong>right-click</strong> it to pick one or remove it, and <strong>+</strong> adds a pass of the pattern you're editing. A new Chord Sequencer plays <code>A</code>, and so do patches saved before it had patterns, exactly as they always did.</p>
+<p>A pass ends where the pattern comes round: after the last step going <strong>Fwd</strong>, after step 1 going <strong>Bwd</strong>, at each turn in <strong>P-P</strong>, and after <strong>Steps</strong> clocks in <strong>Rnd</strong>. Voice leading carries straight over the join, so the next pattern's first chord is led from this one's last, and a tie on the last step holds the chord into it without a new attack. The popover's preview of how a step will be voiced (and so whether a top note needs writing) assumes its own pattern looping, so a pattern's first chord can come out a little differently after another pattern than the preview suggests.</p>
+<h3 id="pattern-cv"><a class="header" href="#pattern-cv">Pattern CV</a></h3>
+<p>With a cable in <strong>Pattern</strong>, the CV picks the patterns instead, and the Chain dims. It's read once a pass, on the clock that starts it, in the same four zones as the Step and Trigger Sequencers', so one <a href="./arranger.html">Arranger</a> lane can pick the verse, chorus or coda for all three: hold it at A for the verse and at B for the chorus. Leave that lane's <strong>Glide</strong> at 0.</p>
 <h2 id="chord-types"><a class="header" href="#chord-types">Chord types</a></h2>
 <p>The tones are listed in the order the sequencer keeps them. With fewer <strong>Voices</strong> than tones, it plays the first ones, so the 5th, which adds the least colour, is the first to go. With more voices than tones, it doubles the chord's notes an octave up, in the same order.</p>
 <div class="table-wrapper"><table><thead><tr><th>Type</th><th>On C</th><th>Tones, kept in this order</th><th>Notes</th></tr></thead><tbody>
@@ -380,13 +388,14 @@
 <li><strong>Dir Rnd</strong> over a set of related chords (Fmaj7, Am7, Cmaj7, Em7) makes ambient harmony that never quite repeats.</li>
 <li><strong>EOC</strong> can clock a second sequencer once per progression, or a Clock Divider for a turnaround every few passes.</li>
 <li><strong>Strummed rhythm guitar:</strong> clock at eighth notes, write each chord on two steps, set <strong>Strum dir</strong> to Alt, <strong>Strum</strong> to about 25 ms and <strong>Taper</strong> to about 40%, and give the upstrokes a lower velocity. Where the rhythm needs a stroke the clock doesn't give, set that step's <strong>Strum</strong> to <strong>Up</strong> or <strong>Down</strong>. <strong>Voicing</strong> Spread with five or six voices and <strong>Bass voice</strong> on spreads the notes out like a guitar's six strings. <a href="../../recipes/front-porch.html">Front Porch</a> is built this way, with ties for the strokes the hand misses.</li>
+<li><strong>A song in one sequencer:</strong> a chord a bar and 16 steps make each pattern a 16-bar section. Write the verse in A and copy it to B for a chorus that starts the same way. A Chain of <code>A B A C</code> gives verse, chorus, verse, coda.</li>
 </ol>
 <h2 id="related-modules"><a class="header" href="#related-modules">Related Modules</a></h2>
 <ul>
 <li><a href="./sequencer.html">Step Sequencer</a>: one note per step, and the same clocking and ties</li>
 <li><a href="../midi/poly-midi.html">Poly MIDI</a>: chords played live, on the same kind of cable</li>
 <li><a href="../../concepts/polyphony.html">Polyphony</a>: how one cable carries several voices</li>
-<li><a href="./arranger.html">Arranger</a>: a song's sections, which can clock or reset the progression</li>
+<li><a href="./arranger.html">Arranger</a>: a song's sections, which can clock or reset the progression, or pick its pattern through <strong>Pattern</strong></li>
 <li><a href="../effects/vocoder.html">Vocoder</a>: a whole chord on one cable makes a carrier that speaks in harmony, as in <a href="../../recipes/soba-speaks.html">Soba Speaks</a></li>
 </ul>
 
