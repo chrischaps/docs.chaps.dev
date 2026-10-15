@@ -3306,21 +3306,48 @@ EOC:  _______|‾|______________   EOC: _________________|‾|___
 </ul>
 <p>Every edit is one undo step. The top of the face says the step length and how many steps play, and names the pattern while the row is still one of them, as written.</p>
 <h2 id="patterns"><a class="header" href="#patterns">Patterns</a></h2>
-<p>The right-click menu starts the row from one of these. They're written a step to a character: <code>X</code> an accent, <code>x</code> a hit, <code>.</code> a ghost, <code>=</code> a tie, <code>-</code> a rest.</p>
+<p>The right-click menu starts the row from one of these, filed by feel. They're written a step to a character: <code>X</code> an accent, <code>x</code> a hit, <code>.</code> a ghost, <code>=</code> a tie, <code>-</code> a rest. The menu marks the family holding the row the face is playing.</p>
+<h3 id="steady"><a class="header" href="#steady">Steady</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Pattern</th><th>Row</th><th>Feel</th></tr></thead><tbody>
 <tr><td><strong>Trance</strong></td><td><code>X-xXx-x-X-xXx-xx</code></td><td>The classic gated pad. A new Slicer starts on this</td></tr>
 <tr><td><strong>Sixteenths</strong></td><td><code>XxxxXxxxXxxxXxxx</code></td><td>Every step, the beat accented</td></tr>
 <tr><td><strong>Eighths</strong></td><td><code>X=x=X=x=X=x=X=x=</code></td><td>Every other step, held through the next</td></tr>
+<tr><td><strong>Quarters</strong></td><td><code>X=--x=--X=--x=--</code></td><td>A short slice on each beat</td></tr>
 <tr><td><strong>Offbeats</strong></td><td><code>--X=--X=--X=--X=</code></td><td>The upbeat stab of house and dub</td></tr>
-<tr><td><strong>Gallop</strong></td><td><code>X-xxX-xxX-xxX-xx</code></td><td>An eighth and two sixteenths</td></tr>
-<tr><td><strong>Reverse Gallop</strong></td><td><code>Xx-xXx-xXx-xXx-x</code></td><td>Two sixteenths and an eighth</td></tr>
-<tr><td><strong>Tresillo</strong></td><td><code>X==X==X=X==X==X=</code></td><td>3 + 3 + 2, twice a bar</td></tr>
-<tr><td><strong>Clave</strong></td><td><code>X--x--X---x-X---</code></td><td>The son clave, 3-2</td></tr>
-<tr><td><strong>Ghosts</strong></td><td><code>X..xX..xX..xX.xx</code></td><td>Soft notes filling the gaps</td></tr>
-<tr><td><strong>Stutter</strong></td><td><code>XxXxXxXx-.-.X=--</code></td><td>Busy, then breaking off</td></tr>
+<tr><td><strong>Sidechain</strong></td><td><code>.X==.X==.X==.X==</code></td><td>Ducks on every beat and comes back after it, the pump of a sidechained pad. Turn Shape up</td></tr>
 <tr><td><strong>Pulse</strong></td><td><code>X===----X===----</code></td><td>Two long throbs a bar</td></tr>
 <tr><td><strong>Breath</strong></td><td><code>X=======.=======</code></td><td>Half a bar open, then half a bar barely there. Turn Shape up</td></tr>
-<tr><td><strong>Threes</strong></td><td><code>X-xX-xX-xX-xX-x-</code> with 12 steps</td><td>Threes across the bar</td></tr>
+</tbody></table>
+</div>
+<h3 id="groove"><a class="header" href="#groove">Groove</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Pattern</th><th>Row</th><th>Feel</th></tr></thead><tbody>
+<tr><td><strong>Gallop</strong></td><td><code>X-xxX-xxX-xxX-xx</code></td><td>An eighth and two sixteenths</td></tr>
+<tr><td><strong>Reverse Gallop</strong></td><td><code>Xx-xXx-xXx-xXx-x</code></td><td>Two sixteenths and an eighth</td></tr>
+<tr><td><strong>Ghosts</strong></td><td><code>X..xX..xX..xX.xx</code></td><td>Soft notes filling the gaps</td></tr>
+<tr><td><strong>Funk</strong></td><td><code>X.x..xX.x.xX.x..</code></td><td>Syncopated sixteenths, ghosts between</td></tr>
+<tr><td><strong>Stutter</strong></td><td><code>XxXxXxXx-.-.X=--</code></td><td>Busy, then breaking off</td></tr>
+<tr><td><strong>Build</strong></td><td><code>x-x-x-x-xxxxXXXX</code></td><td>Eighths, then sixteenths, then accents: a riser into the next bar</td></tr>
+<tr><td><strong>Heartbeat</strong></td><td><code>Xx------Xx------</code></td><td>Lub-dub, twice a bar</td></tr>
+<tr><td><strong>SOS</strong></td><td><code>x-x-x-X=-X=-X=--</code></td><td>Three short, three long</td></tr>
+</tbody></table>
+</div>
+<h3 id="clave-and-kin"><a class="header" href="#clave-and-kin">Clave and kin</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Pattern</th><th>Row</th><th>Feel</th></tr></thead><tbody>
+<tr><td><strong>Tresillo</strong></td><td><code>X==X==X=X==X==X=</code></td><td>3 + 3 + 2, twice a bar</td></tr>
+<tr><td><strong>Son Clave</strong></td><td><code>X--x--X---x-X---</code></td><td>The son clave, 3-2</td></tr>
+<tr><td><strong>Rumba Clave</strong></td><td><code>X--x---x--x-X---</code></td><td>The son clave with its third stroke a step late</td></tr>
+<tr><td><strong>Bossa Nova</strong></td><td><code>X--x--x---x--x--</code></td><td>The bossa clave, the tresillo carried on into the second half</td></tr>
+<tr><td><strong>Cinquillo</strong></td><td><code>X-xx-xx-X-xx-xx-</code></td><td>Five strokes in each half bar, from Cuban danzón</td></tr>
+<tr><td><strong>Dembow</strong></td><td><code>X--xX-x-X--xX-x-</code></td><td>Reggaeton's beat: the pulse with a tresillo on top</td></tr>
+<tr><td><strong>Samba</strong></td><td><code>X--x-x-x--x-x-x-</code></td><td>Seven strokes spread as evenly as sixteen steps allow</td></tr>
+</tbody></table>
+</div>
+<h3 id="across-the-bar"><a class="header" href="#across-the-bar">Across the bar</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Pattern</th><th>Row</th><th>Feel</th></tr></thead><tbody>
+<tr><td><strong>Dotted</strong></td><td><code>X==x==x==x==x=x=</code></td><td>Dotted eighths, 3-3-3-3-2-2: the figure of a dotted-eighth delay</td></tr>
+<tr><td><strong>Threes</strong></td><td><code>X-xX-xX-xX-xX-x-</code> with 12 steps</td><td>Threes across the bar, back round every three bars</td></tr>
+<tr><td><strong>Fives</strong></td><td><code>X-xx-X-xx-X-xx--</code> with 15 steps</td><td>Fives across the bar, back round every five</td></tr>
+<tr><td><strong>Sevens</strong></td><td><code>X-x-x--X-x-x----</code> with 14 steps</td><td>Sevens across the bar, back round every seven</td></tr>
 </tbody></table>
 </div>
 <h2 id="tips-1"><a class="header" href="#tips-1">Tips</a></h2>
