@@ -183,7 +183,7 @@
                         <h1 id="reverb"><a class="header" href="#reverb">Reverb</a></h1>
 <p><strong>Module ID</strong> <code>fx.reverb</code> · <strong>Category</strong> Effect</p>
 <p><img src="../../images/module-reverb.png" alt="Reverb Module" />
-<em>The room on the top row, its place in the mix below</em></p>
+<em>A snare into a 3-second room, a second after the hit: the dot has run a third of the way down the slope</em></p>
 <p>The Reverb puts a sound in a space: a dense wash of reflections that builds, blooms and dies away. It reaches from a small, splashy room to a tail that rings for half a minute.</p>
 <p>Its knobs sit in two rows. The top row shapes the room and its tail (<strong>Size</strong>, <strong>Decay</strong>, <strong>Damp</strong>, <strong>Mod</strong>); the bottom row places it in the mix (<strong>PreD</strong>, <strong>Width</strong>, <strong>Mix</strong>).</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
@@ -196,6 +196,17 @@
 <li>The lines <strong>drift</strong> slowly in length (the <strong>Mod</strong> knob). This keeps resonances from settling in and adds a gentle chorus to the tail.</li>
 </ol>
 <p>Simpler reverbs built from a few fixed comb filters tend to ring at the comb lengths, and sound metallic on snares and claps. The FDN's tail has no repeating period, so sharp transients spread into an even wash.</p>
+<h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
+<p>The display draws the room's decay. Time runs to the right from the moment a sound goes in, stretched so the first few milliseconds have room beside a long tail. Level falls from 0 dB at the top to −60 dB at the bottom.</p>
+<ul>
+<li><strong>Pre-delay.</strong> Nothing happens for the <strong>PreD</strong> time, marked by a faint line.</li>
+<li><strong>Early reflections.</strong> The spray of hairlines at the start is every path through the diffuser at this <strong>Size</strong>, brighter where more of them arrive together. A small room packs them tight; a large one spreads them out before they merge into the tail.</li>
+<li><strong>The tail.</strong> Two slopes fall from the top. The darker one is the lows, reaching −60 dB at the <strong>Decay</strong> time. The brighter one is the highs, dying sooner the more <strong>Damp</strong> takes them.</li>
+<li><strong>The room ringing.</strong> While the tail sounds, a dot rides down the slope at the level it has fallen to, and the tail still to come glows. Each new hit sends the dot back to the top.</li>
+<li><strong>Mod.</strong> With <strong>Mod</strong> up, eight faint motes drift along the top, one per delay line, as their lengths sway.</li>
+<li><strong>Words.</strong> The top left gives the pre-delay, or the size when there is none. The top right gives the decay time.</li>
+</ul>
+<p><strong>Width</strong> and <strong>Mix</strong> aren't drawn: they place the reverb in the mix rather than shape the room.</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In L</strong></td><td>Audio (Blue)</td><td>Left input</td></tr>
