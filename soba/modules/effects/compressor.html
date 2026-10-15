@@ -183,7 +183,7 @@
                         <h1 id="compressor"><a class="header" href="#compressor">Compressor</a></h1>
 <p><strong>Module ID</strong> <code>fx.compressor</code> · <strong>Category</strong> Effect</p>
 <p><img src="../../images/module-compressor.png" alt="Compressor Module" />
-<em>Threshold and Ratio set how much; Atk and Rel set how fast</em></p>
+<em>A kick on every beat over a low saw: each hit climbs the curve, and the reduction it brings hangs over the sound coming in</em></p>
 <p>The Compressor turns down a signal when it gets loud and leaves it alone when it's quiet. That evens out the level of a bass line, adds snap to percussion, holds a pad steady, or, with a kick in the <strong>Sidechain</strong> input, makes a pad pump in time.</p>
 <p>It also puts its gain reduction out as a control signal on <strong>GR</strong>, so the amount of compression can move other parts of the patch.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
@@ -194,6 +194,14 @@
 <li><strong>Mkup</strong> adds gain back afterward, and <strong>Mix</strong> blends the result with the dry input.</li>
 </ol>
 <p>Attack and release shape the <em>gain reduction</em>, in dB, not the measured level. So a steady tone above the threshold comes out exactly where the ratio says it should, however fast or slow the timing knobs are set; attack and release only decide how it gets there.</p>
+<h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
+<p>The display has two halves: the curve the compressor works to, and the last two seconds of it working.</p>
+<ul>
+<li><strong>The curve.</strong> On the left, the level the detector hears runs across and the output's level runs up, both from −60 dB to 0 dB. Below the threshold the curve follows the faint diagonal, where nothing changes. Past it the curve bends flatter by the ratio, through a soft band as wide as <strong>Knee</strong>. <strong>Mkup</strong> lifts the whole curve, and <strong>Mix</strong> pulls it back towards the diagonal.</li>
+<li><strong>The dot.</strong> The dot sits at the level the detector hears now, at the height the gain reduction applied right now gives it. While <strong>Atk</strong> is still clamping down, or <strong>Rel</strong> is still letting go, the dot is off the curve, and a short trail shows the path it took. It glows orange while the compressor is turning the sound down.</li>
+<li><strong>The strip.</strong> On the right, time runs from the left up to now at the right edge. The sound coming into <strong>In</strong> is a faint blue landscape, and what leaves through <strong>Out</strong> is the line over it. The gain reduction hangs from the top in orange: 24 dB of reduction reaches the floor. A faint line marks the threshold, so you can see which peaks cross it and how the output ducks after each one.</li>
+<li><strong>Words.</strong> The top left gives the ratio and threshold, plus <strong>RMS</strong> when the detector measures RMS and <strong>SC</strong> when the Sidechain is patched. The top right gives the reduction now. Hover over the display for more.</li>
+</ul>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>In</strong></td><td>Audio (Blue)</td><td>Signal to compress</td></tr>
