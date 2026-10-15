@@ -1142,7 +1142,7 @@ against before.wav:
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="oscillator"><a class="header" href="#oscillator">Oscillator</a></h1>
 <p><strong>Module ID</strong> <code>osc.sine</code> · <strong>Category</strong> Source</p>
 <p><img src="modules/sources/../../images/module-oscillator.png" alt="Oscillator Module" />
-<em>The tune, timbre and ensemble rows, under a preview of the selected waveform.</em></p>
+<em>Three detuned voices of a square wave, an LFO sweeping its pulse width through <strong>PWM</strong>: the trace is <strong>Out</strong> as it plays, and <strong>PW</strong> follows the CV. Under it, the tune, timbre and ensemble rows.</em></p>
 <p>The Oscillator is the main sound source in Soba. It is a <strong>VCO</strong> (voltage-controlled oscillator): a tuned waveform whose pitch follows a keyboard, an LFO or another oscillator.</p>
 <p>Beyond the four classic waveforms, it has the features that make an oscillator an instrument:</p>
 <ul>
@@ -1354,7 +1354,7 @@ against before.wav:
 <div style="break-before: page; page-break-before: always;"></div><h1 id="drum"><a class="header" href="#drum">Drum</a></h1>
 <p><strong>Module ID</strong> <code>source.drum</code> · <strong>Category</strong> Source</p>
 <p><img src="modules/sources/../../images/module-drum.png" alt="Drum Module" />
-<em>A kick just after a hit. The orange line is its pitch, falling two and a half octaves to 45 Hz in the first few milliseconds. The blue curve is its level, lit up to the playhead.</em></p>
+<em>A kick just after a hit. The orange line is its pitch, falling two and a half octaves to 48 Hz in the first few milliseconds. The blue curve is its level, lit up to the playhead.</em></p>
 <p>Drum is one analog drum voice. Its <strong>Type</strong> turns it into a kick, snare, tom, clap, closed hat, open hat, cymbal, rim or cowbell, each built the way an 808 or 909 builds that sound: a few oscillators, a noise source, filters and decays. Send it a trigger and it plays one hit.</p>
 <p>The same five knobs serve every type, and each means what it would on that drum's own panel. <strong>Tune</strong> sets the pitch of a kick and the metal of a hat. <strong>Snap</strong> sets a kick's beater and a snare's wires. The names never change, so a MIDI mapping keeps working when you change the Type.</p>
 <p>Drum is polyphonic. A polyphonic gate, from <a href="modules/sources/../midi/poly-midi.html">Poly MIDI</a> say, plays a new voice for each note, so fast hits ring on over each other instead of cutting each other off.</p>
@@ -2292,7 +2292,7 @@ Note:        C   D   E   F   G   A   B   C   D   E
 <div style="break-before: page; page-break-before: always;"></div><h1 id="adsr-envelope"><a class="header" href="#adsr-envelope">ADSR Envelope</a></h1>
 <p><strong>Module ID</strong> <code>mod.adsr</code> · <strong>Category</strong> Modulation</p>
 <p><img src="modules/modulation/../../images/module-adsr.png" alt="ADSR Envelope Module" />
-<em>The display draws the same curve the audio follows.</em></p>
+<em>The display draws the same curve the audio follows. An LFO is patched into <strong>Release</strong>, so the R is lit and <strong>Rel</strong> reads the time it has stretched to.</em></p>
 <p>The ADSR Envelope gives each note a shape in time. When a gate goes high (a key goes down), it rises, falls to a held level, and when the gate goes low (the key comes up), it fades away: <strong>Attack</strong>, <strong>Decay</strong>, <strong>Sustain</strong>, <strong>Release</strong>. Patch it into a <a href="modules/modulation/../utilities/vca.html">VCA</a> to shape a note's loudness, or into a filter's <strong>Cutoff</strong> to shape its brightness.</p>
 <p>Every stage takes exactly the time on its knob: a 100 ms release is silent 100 ms after you let go. Each stage's curve knob sets its shape, from a straight line to a deep analog curve.</p>
 <p>While a note plays, the display follows it: the stage it's in lights its letter, a dot rides the curve at the envelope's level, and the glow under the curve swells with it. A soft note's dot rides lower, at the peak its velocity gave it.</p>
