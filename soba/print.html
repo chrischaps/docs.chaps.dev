@@ -2368,6 +2368,7 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 <li><strong>Attack</strong>, <strong>Decay</strong> and <strong>Release</strong> count in octaves of time. +1 doubles the knob's time, +2 quadruples it, and −1 halves it. A 500 ms release with +3 patched in rings for 4 s. The time stays within the knob's 1 ms – 10 s.</li>
 <li><strong>Sustain</strong> adds to the knob's level, so +0.3 lifts a 40% sustain to 70%.</li>
 </ul>
+<p>Most CV swings between −1 and +1, so an LFO patched straight into <strong>Attack</strong> only halves and doubles the attack. A 10 ms attack moves between 5 and 20 ms, which is hard to hear. To sweep it further, scale the LFO up first through an <a href="modules/modulation/../utilities/attenuverter.html#sweep-an-octave-input-far">Attenuverter</a> set to <strong>Range</strong> ×4. At ±4 octaves a 50 ms attack moves from about 3 ms to 0.8 s, from a snap to a swell.</p>
 <p>The envelope reads CV on every sample, not just at each note. A cue that lands while a release is already falling stretches what's left of it, and the curve bends there without a step.</p>
 <p>While a stage's jack is patched, its knob shows where the CV has taken it: an orange arc out to a bead on its rim, and the number under the knob in orange. The display draws that stage the way the envelope is running it, with its letter tinted. When a lane ramps the release out, you can watch the tail widen.</p>
 <h2 id="patch-examples-5"><a class="header" href="#patch-examples-5">Patch examples</a></h2>
@@ -3789,7 +3790,7 @@ Out  = In × gain
 <p><strong>Module ID</strong> <code>util.attenuverter</code> · <strong>Category</strong> Utility</p>
 <p><img src="modules/utilities/../../images/module-attenuverter.png" alt="Attenuverter Module" />
 <em>Amount scales and flips the input; Offset slides the result up or down.</em></p>
-<p>An attenuverter turns a signal down, turns it upside down, or both. The name joins <em>attenuate</em> and <em>invert</em>. It also has an <strong>Offset</strong> knob that adds a fixed value afterwards. Between them, the two knobs adapt one module's output to what another module's input expects. Use it to tame an LFO that swings too wide, to make an envelope close a filter instead of opening it, or to turn a 0–1 signal into a -1–1 one.</p>
+<p>An attenuverter turns a signal down, turns it upside down, or both. The name joins <em>attenuate</em> and <em>invert</em>. It also has an <strong>Offset</strong> knob that adds a fixed value afterwards. Between them, the two knobs adapt one module's output to what another module's input expects. Use it to tame an LFO that swings too wide, to make an envelope close a filter instead of opening it, or to turn a 0–1 signal into a -1–1 one. At <strong>Range</strong> ×4 it can also make a signal bigger, to sweep an input measured in octaves a long way.</p>
 <p>With nothing patched into <strong>In</strong>, the output is just the Offset: a steady, hand-set control value you can patch anywhere.</p>
 <p>The Attenuverter is polyphonic. Each channel of a polyphonic cable is scaled on its own, with the same knob settings.</p>
 <h2 id="inputs-21"><a class="header" href="#inputs-21">Inputs</a></h2>
@@ -3799,17 +3800,18 @@ Out  = In × gain
 </div>
 <h2 id="outputs-25"><a class="header" href="#outputs-25">Outputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><strong>Out</strong></td><td>Control (Orange)</td><td>In × Amount + Offset, kept within -1 to +1</td></tr>
+<tr><td><strong>Out</strong></td><td>Control (Orange)</td><td>In × Amount + Offset, kept within -1 to +1 (-4 to +4 at Range ×4)</td></tr>
 </tbody></table>
 </div>
 <h2 id="parameters-25"><a class="header" href="#parameters-25">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Knob</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Amt</strong> (Amount)</td><td>-1 to +1</td><td>+1</td><td>Scales the input. Negative values flip it upside down</td></tr>
 <tr><td><strong>Offset</strong></td><td>-1 to +1</td><td>0</td><td>A constant added after scaling</td></tr>
+<tr><td><strong>Range</strong></td><td>×1, ×4</td><td>×1</td><td>What Amount is multiplied by. At ×4, Amount reaches ±4 and the output may too</td></tr>
 </tbody></table>
 </div>
 <h2 id="how-it-works-9"><a class="header" href="#how-it-works-9">How it works</a></h2>
-<pre><code class="language-text">Out = In × Amount + Offset        (limited to -1 … +1)
+<pre><code class="language-text">Out = In × Amount × Range + Offset        (limited to ±Range)
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Amount</th><th>Effect</th></tr></thead><tbody>
 <tr><td>+1</td><td>The input passes unchanged (the default)</td></tr>
@@ -3819,7 +3821,9 @@ Out  = In × gain
 <tr><td>-1</td><td>Full strength, upside down</td></tr>
 </tbody></table>
 </div>
-<p>The output never goes past ±1. The Attenuverter can make a signal smaller or flip it, but it can't make it bigger. A sum that would exceed ±1 flattens at the limit, so if a large Offset clips the peaks of your signal, turn Amount down to make room.</p>
+<p>At <strong>Range</strong> ×1 the output never goes past ±1. The Attenuverter can make a signal smaller or flip it, but it can't make it bigger. A sum that would exceed ±1 flattens at the limit, so if a large Offset clips the peaks of your signal, turn Amount down to make room.</p>
+<p><strong>Range</strong> ×4 multiplies Amount by four, so the knob's ends are ±4 and its middle still 0. The <strong>Amt</strong> knob reads the gain it gives: turned to the same place as 0.5, it reads 2.0. The output's limit widens to ±4 with it. Most inputs read only -1 to +1 and would clip anything bigger, so keep ×1 for them. ×4 is for inputs counted in octaves, where +1 is only a doubling: an <a href="modules/utilities/../modulation/adsr.html#stage-cv">ADSR</a>'s stage CV, a <a href="modules/utilities/../modulation/clock.html">Clock</a>'s Tempo, a <a href="modules/utilities/../modulation/slope.html">Slope</a>'s Rise and Fall. A filter's Cutoff counts in octaves too, but its own <strong>CV Amt</strong> already reaches ±4.</p>
+<p>Patches saved before Range existed open at ×1 and sound as they did.</p>
 <p>Both knobs are smoothed, so turning them doesn't step or click.</p>
 <h2 id="patches-7"><a class="header" href="#patches-7">Patches</a></h2>
 <h3 id="reduce-modulation-depth"><a class="header" href="#reduce-modulation-depth">Reduce modulation depth</a></h3>
@@ -3834,7 +3838,7 @@ Out  = In × gain
 </code></pre>
 <p>The SVF's Cutoff input moves the cutoff in octaves around its knob, so set the <strong>Cutoff</strong> knob high and let the inverted envelope pull it down. (On a filter, a negative <strong>CV Amt</strong> does the same without an Attenuverter. This patch is for anything else an envelope should close.)</p>
 <h3 id="unipolar-to-bipolar"><a class="header" href="#unipolar-to-bipolar">Unipolar to bipolar</a></h3>
-<p>An envelope runs from 0 to 1. With Amount 1 and Offset -0.5, it runs from -0.5 to +0.5, centered on zero. (A full -1 to +1 swing would need a gain of 2, which the Attenuverter can't give.)</p>
+<p>An envelope runs from 0 to 1. With Amount 1 and Offset -0.5, it runs from -0.5 to +0.5, centered on zero. For the full -1 to +1 swing, it needs a gain of 2: Range ×4, Amount 2.0, Offset -1.</p>
 <pre><code class="language-text">[ADSR Out] ──&gt; [Attenuverter In]      (Amt 1, Offset -0.5)
 </code></pre>
 <h3 id="bipolar-to-unipolar"><a class="header" href="#bipolar-to-unipolar">Bipolar to unipolar</a></h3>
@@ -3842,6 +3846,12 @@ Out  = In × gain
 <pre><code class="language-text">[LFO Out] ──&gt; [Attenuverter In]       (Amt 0.5, Offset 0.5)
 </code></pre>
 <p>The LFO's own <strong>Bipolar</strong> switch does the same thing; this is for sources without one.</p>
+<h3 id="sweep-an-octave-input-far"><a class="header" href="#sweep-an-octave-input-far">Sweep an octave input far</a></h3>
+<p>An LFO straight into an ADSR's <strong>Attack</strong> swings the attack only between half and double its knob. Scaled up four times, it swings four octaves each way: a 50 ms attack moves from about 3 ms to 0.8 s, so notes go from a snap to a slow swell and back.</p>
+<pre><code class="language-text">[LFO Out] ──&gt; [Attenuverter In] ──&gt; [ADSR Attack]
+               (Range ×4, Amt 4.0)
+</code></pre>
+<p>Turn Amount down for a narrower sweep. At 2.0, the attack moves two octaves each way, from a quarter of the knob's time to four times it.</p>
 <h3 id="a-fixed-control-value"><a class="header" href="#a-fixed-control-value">A fixed control value</a></h3>
 <p>Leave <strong>In</strong> empty and use <strong>Offset</strong> as a knob you can patch. One Attenuverter can hold several destinations at the same value:</p>
 <pre><code class="language-text">[Attenuverter Out] ──&gt; [SVF Filter Resonance]
