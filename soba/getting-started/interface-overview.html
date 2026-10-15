@@ -261,6 +261,14 @@
 </ul>
 <p>Cables run behind the modules, and behind frame titles and notes, showing faintly through them so a route can still be followed without covering the controls or the words. <strong>〰 Cables ▸ Under modules and labels</strong> sets how faintly.</p>
 <p>While the patch plays, cables show what their signal has been doing over the last few seconds. <a href="../concepts/connections.html#reading-the-signal-in-a-cable">Reading the signal in a cable</a> explains what you're seeing.</p>
+<h3 id="probing-a-cable"><a class="header" href="#probing-a-cable">Probing a cable</a></h3>
+<p>To hear what a cable carries on its own, hold <code>Alt</code> over it while the patch plays. You'll hear the LFO before it reaches the filter, or the dry voice before the reverb. A small scope beside the pointer shows the signal's waveform and names the output it comes from. The probe plays on top of the patch at the same fixed level as a Sampler's ▶. It never comes out louder than that, and it isn't recorded. It fades in, and it fades out when you let go of <code>Alt</code> or move off the cable.</p>
+<ul>
+<li><strong>Audio</strong> cables play as they are. On a polyphonic cable, all the voices are summed.</li>
+<li><strong>Control</strong> cables play as a quiet sine whose pitch follows the value: A3 at 0, two octaves higher at 1, and two octaves lower at -1. You hear an LFO as a siren and a stepped sequence as a tune.</li>
+<li><strong>Gate</strong> cables play a soft click each time the gate opens, with a faint tone while it's held, so you can hear how long each gate lasts as well as when it starts.</li>
+</ul>
+<p>Probing works on cables inside groups and on cables into a group's jacks, where you hear the module output the cable carries. MIDI cables have no sound to probe.</p>
 <h2 id="editing-modules"><a class="header" href="#editing-modules">Editing modules</a></h2>
 <h3 id="the-module-menu"><a class="header" href="#the-module-menu">The module menu</a></h3>
 <p>Right-click a module's header or body (anywhere but a knob) to open its menu. <strong>Bypass</strong> appears only on filters and effects.</p>
@@ -440,6 +448,7 @@
 <h3 id="playing-1"><a class="header" href="#playing-1">Playing</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
 <tr><td><code>Ctrl + R</code></td><td>Record, or end the take</td></tr>
+<tr><td><code>Alt</code> over a cable</td><td>Hear what the cable carries</td></tr>
 </tbody></table>
 </div>
 <p>The letter keys play notes: see <a href="#the-computer-keyboard">The computer keyboard</a>.</p>
