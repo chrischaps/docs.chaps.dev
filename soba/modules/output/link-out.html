@@ -211,6 +211,19 @@
 <p><strong>Seoul's side.</strong> The values travel as OSC to <code>127.0.0.1</code> on the chosen port, about 200 times a second. Nothing leaves your computer. Seoul's <code>docs/LINK.md</code> has the whole protocol, so anything that speaks OSC can listen in, and its <code>[link] delay_ms</code> setting lines the picture up with the sound you hear.</p>
 <p><strong>More than one.</strong> Two Link Outs on the same port share it: each sends the lanes it has cables in. On different ports they play two copies of Seoul.</p>
 <p><strong>Latency.</strong> Seoul gets the lanes within a few milliseconds, sooner than it hears the sound, which goes the long way round through your audio device. Set Seoul's <code>delay_ms</code> by ear until a gate's flash lands with the kick.</p>
+<h2 id="one-patch-many-presets"><a class="header" href="#one-patch-many-presets">One patch, many presets</a></h2>
+<p>Seoul's link-aware presets agree on what each lane does, so a patch wired this way plays all of them:</p>
+<div class="table-wrapper"><table><thead><tr><th>Lane</th><th>Plays</th></tr></thead><tbody>
+<tr><td><strong>Gate 1</strong></td><td>the kick</td></tr>
+<tr><td><strong>Gate 2</strong></td><td>the snare</td></tr>
+<tr><td><strong>Gate 3</strong></td><td>the hats</td></tr>
+<tr><td><strong>Gate 4</strong></td><td>a downbeat, or any accent</td></tr>
+<tr><td><strong>CV 1</strong></td><td>energy: a brighter, busier picture</td></tr>
+<tr><td><strong>CV 2</strong></td><td>color</td></tr>
+<tr><td><strong>CV 3</strong></td><td>motion</td></tr>
+</tbody></table>
+</div>
+<p>A gate takes over from the drum Seoul hears only once it has played, and the CV lanes only add to what a preset does, so leave any lane empty and the preset follows the music there instead. Han River, Jongno Rain, Hongsalmun, Window Within and Cheonggyecheon Lanterns follow the convention, and Gayageum and Obangsaek give each lane a part of their own.</p>
 <h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
 <ul>
 <li><strong>A preset should look good without Soba.</strong> Seoul's link presets blend between what they hear and what Link Out sends, so a lane with no cable falls back to the music.</li>
