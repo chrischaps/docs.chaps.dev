@@ -192,14 +192,14 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <h2 id="the-song"><a class="header" href="#the-song">The song</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Bars</th><th>Time</th><th>Section</th><th>What happens</th></tr></thead><tbody>
 <tr><td>1–8</td><td>0:00</td><td>Dawn</td><td>Wind, and birds calling. The kalimba fades in on its twelve-step loop.</td></tr>
-<tr><td>9–16</td><td>0:17</td><td>Canopy</td><td>The bells join on their ten-step loop, the strings swell, a shaker starts, and a first faint vocal chop echoes.</td></tr>
-<tr><td>17–32</td><td>0:33</td><td>Groove</td><td>A crash, and the beat: kick, rim and swung hats, the sub bass and the Rhodes. The room closes in round them. The vocal chops take the hook. A drum fill closes the phrase.</td></tr>
+<tr><td>9–16</td><td>0:17</td><td>Canopy</td><td>The bells join on their ten-step loop, the strings swell, a shaker starts, and two faint vocal chops answer from far off.</td></tr>
+<tr><td>17–32</td><td>0:33</td><td>Groove</td><td>A crash, and the beat: kick, rim and swung hats, the sub bass and the Rhodes. The room closes in round them. The vocal chops come in a bar at a time, with rests between, and fill in to the whole hook. A drum fill closes the phrase.</td></tr>
 <tr><td>33–48</td><td>1:06</td><td>Groove II</td><td>The snare comes in with its ghost notes, the hats go to sixteenths, the harp strums a chord each bar, and the chopped break slips in under the kit.</td></tr>
 <tr><td>49–56</td><td>1:39</td><td>Clearing</td><td>The drums fall away and the hall opens. Over held chords, whole-note bass and the strings, the flute plays its melody for the first time, and the birds come back. The tape sways.</td></tr>
 <tr><td>57–64</td><td>1:56</td><td>Rise</td><td>The beat builds back over seven bars, under a rising wash of noise, into a fill.</td></tr>
 <tr><td>65–80</td><td>2:12</td><td>Peak</td><td>Everything at once: the full kit and break, the busier bass and comping, the chops and the flute.</td></tr>
-<tr><td>81–96</td><td>2:46</td><td>Peak II</td><td>The flute goes up an octave, and the chops and the break come forward.</td></tr>
-<tr><td>97–112</td><td>3:19</td><td>Dusk</td><td>The kit thins back to the groove and fades, the bass fades out over sixteen bars, and the wind rises. The room opens with the evening.</td></tr>
+<tr><td>81–96</td><td>2:46</td><td>Peak II</td><td>The flute goes up an octave and the break comes forward. The chops sing only the calls, and the high flute fills the bars between.</td></tr>
+<tr><td>97–112</td><td>3:19</td><td>Dusk</td><td>The kit thins back to the groove and fades, the bass fades out over sixteen bars, and the wind rises. The chops thin out as they fade. The room opens with the evening.</td></tr>
 <tr><td>113–124</td><td>3:52</td><td>Night, Ring</td><td>The kalimba, wind and birds, as at dawn. Then the sequencers stop and the last notes ring out into the whole hall.</td></tr>
 </tbody></table>
 </div>
@@ -217,9 +217,10 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <h2 id="modules"><a class="header" href="#modules">Modules</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Role</th></tr></thead><tbody>
 <tr><td><a href="../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 116, <strong>Div</strong> 1/16, <strong>Swing</strong> 56%</td></tr>
-<tr><td><a href="../modules/utilities/arranger.html">Arranger</a> ×3</td><td>The score: 16 sections, 124 bars. <strong>Faders</strong> rides eight mixer channels. <strong>Cues</strong> picks the drum, bass and comping patterns, hits the crash, raises the riser, lifts the flute, stops the sequencers in the Ring and warps the tape. <strong>Voices</strong> rides the chops, flute, wind and birds, and the room</td></tr>
+<tr><td><a href="../modules/utilities/arranger.html">Arranger</a> ×3</td><td>The score: 16 sections, 124 bars. <strong>Faders</strong> rides eight mixer channels. <strong>Cues</strong> picks the drum, bass and comping patterns, hits the crash, raises the riser, lifts the flute, stops the sequencers in the Ring and warps the tape. <strong>Voices</strong> rides the chops, flute, wind and birds, and the room, and picks the chops' phrase</td></tr>
 <tr><td><a href="../modules/utilities/chord-sequencer.html">Chord Sequencer</a> ×3</td><td>The progression, a chord a bar, for the Rhodes, the strings and the harp</td></tr>
-<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a> ×7</td><td>The kalimba (12 steps), bells (10 eighths), Rhodes comping, bass, flute (eighths, four chained patterns), and the chops' notes and syllables (four chained one-bar patterns)</td></tr>
+<tr><td><a href="../modules/utilities/sequencer.html">Step Sequencer</a> ×8</td><td>The kalimba (12 steps), bells (10 eighths), Rhodes comping, bass, flute (eighths, four chained patterns), the chops' notes and syllables (four one-bar patterns), and the chops' <strong>Phrase</strong>, a step a bar, which picks those patterns</td></tr>
+<tr><td><a href="../modules/utilities/logic.html">Logic</a></td><td><strong>AND</strong> of the chops' gate and the Phrase's, so a rest in the Phrase rests a bar of chops</td></tr>
 <tr><td><a href="../modules/utilities/trigger-sequencer.html">Trigger Sequencer</a></td><td>The drums and the birds: four patterns, picked by the Kit cue</td></tr>
 <tr><td><a href="../modules/sources/chopper.html">Chopper</a></td><td><code>samples/soba-break.wav</code>, <strong>Beats</strong> 8, <strong>Slices</strong> 16, chance on steps 6, 11 and 15</td></tr>
 <tr><td><a href="../modules/sources/sampler.html">Sampler</a></td><td><code>samples/canopy-chops.wav</code>, <strong>Mode</strong> Gated, <strong>Root</strong> C5</td></tr>
@@ -238,7 +239,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <p>The rest are the voices' own envelopes, VCAs, filters, LFOs and Mixes.</p>
 <h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
 <h3 id="the-score"><a class="header" href="#the-score">The score</a></h3>
-<p>Three Arrangers count the Clock's sixteenths through the same sixteen sections, from Dawn to Ring. Every mixer channel's <strong>Level</strong> knob is at zero, so an Arranger lane is the fader. <strong>Faders</strong> rides the Kalimba, Bells, Harp, Rhodes, Strings, Bass, Drums and Break. <strong>Cues</strong> picks the patterns: A to D for the drums, two bass lines and three kinds of comping. <strong>Voices</strong> rides the vocal chops, the flute, the wind and the birds, and the room.</p>
+<p>Three Arrangers count the Clock's sixteenths through the same sixteen sections, from Dawn to Ring. Every mixer channel's <strong>Level</strong> knob is at zero, so an Arranger lane is the fader. <strong>Faders</strong> rides the Kalimba, Bells, Harp, Rhodes, Strings, Bass, Drums and Break. <strong>Cues</strong> picks the patterns: A to D for the drums, two bass lines and three kinds of comping. <strong>Voices</strong> rides the vocal chops, the flute, the wind and the birds, and the room, and its <strong>Phrase</strong> lane picks which way the chops sing the hook.</p>
 <p>A one-bar <strong>Fill</strong> closes each long section, playing the drums' D pattern: a snare roll that ratchets up to fours, over a run of congas.</p>
 <h3 id="the-room"><a class="header" href="#the-room">The room</a></h3>
 <p>The four Mixers are one chain, and every channel's send runs down it into the Room Mixer's reverb. So that Mixer's <strong>Return</strong> is the whole room's fader. Its knob is at 0, and the Voices Arranger's <strong>Room</strong> lane plays it, a cue a section, on two-bar S-curves:</p>
@@ -258,9 +259,23 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <h3 id="the-voice"><a class="header" href="#the-voice">The voice</a></h3>
 <pre><code class="language-text">[Chops Pitch]     ──&gt; [Sampler V/Oct]     (the note: C5 plays the syllable as sung)
 [Syllables Pitch] ──&gt; [Sampler Start]     (note 60 + k starts at k/12: syllable k)
-[Chops Gate]      ──&gt; [Sampler Gate]      (Gated, so each chop is as long as its notes)
+[Chops Gate]      ──&gt; [Logic A]
+[Phrase Gate]     ──&gt; [Logic B]
+[Logic AND]       ──&gt; [Sampler Gate]      (Gated, so each chop is as long as its notes)
+[Phrase Pitch]    ──&gt; [Chops Pattern], [Syllables Pattern]
 </code></pre>
 <p>The singer is nobody's recording. Like <a href="../recipes/held-vowels.html">Held Vowels</a>' singer, it comes from the small formant synthesizer in <code>tools/voice/</code>, this time <a href="https://github.com/chrischaps/Soba/blob/master/tools/voice/chops.py"><code>chops.py</code></a>, with the formants raised for a lighter voice. The hook is four bars: <em>oh · ah · ya · ah · oh</em>, then <em>mah · hey · ah-oh</em>, then the first bar again, rising to <em>hey · lah</em>, and an <em>ooh</em> to end. Every note is pentatonic, so it sits over all six chords. The chops go to the echo more than anything else, and their repeats fill the gaps between them.</p>
+<h3 id="the-phrase"><a class="header" href="#the-phrase">The phrase</a></h3>
+<p>The hook's four bars are the chop sequencers' patterns A to D. A third Step Sequencer in the group, the <strong>Phrase</strong>, steps once a bar on the Faders Arranger's <strong>Bar</strong> output and picks which of them plays. Its Pitch goes to both chop sequencers' <strong>Pattern</strong> input, where 0 to 1 is split into four zones, A to D, so a note picks a pattern: C♯4 (1/12 V) is A, E4 is B, G4 is C and A♯4 is D. A Phrase step with its gate off rests that bar: a <a href="../modules/utilities/logic.html">Logic</a> module lets the chops' gate through only while the Phrase's is high. Its steps are tied, so its gate holds across the barline and each bar's first chop lands on the beat.</p>
+<p>The Phrase has four patterns of its own, sixteen bars each, and the Voices Arranger's <strong>Phrase</strong> lane picks one a section through the Phrase's own <strong>Pattern</strong> input. The Phrase's sixteen bars line up with the sections, so each pattern covers a section (Canopy is the second half of the line Dawn starts):</p>
+<div class="table-wrapper"><table><thead><tr><th>Phrase</th><th>Bars</th><th>Sections</th><th></th></tr></thead><tbody>
+<tr><td>A, Far</td><td><code>A B C D · A – – D · – – – B · – – – D</code></td><td>Canopy, Dusk</td><td>Canopy hears its last eight bars, two answers far apart. Dusk hears its first eight as the chops fade: the hook once, then thinning</td></tr>
+<tr><td>B, Gathering</td><td><code>A – – B · A – C D · A B C D · A B C D</code></td><td>Groove</td><td>the hook comes in a bar at a time, and is whole by the ninth bar</td></tr>
+<tr><td>C, Hook</td><td><code>A B C D</code> four times</td><td>Groove II, Peak</td><td>the whole hook, as it always was</td></tr>
+<tr><td>D, Call</td><td><code>A – C – · A – C – · A – C – · A B C D</code></td><td>Peak II</td><td>only the calls, the first and third bars, with the high flute in the bars between. The last four bars give the whole hook back before the fill</td></tr>
+</tbody></table>
+</div>
+<p>Change the Phrase lane's cue in a section, or a Phrase pattern's steps, to rearrange the chops without touching the hook itself.</p>
 <h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
 <ul>
 <li><strong>Line them up.</strong> Open the Bells group and set its sequencer to 8 steps: a bar of eighths. The bells now repeat every bar, and they and the kalimba meet every three bars instead of fifteen. Put it back to 10 to hear the drift return.</li>
