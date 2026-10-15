@@ -321,14 +321,19 @@
 <h3 id="transport"><a class="header" href="#transport">Transport</a></h3>
 <p>Nothing sounds until you press <strong>▶ Play</strong>. <strong>⏹ Stop</strong> silences the patch, lets the last of the signal drain out of the cables, and clears echoes and reverb tails, so they don't resume when you play again.</p>
 <h3 id="the-computer-keyboard"><a class="header" href="#the-computer-keyboard">The computer keyboard</a></h3>
-<p>The bottom row of letter keys plays like a piano, starting from C4 (middle C):</p>
+<p>The bottom row of letter keys plays like a piano, starting from C4 (middle C), with the sharps on the row above it. The top row and the numbers above it are a second piano, an octave higher, as in a tracker:</p>
 <div class="table-wrapper"><table><thead><tr><th>Keys</th><th>Notes</th></tr></thead><tbody>
 <tr><td><code>Z</code> <code>X</code> <code>C</code> <code>V</code> <code>B</code> <code>N</code> <code>M</code></td><td>C D E F G A B</td></tr>
 <tr><td><code>,</code> <code>.</code> <code>/</code></td><td>C D E, an octave up</td></tr>
 <tr><td><code>S</code> <code>D</code> <code>G</code> <code>H</code> <code>J</code></td><td>C♯ D♯ F♯ G♯ A♯</td></tr>
 <tr><td><code>L</code> <code>;</code></td><td>C♯ D♯, an octave up</td></tr>
+<tr><td><code>Q</code> <code>W</code> <code>E</code> <code>R</code> <code>T</code> <code>Y</code> <code>U</code></td><td>C D E F G A B, an octave up</td></tr>
+<tr><td><code>I</code> <code>O</code> <code>P</code></td><td>C D E, two octaves up</td></tr>
+<tr><td><code>2</code> <code>3</code> <code>5</code> <code>6</code> <code>7</code></td><td>C♯ D♯ F♯ G♯ A♯, an octave up</td></tr>
+<tr><td><code>9</code> <code>0</code></td><td>C♯ D♯, two octaves up</td></tr>
 </tbody></table>
 </div>
+<p>The two pianos overlap: <code>,</code> <code>.</code> <code>/</code> play the same notes as <code>Q</code> <code>W</code> <code>E</code>.</p>
 <p>The keys play every <a href="../modules/midi/keyboard.html">Keyboard</a> module in the patch; use its <strong>Oct</strong> knob to shift it up or down. If the patch has a <a href="../modules/midi/poly-midi.html">Poly MIDI</a> module, the keys play that too, so you can play chords without a MIDI controller. Keys typed into the quick-add box, or held with <code>Ctrl</code> or <code>Alt</code>, don't play notes. While a <a href="../modules/utilities/chord-sequencer.html#playing-a-chord-into-a-step">Chord Sequencer</a>'s chord popover is open, the keys write chords into it instead.</p>
 <h3 id="midi"><a class="header" href="#midi">MIDI</a></h3>
 <p>Choose your controller in the toolbar's <strong>MIDI In</strong> menu; Soba doesn't connect to one until you do. If the controller isn't listed, plug it in and click <strong>🔄 Refresh</strong> at the bottom of the menu. <strong>None (Disconnect)</strong> lets it go. Disconnecting or switching devices releases any notes that were held. If a controller can't be opened, the reason appears in the status bar.</p>
