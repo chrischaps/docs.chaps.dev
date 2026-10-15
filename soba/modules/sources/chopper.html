@@ -210,6 +210,11 @@
 <h2 id="loading-a-break"><a class="header" href="#loading-a-break">Loading a break</a></h2>
 <p>Load a file as on the Sampler: click <strong>Open…</strong>, or the empty panel, or drag a WAV, MP3 or Ogg file onto the node. While a dragged file is over the node you hear it, so you can audition files before you drop one. It plays once when it loads, so you hear what you chose, and <strong>▶</strong> plays it again at any time, dry, beside the patch. <strong>Alt-click</strong> a slice to hear just that slice.</p>
 <p>The file should be the loop itself, start to end: a break cut on its downbeats, as you'd cut one to loop it in a sampler. The <a href="../../recipes/cut-up.html">Cut-Up</a> example's break is made by Soba's own Drums (<code>tools/breaks/make_break.py</code>), so it's free to use however you like.</p>
+<h2 id="recording-a-break"><a class="header" href="#recording-a-break">Recording a break</a></h2>
+<p>The Chopper can record its own break. Patch something into <strong>In L</strong> (and <strong>In R</strong>, for stereo) and press the red <strong>Rec</strong> button beside <strong>Open…</strong>. It's the <a href="./sampler.html#recording-into-it">Sampler's recorder</a>: the same button, the same take drawn in red as it comes in, and the same file beside the patch when it's done. Play a phrase into the patch, from a <a href="../midi/keyboard.html">Keyboard</a>, an <a href="./audio-input.html">Audio Input</a> or the patch's own drums, and chop it up straight away.</p>
+<p><strong>Take</strong> starts at <strong>1 bar</strong>. With a <a href="../modulation/clock.html">Clock</a> running, Rec then waits for the next bar line, which the panel says, and records exactly that many bars, so the take is already a loop. When it ends, it's the break: it plays at once, from its top on the bar it ended, and <strong>Beats</strong> is set to its length, 8 for two bars of 4/4, so it loops in time. Undo brings back the break you had, with its <strong>Beats</strong>.</p>
+<p><strong>Free</strong> records until Rec is pressed again. A free take made while a Clock runs is set to as many beats as it nearly is; without a Clock, <strong>Beats</strong> is left as it was.</p>
+<p>Patch a gate into the <strong>Rec</strong> jack and it takes over from the button: a take starts as it rises (or on the next bar) and ends as it falls. Right-click <strong>Rec</strong> to learn a MIDI footswitch for it.</p>
 <h2 id="slicing-at-the-hits"><a class="header" href="#slicing-at-the-hits">Slicing at the hits</a></h2>
 <p><strong>Slices</strong> cuts the loop into 2 to 64 equal slices. Eighth notes suit a swung break, since swing moves the sixteenths in between, not the eighths. Turn it past 64 to <strong>Onsets</strong> and the loop is cut at its hits instead, exactly as on the <a href="./sampler.html#slicing-at-the-hits">Sampler</a>: <strong>Sens</strong> chooses how many hits count, and the markers drag, come off the panel and are added by double-click. Let go of a marker with <strong>Alt</strong> held to hear the slice it now begins.</p>
 <p>Cut at the hits, the steps stay evenly spaced under the waveform but the slices don't, so the fan of rules between them leans. Each hit then starts on its own place in the beat, swing and all, and the step row still gives every hit a step.</p>
@@ -218,6 +223,8 @@
 <tr><td><strong>Clock</strong></td><td>Gate (Green)</td><td>Each rising edge is a pulse, worth what <strong>Pulse</strong> says. The loop plays from the first pulse after a reset. With nothing patched, nothing plays</td></tr>
 <tr><td><strong>Reset</strong></td><td>Gate (Green)</td><td>A rising edge starts over: the next pulse plays the loop from its top</td></tr>
 <tr><td><strong>Slice</strong></td><td>Control (Orange)</td><td>Picks the slice each step plays as its turn comes, in place of its own: 0 to 1 across the slices. An <a href="../utilities/arranger.html">Arranger</a> lane or a <a href="../utilities/sample-hold.html">Sample &amp; Hold</a> here rearranges the break from outside. Repeats, pitch and rests still come from the step</td></tr>
+<tr><td><strong>In L</strong>, <strong>In R</strong></td><td>Audio (Blue)</td><td>What <strong>Rec</strong> records (see <a href="#recording-a-break">Recording a break</a>). One side patched records on both</td></tr>
+<tr><td><strong>Rec</strong></td><td>Gate (Green)</td><td>Records while high. Patched, it takes over from the button</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -234,6 +241,7 @@
 <tr><td><strong>Slices</strong></td><td>2 – 64, Onsets</td><td>16</td><td>Equal slices, or one at each hit. Each slice gets a step</td></tr>
 <tr><td><strong>Sens</strong> (Sensitivity)</td><td>0 – 100%</td><td>50%</td><td>Sliced by <strong>Onsets</strong>, how strong a hit must be to get a marker</td></tr>
 <tr><td><strong>Level</strong></td><td>0 – 100%</td><td>80%</td><td>Output level</td></tr>
+<tr><td><strong>Take</strong></td><td>Free, 1 – 16 bars</td><td>1 bar</td><td>In bars, with a Clock running, a take starts on the next bar and lasts that long, and sets <strong>Beats</strong> to match</td></tr>
 </tbody></table>
 </div>
 <h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
@@ -241,6 +249,7 @@
 <li><strong>Find the break's tempo.</strong> A loop of 2.000 seconds at <strong>Beats</strong> 4 is 120 BPM, and the name under the waveform says so. If the number looks odd (91.3 BPM), <strong>Beats</strong> is likely wrong, or the file isn't cut on its downbeats.</li>
 <li><strong>Slow it right down</strong> and the gaps between slices become part of the sound: a break at half speed is a sparse, clipped pattern of hits, each followed by silence.</li>
 <li><strong>One break, two Choppers.</strong> Patch the same file into a second Chopper with another pattern and pan the two apart, or let one take over from the other by riding the Mixer.</li>
+<li><strong>Resample a groove.</strong> Patch the mix of a few drums into <strong>In</strong>, record four bars, then rearrange what you just played: the drums can keep going beside it, or be muted for the chopped version to take over.</li>
 <li><strong>Follow the chop.</strong> The <strong>Gate</strong> output rises on every slice, so a bass line clocked by it moves with the drums, and an envelope from it pumps a pad in time with each hit.</li>
 </ul>
 
