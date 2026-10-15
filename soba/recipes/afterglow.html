@@ -193,6 +193,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <li><strong>Transposing with a second sequencer.</strong> Pitch inputs add up, so one sequencer can shift another's notes. Here the Chord Sequencer's <strong>Root</strong> moves the arpeggio over four chords.</li>
 <li><strong>Clocking from end of cycle.</strong> A sequencer's <strong>EOC</strong> output can clock a second sequencer, so the second one moves once per bar.</li>
 <li><strong>Chords on one cable.</strong> The Chord Sequencer sends each chord down a polyphonic cable, voiced and voice-led, with the bass underneath. One pad voice plays the whole progression.</li>
+<li><strong>Accents that ring.</strong> Velocity stretches the pluck's decay and release, so the loud notes ring on a little after they're struck, as a harder-plucked string does.</li>
 <li><strong>Chords without a third.</strong> Sus2 shapes are neither major nor minor, so the same arpeggio shape works on any root.</li>
 <li><strong>Two voices, one space.</strong> A bright lead and a dark pad share one chorus, delay and reverb, so they sound as if they're in the same room.</li>
 <li><strong>A mix on tape.</strong> A Tape module last in the chain softens the peaks and lets the pitch sway a little, for the warmth of a record rather than a computer.</li>
@@ -205,6 +206,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="../modules/sources/oscillator.html">Oscillator</a> 1</td><td><strong>Wave</strong> Saw, <strong>Voices</strong> 2, <strong>Detune</strong> 12%, <strong>Exp FM</strong> 1.0 oct</td></tr>
 <tr><td><a href="../modules/filters/ladder-filter.html">Ladder Filter</a></td><td><strong>Cutoff</strong> 900 Hz, <strong>Res</strong> 35%, <strong>Drive</strong> 2.2x</td></tr>
 <tr><td><a href="../modules/modulation/adsr.html">ADSR Envelope</a> 1</td><td><strong>Atk</strong> 2 ms, <strong>Dec</strong> 350 ms, <strong>Sus</strong> 0%, <strong>Rel</strong> 350 ms, <strong>Vel</strong> 60%</td></tr>
+<tr><td><a href="../modules/utilities/attenuverter.html">Attenuverter</a> (ring)</td><td><strong>Amount</strong> +1.0, <strong>Offset</strong> −0.5</td></tr>
 <tr><td><a href="../modules/modulation/lfo.html">LFO</a></td><td><strong>Rate</strong> 0.04 Hz, <strong>Wave</strong> Sine, <strong>Bipolar</strong> on</td></tr>
 <tr><td><a href="../modules/utilities/mix.html">Mix</a> (filter sweep)</td><td><strong>Level 1</strong> 100%, <strong>Level 2</strong> 70%</td></tr>
 <tr><td><a href="../modules/utilities/vca.html">VCA</a> 1</td><td>Defaults</td></tr>
@@ -241,6 +243,12 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 [Mix Out] ──&gt; [Ladder Filter Cutoff]
 </code></pre>
 <p>Two slightly detuned saws go through the ladder filter's 24 dB lowpass. A fast envelope opens both the VCA and the filter, so each note starts bright and dulls as it fades, like a plucked string. Each step has its own velocity. The loud ones fall on steps 1, 4, 7, 11 and 14, a 3-3-4-3-3 pattern that pushes against the even sixteenths, so the line grooves instead of ticking.</p>
+<pre><code class="language-text">[Step Sequencer Velocity] ──&gt; [Attenuverter In]
+[Attenuverter Out] ──&gt; [ADSR 1 Decay]
+                   ──&gt; [ADSR 1 Release]
+</code></pre>
+<p>Velocity also sets how long each note rings. A string plucked harder swings wider and takes longer to settle, so the accents should ring on where the soft notes are gone. The ADSR's <strong>Decay</strong> and <strong>Release</strong> jacks <a href="../modules/modulation/adsr.html#stage-cv">stretch their stages in octaves of time</a>: +1 doubles the knob's time, and 0 leaves it alone. The Attenuverter turns a step's velocity into that many octaves. With <strong>Offset</strong> at −0.5, a velocity of 64 (half) adds nothing, so the soft steps ring for the knobs' 350 ms as before. The loudest step, 112, rings about 30% longer, and every step in between rings a little longer the harder it's played.</p>
+<p>Velocity goes to both jacks because the gate is shorter than the decay. At 60% of a sixteenth, each note's gate closes after about 100 ms, partway through <strong>Decay</strong>, and the rest of the note is <strong>Release</strong>. Velocity in <strong>Decay</strong> alone would only shape the first 100 ms. Watch the ADSR's display: the <strong>D</strong> and <strong>R</strong> are tinted while their jacks are patched, and the curve widens on the accents.</p>
 <p>The Mix adds a very slow LFO to the envelope before both reach <strong>Cutoff</strong>. Over 25 seconds the whole arpeggio gets darker and then brighter again. One cycle of the LFO lasts nearly ten bars, so each pass through the progression sounds a little different.</p>
 <h3 id="the-pad"><a class="header" href="#the-pad">The pad</a></h3>
 <pre><code class="language-text">[Chord Sequencer Pitch] ──&gt; [Oscillator 2 V/Oct]     (poly, 4 channels)
@@ -280,6 +288,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <p><strong>A different arpeggio.</strong> Set the Step Sequencer's <strong>Dir</strong> to P-P to rock back and forth, or Rnd for a new order every bar. Any order of the four notes still fits the chord.</p>
 <p><strong>Triplet shimmer.</strong> Set the delay's <strong>Sync</strong> to 1/8T. The echoes now land in threes against the sixteenths.</p>
 <p><strong>Glassier.</strong> Switch Oscillator 1's <strong>Wave</strong> to Tri and raise the Ladder Filter's <strong>Cutoff</strong> to 2 kHz. The pluck goes from felt to glass.</p>
+<p><strong>Struck harder.</strong> Set the Attenuverter's <strong>Offset</strong> to 0. Every note now rings longer, and the accents nearly twice the knobs' time, so they hang over the notes after them and the line turns legato on its loud steps. Set <strong>Offset</strong> to −0.9 for the opposite: the accents ring for the knobs' time and the soft notes are about a fifth shorter, like strings damped by the side of the hand.</p>
 <p><strong>A worn cassette.</strong> On the Tape, set <strong>Speed</strong> to 7½ ips, <strong>Age</strong> to 45%, <strong>Hiss</strong> to 25% and <strong>Wow</strong> to 55%. The arpeggio sways like a tape that's been played every day for a summer.</p>
 <p><strong>Slower and wider.</strong> Turn the Clock down to 70 BPM. The delay follows the new tempo. Then raise the Reverb's <strong>Decay</strong> to 9 s and its <strong>Mix</strong> to 50%.</p>
 <h2 id="related"><a class="header" href="#related">Related</a></h2>
