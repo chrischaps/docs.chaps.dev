@@ -1,0 +1,302 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Pinwheel - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../concepts/connections.html"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../concepts/polyphony.html"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../concepts/tempo-and-sync.html"><strong aria-hidden="true">7.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../concepts/groups.html"><strong aria-hidden="true">8.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../modules/index.html"><strong aria-hidden="true">9.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../modules/sources/oscillator.html"><strong aria-hidden="true">9.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../modules/sources/noise.html"><strong aria-hidden="true">9.2.</strong> Noise</a></li><li class="chapter-item "><a href="../modules/sources/drum.html"><strong aria-hidden="true">9.3.</strong> Drum</a></li><li class="chapter-item "><a href="../modules/sources/sampler.html"><strong aria-hidden="true">9.4.</strong> Sampler</a></li><li class="chapter-item "><a href="../modules/sources/chopper.html"><strong aria-hidden="true">9.5.</strong> Chopper</a></li><li class="chapter-item "><a href="../modules/sources/audio-input.html"><strong aria-hidden="true">9.6.</strong> Audio Input</a></li><li class="chapter-item "><a href="../modules/midi/keyboard.html"><strong aria-hidden="true">9.7.</strong> Keyboard</a></li><li class="chapter-item "><a href="../modules/midi/midi-note.html"><strong aria-hidden="true">9.8.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../modules/midi/poly-midi.html"><strong aria-hidden="true">9.9.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../modules/filters/svf-filter.html"><strong aria-hidden="true">9.10.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../modules/filters/ladder-filter.html"><strong aria-hidden="true">9.11.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../modules/modulation/adsr.html"><strong aria-hidden="true">9.12.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../modules/modulation/lfo.html"><strong aria-hidden="true">9.13.</strong> LFO</a></li><li class="chapter-item "><a href="../modules/modulation/slope.html"><strong aria-hidden="true">9.14.</strong> Slope</a></li><li class="chapter-item "><a href="../modules/effects/delay.html"><strong aria-hidden="true">9.15.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../modules/effects/reverb.html"><strong aria-hidden="true">9.16.</strong> Reverb</a></li><li class="chapter-item "><a href="../modules/effects/eq.html"><strong aria-hidden="true">9.17.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../modules/effects/distortion.html"><strong aria-hidden="true">9.18.</strong> Distortion</a></li><li class="chapter-item "><a href="../modules/effects/chorus.html"><strong aria-hidden="true">9.19.</strong> Chorus</a></li><li class="chapter-item "><a href="../modules/effects/tape.html"><strong aria-hidden="true">9.20.</strong> Tape</a></li><li class="chapter-item "><a href="../modules/effects/slicer.html"><strong aria-hidden="true">9.21.</strong> Slicer</a></li><li class="chapter-item "><a href="../modules/effects/compressor.html"><strong aria-hidden="true">9.22.</strong> Compressor</a></li><li class="chapter-item "><a href="../modules/effects/vocoder.html"><strong aria-hidden="true">9.23.</strong> Vocoder</a></li><li class="chapter-item "><a href="../modules/modulation/clock.html"><strong aria-hidden="true">9.24.</strong> Clock</a></li><li class="chapter-item "><a href="../modules/utilities/vca.html"><strong aria-hidden="true">9.25.</strong> VCA</a></li><li class="chapter-item "><a href="../modules/utilities/attenuverter.html"><strong aria-hidden="true">9.26.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../modules/utilities/mix.html"><strong aria-hidden="true">9.27.</strong> Mix</a></li><li class="chapter-item "><a href="../modules/utilities/mixer.html"><strong aria-hidden="true">9.28.</strong> Mixer</a></li><li class="chapter-item "><a href="../modules/utilities/sample-hold.html"><strong aria-hidden="true">9.29.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../modules/utilities/quantizer.html"><strong aria-hidden="true">9.30.</strong> Quantizer</a></li><li class="chapter-item "><a href="../modules/utilities/divider.html"><strong aria-hidden="true">9.31.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../modules/utilities/logic.html"><strong aria-hidden="true">9.32.</strong> Logic</a></li><li class="chapter-item "><a href="../modules/utilities/looper.html"><strong aria-hidden="true">9.33.</strong> Looper</a></li><li class="chapter-item "><a href="../modules/visualization/oscilloscope.html"><strong aria-hidden="true">9.34.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../modules/visualization/dancer.html"><strong aria-hidden="true">9.35.</strong> Dancer</a></li><li class="chapter-item "><a href="../modules/utilities/sequencer.html"><strong aria-hidden="true">9.36.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/chord-sequencer.html"><strong aria-hidden="true">9.37.</strong> Chord Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">9.38.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/arranger.html"><strong aria-hidden="true">9.39.</strong> Arranger</a></li><li class="chapter-item "><a href="../modules/midi/midi-monitor.html"><strong aria-hidden="true">9.40.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../modules/output/audio-output.html"><strong aria-hidden="true">9.41.</strong> Audio Output</a></li><li class="chapter-item "><a href="../modules/output/link-out.html"><strong aria-hidden="true">9.42.</strong> Link Out</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../recipes/basic-subtractive.html"><strong aria-hidden="true">10.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../recipes/fm-synthesis.html"><strong aria-hidden="true">11.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../recipes/lush-pad.html"><strong aria-hidden="true">12.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../recipes/sampled-keys.html"><strong aria-hidden="true">13.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../recipes/live-looper.html"><strong aria-hidden="true">14.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../recipes/generative-ambient.html"><strong aria-hidden="true">15.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../recipes/shoreline.html"><strong aria-hidden="true">16.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../recipes/rhythmic-sequence.html"><strong aria-hidden="true">17.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../recipes/backbeat.html"><strong aria-hidden="true">18.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../recipes/drum-machine.html"><strong aria-hidden="true">19.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../recipes/roll-call.html"><strong aria-hidden="true">20.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../recipes/pinwheel.html" class="active"><strong aria-hidden="true">21.</strong> Pinwheel</a></li><li class="chapter-item expanded "><a href="../recipes/afterglow.html"><strong aria-hidden="true">22.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../recipes/front-porch.html"><strong aria-hidden="true">23.</strong> Front Porch</a></li><li class="chapter-item expanded "><a href="../recipes/soba-speaks.html"><strong aria-hidden="true">24.</strong> Soba Speaks</a></li><li class="chapter-item expanded "><a href="../recipes/held-vowels.html"><strong aria-hidden="true">25.</strong> Held Vowels</a></li><li class="chapter-item expanded "><a href="../recipes/interlock.html"><strong aria-hidden="true">26.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../recipes/cut-up.html"><strong aria-hidden="true">27.</strong> Cut-Up</a></li><li class="chapter-item expanded affix "><li class="part-title">Songs</li><li class="chapter-item expanded "><a href="../songs/from-one-sine.html"><strong aria-hidden="true">28.</strong> From One Sine</a></li><li class="chapter-item expanded "><a href="../songs/clair-de-satellite.html"><strong aria-hidden="true">29.</strong> Clair de Satellite</a></li><li class="chapter-item expanded "><a href="../songs/canopy.html"><strong aria-hidden="true">30.</strong> Canopy</a></li><li class="chapter-item expanded "><a href="../songs/orrery.html"><strong aria-hidden="true">31.</strong> Orrery</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/recipes/pinwheel.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="pinwheel"><a class="header" href="#pinwheel">Pinwheel</a></h1>
+<p>A drum kit that plays the picture as well as the sound. This is <a href="./roll-call.html">Roll Call</a>'s groove with a <a href="../modules/output/link-out.html">Link Out</a> beside it, sending three LFOs, a swell on every kick, the bar and the drums' gates to <a href="https://github.com/chrischaps/Seoul">Seoul</a>, a music visualizer. Seoul's <strong>Obangsaek</strong> preset is a paper pinwheel in Korea's five cardinal colours, and in this patch it turns once a bar on the Clock, its colours breathe with the LFOs, and the kick, snare and hats each throw a bloom of colour into the wind.</p>
+<blockquote>
+<p><strong>Load it:</strong> choose <strong>📚 Examples → Pinwheel</strong> in the toolbar and press <strong>▶ Play</strong>. Then start Seoul and pick <strong>Obangsaek</strong>.
+The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patches/pinwheel.json"><code>patches/pinwheel.json</code></a>.</p>
+</blockquote>
+<iframe class="patch-embed" src="../play/?patch=pinwheel" title="Pinwheel, playable in the browser" loading="lazy"></iframe>
+<p><em>Or hear it here: press <strong>▶ Play</strong> in the corner. The browser plays the drums, but only the desktop app sends to Seoul. The kit is Roll Call's; the <strong>Picture</strong> frame below the mix is what's new.</em></p>
+<h2 id="what-it-teaches"><a class="header" href="#what-it-teaches">What it teaches</a></h2>
+<ul>
+<li><strong>Cables play the picture.</strong> Link Out's lanes go to Seoul as <code>cv1</code> to <code>cv8</code> and <code>gate1</code> to <code>gate4</code>, and a Seoul preset decides what each one moves. Choosing what goes into each lane is composing the picture.</li>
+<li><strong>The Clock leads both.</strong> Link Out sends the Clock's tempo and place in the bar with no cable, so the pinwheel turns on the patch's own bar, never on a guess.</li>
+<li><strong>Gates arrive as edges.</strong> A trigger lasts a fraction of a frame, yet every hit makes a bloom.</li>
+<li><strong>A preset for the link still plays without it.</strong> Close Soba and Obangsaek goes back to following what it hears.</li>
+</ul>
+<h2 id="the-lanes"><a class="header" href="#the-lanes">The lanes</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Lane</th><th>From</th><th>In Obangsaek</th></tr></thead><tbody>
+<tr><td><strong>CV 1</strong></td><td>LFO, sine over 4 bars</td><td>Blue, the east</td></tr>
+<tr><td><strong>CV 2</strong></td><td>LFO, triangle over 2 bars</td><td>Red, the south</td></tr>
+<tr><td><strong>CV 3</strong></td><td>Slope on the kick: up at once, down over 0.4 s</td><td>Yellow, the centre, and the pin at the middle</td></tr>
+<tr><td><strong>CV 4</strong></td><td>LFO, sine over 1 bar</td><td>White, the west</td></tr>
+<tr><td><strong>CV 5</strong></td><td>Clock Divider's <strong>Count</strong>: a ramp through the bar</td><td>Black, the north</td></tr>
+<tr><td><strong>Gate 1</strong></td><td>Kick lane</td><td>A bloom</td></tr>
+<tr><td><strong>Gate 2</strong></td><td>Snare lane</td><td>A bloom</td></tr>
+<tr><td><strong>Gate 3</strong></td><td>Closed hat lane</td><td>A bloom</td></tr>
+<tr><td><strong>Gate 4</strong></td><td>Clock Divider's <strong>Trig</strong>: every downbeat</td><td>A bloom</td></tr>
+</tbody></table>
+</div>
+<p>The LFOs have <strong>Bipolar</strong> off, so they send 0 to 1, and Obangsaek reads each as how much of its colour to show. Their phases are a third of a turn apart, so the colours take turns rather than swelling together.</p>
+<h2 id="modules"><a class="header" href="#modules">Modules</a></h2>
+<p>Roll Call's fourteen, with these added:</p>
+<div class="table-wrapper"><table><thead><tr><th>Module</th><th>Settings</th></tr></thead><tbody>
+<tr><td><a href="../modules/utilities/divider.html">Clock Divider</a></td><td><strong>Div</strong> 16, <strong>Length</strong> 1: one count a 1/16 step, so a trigger every bar</td></tr>
+<tr><td><a href="../modules/modulation/slope.html">Slope</a></td><td><strong>Rise</strong> 4 ms, <strong>Fall</strong> 0.4 s, <strong>Shape</strong> -0.5</td></tr>
+<tr><td><a href="../modules/modulation/lfo.html">LFO</a> (blue)</td><td><strong>Tempo</strong> 4 bars, Sine, <strong>Bipolar</strong> off</td></tr>
+<tr><td><a href="../modules/modulation/lfo.html">LFO</a> (red)</td><td><strong>Tempo</strong> 2 bars, Triangle, <strong>Phase</strong> 120°, <strong>Bipolar</strong> off</td></tr>
+<tr><td><a href="../modules/modulation/lfo.html">LFO</a> (white)</td><td><strong>Tempo</strong> 1 bar, Sine, <strong>Phase</strong> 240°, <strong>Bipolar</strong> off</td></tr>
+<tr><td><a href="../modules/output/link-out.html">Link Out</a></td><td><strong>Port</strong> 9137</td></tr>
+</tbody></table>
+</div>
+<h2 id="how-its-built"><a class="header" href="#how-its-built">How it's built</a></h2>
+<pre><code class="language-text">[Clock Gate]  ──&gt; [Clock Divider Clock]
+[Clock Reset] ──&gt; [Clock Divider Reset]
+[Trigger Sequencer Gate 1] ──&gt; [Slope Trig]
+[LFO (blue) Out]  ──&gt; [Link Out CV 1]
+[LFO (red) Out]   ──&gt; [Link Out CV 2]
+[Slope Out]       ──&gt; [Link Out CV 3]
+[LFO (white) Out] ──&gt; [Link Out CV 4]
+[Clock Divider Count] ──&gt; [Link Out CV 5]
+[Trigger Sequencer Gate 1, 2, 3] ──&gt; [Link Out Gate 1, 2, 3]
+[Clock Divider Trig] ──&gt; [Link Out Gate 4]
+</code></pre>
+<p>Nothing in the <strong>Picture</strong> frame reaches the Audio Output, so the patch sounds just as Roll Call does.</p>
+<h2 id="seouls-side"><a class="header" href="#seouls-side">Seoul's side</a></h2>
+<p>Seoul listens on port 9137 unless its <code>seoul.toml</code> says otherwise. Link Out's lamp turns green once Seoul is listening, and amber, with <em>no Seoul</em>, while nothing is. Seoul's F1 panel shows the link: eight CV columns, four gate lamps, and <em>conf link</em> beside the tempo while the Clock plays.</p>
+<p>The picture gets the lanes sooner than Seoul hears the sound, which goes the long way through your audio device. If a bloom comes before its drum, raise <code>delay_ms</code> under <code>[link]</code> in <code>seoul.toml</code> until they land together. 40 ms is a good start.</p>
+<h2 id="try-this"><a class="header" href="#try-this">Try this</a></h2>
+<p><strong>Another preset.</strong> Pick Seoul's <strong>Gayageum</strong>: each CV lane bends one of its strings, and each gate plucks one.</p>
+<p><strong>A colour from the music.</strong> Patch an <a href="../modules/sources/audio-input.html">Audio Input</a>'s <strong>Follow</strong> into a lane in place of an LFO, and sing the colour in.</p>
+<p><strong>Faster colours.</strong> Set the LFOs' <strong>Tempo</strong> to 1/2 or 1/4 and the pinwheel's colours flicker on the beat.</p>
+<p><strong>Stop and start.</strong> Turn the Clock's <strong>Run</strong> off: the pinwheel stops following the bar and Seoul goes back to finding the beat by ear. Turn it on again and it locks back on.</p>
+<h2 id="related"><a class="header" href="#related">Related</a></h2>
+<ul>
+<li><a href="../modules/output/link-out.html">Link Out</a> – the lanes, the port and the lamp</li>
+<li><a href="./roll-call.html">Roll Call</a> – the groove this is built on</li>
+<li><a href="../modules/modulation/lfo.html">LFO</a> – tempo sync and phase</li>
+<li><a href="../modules/utilities/divider.html">Clock Divider</a> – counting steps into bars</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../recipes/roll-call.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../recipes/afterglow.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../recipes/roll-call.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../recipes/afterglow.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
