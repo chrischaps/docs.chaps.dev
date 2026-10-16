@@ -1,0 +1,325 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Resonator - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../../concepts/connections.html"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../../concepts/polyphony.html"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../../concepts/tempo-and-sync.html"><strong aria-hidden="true">7.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../../concepts/groups.html"><strong aria-hidden="true">8.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../../modules/index.html"><strong aria-hidden="true">9.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../modules/sources/oscillator.html"><strong aria-hidden="true">9.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../../modules/sources/noise.html"><strong aria-hidden="true">9.2.</strong> Noise</a></li><li class="chapter-item "><a href="../../modules/sources/drum.html"><strong aria-hidden="true">9.3.</strong> Drum</a></li><li class="chapter-item expanded "><a href="../../modules/sources/resonator.html" class="active"><strong aria-hidden="true">9.4.</strong> Resonator</a></li><li class="chapter-item "><a href="../../modules/sources/sampler.html"><strong aria-hidden="true">9.5.</strong> Sampler</a></li><li class="chapter-item "><a href="../../modules/sources/chopper.html"><strong aria-hidden="true">9.6.</strong> Chopper</a></li><li class="chapter-item "><a href="../../modules/sources/cloud.html"><strong aria-hidden="true">9.7.</strong> Cloud</a></li><li class="chapter-item "><a href="../../modules/sources/audio-input.html"><strong aria-hidden="true">9.8.</strong> Audio Input</a></li><li class="chapter-item "><a href="../../modules/midi/keyboard.html"><strong aria-hidden="true">9.9.</strong> Keyboard</a></li><li class="chapter-item "><a href="../../modules/midi/midi-note.html"><strong aria-hidden="true">9.10.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../../modules/midi/poly-midi.html"><strong aria-hidden="true">9.11.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../../modules/filters/svf-filter.html"><strong aria-hidden="true">9.12.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../../modules/filters/ladder-filter.html"><strong aria-hidden="true">9.13.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../../modules/modulation/adsr.html"><strong aria-hidden="true">9.14.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../../modules/modulation/lfo.html"><strong aria-hidden="true">9.15.</strong> LFO</a></li><li class="chapter-item "><a href="../../modules/modulation/slope.html"><strong aria-hidden="true">9.16.</strong> Slope</a></li><li class="chapter-item "><a href="../../modules/effects/delay.html"><strong aria-hidden="true">9.17.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../../modules/effects/reverb.html"><strong aria-hidden="true">9.18.</strong> Reverb</a></li><li class="chapter-item "><a href="../../modules/effects/eq.html"><strong aria-hidden="true">9.19.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../../modules/effects/distortion.html"><strong aria-hidden="true">9.20.</strong> Distortion</a></li><li class="chapter-item "><a href="../../modules/effects/chorus.html"><strong aria-hidden="true">9.21.</strong> Chorus</a></li><li class="chapter-item "><a href="../../modules/effects/tape.html"><strong aria-hidden="true">9.22.</strong> Tape</a></li><li class="chapter-item "><a href="../../modules/effects/slicer.html"><strong aria-hidden="true">9.23.</strong> Slicer</a></li><li class="chapter-item "><a href="../../modules/effects/compressor.html"><strong aria-hidden="true">9.24.</strong> Compressor</a></li><li class="chapter-item "><a href="../../modules/effects/vocoder.html"><strong aria-hidden="true">9.25.</strong> Vocoder</a></li><li class="chapter-item "><a href="../../modules/modulation/clock.html"><strong aria-hidden="true">9.26.</strong> Clock</a></li><li class="chapter-item "><a href="../../modules/utilities/vca.html"><strong aria-hidden="true">9.27.</strong> VCA</a></li><li class="chapter-item "><a href="../../modules/utilities/attenuverter.html"><strong aria-hidden="true">9.28.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../../modules/utilities/mix.html"><strong aria-hidden="true">9.29.</strong> Mix</a></li><li class="chapter-item "><a href="../../modules/utilities/mixer.html"><strong aria-hidden="true">9.30.</strong> Mixer</a></li><li class="chapter-item "><a href="../../modules/utilities/sample-hold.html"><strong aria-hidden="true">9.31.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../../modules/utilities/quantizer.html"><strong aria-hidden="true">9.32.</strong> Quantizer</a></li><li class="chapter-item "><a href="../../modules/utilities/divider.html"><strong aria-hidden="true">9.33.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../../modules/utilities/logic.html"><strong aria-hidden="true">9.34.</strong> Logic</a></li><li class="chapter-item "><a href="../../modules/utilities/looper.html"><strong aria-hidden="true">9.35.</strong> Looper</a></li><li class="chapter-item "><a href="../../modules/visualization/oscilloscope.html"><strong aria-hidden="true">9.36.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../../modules/visualization/dancer.html"><strong aria-hidden="true">9.37.</strong> Dancer</a></li><li class="chapter-item "><a href="../../modules/utilities/sequencer.html"><strong aria-hidden="true">9.38.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/chord-sequencer.html"><strong aria-hidden="true">9.39.</strong> Chord Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">9.40.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/arranger.html"><strong aria-hidden="true">9.41.</strong> Arranger</a></li><li class="chapter-item "><a href="../../modules/utilities/scenes.html"><strong aria-hidden="true">9.42.</strong> Scenes</a></li><li class="chapter-item "><a href="../../modules/midi/midi-monitor.html"><strong aria-hidden="true">9.43.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../../modules/output/audio-output.html"><strong aria-hidden="true">9.44.</strong> Audio Output</a></li><li class="chapter-item "><a href="../../modules/output/link-out.html"><strong aria-hidden="true">9.45.</strong> Link Out</a></li><li class="chapter-item "><a href="../../modules/output/midi-out.html"><strong aria-hidden="true">9.46.</strong> MIDI Out</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../../recipes/basic-subtractive.html"><strong aria-hidden="true">10.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../../recipes/fm-synthesis.html"><strong aria-hidden="true">11.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../../recipes/lush-pad.html"><strong aria-hidden="true">12.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../../recipes/sampled-keys.html"><strong aria-hidden="true">13.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../../recipes/live-looper.html"><strong aria-hidden="true">14.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../../recipes/generative-ambient.html"><strong aria-hidden="true">15.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../../recipes/shoreline.html"><strong aria-hidden="true">16.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../../recipes/rhythmic-sequence.html"><strong aria-hidden="true">17.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../../recipes/backbeat.html"><strong aria-hidden="true">18.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../../recipes/drum-machine.html"><strong aria-hidden="true">19.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../../recipes/roll-call.html"><strong aria-hidden="true">20.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../../recipes/pinwheel.html"><strong aria-hidden="true">21.</strong> Pinwheel</a></li><li class="chapter-item expanded "><a href="../../recipes/afterglow.html"><strong aria-hidden="true">22.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../../recipes/front-porch.html"><strong aria-hidden="true">23.</strong> Front Porch</a></li><li class="chapter-item expanded "><a href="../../recipes/soba-speaks.html"><strong aria-hidden="true">24.</strong> Soba Speaks</a></li><li class="chapter-item expanded "><a href="../../recipes/held-vowels.html"><strong aria-hidden="true">25.</strong> Held Vowels</a></li><li class="chapter-item expanded "><a href="../../recipes/interlock.html"><strong aria-hidden="true">26.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../../recipes/cut-up.html"><strong aria-hidden="true">27.</strong> Cut-Up</a></li><li class="chapter-item expanded "><a href="../../recipes/choir-of-one.html"><strong aria-hidden="true">28.</strong> Choir of One</a></li><li class="chapter-item expanded "><a href="../../recipes/breakdown.html"><strong aria-hidden="true">29.</strong> Breakdown</a></li><li class="chapter-item expanded "><a href="../../recipes/sympathetic-strings.html"><strong aria-hidden="true">30.</strong> Sympathetic Strings</a></li><li class="chapter-item expanded affix "><li class="part-title">Songs</li><li class="chapter-item expanded "><a href="../../songs/from-one-sine.html"><strong aria-hidden="true">31.</strong> From One Sine</a></li><li class="chapter-item expanded "><a href="../../songs/clair-de-satellite.html"><strong aria-hidden="true">32.</strong> Clair de Satellite</a></li><li class="chapter-item expanded "><a href="../../songs/canopy.html"><strong aria-hidden="true">33.</strong> Canopy</a></li><li class="chapter-item expanded "><a href="../../songs/orrery.html"><strong aria-hidden="true">34.</strong> Orrery</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/modules/sources/resonator.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="resonator"><a class="header" href="#resonator">Resonator</a></h1>
+<p><strong>Module ID</strong> <code>source.resonator</code> · <strong>Category</strong> Source</p>
+<p><img src="../../images/module-resonator.png" alt="Resonator Module, a bell" />
+<em>A bell 0.4 seconds after it was struck. Each mode is a ring on a log-frequency axis. The hum on the left is still ringing wide, and the high partials on the right have already shrunk back to their dots.</em></p>
+<p>Resonator is a physical model. It doesn't make a waveform and then shape it. It works out how a real string or a real bell would move when something plays it, sample by sample. That's why it sounds alive straight away, with no envelope to set. A pluck rings and fades by itself, its top dies before its note does, and no two plucks are quite alike.</p>
+<p>Two models share one set of knobs:</p>
+<ul>
+<li><strong>String</strong> is a plucked string, built the way Karplus and Strong built theirs in 1983: a burst of noise runs round a loop exactly one period long, and a gentle lowpass in the loop takes a little of the top off on every pass.</li>
+<li><strong>Body</strong> is a struck bell, bar, glass or block of wood: twelve tuned modes, each ringing at its own frequency and dying at its own rate.</li>
+</ul>
+<p>A <strong>Gate</strong> plays it, as a finger or a mallet would. So does any sound patched into <strong>In</strong>. A drum, a voice or a burst of noise makes it ring at its own pitch, the way a shout makes a piano's open strings hum. A Drum into a tuned Resonator is a new instrument in itself.</p>
+<p>Resonator is polyphonic. A chord on its <strong>V/Oct</strong>, from a <a href="../utilities/chord-sequencer.html">Chord Sequencer</a> or <a href="../midi/poly-midi.html">Poly MIDI</a>, is a string or a bell for each note, so a chord rings as a chord. One mono drum into <strong>In</strong> rings them all at once.</p>
+<h2 id="the-models"><a class="header" href="#the-models">The models</a></h2>
+<h3 id="string"><a class="header" href="#string">String</a></h3>
+<p><img src="../../images/module-resonator-string.png" alt="Resonator Module, a string" />
+<em>A string 80 ms after its pluck, still ragged with the top it's losing. The orange mark on the floor is where Position plucks it.</em></p>
+<p>A gate plucks the string with one period of noise under a smooth swell, as a finger pulls a string aside and lets go. <strong>Brightness</strong> is the pick: a soft thumb at 0, a plectrum at 100%. <strong>Strike</strong> is how hard: softer is quieter, and smoother too, with less of the pick's grain in it.</p>
+<p><strong>Damping</strong> is what the string is made of. At 0 every partial rings as long as the note, like a bright steel wire. Turn it up and the top dies faster than the note, towards nylon or a string under a felt. Damping never changes the pitch: the loop is shortened by exactly the delay its lowpass adds at the note.</p>
+<p><strong>Position</strong> is where along the string it's played. Near the end (0) the sound is thin and bright with every partial. In the middle (100%) it's hollow and round, because a string plucked in the middle has no even partials: they all have a node there.</p>
+<h3 id="body"><a class="header" href="#body">Body</a></h3>
+<p>A gate strikes the body with a mallet. <strong>Brightness</strong> is the mallet: felt is wide and dark, steel is narrow and rings every mode. <strong>Position</strong> is where it lands, from the edge to the middle. A mode with a node where the mallet lands barely sounds.</p>
+<p><strong>Material</strong> sets where the modes sit and how long they ring:</p>
+<div class="table-wrapper"><table><thead><tr><th>Material</th><th>Modes (times the note)</th><th>Rings</th><th>Sounds like</th></tr></thead><tbody>
+<tr><td><strong>Bell</strong></td><td>1, 2, 2.38, 3.01, 4, 5.03 …</td><td>Long</td><td>A church bell: the hum, the prime an octave up, and the minor third above it that makes a bell sound like a bell</td></tr>
+<tr><td><strong>Bar</strong></td><td>1, 2.76, 5.40, 8.93, 13.3 …</td><td>Medium</td><td>An untuned glockenspiel or a struck metal rod</td></tr>
+<tr><td><strong>Glass</strong></td><td>1, 2.32, 4.25, 6.63, 9.38 …</td><td>Longest</td><td>A wine glass: pure, with little damping</td></tr>
+<tr><td><strong>Wood</strong></td><td>1, 2.57, 4.47, 6.60, 7.92 …</td><td>Short</td><td>A wood block or a thick wooden bar</td></tr>
+</tbody></table>
+</div>
+<p>The lowest mode is always the note you play, so every material is in tune with the keyboard.</p>
+<p><strong>Inharm</strong> moves the modes. At 0 they sit on the harmonic series (1, 2, 3, 4 …), which turns any material into something string- or pipe-like. In the middle (the default) they're the material's own. At 100% they're stretched further apart, more clangorous and metallic. <strong>Damping</strong> makes the high modes die faster than the low ones, on top of the material's own.</p>
+<h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Gate</strong></td><td>Gate (Green)</td><td>A rising edge plucks the string or strikes the body. Patch a sequencer's, a keyboard's or a MIDI <strong>Gate</strong></td></tr>
+<tr><td><strong>V/Oct</strong></td><td>Control (Orange)</td><td>Pitch, 1 per octave, added to <strong>Tune</strong>. A poly cable plays a string or a body per note</td></tr>
+<tr><td><strong>Strike</strong></td><td>Control (Orange)</td><td>How hard each gate plays, from 0 to 1, read as it lands. Patch a sequencer's <strong>Velocity</strong>. Unpatched, every one is full</td></tr>
+<tr><td><strong>In</strong></td><td>Audio (Blue)</td><td>Any sound to excite it with. It rings at its own pitch with whatever you feed it. You hear only the ringing, not the sound you fed in, so mix that in yourself if you want both</td></tr>
+<tr><td><strong>Decay</strong></td><td>Control (Orange)</td><td>Added to the <strong>Decay</strong> knob</td></tr>
+<tr><td><strong>Damping</strong></td><td>Control (Orange)</td><td>Added to the <strong>Damping</strong> knob</td></tr>
+<tr><td><strong>Brightness</strong></td><td>Control (Orange)</td><td>Added to the <strong>Brightness</strong> knob, read at each pluck or strike</td></tr>
+</tbody></table>
+</div>
+<h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Out</strong></td><td>Audio (Blue)</td><td>The string or the body. A full pluck at default settings peaks around -4 dBFS</td></tr>
+</tbody></table>
+</div>
+<h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Mode</strong></td><td>String, Body</td><td>String</td><td>Which model</td></tr>
+<tr><td><strong>Material</strong></td><td>Bell, Bar, Glass, Wood</td><td>Bell</td><td>What a Body is made of. A String ignores it</td></tr>
+<tr><td><strong>Tune</strong></td><td>±24 st</td><td>0 st</td><td>Pitch in semitones from C4, before <strong>V/Oct</strong></td></tr>
+<tr><td><strong>Decay</strong></td><td>0 – 100%</td><td>60%</td><td>How long the note rings, from 80 ms to 24 s, to fall 60 dB. A Body's material rings a multiple of this</td></tr>
+<tr><td><strong>Damping</strong></td><td>0 – 100%</td><td>40%</td><td>How much faster the top dies than the note</td></tr>
+<tr><td><strong>Brightness</strong></td><td>0 – 100%</td><td>60%</td><td>How hard the pick or the mallet is</td></tr>
+<tr><td><strong>Position</strong></td><td>0 – 100%</td><td>30%</td><td>Where it's played, from near the end to the middle</td></tr>
+<tr><td><strong>Inharm</strong></td><td>0 – 100%</td><td>50%</td><td>A Body's modes: harmonic, the material's own, then stretched. A String ignores it</td></tr>
+<tr><td><strong>Level</strong></td><td>0 – 100%</td><td>80%</td><td>Output level</td></tr>
+</tbody></table>
+</div>
+<p>Changing <strong>Mode</strong> lets go of whatever the other model was ringing.</p>
+<h2 id="nothing-runs-away"><a class="header" href="#nothing-runs-away">Nothing runs away</a></h2>
+<p>A string excited from <strong>In</strong> builds up for as long as the sound goes on, and at the longest Decay each pass round the loop keeps 99.99% of what went in. On an ideal string that would climb without end. This one can only swing so far, as a real one can: a soft ceiling sits inside the loop, so even full-scale noise held into the longest Decay rings loudly but stays inside ±1, with no blow-ups.</p>
+<h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
+<p>For a <strong>String</strong>, the display is the string itself, between its bridge and its nut. The shape is one period of the loop, read from the voice as it plays, so it moves the way the sound does: ragged just after a pluck, then smoothing to a single arc as the top dies away. The blue haze either side is how far it's swinging. The orange mark on the floor is where <strong>Position</strong> plucks it.</p>
+<p>For a <strong>Body</strong>, it's the modes: a dot for each across a log-frequency axis, as large as a strike will ring it. Struck, each dot blooms into a ring as wide as the mode is loud, and shrinks as that mode dies. A bell's high partials vanish first and its hum lingers.</p>
+<p>The note and its pitch are at the top left. What's ringing, and for how long, is at the top right. Hover the display for the modes' ratios.</p>
+<h2 id="patches"><a class="header" href="#patches">Patches</a></h2>
+<h3 id="tuned-drums"><a class="header" href="#tuned-drums">Tuned drums</a></h3>
+<p>The <a href="../../recipes/sympathetic-strings.html">Sympathetic Strings</a> example has no oscillators at all. A Rim Drum strikes a Glass tuned to E5, and a Shaker keeps a chord of four strings humming.</p>
+<pre><code class="language-text">[Drum (Rim)]           ──&gt; [Resonator (Body, Glass) In]
+[Drum (Shaker)]        ──&gt; [Resonator (String) In]
+[Chord Sequencer Pitch] ─&gt; [Resonator (String) V/Oct]
+</code></pre>
+<h3 id="a-plucked-voice"><a class="header" href="#a-plucked-voice">A plucked voice</a></h3>
+<pre><code class="language-text">[Sequencer Pitch]    ──&gt; [Resonator V/Oct]
+[Sequencer Gate]     ──&gt; [Resonator Gate]
+[Sequencer Velocity] ──&gt; [Resonator Strike]
+</code></pre>
+<p>A koto or a harp with <strong>Position</strong> low and <strong>Brightness</strong> high. A muted bass with <strong>Damping</strong> up and <strong>Tune</strong> at -24. A music box with Mode on <strong>Body</strong>, Material on <strong>Bar</strong> and <strong>Inharm</strong> at 0.</p>
+<h3 id="a-singing-room"><a class="header" href="#a-singing-room">A singing room</a></h3>
+<p>Patch a voice from an <a href="./audio-input.html">Audio Input</a> into <strong>In</strong>, with Mode on <strong>String</strong>, a long <strong>Decay</strong> and <strong>Damping</strong> low. The string rings along at its pitch with whatever you sing, loudest when you hit its note or one of its partials. A <a href="../utilities/chord-sequencer.html">Chord Sequencer</a> on <strong>V/Oct</strong> makes it a chord of strings that answer you.</p>
+<h3 id="bells-on-a-beat"><a class="header" href="#bells-on-a-beat">Bells on a beat</a></h3>
+<p>A <a href="../modulation/clock.html">Clock</a> or a sequencer's <strong>Gate</strong> into a Body Bell, with an LFO into <strong>Brightness</strong> so some strikes are soft and some hard. Turn <strong>Inharm</strong> up for gamelan-like gongs, or down to 0 for tubular bells.</p>
+<h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>
+<ul>
+<li><a href="./drum.html">Drum</a>: the best exciter, and in the <a href="../../recipes/sympathetic-strings.html">Sympathetic Strings</a> example the only one</li>
+<li><a href="./noise.html">Noise</a>: a burst of noise through an envelope into <strong>In</strong> bows a string that never stops</li>
+<li><a href="../utilities/chord-sequencer.html">Chord Sequencer</a> and <a href="../midi/poly-midi.html">Poly MIDI</a>: chords of strings or bells</li>
+<li><a href="../effects/reverb.html">Reverb</a>: a room for them to ring into</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../modules/sources/drum.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../modules/sources/sampler.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../modules/sources/drum.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../modules/sources/sampler.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
