@@ -291,6 +291,27 @@
 <tr><td><strong>Sevens</strong></td><td><code>X-x-x--X-x-x----</code> with 14 steps</td><td>Sevens across the bar, back round every seven</td></tr>
 </tbody></table>
 </div>
+<h2 id="build-it-yourself"><a class="header" href="#build-it-yourself">Build it yourself</a></h2>
+<p>The <a href="../../concepts/groups.html#the-library">Library</a> has a <strong>Slicer</strong> group that rebuilds this module from stock modules. Add it and open it to see how a slicer pedal works inside. At its defaults it plays the Trance row as this module does, each slice as loud.</p>
+<div class="table-wrapper"><table><thead><tr><th>Part of the Slicer</th><th>Built from</th></tr></thead><tbody>
+<tr><td><strong>Rate</strong>, locked to the transport</td><td>An <a href="../modulation/lfo.html">LFO</a>, square and unipolar, <strong>Tempo</strong> at the rate. A <a href="../utilities/logic.html">Logic</a> module's <strong>Above</strong> turns it into a clock for the sequencer. The LFO's phase is the transport's beat, so it can't drift</td></tr>
+<tr><td>The row: rest, ghost, hit, accent, tie</td><td>A <a href="../utilities/sequencer.html">Step Sequencer</a>. A step's <strong>Gate</strong> off is a rest, <strong>Velocity</strong> 57, 102 and 127 are a ghost, a hit and an accent, and a <strong>Tie</strong> holds a slice into the next step. Patterns A to D hold Trance, Gallop, Son Clave and Sidechain: pick one in its <strong>Chain</strong></td></tr>
+<tr><td><strong>Duty</strong></td><td>The sequencer's <strong>Gate Length</strong>, a share of the step</td></tr>
+<tr><td>How a slice opens and closes</td><td>An <a href="../modulation/adsr.html">ADSR</a> with Sustain at 100%, its <strong>Velocity</strong> from the sequencer. <strong>Atk</strong> and <strong>Rel</strong> stand in for <strong>Shape</strong></td></tr>
+<tr><td><strong>Depth</strong></td><td>A <a href="../utilities/vca.html">VCA</a>'s <strong>CV Amount</strong>. The VCA's gain, <code>1 − amount + amount × CV</code>, is the Slicer's depth exactly</td></tr>
+<tr><td>The step filter</td><td>An <a href="../filters/svf-filter.html">SVF Filter</a>, lowpass. A second ADSR, struck by each step as hard as its velocity and closing over <strong>Close</strong>, opens it through an <a href="../utilities/attenuverter.html">Attenuverter</a> at ×4, eight octaves. Turn <strong>Filter</strong> down to hear it</td></tr>
+<tr><td><strong>Reset</strong></td><td>A jack into the sequencer's <strong>Reset</strong></td></tr>
+</tbody></table>
+</div>
+<p>What doesn't carry over:</p>
+<ul>
+<li><strong>Swing.</strong> No transport-locked source swings except the patch's <a href="../modulation/clock.html">Clock</a>.</li>
+<li><strong>Timing that follows the step.</strong> The module stretches Shape and the filter's close with the step. An ADSR's times are in seconds, so the group's match at one tempo.</li>
+<li><strong>Chopping with the transport stopped.</strong> A synced LFO holds still on a stopped Clock, so the group won't chop live input until you press Play. (With no Clock in the patch at all, it runs at 120 BPM.)</li>
+<li><strong>Starting over with the transport.</strong> Patch the Clock's <strong>Reset</strong> into the group's <strong>Reset</strong> so the row starts on the bar.</li>
+<li><strong>Ping-Pong</strong>, <strong>Mix</strong>, the <strong>Depth</strong> jack and stereo in. Each needs more modules (a Clock Divider and Logic gates for Ping-Pong, a crossfade for Mix and the Depth jack). The group stays mono so it reads at a glance.</li>
+<li><strong>The face's row and pattern menu.</strong> Edit the steps on the sequencer inside the group.</li>
+</ul>
 <h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
 <ul>
 <li><strong>Start from a held sound.</strong> The Slicer only cuts what it's given, so it suits a sustained chord, a pad, a drone or a <a href="../utilities/looper.html">Looper</a>'s layers more than a plucked note.</li>
