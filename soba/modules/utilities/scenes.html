@@ -1,0 +1,291 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Scenes - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../../concepts/signal-types.html"><strong aria-hidden="true">4.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../../concepts/connections.html"><strong aria-hidden="true">5.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../../concepts/polyphony.html"><strong aria-hidden="true">6.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../../concepts/tempo-and-sync.html"><strong aria-hidden="true">7.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../../concepts/groups.html"><strong aria-hidden="true">8.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../../modules/index.html"><strong aria-hidden="true">9.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../modules/sources/oscillator.html"><strong aria-hidden="true">9.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../../modules/sources/noise.html"><strong aria-hidden="true">9.2.</strong> Noise</a></li><li class="chapter-item "><a href="../../modules/sources/drum.html"><strong aria-hidden="true">9.3.</strong> Drum</a></li><li class="chapter-item "><a href="../../modules/sources/sampler.html"><strong aria-hidden="true">9.4.</strong> Sampler</a></li><li class="chapter-item "><a href="../../modules/sources/chopper.html"><strong aria-hidden="true">9.5.</strong> Chopper</a></li><li class="chapter-item "><a href="../../modules/sources/audio-input.html"><strong aria-hidden="true">9.6.</strong> Audio Input</a></li><li class="chapter-item "><a href="../../modules/midi/keyboard.html"><strong aria-hidden="true">9.7.</strong> Keyboard</a></li><li class="chapter-item "><a href="../../modules/midi/midi-note.html"><strong aria-hidden="true">9.8.</strong> MIDI Note</a></li><li class="chapter-item "><a href="../../modules/midi/poly-midi.html"><strong aria-hidden="true">9.9.</strong> Poly MIDI</a></li><li class="chapter-item "><a href="../../modules/filters/svf-filter.html"><strong aria-hidden="true">9.10.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../../modules/filters/ladder-filter.html"><strong aria-hidden="true">9.11.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../../modules/modulation/adsr.html"><strong aria-hidden="true">9.12.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../../modules/modulation/lfo.html"><strong aria-hidden="true">9.13.</strong> LFO</a></li><li class="chapter-item "><a href="../../modules/modulation/slope.html"><strong aria-hidden="true">9.14.</strong> Slope</a></li><li class="chapter-item "><a href="../../modules/effects/delay.html"><strong aria-hidden="true">9.15.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../../modules/effects/reverb.html"><strong aria-hidden="true">9.16.</strong> Reverb</a></li><li class="chapter-item "><a href="../../modules/effects/eq.html"><strong aria-hidden="true">9.17.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../../modules/effects/distortion.html"><strong aria-hidden="true">9.18.</strong> Distortion</a></li><li class="chapter-item "><a href="../../modules/effects/chorus.html"><strong aria-hidden="true">9.19.</strong> Chorus</a></li><li class="chapter-item "><a href="../../modules/effects/tape.html"><strong aria-hidden="true">9.20.</strong> Tape</a></li><li class="chapter-item "><a href="../../modules/effects/slicer.html"><strong aria-hidden="true">9.21.</strong> Slicer</a></li><li class="chapter-item "><a href="../../modules/effects/compressor.html"><strong aria-hidden="true">9.22.</strong> Compressor</a></li><li class="chapter-item "><a href="../../modules/effects/vocoder.html"><strong aria-hidden="true">9.23.</strong> Vocoder</a></li><li class="chapter-item "><a href="../../modules/modulation/clock.html"><strong aria-hidden="true">9.24.</strong> Clock</a></li><li class="chapter-item "><a href="../../modules/utilities/vca.html"><strong aria-hidden="true">9.25.</strong> VCA</a></li><li class="chapter-item "><a href="../../modules/utilities/attenuverter.html"><strong aria-hidden="true">9.26.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../../modules/utilities/mix.html"><strong aria-hidden="true">9.27.</strong> Mix</a></li><li class="chapter-item "><a href="../../modules/utilities/mixer.html"><strong aria-hidden="true">9.28.</strong> Mixer</a></li><li class="chapter-item "><a href="../../modules/utilities/sample-hold.html"><strong aria-hidden="true">9.29.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../../modules/utilities/quantizer.html"><strong aria-hidden="true">9.30.</strong> Quantizer</a></li><li class="chapter-item "><a href="../../modules/utilities/divider.html"><strong aria-hidden="true">9.31.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../../modules/utilities/logic.html"><strong aria-hidden="true">9.32.</strong> Logic</a></li><li class="chapter-item "><a href="../../modules/utilities/looper.html"><strong aria-hidden="true">9.33.</strong> Looper</a></li><li class="chapter-item "><a href="../../modules/visualization/oscilloscope.html"><strong aria-hidden="true">9.34.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../../modules/visualization/dancer.html"><strong aria-hidden="true">9.35.</strong> Dancer</a></li><li class="chapter-item "><a href="../../modules/utilities/sequencer.html"><strong aria-hidden="true">9.36.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/chord-sequencer.html"><strong aria-hidden="true">9.37.</strong> Chord Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">9.38.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/arranger.html"><strong aria-hidden="true">9.39.</strong> Arranger</a></li><li class="chapter-item expanded "><a href="../../modules/utilities/scenes.html" class="active"><strong aria-hidden="true">9.40.</strong> Scenes</a></li><li class="chapter-item "><a href="../../modules/midi/midi-monitor.html"><strong aria-hidden="true">9.41.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../../modules/output/audio-output.html"><strong aria-hidden="true">9.42.</strong> Audio Output</a></li><li class="chapter-item "><a href="../../modules/output/link-out.html"><strong aria-hidden="true">9.43.</strong> Link Out</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../../recipes/basic-subtractive.html"><strong aria-hidden="true">10.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../../recipes/fm-synthesis.html"><strong aria-hidden="true">11.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../../recipes/lush-pad.html"><strong aria-hidden="true">12.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../../recipes/sampled-keys.html"><strong aria-hidden="true">13.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../../recipes/live-looper.html"><strong aria-hidden="true">14.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../../recipes/generative-ambient.html"><strong aria-hidden="true">15.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../../recipes/shoreline.html"><strong aria-hidden="true">16.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../../recipes/rhythmic-sequence.html"><strong aria-hidden="true">17.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../../recipes/backbeat.html"><strong aria-hidden="true">18.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../../recipes/drum-machine.html"><strong aria-hidden="true">19.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../../recipes/roll-call.html"><strong aria-hidden="true">20.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../../recipes/pinwheel.html"><strong aria-hidden="true">21.</strong> Pinwheel</a></li><li class="chapter-item expanded "><a href="../../recipes/afterglow.html"><strong aria-hidden="true">22.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../../recipes/front-porch.html"><strong aria-hidden="true">23.</strong> Front Porch</a></li><li class="chapter-item expanded "><a href="../../recipes/soba-speaks.html"><strong aria-hidden="true">24.</strong> Soba Speaks</a></li><li class="chapter-item expanded "><a href="../../recipes/held-vowels.html"><strong aria-hidden="true">25.</strong> Held Vowels</a></li><li class="chapter-item expanded "><a href="../../recipes/interlock.html"><strong aria-hidden="true">26.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../../recipes/cut-up.html"><strong aria-hidden="true">27.</strong> Cut-Up</a></li><li class="chapter-item expanded "><a href="../../recipes/breakdown.html"><strong aria-hidden="true">28.</strong> Breakdown</a></li><li class="chapter-item expanded affix "><li class="part-title">Songs</li><li class="chapter-item expanded "><a href="../../songs/from-one-sine.html"><strong aria-hidden="true">29.</strong> From One Sine</a></li><li class="chapter-item expanded "><a href="../../songs/clair-de-satellite.html"><strong aria-hidden="true">30.</strong> Clair de Satellite</a></li><li class="chapter-item expanded "><a href="../../songs/canopy.html"><strong aria-hidden="true">31.</strong> Canopy</a></li><li class="chapter-item expanded "><a href="../../songs/orrery.html"><strong aria-hidden="true">32.</strong> Orrery</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/modules/utilities/scenes.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="scenes"><a class="header" href="#scenes">Scenes</a></h1>
+<p><strong>Module ID</strong> <code>util.scenes</code> · <strong>Category</strong> Utility</p>
+<p>Scenes keeps the knobs of a patch as <strong>scenes</strong>, A to H, and glides between two of them with one knob. A verse and its breakdown, a dry sound and a drenched one, the calm before a drop: store each as a scene, and <strong>Morph</strong> carries every knob from one to the other at once. A change that would take eight hands becomes one gesture, and the space halfway between two scenes, where nobody set the knobs on purpose, is often where the good sounds are.</p>
+<p>The scenes live on the module, so you can see them in the patch, and they're saved with it.</p>
+<h2 id="what-a-scene-holds"><a class="header" href="#what-a-scene-holds">What a scene holds</a></h2>
+<p>A Scenes module at the top of the patch holds every knob and switch in the patch. Put one <strong>inside a group</strong>, and it holds only that group's knobs (and those of the groups inside it), so a voice can have scenes of its own without touching the drums.</p>
+<p>A scene leaves out the Audio Output, other Scenes modules, the keys a Keyboard or MIDI Note plays, and switches that start, stop or record rather than shape the sound (a Clock's <strong>Run</strong>, a Sampler's <strong>Rec</strong>, an Audio Input's <strong>Channel</strong>).</p>
+<h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Morph</strong></td><td>Control (Orange)</td><td>Replaces the Morph knob: 0 is the From scene, 1 the To scene. Patch an LFO (with <strong>Bipolar</strong> off), an envelope or an <a href="./arranger.html">Arranger</a> lane</td></tr>
+</tbody></table>
+</div>
+<h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Morph</strong></td><td>0 to 1</td><td>0</td><td>How far from the From scene to the To scene the knobs sit</td></tr>
+<tr><td><strong>From</strong></td><td>A to H</td><td>A</td><td>The scene at Morph 0</td></tr>
+<tr><td><strong>To</strong></td><td>A to H</td><td>B</td><td>The scene at Morph 1</td></tr>
+</tbody></table>
+</div>
+<h2 id="the-pads"><a class="header" href="#the-pads">The pads</a></h2>
+<p>Each pad is a scene. A pad with a scene in it draws the scene's knobs as a row of ticks, each as high as the knob is turned. The pad the knobs stand at right now is ringed in blue.</p>
+<ul>
+<li><strong>Click an empty pad</strong> to keep the knobs as they stand.</li>
+<li><strong>Click a full pad</strong> to recall it: every knob it holds jumps there.</li>
+<li><strong>Shift+click a full pad</strong> to keep the knobs there instead.</li>
+<li><strong>Alt+click a full pad</strong> to clear it.</li>
+</ul>
+<p>The From and To pads glow, each in proportion to how near Morph has carried the knobs to it, so the light crossfades from one to the other as Morph turns. Along the bottom, a dot rides a line from From to To. The header says what the module reaches (<strong>PATCH</strong>, or its group's name) and where Morph is.</p>
+<p>Keeping, recalling and clearing a scene are each one undo step.</p>
+<h2 id="morphing"><a class="header" href="#morphing">Morphing</a></h2>
+<p>As Morph moves, each knob the two scenes share moves from its place in one to its place in the other:</p>
+<ul>
+<li><strong>Knobs glide round their own travel</strong>, as a hand would turn them. A frequency knob moves by octaves, so halfway between 200 Hz and 3200 Hz is 800 Hz, not 1700.</li>
+<li><strong>Whole-number knobs, switches and dropdowns</strong> hold the From scene's setting until Morph passes halfway, then flip to the To scene's.</li>
+<li><strong>A knob a cable drives</strong> is left to the cable.</li>
+<li><strong>A knob only one scene holds</strong> (on a module added after the other was kept) stays where it is.</li>
+</ul>
+<p>The knobs turn on screen as Morph moves, and reach the sound through the same smoothing as a hand on the knob, so a glide has no zipper noise, even when an LFO drives it.</p>
+<p>Morph only moves the knobs when it moves. Turn a knob by hand after a glide and it stays where you put it until Morph moves again. Undo works the same way: undoing a turn of Morph (or a change of From or To) puts the knobs back with it.</p>
+<h3 id="driving-morph"><a class="header" href="#driving-morph">Driving Morph</a></h3>
+<ul>
+<li><strong>By hand:</strong> turn Morph, or map it to a MIDI controller (right-click it, <strong>MIDI Learn</strong>) and ride it.</li>
+<li><strong>An LFO:</strong> a very slow sine with <strong>Bipolar</strong> off breathes between two scenes. At 0.03 Hz it takes 32 seconds to go there and back.</li>
+<li><strong>The Arranger:</strong> patch a lane into Morph, and give each section a level. <strong>Jump</strong> switches scenes on the downbeat; <strong>Ramp</strong> glides over the section, for a build.</li>
+<li><strong>An envelope:</strong> a long ADSR swells into a scene and back as a key is held.</li>
+</ul>
+<h2 id="keeping-a-mutation"><a class="header" href="#keeping-a-mutation">Keeping a mutation</a></h2>
+<p><a href="../../getting-started/interface-overview.html#mutate">Mutate</a> wanders the knobs at random. When it lands somewhere you like, press <code>Ctrl + Shift + M</code> to keep the knobs in the next free scene of the Scenes module that reaches the selection (the one in its group, else the patch's). Then set From to the scene you started at and To to the new one, and Morph finds everything between them.</p>
+<h2 id="patches"><a class="header" href="#patches">Patches</a></h2>
+<p>The <a href="../../recipes/breakdown.html">Breakdown</a> recipe glides an acid line between a verse and a breakdown.</p>
+<h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
+<ul>
+<li><strong>Keep a home scene.</strong> Store A before you start exploring, so you can always click your way back.</li>
+<li><strong>Morph between near neighbours.</strong> Two scenes far apart sweep everything at once; two close ones make a subtle, living change.</li>
+<li><strong>Several Scenes modules</strong> can share a patch: one inside each group, each with its own Morph, and one at the top for the whole song.</li>
+<li><strong>In the render tool,</strong> the knobs sit where they were saved: the glide is the editor's, and an offline render doesn't move Morph's knobs.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../modules/utilities/arranger.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../modules/midi/midi-monitor.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../modules/utilities/arranger.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../modules/midi/midi-monitor.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
