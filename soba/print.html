@@ -7413,12 +7413,12 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <li><strong>Set the meter before the cross-rhythms.</strong> The Moon strikes in dotted eighths, three sixteenths apart, which on its own suggests a different bar. So the steady Twin and the heartbeat come in first, leaning on the beats. By the time the Moon and the drifting Twin have something to cross, you already know where the bar is.</li>
 </ul>
 <h2 id="modules-22"><a class="header" href="#modules-22">Modules</a></h2>
-<p>There are 174 modules of 26 kinds. The ones that do the work:</p>
+<p>There are 177 modules of 27 kinds. The ones that do the work:</p>
 <div class="table-wrapper"><table><thead><tr><th>Module</th><th>Role</th></tr></thead><tbody>
 <tr><td><a href="songs/../modules/modulation/clock.html">Clock</a></td><td><strong>BPM</strong> 112, <strong>Div</strong> 1/16</td></tr>
 <tr><td><a href="songs/../modules/utilities/divider.html">Clock Divider</a> ×10</td><td>Eighths, dotted eighths, bars and phrases; the Comet's five-eighth clock; the last bar of every eight, for fills; and two pairs of gears (bars at ÷5 and ÷7, sixteenths at ÷5 and ÷7)</td></tr>
 <tr><td><a href="songs/../modules/modulation/lfo.html">LFO</a> ×7</td><td>The orbits: the Day (triangle), the Sundial (saw) that sets the Day's dusk, the Tide (80 bars), the Breath (13 bars, which moves the bass), Moon A and B; and the Comet's vibrato</td></tr>
-<tr><td><a href="songs/../modules/utilities/logic.html">Logic</a> ×18</td><td>Who is up: one for each voice's height, two for the drums' steps, and the eclipses</td></tr>
+<tr><td><a href="songs/../modules/utilities/logic.html">Logic</a> ×20</td><td>Who is up: one for each voice's height, two for the drums' steps, and the eclipses; two more let only the drums you hear through to Seoul</td></tr>
 <tr><td><a href="songs/../modules/utilities/sample-hold.html">Sample &amp; Hold</a> ×5</td><td>The orbits read once a phrase, and the Moon's and Comet's notes</td></tr>
 <tr><td><a href="songs/../modules/utilities/quantizer.html">Quantizer</a> ×4</td><td>The Moon's and Comet's scale, and two used as steady voltages to set the slowest LFO rates</td></tr>
 <tr><td><a href="songs/../modules/utilities/chord-sequencer.html">Chord Sequencer</a></td><td>Em9, Cmaj9, G6, Dadd9, Em9, Am9, Cmaj7, Bsus4: a chord every four bars, for the pad and the bass's root</td></tr>
@@ -7433,6 +7433,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><a href="songs/../modules/utilities/mixer.html">Mixer</a> ×4</td><td>Sky, Earth, Pulse and Air, on one chain</td></tr>
 <tr><td><a href="songs/../modules/effects/tape.html">Tape</a></td><td>A little wow, saturation and age over the whole mix</td></tr>
 <tr><td><a href="songs/../modules/output/audio-output.html">Audio Output</a></td><td><strong>Vol</strong> 60%, <strong>Limiter</strong> and <strong>Character</strong> on</td></tr>
+<tr><td><a href="songs/../modules/output/link-out.html">Link Out</a></td><td>The orbits and the drums, sent to the Seoul visualizer</td></tr>
 </tbody></table>
 </div>
 <p>The rest are the voices' own oscillators, envelopes, VCAs and filters, and the Attenuverters and Mixes that scale the orbits.</p>
@@ -7449,6 +7450,21 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <p>The bass, heartbeat and drums need the Day <em>and</em> the Tide, so each of their Logics also takes the Tide's gate on <strong>B</strong> and passes <strong>AND</strong>. The bass and the kit swell with the Day too: they come in quieter in the morning and play out in full at noon.</p>
 <h3 id="the-drums-climb"><a class="header" href="#the-drums-climb">The drums climb</a></h3>
 <p>The Trigger Sequencer's <strong>Pattern</strong> input picks A, B, C or D from four quarters of its range. Three gates add up into it: past the kit's height, the drums step to B (+0.3); past halfway, to C (+0.25); and in the last bar of every eight, while the Day is past halfway, the fill (+0.3) takes them to D.</p>
+<h3 id="to-seoul"><a class="header" href="#to-seoul">To Seoul</a></h3>
+<p>At the top right, a <a href="songs/../modules/output/link-out.html">Link Out</a> sends the orrery to <a href="https://github.com/chrischaps/Seoul">Seoul</a>, a music visualizer, so the picture follows the song's own orbits rather than guessing at them from the sound. It follows Seoul's lane convention, so any of Seoul's link-aware presets plays along:</p>
+<div class="table-wrapper"><table><thead><tr><th>Lane</th><th>From</th><th>In Seoul</th></tr></thead><tbody>
+<tr><td><strong>CV 1</strong></td><td>The Day</td><td>Energy: the picture brightens toward noon and dims at dusk</td></tr>
+<tr><td><strong>CV 2</strong></td><td>The Breath</td><td>Color, turning every 13 bars</td></tr>
+<tr><td><strong>CV 3</strong></td><td>The Tide</td><td>Motion, which slows while the rhythm rests</td></tr>
+<tr><td><strong>CV 4</strong>, <strong>CV 5</strong></td><td>Moon A and Moon B</td><td>The melody's two orbits, for presets that read them (Obangsaek's white and black)</td></tr>
+<tr><td><strong>Gate 1</strong></td><td>The heartbeat and kick, while the heartbeat is up</td><td>The kick</td></tr>
+<tr><td><strong>Gate 2</strong></td><td>The clap, while the kit is up</td><td>The snare</td></tr>
+<tr><td><strong>Gate 3</strong></td><td>The closed hats, while the kit is up</td><td>The hats</td></tr>
+<tr><td><strong>Gate 4</strong></td><td>Each eclipse</td><td>A bloom, in Obangsaek</td></tr>
+</tbody></table>
+</div>
+<p>The Drums group runs its sequencer the whole song and leaves the faders to decide when it's heard, so its gates fire in the silence too. That's why gates 1 to 3 come through Logic <strong>AND</strong>s with the same "who is up" gates the faders follow: Seoul sees only the drums you hear. The Drums group has <strong>Clap</strong> and <strong>Hats</strong> outputs for them, beside its <strong>Kick</strong>.</p>
+<p>Link Out makes no sound, so the mix is exactly as it was. Try Seoul's <strong>Han River</strong> (fountains on the kick, fireworks on the clap) or <strong>Hongsalmun</strong> (a stride on every kick), and watch the city go dark through the Tide.</p>
 <h2 id="variations-15"><a class="header" href="#variations-15">Variations</a></h2>
 <ul>
 <li><strong>Line up the Twins.</strong> Open <strong>Twins → Fifteen</strong> and set its sequencer's <strong>Steps</strong> to 16. The two parts now play the figure in unison, and the drift is gone. Set it back to 15 to hear them slide apart again.</li>
