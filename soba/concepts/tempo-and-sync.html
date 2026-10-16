@@ -205,6 +205,13 @@
 <li><strong>starts, stops and continues</strong> when the master does. Start fires the Clock's <strong>Reset</strong> output, so patched sequencers start from step 1 on the downbeat.</li>
 </ul>
 <p>The whole patch then plays in the master's time: sequencers step on its grid, LFOs sweep with its bars, and the Delay echoes on its eighth notes. See <a href="../modules/modulation/clock.html#following-midi-clock">Following MIDI clock</a> for setting it up.</p>
+<p>Set <strong>Source</strong> to <strong>Link</strong> instead, and the Clock joins an <a href="https://www.ableton.com/link/">Ableton Link</a> session on the network. There's no master: Live, Bitwig, phone apps and other copies of Soba all share one tempo and one bar line, and any of them can change the tempo or start and stop the others. The Clock:</p>
+<ul>
+<li><strong>plays at the session's tempo</strong>, and its <strong>BPM</strong> knob turns to match when another app changes it. Turning the knob changes the tempo for everyone;</li>
+<li><strong>lines up its bars</strong> with the session's, so beat 1 is everyone's beat 1;</li>
+<li><strong>starts and stops with the session</strong>. Ticking its <strong>Run</strong> starts every app in it, on the next bar if others are already there.</li>
+</ul>
+<p>Where MIDI clock carries the master's time down a cable, Link has every app keep the same time from the network's shared clock. Each app allows for its own audio delay, so they agree on when a beat reaches the speakers, not just when it's computed. See <a href="../modules/modulation/clock.html#playing-in-a-link-session">Playing in a Link session</a>.</p>
 <h2 id="precision"><a class="header" href="#precision">Precision</a></h2>
 <p>The Clock counts its beat precisely enough that every pulse lands within a sample of where it belongs, even after ten minutes, so a slow phrase clock and a fast sixteenth clock started together stay together.</p>
 <p>Modules read the transport once per block of audio (a few milliseconds). Within the block, a synced LFO moves on at the tempo it read. When the beat jumps, as when the Clock restarts or a MIDI master suddenly changes tempo, a synced LFO can be up to one block late in following it. On a steady tempo, and from the next beat on, it's exact.</p>
