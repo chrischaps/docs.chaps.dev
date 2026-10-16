@@ -17,8 +17,8 @@
 
     
 <script type="module">
-import init, * as bindings from './soba-12f511b6388eac.js';
-const wasm = await init({ module_or_path: './soba-12f511b6388eac_bg.wasm' });
+import init, * as bindings from './soba-8b3fd4d985be3a6e.js';
+const wasm = await init({ module_or_path: './soba-8b3fd4d985be3a6e_bg.wasm' });
 
 
 window.wasmBindings = bindings;
@@ -107,6 +107,11 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
         window.addEventListener("keydown", (e) => {
             if (e.key === "F1") e.preventDefault();
         }, { capture: true });
+
+        // A patch link pasted into this tab's address bar changes only the
+        // fragment, which doesn't reload the page: the app picks it up and
+        // opens it, asking first if there are unsaved changes
+        window.addEventListener("hashchange", () => { window.sobaNewHash = location.hash; });
 
         // Files kept only in the tab (takes, trims, files dropped in) are
         // kept in IndexedDB too, so a reload, or an autosave recovered,
@@ -215,7 +220,7 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
         @keyframes flow { to { stroke-dashoffset: -24; } }
         @media (prefers-reduced-motion: reduce) { #loading .flow { animation: none; } }
     </style>
-<link rel="modulepreload" href="./soba-12f511b6388eac.js" crossorigin="anonymous" integrity="sha384-KaSiKbvYsevISg94d45X1t7uYOzQoIqEGE/Gi5btfeo1NgTvQMiOk7e/LeTR54eS"><link rel="preload" href="./soba-12f511b6388eac_bg.wasm" crossorigin="anonymous" integrity="sha384-88O5KdO9Dan+BtD6Q0P3jR4taOsbo4JYOfhU7K7KIFC9t2tqKKWMyAC1EW3ajqHZ" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="./soba-8b3fd4d985be3a6e.js" crossorigin="anonymous" integrity="sha384-YHiO4ySEpH1HvX/KctgGbu71y28++f25fDokTTDl5ZuG2K1W1QcG260D187KCdOs"><link rel="preload" href="./soba-8b3fd4d985be3a6e_bg.wasm" crossorigin="anonymous" integrity="sha384-g8REz8ioCqacRfLSWhC4NShdr6pNY0Hzko9gX/ZswNIb99vV2ajJIoANCsi0bowi" as="fetch" type="application/wasm"></head>
 
 <body>
     <canvas id="soba"></canvas>
