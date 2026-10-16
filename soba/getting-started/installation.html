@@ -288,7 +288,7 @@ cargo run --release
 <tr><td><code>--block-size N</code></td><td>256</td><td>Samples processed per block</td></tr>
 <tr><td><code>--audition</code></td><td>off</td><td>Plays a short phrase into the patch's Keyboard, MIDI Note and Poly MIDI modules</td></tr>
 <tr><td><code>--input FILE.wav</code></td><td>none</td><td>What <a href="../modules/sources/audio-input.html">Audio Input</a> modules hear, in place of an input device. It must be at the render's sample rate</td></tr>
-<tr><td><code>--cue FILE.txt</code></td><td>none</td><td>Parameter changes to play into the patch as it renders, one per line: <code>&lt;seconds&gt; param &lt;module&gt;[#n] &lt;parameter&gt; &lt;value&gt;</code>, as in a capture script. Press a <a href="../modules/utilities/looper.html">Looper</a>'s footswitches this way</td></tr>
+<tr><td><code>--cue FILE.txt</code></td><td>none</td><td>Parameter changes to play into the patch as it renders, one per line: <code>&lt;seconds&gt; param &lt;module&gt;[#n|@id] &lt;parameter&gt; &lt;value&gt;</code>, as in a capture script: <code>#n</code> is the nth of its kind, <code>@id</code> the module with that id in the patch file. Press a <a href="../modules/utilities/looper.html">Looper</a>'s footswitches this way</td></tr>
 <tr><td><code>--compare FILE.wav</code></td><td>none</td><td>An earlier render to measure against: prints how far peak, true peak, RMS, loudness and range have moved since</td></tr>
 </tbody></table>
 </div>
