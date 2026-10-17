@@ -184,7 +184,7 @@
 <p><strong>Module ID</strong> <code>output.midi</code> · <strong>Category</strong> Output</p>
 <p>MIDI Out plays other instruments from your patch: a hardware synth, a drum machine, or a soft synth in a DAW. A <strong>Gate</strong> and a <strong>Pitch</strong> cable become notes, a poly cable becomes chords, and four control cables become CCs. Turn on <strong>Send Clock</strong> and the patch's <a href="../modulation/clock.html">Clock</a> goes out too, so the other gear follows Soba's tempo, starts when it starts and stops when it stops.</p>
 <p>Patch a <a href="../utilities/sequencer.html">Step Sequencer</a> into it and the sequencer plays your synth. Patch a <a href="../utilities/chord-sequencer.html">Chord Sequencer</a> and it plays chords.</p>
-<p>MIDI Out makes no sound of its own. It works in the desktop app. In the browser it shows what it would send but sends nothing.</p>
+<p>MIDI Out makes no sound of its own. It works in the desktop app, and in the browser in Chrome, Edge and Firefox once you've clicked <strong>🎹 Connect MIDI</strong> (in the device menu on its face, or the toolbar's MIDI In). Safari has no MIDI.</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Pitch</strong></td><td>Control (Orange), poly</td><td>V/Oct, 0 = C4 (note 60), rounded to the nearest note. Read as each gate rises</td></tr>
@@ -212,10 +212,10 @@
 </ul>
 <h2 id="ports-not-devices"><a class="header" href="#ports-not-devices">Ports, not devices</a></h2>
 <p>A patch doesn't name a device. It names a <strong>port</strong>, A to D, and this computer remembers which device each port plays. Choose port A's device once and every MIDI Out on port A plays it, in this patch and the next. Share the patch and it plays whatever synth is on port A on the other computer. So it travels without either of you editing it.</p>
-<p>Click the device's name on the face to choose. The list shows every MIDI output this computer has, and it updates as you plug devices in. A port's device stays chosen while it's unplugged and plays again once it's back.</p>
+<p>Click the device's name on the face to choose. The list shows every MIDI output this computer has, and it updates as you plug devices in. In the browser the menu offers <strong>🎹 Connect MIDI</strong> first, until you've allowed it. A port's device stays chosen while it's unplugged and plays again once it's back.</p>
 <p>On Windows only one app can open a MIDI port at a time. If the lamp is red, close whatever else has the device (a DAW, or the maker's editor app), and MIDI Out tries again within a couple of seconds. To play a DAW on the same computer, use a virtual MIDI port such as <a href="https://www.tobias-erichsen.de/software/loopmidi.html">loopMIDI</a>: MIDI Out plays the port, and the DAW listens to it.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
-<p><strong>In time with the sound.</strong> Notes don't go out when the patch works them out. They go out when the audio beside them reaches your speakers, which is your audio device's delay later. So a hardware synth and Soba's own sounds play together, and each note is on time to within a millisecond or two.</p>
+<p><strong>In time with the sound.</strong> Notes don't go out when the patch works them out. They go out when the audio beside them reaches your speakers, which is your audio device's delay later. So a hardware synth and Soba's own sounds play together, and each note is on time to within a millisecond or two. The browser can't promise to send at a given millisecond, so there Soba hands each message over up to a tenth of a second early, with the moment it's due, and the browser sends it then.</p>
 <p><strong>Chords.</strong> Each channel of a poly cable is a voice. A Chord Sequencer's four-voice cable plays four-note chords, every note starting and ending with its own channel's gate. A one-channel Gate with a poly Pitch strikes the whole chord together. Two voices on the same note keep it sounding until the last of them lets go.</p>
 <p><strong>No stuck notes.</strong> Notes end cleanly:</p>
 <ul>
