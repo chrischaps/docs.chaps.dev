@@ -278,6 +278,7 @@
 <ul>
 <li>The LFO is monophonic. One LFO patched into a polyphonic module moves every voice together. See <a href="../../concepts/polyphony.html">Polyphony</a>.</li>
 <li>The Rate and Phase knobs are smoothed, so turning them while the LFO runs doesn't click or jump.</li>
+<li>Run up into the audio range with Rate CV (it goes to 1 kHz), the LFO still sounds clean: the Square's and Saw's jumps, the Triangle's corners and each Sync restart are smoothed over a few samples, so they don't alias or click. At ordinary rates that touches only the samples right at each edge.</li>
 <li>Pressing <strong>Play</strong> starts every LFO from the beginning of its cycle.</li>
 <li>See <a href="../../concepts/tempo-and-sync.html">Tempo and Sync</a> for how the patch's tempo and beat reach the LFO.</li>
 </ul>
