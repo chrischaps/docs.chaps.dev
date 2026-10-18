@@ -189,7 +189,7 @@
 <ul>
 <li><strong>Audio input.</strong> In the browser, the computer keyboard, the on-screen pianos and MIDI devices play the patch. MIDI devices work in Chrome, Edge and Firefox, after <strong>🎹 Connect MIDI</strong> (see <a href="./interface-overview.html#midi">MIDI</a>); Safari has no MIDI.</li>
 <li><strong>Recording</strong> to a WAV, and <strong>My Modules</strong>, which keep files in a folder.</li>
-<li><strong>Low latency.</strong> The browser plays sound through larger buffers, about a tenth of a second behind your playing, and twice that in Firefox. That's fine for listening and exploring, and loose for playing live.</li>
+<li><strong>The lowest latency.</strong> The browser adds its own delay on the way to the speakers, which the desktop app doesn't have. In Chrome, Edge and Firefox the full app renders its sound on the browser's audio thread in small buffers, so heavy patches play steadily and the keys answer as fast as the browser lets them. Safari, and the patches embedded in this manual, play through larger buffers: about a tenth of a second more behind your playing. That's fine for listening and exploring, and loose for playing live.</li>
 </ul>
 <p>On a phone or tablet, a patch opens zoomed out to fit the screen: pinch to zoom in, and drag the canvas to move around.</p>
 <p>Patches go in and out as files: <strong>💾 Save</strong> downloads the patch (as a zip with its samples, if it plays takes or files you've dropped), and <strong>📂 Open</strong> picks one to upload. Each recipe in this manual can be played on its page.</p>
