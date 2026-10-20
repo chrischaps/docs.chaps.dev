@@ -192,7 +192,7 @@
 <tr><td><strong>Reset</strong></td><td>Gate (Green)</td><td>A rising edge starts over: the next clock starts section 1</td></tr>
 <tr><td><strong>Jump</strong></td><td>Gate (Green)</td><td>A rising edge goes to the section <strong>Jump To</strong> picks, at the next bar line</td></tr>
 <tr><td><strong>Jump To</strong></td><td>Control (Orange)</td><td>The section a Jump goes to, as its number ÷ 32 (section 1 is 0, section 5 is 4/32). It reads the same as the <strong>Section</strong> output</td></tr>
-<tr><td><strong>Follow</strong></td><td>Control (Orange)</td><td>Patch another Arranger's <strong>Section</strong> here to <a href="#more-than-eight-lanes-follow">follow</a> it: its sections become this one's</td></tr>
+<tr><td><strong>Follow</strong></td><td>Control (Orange)</td><td>Patch another Arranger's <strong>Section</strong> here to <a href="#more-than-eight-lanes-follow">follow</a> it: its sections become this one's, and it goes wherever the leader goes</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -256,7 +256,7 @@
 </ul>
 <p>Each is one step of undo, and neither changes what you hear. The one thing that does change is the sections' numbers after it, so a <strong>Jump To</strong> CV that picked a later section by number needs moving too. <strong>Loop to</strong> follows by itself.</p>
 <h2 id="more-than-eight-lanes-follow"><a class="header" href="#more-than-eight-lanes-follow">More than eight lanes: Follow</a></h2>
-<p>A song can need more than eight lanes. Patch one Arranger's <strong>Section</strong> output into another's <strong>Follow</strong> input, and the second one <em>follows</em> the first. It has the first one's sections, the same number of them, as long, played as many times, with the same names, and the same <strong>Steps</strong> and <strong>Loop to</strong>. Its lanes are its own, and you edit them on its own face as before.</p>
+<p>A song can need more than eight lanes. Patch one Arranger's <strong>Section</strong> output into another's <strong>Follow</strong> input, and the second one <em>follows</em> the first. It has the first one's sections, the same number of them, as long, played as many times, with the same names and the same <a href="#wandering-where-a-section-goes-next">places to wander to</a>, and the same <strong>Steps</strong> and <strong>Loop to</strong>. Its lanes are its own, and you edit them on its own face as before.</p>
 <ul>
 <li><strong>Edit the sections on the leader.</strong> On the follower they can be picked but not changed, and its bar says <strong>Follows Desk</strong> (or whatever the leader is called). Its <strong>Steps</strong> knob and <strong>Loop to</strong> are the leader's too.</li>
 <li><strong>The follower's cues move with their sections.</strong> Add, copy, move, delete, split or merge a section on the leader, and the follower does the same with its own cues. A merge folds only copies that play the same on every Arranger down the chain. Lengthening or renaming a section does too. The leader's edit and the follower's are one step of undo, so undo takes both back.</li>
@@ -264,7 +264,7 @@
 <li><strong>Unpatch Follow</strong> and the follower keeps the sections it had, and you can edit them on it again. It keeps the view it had too, and zooms on its own from then on.</li>
 <li><strong>Chains.</strong> A follower can lead another, so three Arrangers give 24 lanes. A chain can't come back round: an Arranger that would end up following itself refuses the cable and says why. <strong>Follow</strong> takes only an Arranger's <strong>Section</strong>.</li>
 </ul>
-<p>Following happens in the editor, not in the sound. Two Arrangers that count the same Clock already change section on the same sample, so the cable only keeps their sections the same while you write. A patch plays the same with it or without it.</p>
+<p>Two Arrangers that count the same Clock already change section on the same sample. But a leader can <a href="#wandering-where-a-section-goes-next">wander</a>, or jump on a <strong>Jump</strong> of its own, so on every bar line a follower goes to the section its leader is in. It throws no dice of its own. A Jump patched into the leader alone moves the whole chain.</p>
 <h2 id="cues"><a class="header" href="#cues">Cues</a></h2>
 <p>Each section gives each lane one of four cues as the section starts:</p>
 <div class="table-wrapper"><table><thead><tr><th>Cue</th><th>What the lane does</th></tr></thead><tbody>
@@ -299,6 +299,20 @@
 <h3 id="looping-ending-and-jumping"><a class="header" href="#looping-ending-and-jumping">Looping, ending and jumping</a></h3>
 <p>After the last section, the song goes back to <strong>Loop to</strong>, and <strong>End</strong> fires. With <strong>Loop to</strong> off, <strong>End</strong> fires and the song stops where it is. The lanes keep their last levels, and the bars stop counting, until a Reset, a Jump or the next Play.</p>
 <p><strong>Jump</strong> waits for the next bar line, so a live change of section always lands on the beat. Patch a button, a <a href="../midi/note-in.html">Note In</a> gate or a <a href="./logic.html">Logic</a> decision into <strong>Jump</strong>, and a constant or a <a href="./sample-hold.html">Sample &amp; Hold</a> into <strong>Jump To</strong>. While a Jump waits, the section it's going to is outlined green.</p>
+<h2 id="wandering-where-a-section-goes-next"><a class="header" href="#wandering-where-a-section-goes-next">Wandering: where a section goes next</a></h2>
+<p>A song doesn't have to play in the order it's written. Right-click a section, and <strong>When it ends</strong> says where it may go:</p>
+<ul>
+<li><strong>On as written</strong> – the section after it, or <strong>Loop to</strong> after the last one, or stopping there with <strong>Loop to</strong> off.</li>
+<li><strong>Or…</strong> – up to two other places: any section (itself included, to maybe play it again), or <strong>Anywhere</strong>, which is any section but this one.</li>
+</ul>
+<p>Each place has a weight from 0 to 9, and its chance is its weight against the others'. <strong>Window</strong> with <em>on to Rain 1</em>, <em>Home 1</em>, <em>Late 1</em> goes each way a third of the time. <em>On 0</em> never goes on as written. <strong>Always on as written</strong> puts the section back in order.</p>
+<p>The dice are thrown on the downbeat of the section's last bar, on its last pass if it repeats. They don't wait for the bar line. Over the timeline, a faint arc leads from the end of each section that may wander to each place it may go, fainter the less likely it is, and a small <strong>?</strong> marks <strong>Anywhere</strong>. Once the dice are thrown, the arc to where they went lights green, a bar before the song gets there. A <strong>Jump</strong> that lands in that bar still wins.</p>
+<ul>
+<li><strong>Repeatable.</strong> The dice are seeded, so an offline render plays the same wandering every time, and so does the app each time the patch is opened. Stopping and starting again carries on with new throws.</li>
+<li><strong>End</strong> fires only when the last section goes on as written. A last section that wanders back into the song hasn't ended it.</li>
+<li><strong>Followers wander with their leader.</strong> A <a href="#more-than-eight-lanes-follow">follower</a> has its leader's places to go, and goes where its leader went. Its timeline lights the same arc.</li>
+<li><strong>Moving sections.</strong> Add, copy, move, delete, split or merge sections and each place keeps pointing at the section it named, wherever that has moved. One that names a deleted section is dropped. Splitting a section ×3 gives only the last copy its wandering, and a merge stops at a copy that may wander off.</li>
+</ul>
 <h2 id="how-patches-store-it"><a class="header" href="#how-patches-store-it">How patches store it</a></h2>
 <p>Every section's cue for every lane is one parameter, named for both: <code>Section 03 Lane 2</code> is section 3's cue for lane 2. Its value reads as digits, <strong>move</strong>, <strong>ramp bars</strong> and <strong>level</strong> in tenths of a percent. The move is 0 Hold, 1 Jump, 2 Ramp and 3 Hit, and a ramp on another curve takes 4 Linear, 5 Exp or 6 Log:</p>
 <div class="table-wrapper"><table><thead><tr><th>Value</th><th>Cue</th></tr></thead><tbody>
@@ -313,6 +327,7 @@
 </tbody></table>
 </div>
 <p>A ramp's start is a second parameter, <code>Section 03 Lane 2 From</code>: the level in tenths of a percent (<code>280</code> starts at 28%), or <code>-1</code> to start from where the lane is. Patches saved before ramps had curves and starts have no From parameters and only 2 for ramps, so they play as they always did.</p>
+<p>Where a section may go is <code>Next 01</code> to <code>Next 32</code>, read as digits too: the weight of going on as written, then each other place's section (<code>01</code> to <code>32</code>, or <code>00</code> for anywhere) and weight. <code>1062051</code> goes on with weight 1, to section 6 with weight 2 and to section 5 with weight 1. <code>0</code> (the default, and every patch from before) always goes on as written.</p>
 <p>The sections' lengths are <code>Length 01</code> to <code>Length 32</code>, their repeats <code>Repeat 01</code> to <code>Repeat 32</code> (a patch from before repeats plays every section ×1), the lanes' glides <code>Glide 1</code> to <code>Glide 8</code>, and <strong>Sections</strong> is how many sections the song has. The names you give sections and lanes, and the Arranger's own name, are saved with the module as labels. A follower saves its own copy of its leader's sections, so it plays them even where Follow isn't known.</p>
 <h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
 <ol>
@@ -322,6 +337,7 @@
 <li><strong>Pedals.</strong> Hit a Looper's <strong>Rec</strong> at the start of a section to record it, and its <strong>Clear</strong> at the top of the song so each pass starts fresh.</li>
 <li><strong>A brightness lane.</strong> Ramp a lane over a build and patch it through an <a href="./attenuverter.html">Attenuverter</a> into filter cutoffs or drive amounts: the whole build opens up together.</li>
 <li><strong>A shorter song.</strong> Set <strong>Loop to</strong> a later section, and the intro plays only once.</li>
+<li><strong>An endless song.</strong> Give each section a chance of going somewhere else, and set <strong>Loop to</strong> back near the start: the song never quite repeats. Weight its way home a little higher, so it keeps coming back to its centre.</li>
 <li><strong>Ride the room.</strong> Patch a lane into a <a href="./mixer.html">Mixer</a>'s <strong>Return</strong> with its knob at 0, and the lane is the reverb's fader: dry and close for the opening, the hall for the second verse. A lane into one channel's <strong>Send</strong> steps just that part into the room. <a href="../../songs/canopy.html#the-room">Canopy</a> does the first.</li>
 </ol>
 <h2 id="related"><a class="header" href="#related">Related</a></h2>
