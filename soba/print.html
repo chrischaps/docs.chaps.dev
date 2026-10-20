@@ -1441,18 +1441,19 @@ wait connect osc.sine Out -&gt; output.audio Mono
 <p><img src="modules/sources/../../images/module-noise.png" alt="Noise Module" />
 <em>White and Pink are patched, so their lines are lit; Brown, unpatched, is dimmed.</em></p>
 <p>Noise is a sound with no pitch: every frequency at once, at random. Through a filter and an envelope it becomes a snare, a hi-hat, a breath, wind or surf. Sampled by a clock, it becomes a melody that never repeats.</p>
-<p>The module makes three colours of noise, and a fourth output that wanders smoothly at modulation speed:</p>
+<p>The module makes three colours of noise, an output that wanders smoothly at modulation speed, and one that scatters triggers at random:</p>
 <ul>
 <li><strong>White</strong>: equal energy at every frequency. Bright, hissing, like steam or an untuned radio.</li>
 <li><strong>Pink</strong>: falls 3 dB per octave, so every octave holds the same energy. To the ear it is the most balanced noise: rain, surf, a waterfall.</li>
 <li><strong>Brown</strong>: falls 6 dB per octave. A deep, soft rumble, like wind or thunder far away. The name is for Robert Brown, whose random walk of pollen grains it imitates, not the colour.</li>
 <li><strong>Random</strong>: a smooth random voltage that glides to a new value <strong>Rate</strong> times a second.</li>
+<li><strong>Dust</strong>: single triggers at random moments, <strong>Rate</strong> of them a second on average. Crackle, raindrops, a ghost note now and then.</li>
 </ul>
 <p>Noise is polyphonic. Patch a polyphonic cable into <strong>Level</strong> or <strong>Rate</strong> and each voice plays noise of its own, so a four-note chord of filtered noise is four different hisses, not one copied four times.</p>
 <h2 id="inputs-1"><a class="header" href="#inputs-1">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Level</strong></td><td>Control (Orange)</td><td>Added to the <strong>Level</strong> knob, and followed instantly. An envelope here, with the knob at 0, shapes the noise into a hit</td></tr>
-<tr><td><strong>Rate</strong></td><td>Control (Orange)</td><td>Speeds up or slows down <strong>Random</strong>. Each +1 doubles the rate; -1 halves it</td></tr>
+<tr><td><strong>Rate</strong></td><td>Control (Orange)</td><td>Speeds up or slows down <strong>Random</strong> and <strong>Dust</strong>. Each +1 doubles the rate; -1 halves it</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs-1"><a class="header" href="#outputs-1">Outputs</a></h2>
@@ -1461,12 +1462,13 @@ wait connect osc.sine Out -&gt; output.audio Mono
 <tr><td><strong>Pink</strong></td><td>Audio (Blue)</td><td>Pink noise, about -12 dBFS RMS at full Level</td></tr>
 <tr><td><strong>Brown</strong></td><td>Audio (Blue)</td><td>Brown noise, about -12 dBFS RMS at full Level</td></tr>
 <tr><td><strong>Random</strong></td><td>Control (Orange)</td><td>A smooth random voltage between -1 and 1. <strong>Level</strong> doesn't affect it</td></tr>
+<tr><td><strong>Dust</strong></td><td>Gate (Green)</td><td>One-sample triggers at random moments, <strong>Rate</strong> a second on average. <strong>Level</strong> doesn't affect it</td></tr>
 </tbody></table>
 </div>
 <h2 id="parameters-1"><a class="header" href="#parameters-1">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Knob</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Level</strong></td><td>0 – 100%</td><td>50%</td><td>Level of White, Pink and Brown</td></tr>
-<tr><td><strong>Rate</strong></td><td>0.01 – 20 Hz</td><td>1 Hz</td><td>How many new values <strong>Random</strong> glides to each second</td></tr>
+<tr><td><strong>Rate</strong></td><td>0.01 – 20 Hz</td><td>1 Hz</td><td>How many new values <strong>Random</strong> glides to each second, and how many triggers <strong>Dust</strong> scatters</td></tr>
 </tbody></table>
 </div>
 <h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
@@ -1478,6 +1480,10 @@ wait connect osc.sine Out -&gt; output.audio Mono
 <h2 id="random"><a class="header" href="#random">Random</a></h2>
 <p><strong>Random</strong> picks a new value between -1 and 1 <strong>Rate</strong> times a second, and glides to it along a cosine curve. It arrives at each value at rest and leaves it smoothly, so it has no corners. It sounds less like a stepped sample-and-hold and more like something drifting: a filter that breathes, or a pitch that wavers like an old tape.</p>
 <p>At 0.05 Hz it takes twenty seconds to move, which is slow enough to change the character of a whole pad over time. At 10–20 Hz it becomes a fast flutter.</p>
+<h2 id="dust"><a class="header" href="#dust">Dust</a></h2>
+<p><strong>Dust</strong> fires a trigger one sample long at moments nobody can predict. Every sample has the same small chance of one, <strong>Rate</strong> over the sample rate, so the triggers fall the way raindrops do: on average <strong>Rate</strong> a second, sometimes two close together, sometimes a long gap. (It's a Poisson process, and the name comes from the Dust generators of SuperCollider.)</p>
+<p>At 0.5 Hz it's an occasional tick, a record's dust. At 20 Hz it's a steady drizzle, and <strong>Rate</strong> CV takes it up to a thousand a second, a hiss of grains. Random and Dust share <strong>Rate</strong>, so a Noise used for both moves them together; use a second Noise to set them apart.</p>
+<p>A trigger, not a level: patch Dust into anything that listens for a rising edge, like a <a href="modules/sources/./drum.html">Drum</a>'s <strong>Trig</strong>, an <a href="modules/sources/../modulation/adsr.html">ADSR</a>'s <strong>Gate</strong> (with a short decay) or a <a href="modules/sources/../utilities/sample-hold.html">Sample &amp; Hold</a>'s <strong>Trig</strong>. To let only some of a regular rhythm through instead, use <a href="modules/sources/../utilities/logic.html">Logic</a>'s <strong>Maybe</strong>.</p>
 <h2 id="patches-1"><a class="header" href="#patches-1">Patches</a></h2>
 <h3 id="random-melody"><a class="header" href="#random-melody">Random melody</a></h3>
 <p>The classic: noise, sampled on every clock pulse, played as pitch.</p>
@@ -1501,6 +1507,11 @@ wait connect osc.sine Out -&gt; output.audio Mono
 </code></pre>
 <p>Random sweeps a resonant band slowly through the noise, so it rises and falls like gusts. Use Brown for a deeper, more distant wind. Put a slow LFO on a VCA after it, at about 0.1 Hz, and the swell of waves comes and goes.</p>
 <p>The <a href="modules/sources/../../recipes/shoreline.html">Shoreline</a> example builds a whole beach this way, using every output of one Noise module: Pink and Brown for the surf, Random to vary the waves, and White, through a Sample &amp; Hold, to play a wind chime.</p>
+<h3 id="vinyl-crackle"><a class="header" href="#vinyl-crackle">Vinyl crackle</a></h3>
+<pre><code class="language-text">[Noise Dust] ──&gt; [Drum Trig]                    (Noise Rate 6 Hz; Drum: Rim, Tune +24, Decay short)
+[Drum Out] ──&gt; [SVF Filter In]                  (Cutoff 3 kHz, take HighPass)
+</code></pre>
+<p>Each trigger plays a tiny pitched-up click, at random, about six a second. Turn the Drum down until it sits under the music rather than on it. Patch Dust into a Sample &amp; Hold's <strong>Trig</strong> with White in its <strong>In</strong>, and the S&amp;H's <strong>Out</strong> into the Drum's <strong>Tune</strong>, and no two clicks are the same pitch.</p>
 <h2 id="related-modules-1"><a class="header" href="#related-modules-1">Related modules</a></h2>
 <ul>
 <li><a href="modules/sources/../utilities/sample-hold.html">Sample &amp; Hold</a>: turns noise into stepped random values</li>
@@ -1509,6 +1520,7 @@ wait connect osc.sine Out -&gt; output.audio Mono
 <li><a href="modules/sources/./drum.html">Drum</a>: a finished drum voice, with its noise and filters built in</li>
 <li><a href="modules/sources/../modulation/adsr.html">ADSR Envelope</a>: gives noise a shape in time</li>
 <li><a href="modules/sources/../modulation/lfo.html">LFO</a>: regular movement, where Random is irregular</li>
+<li><a href="modules/sources/../utilities/logic.html">Logic</a>: <strong>Maybe</strong> passes a regular rhythm only sometimes, where Dust has none</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="drum"><a class="header" href="#drum">Drum</a></h1>
 <p><strong>Module ID</strong> <code>source.drum</code> · <strong>Category</strong> Source</p>
@@ -4572,13 +4584,14 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <p><strong>Module ID</strong> <code>util.logic</code> · <strong>Category</strong> Utility</p>
 <p><img src="modules/utilities/../../images/module-logic.png" alt="Logic Module" />
 <em>A clock in A, an LFO in CV, nothing in B. The LFO is above the Threshold line, so B, standing in for Above, is lit. A clock pulse is high in A, so AND and OR are high too.</em></p>
-<p>Logic answers questions about gates. Are both of these high? Is either? Is exactly one? Its other half answers a question about a control voltage: is it above this line? The answer is a gate, so Logic is how a control signal reaches a gate input, which a cable alone can't do.</p>
+<p>Logic answers questions about gates. Are both of these high? Is either? Is exactly one? Its other half answers a question about a control voltage: is it above this line? The answer is a gate, so Logic is how a control signal reaches a gate input, which a cable alone can't do. And one answer is a throw of the dice: <strong>Maybe</strong> lets each gate at A through only sometimes.</p>
 <p>The node shows its working. Two small lamps at the left light while <strong>A</strong> and <strong>B</strong> are high. The four big lamps light while <strong>AND</strong>, <strong>OR</strong>, <strong>XOR</strong> and <strong>NOT A</strong> are, so the truth table plays out as the gates come and go. The <strong>column</strong> at the right is the CV, rising past the <strong>Threshold</strong> line and turning green when it's above. Drag the line to move the Threshold.</p>
 <h2 id="inputs-29"><a class="header" href="#inputs-29">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>A</strong></td><td>Gate (Green)</td><td>The first gate for AND, OR, XOR and NOT A</td></tr>
 <tr><td><strong>B</strong></td><td>Gate (Green)</td><td>The second gate for AND, OR and XOR. With nothing patched, B is <strong>Above</strong> (see below)</td></tr>
 <tr><td><strong>CV</strong></td><td>Control (Orange)</td><td>A voltage to compare with <strong>Threshold</strong>. Audio patches in too</td></tr>
+<tr><td><strong>Chance</strong></td><td>Control (Orange)</td><td>Added to the <strong>Chance</strong> knob</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs-31"><a class="header" href="#outputs-31">Outputs</a></h2>
@@ -4588,11 +4601,13 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <tr><td><strong>XOR</strong></td><td>Gate (Green)</td><td>High while exactly one of A and B is high</td></tr>
 <tr><td><strong>NOT A</strong></td><td>Gate (Green)</td><td>High while A is low. With nothing in A it's always high</td></tr>
 <tr><td><strong>Above</strong></td><td>Gate (Green)</td><td>High while CV is above <strong>Threshold</strong></td></tr>
+<tr><td><strong>Maybe</strong></td><td>Gate (Green)</td><td>A, sometimes: each gate at A passes whole, or not at all, by <strong>Chance</strong></td></tr>
 </tbody></table>
 </div>
 <h2 id="parameters-31"><a class="header" href="#parameters-31">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Knob</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Thresh</strong></td><td>-1 – 1</td><td>0.5</td><td>Where <strong>Above</strong> switches</td></tr>
+<tr><td><strong>Chance</strong></td><td>0 – 100%</td><td>50%</td><td>How likely each gate at A is to reach <strong>Maybe</strong></td></tr>
 </tbody></table>
 </div>
 <h2 id="how-it-works-16"><a class="header" href="#how-it-works-16">How it works</a></h2>
@@ -4611,7 +4626,15 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <h3 id="b-is-normalled-to-above"><a class="header" href="#b-is-normalled-to-above">B is normalled to Above</a></h3>
 <p>With nothing patched into <strong>B</strong>, B reads <strong>Above</strong>, the way a jack on a hardware module can be wired to a signal until a cable is plugged in. The lamp under B says <strong>= Above</strong> while it does. So one Logic, with a clock in <strong>A</strong> and a control voltage in <strong>CV</strong>, gives a clock that runs only while the CV is high, at <strong>AND</strong>. Patch anything into B and it's an ordinary input again.</p>
 <p>With nothing in CV either, Above is low at the default Threshold, so an empty B behaves like an empty jack.</p>
+<h3 id="sometimes"><a class="header" href="#sometimes">Sometimes</a></h3>
+<p>Each time A rises, Logic throws the dice: at a <strong>Chance</strong> of 25%, one gate in four on average gets through to <strong>Maybe</strong>, and which ones nobody knows. A gate that wins passes whole, for as long as A stays high, and one that loses stays shut even if <strong>Chance</strong> rises while it's held. At 100% every gate passes; at 0, none.</p>
+<p>Each Logic throws its own dice, and an offline render throws the same ones every time, so a render you liked can be made again.</p>
 <h2 id="patches-14"><a class="header" href="#patches-14">Patches</a></h2>
+<h3 id="ghost-notes"><a class="header" href="#ghost-notes">Ghost notes</a></h3>
+<pre><code class="language-text">[Clock Gate] ──&gt; [Logic A]                     (Clock at sixteenths)
+[Logic Maybe] ──&gt; [Drum Trig]                  (Chance 20%; a quiet, short Drum)
+</code></pre>
+<p>A hat that plays one sixteenth in five, never the same ones twice, under a steady beat. Patch a slow <a href="modules/utilities/../modulation/lfo.html">LFO</a> into <strong>Chance</strong> and the fills thicken and thin as it moves. For triggers with no grid at all, use <a href="modules/utilities/../sources/noise.html">Noise</a>'s <strong>Dust</strong>.</p>
 <h3 id="a-clock-that-waits-for-the-wind"><a class="header" href="#a-clock-that-waits-for-the-wind">A clock that waits for the wind</a></h3>
 <pre><code class="language-text">[Clock Gate] ──&gt; [Logic A]
 [Noise Random] ──&gt; [Logic CV]                  (Thresh -0.3; B empty)
@@ -4642,6 +4665,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <li><a href="modules/utilities/./divider.html">Clock Divider</a>: rhythms to combine</li>
 <li><a href="modules/utilities/../../recipes/interlock.html">Interlock</a>: a gamelan-style example built around AND, OR, XOR and an empty B</li>
 <li><a href="modules/utilities/../modulation/clock.html">Clock</a>: the pulse to gate</li>
+<li><a href="modules/utilities/../sources/noise.html">Noise</a>: <strong>Dust</strong> gives random triggers off any grid; <strong>Random</strong> is a CV to compare</li>
 <li><a href="modules/utilities/../sources/audio-input.html">Audio Input</a>: gates from a microphone or instrument</li>
 <li><a href="modules/utilities/./attenuverter.html">Attenuverter</a>: scale a control signal before <strong>CV</strong>, or turn a gate into a control voltage</li>
 </ul>

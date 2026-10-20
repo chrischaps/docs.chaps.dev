@@ -185,18 +185,19 @@
 <p><img src="../../images/module-noise.png" alt="Noise Module" />
 <em>White and Pink are patched, so their lines are lit; Brown, unpatched, is dimmed.</em></p>
 <p>Noise is a sound with no pitch: every frequency at once, at random. Through a filter and an envelope it becomes a snare, a hi-hat, a breath, wind or surf. Sampled by a clock, it becomes a melody that never repeats.</p>
-<p>The module makes three colours of noise, and a fourth output that wanders smoothly at modulation speed:</p>
+<p>The module makes three colours of noise, an output that wanders smoothly at modulation speed, and one that scatters triggers at random:</p>
 <ul>
 <li><strong>White</strong>: equal energy at every frequency. Bright, hissing, like steam or an untuned radio.</li>
 <li><strong>Pink</strong>: falls 3 dB per octave, so every octave holds the same energy. To the ear it is the most balanced noise: rain, surf, a waterfall.</li>
 <li><strong>Brown</strong>: falls 6 dB per octave. A deep, soft rumble, like wind or thunder far away. The name is for Robert Brown, whose random walk of pollen grains it imitates, not the colour.</li>
 <li><strong>Random</strong>: a smooth random voltage that glides to a new value <strong>Rate</strong> times a second.</li>
+<li><strong>Dust</strong>: single triggers at random moments, <strong>Rate</strong> of them a second on average. Crackle, raindrops, a ghost note now and then.</li>
 </ul>
 <p>Noise is polyphonic. Patch a polyphonic cable into <strong>Level</strong> or <strong>Rate</strong> and each voice plays noise of its own, so a four-note chord of filtered noise is four different hisses, not one copied four times.</p>
 <h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Level</strong></td><td>Control (Orange)</td><td>Added to the <strong>Level</strong> knob, and followed instantly. An envelope here, with the knob at 0, shapes the noise into a hit</td></tr>
-<tr><td><strong>Rate</strong></td><td>Control (Orange)</td><td>Speeds up or slows down <strong>Random</strong>. Each +1 doubles the rate; -1 halves it</td></tr>
+<tr><td><strong>Rate</strong></td><td>Control (Orange)</td><td>Speeds up or slows down <strong>Random</strong> and <strong>Dust</strong>. Each +1 doubles the rate; -1 halves it</td></tr>
 </tbody></table>
 </div>
 <h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
@@ -205,12 +206,13 @@
 <tr><td><strong>Pink</strong></td><td>Audio (Blue)</td><td>Pink noise, about -12 dBFS RMS at full Level</td></tr>
 <tr><td><strong>Brown</strong></td><td>Audio (Blue)</td><td>Brown noise, about -12 dBFS RMS at full Level</td></tr>
 <tr><td><strong>Random</strong></td><td>Control (Orange)</td><td>A smooth random voltage between -1 and 1. <strong>Level</strong> doesn't affect it</td></tr>
+<tr><td><strong>Dust</strong></td><td>Gate (Green)</td><td>One-sample triggers at random moments, <strong>Rate</strong> a second on average. <strong>Level</strong> doesn't affect it</td></tr>
 </tbody></table>
 </div>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Knob</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Level</strong></td><td>0 – 100%</td><td>50%</td><td>Level of White, Pink and Brown</td></tr>
-<tr><td><strong>Rate</strong></td><td>0.01 – 20 Hz</td><td>1 Hz</td><td>How many new values <strong>Random</strong> glides to each second</td></tr>
+<tr><td><strong>Rate</strong></td><td>0.01 – 20 Hz</td><td>1 Hz</td><td>How many new values <strong>Random</strong> glides to each second, and how many triggers <strong>Dust</strong> scatters</td></tr>
 </tbody></table>
 </div>
 <h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
@@ -222,6 +224,10 @@
 <h2 id="random"><a class="header" href="#random">Random</a></h2>
 <p><strong>Random</strong> picks a new value between -1 and 1 <strong>Rate</strong> times a second, and glides to it along a cosine curve. It arrives at each value at rest and leaves it smoothly, so it has no corners. It sounds less like a stepped sample-and-hold and more like something drifting: a filter that breathes, or a pitch that wavers like an old tape.</p>
 <p>At 0.05 Hz it takes twenty seconds to move, which is slow enough to change the character of a whole pad over time. At 10–20 Hz it becomes a fast flutter.</p>
+<h2 id="dust"><a class="header" href="#dust">Dust</a></h2>
+<p><strong>Dust</strong> fires a trigger one sample long at moments nobody can predict. Every sample has the same small chance of one, <strong>Rate</strong> over the sample rate, so the triggers fall the way raindrops do: on average <strong>Rate</strong> a second, sometimes two close together, sometimes a long gap. (It's a Poisson process, and the name comes from the Dust generators of SuperCollider.)</p>
+<p>At 0.5 Hz it's an occasional tick, a record's dust. At 20 Hz it's a steady drizzle, and <strong>Rate</strong> CV takes it up to a thousand a second, a hiss of grains. Random and Dust share <strong>Rate</strong>, so a Noise used for both moves them together; use a second Noise to set them apart.</p>
+<p>A trigger, not a level: patch Dust into anything that listens for a rising edge, like a <a href="./drum.html">Drum</a>'s <strong>Trig</strong>, an <a href="../modulation/adsr.html">ADSR</a>'s <strong>Gate</strong> (with a short decay) or a <a href="../utilities/sample-hold.html">Sample &amp; Hold</a>'s <strong>Trig</strong>. To let only some of a regular rhythm through instead, use <a href="../utilities/logic.html">Logic</a>'s <strong>Maybe</strong>.</p>
 <h2 id="patches"><a class="header" href="#patches">Patches</a></h2>
 <h3 id="random-melody"><a class="header" href="#random-melody">Random melody</a></h3>
 <p>The classic: noise, sampled on every clock pulse, played as pitch.</p>
@@ -245,6 +251,11 @@
 </code></pre>
 <p>Random sweeps a resonant band slowly through the noise, so it rises and falls like gusts. Use Brown for a deeper, more distant wind. Put a slow LFO on a VCA after it, at about 0.1 Hz, and the swell of waves comes and goes.</p>
 <p>The <a href="../../recipes/shoreline.html">Shoreline</a> example builds a whole beach this way, using every output of one Noise module: Pink and Brown for the surf, Random to vary the waves, and White, through a Sample &amp; Hold, to play a wind chime.</p>
+<h3 id="vinyl-crackle"><a class="header" href="#vinyl-crackle">Vinyl crackle</a></h3>
+<pre><code class="language-text">[Noise Dust] ──&gt; [Drum Trig]                    (Noise Rate 6 Hz; Drum: Rim, Tune +24, Decay short)
+[Drum Out] ──&gt; [SVF Filter In]                  (Cutoff 3 kHz, take HighPass)
+</code></pre>
+<p>Each trigger plays a tiny pitched-up click, at random, about six a second. Turn the Drum down until it sits under the music rather than on it. Patch Dust into a Sample &amp; Hold's <strong>Trig</strong> with White in its <strong>In</strong>, and the S&amp;H's <strong>Out</strong> into the Drum's <strong>Tune</strong>, and no two clicks are the same pitch.</p>
 <h2 id="related-modules"><a class="header" href="#related-modules">Related modules</a></h2>
 <ul>
 <li><a href="../utilities/sample-hold.html">Sample &amp; Hold</a>: turns noise into stepped random values</li>
@@ -253,6 +264,7 @@
 <li><a href="./drum.html">Drum</a>: a finished drum voice, with its noise and filters built in</li>
 <li><a href="../modulation/adsr.html">ADSR Envelope</a>: gives noise a shape in time</li>
 <li><a href="../modulation/lfo.html">LFO</a>: regular movement, where Random is irregular</li>
+<li><a href="../utilities/logic.html">Logic</a>: <strong>Maybe</strong> passes a regular rhythm only sometimes, where Dust has none</li>
 </ul>
 
                     </main>
