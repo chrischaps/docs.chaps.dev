@@ -369,6 +369,9 @@ python tools/plugin_bundle.py --install  # ...and copies it where DAWs look
 <tr><td><code>--compare FILE.wav</code></td><td>none</td><td>An earlier render to measure against: prints how far peak, true peak, RMS, loudness and range have moved since</td></tr>
 <tr><td><code>--bench</code></td><td>off</td><td>Times the render: how long processing took, how many times faster than real time that is, and the five modules that took longest</td></tr>
 <tr><td><code>--runs N</code></td><td>3 with <code>--bench</code></td><td>Renders this many times and reports the fastest</td></tr>
+<tr><td><code>--trace OUTPUTS FILE.csv</code></td><td>none</td><td>Follows module outputs as the patch plays and writes them to a CSV (see <a href="getting-started/installation.html#following-a-song">Following a song</a>)</td></tr>
+<tr><td><code>--trace-every S</code></td><td>one block</td><td>How often <code>--trace</code> writes a row, in seconds</td></tr>
+<tr><td><code>--stems FOLDER</code></td><td>none</td><td>Writes each <a href="getting-started/../modules/utilities/mixer.html">Mixer</a> channel with something patched into it, and each Mixer's return, to a WAV of its own</td></tr>
 </tbody></table>
 </div>
 <p>A patch that waits for a player renders silence unless something inside it plays notes (a Clock or Step Sequencer, say) or you add <code>--audition</code>. Audio Input modules render silence unless you give them a file with <code>--input</code>. <a href="getting-started/../modules/sources/sampler.html">Samplers</a> find their files relative to the patch, as the app does.</p>
@@ -396,6 +399,25 @@ against before.wav:
   util.vca (node 4)                   32.4 ns/sample    2%
 </code></pre>
 <p>That is Lush Pad, auditioned. <strong>Realtime</strong> is how much faster than playback it rendered: below 1x it couldn't keep up live. Below it are the modules that took longest, by their module and their id in the patch file, in nanoseconds per sample and as a share of the whole. Lush Pad's oscillator plays every held voice, so it takes the most. Timing each module costs a little in itself, so the whole runs a few percent slower than it would without <code>--bench</code>.</p>
+<h3 id="following-a-song"><a class="header" href="#following-a-song">Following a song</a></h3>
+<p>A level for the whole mix says little about a song that changes as it goes. Two options take it apart, from the same render, without changing what it sounds like.</p>
+<p><code>--trace</code> follows outputs of the patch's modules, named as <code>--cue</code> names them, a colon, then the output (quote the list: output names have spaces). It writes a CSV with a row every <code>--trace-every</code> seconds: the time at the end of the row, then a column for each output. An audio output gives its RMS over the row, its voices summed. A gate gives its highest, so a trigger anywhere in the row reads 1. A CV gives where it ended. Here are Canopy's sections as they go by, and how loud its second Mixer plays:</p>
+<pre><code class="language-text">cargo run --release --bin render -- patches/canopy.json out.wav --seconds 120 \
+    --trace "seq.arranger:Section,seq.arranger:Bar,util.mixer#2:Out L" trace.csv --trace-every 10
+</code></pre>
+<pre><code class="language-text">seconds,"seq.arranger:Section","seq.arranger:Bar","util.mixer#2:Out L"
+10.0000,0.000000,1.000000,0.025193
+20.0000,0.031250,1.000000,0.070801
+...
+70.0000,0.125000,1.000000,0.124964
+</code></pre>
+<p>The <a href="getting-started/../modules/utilities/arranger.html">Arranger</a>'s Section is the index of the section playing ÷ 32, so 0.125 is the fifth.</p>
+<p><code>--stems FOLDER</code> writes each Mixer channel that has something patched into it to a stereo WAV of its own, and each Mixer's return, named by the Mixer's id in the patch file and the channel (<code>util.mixer@126-ch2.wav</code>). A stem is the channel after its Level, Pan, Mute and Solo and the Mixer's Master, before the soft clip that keeps a hot mix from clipping hard, so a Mixer's stems add up to its mix. A chained Mixer's mix arrives on its own stems, not on the Mixer it joins. Each stem is listed with what feeds it and its levels:</p>
+<pre><code class="language-text">stems -&gt; stems:
+  util.mixer@126 Ch 1      &lt;- util.vca@70 Out              peak  -16.0 dBFS   rms  -24.0 dBFS   util.mixer@126-ch1.wav
+  util.mixer@126 Ch 2      &lt;- util.vca@46 Out              peak   -9.4 dBFS   rms  -25.3 dBFS   util.mixer@126-ch2.wav
+  util.mixer@127 Return    &lt;- fx.reverb@128 Out L          peak   -5.6 dBFS   rms  -26.0 dBFS   util.mixer@127-return.wav
+</code></pre>
 <h2 id="microphone-access"><a class="header" href="#microphone-access">Microphone access</a></h2>
 <p>Soba opens a microphone or other input only when you choose one in the toolbar's <strong>Input</strong> menu.</p>
 <ul>
