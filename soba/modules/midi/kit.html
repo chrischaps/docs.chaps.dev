@@ -1,0 +1,292 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Kit - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded "><a href="../../getting-started/lessons.html"><strong aria-hidden="true">4.</strong> Lessons</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../../concepts/signal-types.html"><strong aria-hidden="true">5.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../../concepts/connections.html"><strong aria-hidden="true">6.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../../concepts/polyphony.html"><strong aria-hidden="true">7.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../../concepts/tempo-and-sync.html"><strong aria-hidden="true">8.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../../concepts/groups.html"><strong aria-hidden="true">9.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../../modules/index.html"><strong aria-hidden="true">10.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../modules/sources/oscillator.html"><strong aria-hidden="true">10.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../../modules/sources/noise.html"><strong aria-hidden="true">10.2.</strong> Noise</a></li><li class="chapter-item "><a href="../../modules/sources/drum.html"><strong aria-hidden="true">10.3.</strong> Drum</a></li><li class="chapter-item "><a href="../../modules/sources/resonator.html"><strong aria-hidden="true">10.4.</strong> Resonator</a></li><li class="chapter-item "><a href="../../modules/sources/sampler.html"><strong aria-hidden="true">10.5.</strong> Sampler</a></li><li class="chapter-item "><a href="../../modules/sources/chopper.html"><strong aria-hidden="true">10.6.</strong> Chopper</a></li><li class="chapter-item "><a href="../../modules/sources/cloud.html"><strong aria-hidden="true">10.7.</strong> Cloud</a></li><li class="chapter-item "><a href="../../modules/sources/audio-input.html"><strong aria-hidden="true">10.8.</strong> Audio Input</a></li><li class="chapter-item "><a href="../../modules/midi/note-in.html"><strong aria-hidden="true">10.9.</strong> Note In</a></li><li class="chapter-item "><a href="../../modules/midi/controls.html"><strong aria-hidden="true">10.10.</strong> Controls</a></li><li class="chapter-item "><a href="../../modules/midi/pads.html"><strong aria-hidden="true">10.11.</strong> Pads</a></li><li class="chapter-item "><a href="../../modules/midi/instrument.html"><strong aria-hidden="true">10.12.</strong> Instrument</a></li><li class="chapter-item expanded "><a href="../../modules/midi/kit.html" class="active"><strong aria-hidden="true">10.13.</strong> Kit</a></li><li class="chapter-item "><a href="../../modules/filters/svf-filter.html"><strong aria-hidden="true">10.14.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../../modules/filters/ladder-filter.html"><strong aria-hidden="true">10.15.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../../modules/modulation/adsr.html"><strong aria-hidden="true">10.16.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../../modules/modulation/lfo.html"><strong aria-hidden="true">10.17.</strong> LFO</a></li><li class="chapter-item "><a href="../../modules/modulation/slope.html"><strong aria-hidden="true">10.18.</strong> Slope</a></li><li class="chapter-item "><a href="../../modules/effects/delay.html"><strong aria-hidden="true">10.19.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../../modules/effects/reverb.html"><strong aria-hidden="true">10.20.</strong> Reverb</a></li><li class="chapter-item "><a href="../../modules/effects/eq.html"><strong aria-hidden="true">10.21.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../../modules/effects/distortion.html"><strong aria-hidden="true">10.22.</strong> Distortion</a></li><li class="chapter-item "><a href="../../modules/effects/chorus.html"><strong aria-hidden="true">10.23.</strong> Chorus</a></li><li class="chapter-item "><a href="../../modules/effects/tape.html"><strong aria-hidden="true">10.24.</strong> Tape</a></li><li class="chapter-item "><a href="../../modules/effects/slicer.html"><strong aria-hidden="true">10.25.</strong> Slicer</a></li><li class="chapter-item "><a href="../../modules/effects/compressor.html"><strong aria-hidden="true">10.26.</strong> Compressor</a></li><li class="chapter-item "><a href="../../modules/effects/vocoder.html"><strong aria-hidden="true">10.27.</strong> Vocoder</a></li><li class="chapter-item "><a href="../../modules/modulation/clock.html"><strong aria-hidden="true">10.28.</strong> Clock</a></li><li class="chapter-item "><a href="../../modules/utilities/vca.html"><strong aria-hidden="true">10.29.</strong> VCA</a></li><li class="chapter-item "><a href="../../modules/utilities/attenuverter.html"><strong aria-hidden="true">10.30.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../../modules/utilities/mix.html"><strong aria-hidden="true">10.31.</strong> Mix</a></li><li class="chapter-item "><a href="../../modules/utilities/mixer.html"><strong aria-hidden="true">10.32.</strong> Mixer</a></li><li class="chapter-item "><a href="../../modules/utilities/sample-hold.html"><strong aria-hidden="true">10.33.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../../modules/utilities/quantizer.html"><strong aria-hidden="true">10.34.</strong> Quantizer</a></li><li class="chapter-item "><a href="../../modules/utilities/divider.html"><strong aria-hidden="true">10.35.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../../modules/utilities/logic.html"><strong aria-hidden="true">10.36.</strong> Logic</a></li><li class="chapter-item "><a href="../../modules/utilities/looper.html"><strong aria-hidden="true">10.37.</strong> Looper</a></li><li class="chapter-item "><a href="../../modules/visualization/oscilloscope.html"><strong aria-hidden="true">10.38.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../../modules/visualization/dancer.html"><strong aria-hidden="true">10.39.</strong> Dancer</a></li><li class="chapter-item "><a href="../../modules/utilities/sequencer.html"><strong aria-hidden="true">10.40.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/chord-sequencer.html"><strong aria-hidden="true">10.41.</strong> Chord Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">10.42.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/arranger.html"><strong aria-hidden="true">10.43.</strong> Arranger</a></li><li class="chapter-item "><a href="../../modules/utilities/scenes.html"><strong aria-hidden="true">10.44.</strong> Scenes</a></li><li class="chapter-item "><a href="../../modules/midi/midi-monitor.html"><strong aria-hidden="true">10.45.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../../modules/output/audio-output.html"><strong aria-hidden="true">10.46.</strong> Audio Output</a></li><li class="chapter-item "><a href="../../modules/output/link-out.html"><strong aria-hidden="true">10.47.</strong> Link Out</a></li><li class="chapter-item "><a href="../../modules/output/midi-out.html"><strong aria-hidden="true">10.48.</strong> MIDI Out</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Playing Hardware</li><li class="chapter-item expanded "><a href="../../hardware/instruments.html"><strong aria-hidden="true">11.</strong> Instrument Profiles</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../hardware/digitakt.html"><strong aria-hidden="true">11.1.</strong> Digitakt</a></li><li class="chapter-item "><a href="../../hardware/sp-404mkii.html"><strong aria-hidden="true">11.2.</strong> SP-404MKII</a></li><li class="chapter-item "><a href="../../hardware/rc-505.html"><strong aria-hidden="true">11.3.</strong> RC-505</a></li><li class="chapter-item "><a href="../../hardware/rc-505mkii.html"><strong aria-hidden="true">11.4.</strong> RC-505mkII</a></li><li class="chapter-item "><a href="../../hardware/microfreak.html"><strong aria-hidden="true">11.5.</strong> MicroFreak</a></li><li class="chapter-item "><a href="../../hardware/polyend-tracker.html"><strong aria-hidden="true">11.6.</strong> Polyend Tracker</a></li><li class="chapter-item "><a href="../../hardware/volca-fm.html"><strong aria-hidden="true">11.7.</strong> volca fm</a></li><li class="chapter-item "><a href="../../hardware/volca-drum.html"><strong aria-hidden="true">11.8.</strong> volca drum</a></li><li class="chapter-item "><a href="../../hardware/fantom-06.html"><strong aria-hidden="true">11.9.</strong> FANTOM-06</a></li><li class="chapter-item "><a href="../../hardware/zoia.html"><strong aria-hidden="true">11.10.</strong> ZOIA</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../../recipes/basic-subtractive.html"><strong aria-hidden="true">12.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../../recipes/fm-synthesis.html"><strong aria-hidden="true">13.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../../recipes/lush-pad.html"><strong aria-hidden="true">14.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../../recipes/sampled-keys.html"><strong aria-hidden="true">15.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../../recipes/live-looper.html"><strong aria-hidden="true">16.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../../recipes/generative-ambient.html"><strong aria-hidden="true">17.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../../recipes/shoreline.html"><strong aria-hidden="true">18.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../../recipes/rhythmic-sequence.html"><strong aria-hidden="true">19.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../../recipes/backbeat.html"><strong aria-hidden="true">20.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../../recipes/drum-machine.html"><strong aria-hidden="true">21.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../../recipes/roll-call.html"><strong aria-hidden="true">22.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../../recipes/pad-kit.html"><strong aria-hidden="true">23.</strong> Pad Kit</a></li><li class="chapter-item expanded "><a href="../../recipes/hands-on.html"><strong aria-hidden="true">24.</strong> Hands On</a></li><li class="chapter-item expanded "><a href="../../recipes/pinwheel.html"><strong aria-hidden="true">25.</strong> Pinwheel</a></li><li class="chapter-item expanded "><a href="../../recipes/afterglow.html"><strong aria-hidden="true">26.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../../recipes/front-porch.html"><strong aria-hidden="true">27.</strong> Front Porch</a></li><li class="chapter-item expanded "><a href="../../recipes/soba-speaks.html"><strong aria-hidden="true">28.</strong> Soba Speaks</a></li><li class="chapter-item expanded "><a href="../../recipes/held-vowels.html"><strong aria-hidden="true">29.</strong> Held Vowels</a></li><li class="chapter-item expanded "><a href="../../recipes/interlock.html"><strong aria-hidden="true">30.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../../recipes/cut-up.html"><strong aria-hidden="true">31.</strong> Cut-Up</a></li><li class="chapter-item expanded "><a href="../../recipes/choir-of-one.html"><strong aria-hidden="true">32.</strong> Choir of One</a></li><li class="chapter-item expanded "><a href="../../recipes/breakdown.html"><strong aria-hidden="true">33.</strong> Breakdown</a></li><li class="chapter-item expanded "><a href="../../recipes/sympathetic-strings.html"><strong aria-hidden="true">34.</strong> Sympathetic Strings</a></li><li class="chapter-item expanded affix "><li class="part-title">Songs</li><li class="chapter-item expanded "><a href="../../songs/from-one-sine.html"><strong aria-hidden="true">35.</strong> From One Sine</a></li><li class="chapter-item expanded "><a href="../../songs/clair-de-satellite.html"><strong aria-hidden="true">36.</strong> Clair de Satellite</a></li><li class="chapter-item expanded "><a href="../../songs/canopy.html"><strong aria-hidden="true">37.</strong> Canopy</a></li><li class="chapter-item expanded "><a href="../../songs/orrery.html"><strong aria-hidden="true">38.</strong> Orrery</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/modules/midi/kit.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="kit"><a class="header" href="#kit">Kit</a></h1>
+<p><strong>Module ID</strong> <code>source.kit</code> · <strong>Category</strong> Source</p>
+<p>A Kit is a drum machine, sampler or groovebox as a node. An <a href="./instrument.html">Instrument</a> plays one voice, but a drum machine doesn't. A Digitakt has a track on each channel, the SP-404MKII's pads are notes, and a volca drum has a channel for each part. Choose one on the Kit's face, and its eight <strong>lanes</strong> take the device's own parts by name: <strong>Track 1</strong> to <strong>Track 8</strong>, <strong>Pad 1</strong> to <strong>Pad 8</strong>, <strong>Part 1</strong> to <strong>Part 6</strong>.</p>
+<p>Each lane has a <strong>Gate</strong> and a <strong>Vel</strong> jack, in the same order as a <a href="../utilities/trigger-sequencer.html">Trigger Sequencer</a>'s outputs. Patch the sequencer's eight lanes straight across, and it plays the device's eight tracks.</p>
+<p>The Kit has twelve knobs, as an Instrument does: the device's own controls, by name, each with a jack. It makes no sound of its own. The hardware does.</p>
+<h2 id="choosing-what-it-plays"><a class="header" href="#choosing-what-it-plays">Choosing what it plays</a></h2>
+<p>Click <strong>Choose a kit</strong> on the face for the list of kit <a href="../../hardware/instruments.html">profiles</a>: the Digitakt, the SP-404MKII, the volca drum, and any kits of your own. Choosing one:</p>
+<ul>
+<li>gives each lane one of the device's parts, its first eight in order;</li>
+<li>gives each knob one of its parameters, as an Instrument's does;</li>
+<li>sets <strong>Ch</strong> to the device's channel, and <strong>Port</strong> to the port whose device looks like it;</li>
+<li>and sends every knob to the device.</li>
+</ul>
+<p>It's one step to undo. <strong>None</strong>, at the bottom of the list, empties the lanes and the knobs.</p>
+<h2 id="inputs"><a class="header" href="#inputs">Inputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Track 1</strong>, <strong>Pad 13</strong>… (one per lane)</td><td>Gate (Green)</td><td>Strikes the lane's part as it rises, and lets the note go as it falls</td></tr>
+<tr><td><strong>Track 1 Vel</strong>… (one per lane)</td><td>Control (Orange)</td><td>How hard the lane strikes, 0 to 1, read at the moment its gate rises. Unpatched, the <strong>Velocity</strong> knob says</td></tr>
+<tr><td><strong>Filter Freq</strong>, <strong>Decay</strong>… (one per knob)</td><td>Control (Orange)</td><td>As an <a href="./instrument.html#inputs">Instrument's</a>: 0 to 1 across the knob's travel</td></tr>
+</tbody></table>
+</div>
+<p>Each lane's jacks are named for its part. An empty lane's are called <strong>Gate 1</strong> and <strong>Vel 1</strong> to <strong>Gate 8</strong> and <strong>Vel 8</strong>, as they are in the patch file. Every input is optional. The module has no outputs.</p>
+<h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Port</strong></td><td>A – H</td><td>A</td><td>Which device plays, as <a href="../output/midi-out.html#ports-not-devices">MIDI Out's ports</a> do</td></tr>
+<tr><td><strong>Ch</strong></td><td>1 – 16</td><td>1</td><td>The channel for parts without one of their own, and for the knobs, unless they turn a track</td></tr>
+<tr><td><strong>Velocity</strong></td><td>0 – 1</td><td>0.8</td><td>How hard a lane strikes while its Vel jack is unpatched</td></tr>
+<tr><td><strong>Slot 1</strong> … <strong>Slot 12</strong></td><td>0 – 1</td><td>0.5</td><td>Each knob's travel, as an Instrument's</td></tr>
+</tbody></table>
+</div>
+<p><strong>Track</strong>, the lane whose track the knobs turn, is chosen from the pads (see below).</p>
+<h2 id="the-display"><a class="header" href="#the-display">The display</a></h2>
+<p>The top is an Instrument's: the lamp, the device and the channel, then the profile's name and <strong>Send all</strong>. The knobs are at the bottom. Between them:</p>
+<ul>
+<li><strong>Eight pads</strong>, two rows of four, each named for the part its lane plays. A pad flashes green as its lane strikes, brighter the harder it was struck, and stays softly lit while its gate is open. Each pad has its lane's number in a corner.</li>
+<li><strong>The Velocity knob</strong>, at the right.</li>
+</ul>
+<p><strong>Click a pad</strong> to choose the part its lane plays. The menu lists every part the profile has, so a lane can play any of the SP-404MKII's sixteen pads, not only the first eight. <strong>Nothing</strong> empties the lane. Hover over a pad to see exactly what it sends: <strong>Pad 13 · note 36 (C2) on channel 1</strong>.</p>
+<h2 id="tracks-and-the-knobs"><a class="header" href="#tracks-and-the-knobs">Tracks and the knobs</a></h2>
+<p>Some devices take the same CCs on every track, each on its track's own channel. The Digitakt's Filter Frequency on channel 3 turns track 3's filter. On a device like that, the knobs turn one track at a time. That pad wears an <strong>orange bar</strong>. To turn another track, click its pad and choose <strong>Knobs turn this track</strong>.</p>
+<p>Turning the knobs to another track sends nothing. The track keeps its sound until you move a knob, and then only that knob is sent. <strong>Send all</strong> sends every knob to the track the knobs turn.</p>
+<p>The SP-404MKII is different: its pads are notes, and its knobs are its effects. Its knobs stay on their own channels whichever pad you click.</p>
+<h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
+<p><strong>A strike.</strong> A lane's gate rising sends a Note On: its part's note, on its part's channel, or on <strong>Ch</strong> if the part has none. A part with only a channel (a volca drum's, which any note plays) is struck with middle C (note 60). The gate falling sends the Note Off. Notes go out in time with the sound, stamped with their sample, as <a href="../output/midi-out.html#how-it-works">MIDI Out's</a> do. A busy port's budget never holds back a note.</p>
+<p><strong>No stuck notes.</strong> A note is let go when its gate falls, when its jack is unplugged, when its lane is given another part, and when the Clock stops. Two lanes playing the same part share its note: the second strikes it again, and it's let go when the last of them falls.</p>
+<p><strong>The profile is read, not copied.</strong> As an Instrument's knobs do, each lane plays its profile's part of that name, so a note corrected in the profile reaches every patch. The patch writes each lane's part down too, so it still plays on a computer without the profile.</p>
+<h2 id="playing-it"><a class="header" href="#playing-it">Playing it</a></h2>
+<ul>
+<li><strong>The Digitakt's eight tracks from Soba.</strong> A <a href="../modulation/clock.html">Clock</a> into a <a href="../utilities/trigger-sequencer.html">Trigger Sequencer</a>, its eight lanes and their velocities into a Kit playing the <strong>Digitakt</strong>. Program a beat on the sequencer's grid. A Soba hi-hat from the same sequencer plays in time with the hardware.</li>
+<li><strong>Pads for the SP-404MKII.</strong> The same sequencer into a Kit playing the <strong>SP-404MKII</strong>. Click a pad to move its lane to any of the sixteen, the bottom row's (13 to 16) say.</li>
+<li><strong>A filter on one track.</strong> Click a Digitakt pad, choose <strong>Knobs turn this track</strong>, and patch an <a href="../modulation/lfo.html">LFO</a> into <strong>Filter Freq</strong>. Only that track sweeps.</li>
+</ul>
+<h2 id="related"><a class="header" href="#related">Related</a></h2>
+<ul>
+<li><a href="./instrument.html">Instrument</a>: a synth, played from Gate and Pitch</li>
+<li><a href="../../hardware/instruments.html">Instrument Profiles</a>: the kits that ship, and how to make your own (<code>"kind": "kit"</code> with its <code>"parts"</code>)</li>
+<li><a href="../utilities/trigger-sequencer.html">Trigger Sequencer</a>: eight lanes to play it with</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../modules/midi/instrument.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../modules/filters/svf-filter.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../modules/midi/instrument.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../modules/filters/svf-filter.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
