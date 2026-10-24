@@ -494,7 +494,7 @@ against before.wav:
 <tr><td>Nudge it</td><td>Hold <code>Alt</code> and scroll over it, or click it and press the arrow keys</td></tr>
 <tr><td>Set an exact value</td><td>Right-click, type into <strong>Value</strong> and press <code>Enter</code>: <code>440</code>, <code>1.2 kHz</code>, <code>250 ms</code>, <code>-6 dB</code>, <code>C#3</code></td></tr>
 <tr><td>Return to the default</td><td>Double-click, press <code>Home</code> once you've clicked it, or right-click and <strong>Reset</strong></td></tr>
-<tr><td>Map to a MIDI controller</td><td>Right-click, then <strong>Learn MIDI CC</strong></td></tr>
+<tr><td>Map to a MIDI controller</td><td>Right-click, then <strong>Learn MIDI</strong></td></tr>
 <tr><td>Let the DAW automate it (in the <a href="getting-started/installation.html#the-plugin-clap-and-vst3">plugin</a>)</td><td>Right-click, then <strong>Map to Macro</strong></td></tr>
 </tbody></table>
 </div>
@@ -612,13 +612,23 @@ against before.wav:
 <p><strong>In the browser</strong>, <strong>MIDI In</strong> starts as a <strong>🎹 Connect MIDI</strong> button. A web page may use MIDI only once you allow it, so click it and your browser asks; Firefox first offers a small add-on for the site that allows it. Then the menu lists your controllers, and a controller you plug in later appears by itself, with no Refresh needed. Allowing it lets <a href="getting-started/../modules/output/midi-out.html">MIDI Out</a> play your devices too. If you said no, allow MIDI in the site settings (the icon to the left of the address) and click <strong>Connect MIDI</strong> again. Chrome, Edge and Firefox have MIDI; Safari doesn't, and the button says so.</p>
 <p>Two modules listen to the controller: <a href="getting-started/../modules/midi/note-in.html">Note In</a>, for one voice or chords, and <a href="getting-started/../modules/midi/midi-monitor.html">MIDI Monitor</a> to see what's arriving.</p>
 <h3 id="midi-learn"><a class="header" href="#midi-learn">MIDI Learn</a></h3>
-<p>Any knob can follow a MIDI controller's knob or fader:</p>
+<p>Any knob, toggle or dropdown can follow a control on your MIDI controller: a knob, a fader, a pad or a key. So can the <a href="getting-started/../modules/utilities/looper.html">Looper</a>'s footswitches, the <a href="getting-started/../modules/sources/sampler.html">Sampler</a>'s <strong>Rec</strong> and the pads of <a href="getting-started/../modules/utilities/scenes.html">Scenes</a>.</p>
 <ol>
-<li>Right-click the knob and choose <strong>Learn MIDI CC</strong>. A purple <strong>M</strong> badge blinks above it.</li>
-<li>Move the control on your MIDI controller.</li>
+<li>Right-click it and choose <strong>Learn MIDI</strong>. A purple badge blinks on it, and the status bar asks you to move something.</li>
+<li>Turn a knob, move a fader, or hit a pad on your controller.</li>
 </ol>
-<p>The badge stops blinking and stays, and the knob now follows that control across its full range. Right-click it again to <strong>Re-learn MIDI CC</strong> or <strong>Clear MIDI</strong>. Mappings are saved with the patch.</p>
-<p>To back out before moving a control, press <code>Escape</code>, or right-click the blinking knob and choose <strong>Cancel MIDI Learn</strong>. Choosing <strong>Learn MIDI CC</strong> on a different knob moves learn mode to that knob instead.</p>
+<p>The badge stops blinking and stays. Right-click again to see what it's mapped to (<code>CC 74 · ch 1</code>, or <code>C2 · ch 10</code> for a pad), to <strong>Re-learn MIDI</strong>, or to <strong>Clear MIDI</strong>. Mappings are saved with the patch, and playing them isn't added to the undo history.</p>
+<p>What a control does depends on what it's mapped to:</p>
+<div class="table-wrapper"><table><thead><tr><th>Mapped to</th><th>A knob or fader (a CC)</th><th>A pad or key (a note)</th></tr></thead><tbody>
+<tr><td>A knob</td><td>turns it across its range</td><td>holds it at the top while held</td></tr>
+<tr><td>A toggle</td><td>switches it on from halfway up</td><td>flips it on each hit</td></tr>
+<tr><td>A dropdown</td><td>sweeps through the choices</td><td>steps to the next choice, and round</td></tr>
+<tr><td>A footswitch or <strong>Rec</strong></td><td>presses it from halfway up</td><td>presses it while held</td></tr>
+<tr><td>A Scenes pad</td><td>recalls the scene from halfway up</td><td>recalls the scene</td></tr>
+</tbody></table>
+</div>
+<p>A mapping listens on the MIDI channel it was learned on, so the keys and the pads of one controller can send the same note numbers without mixing up. (Mappings made before Soba learned channels still listen on all of them.)</p>
+<p>To back out before moving anything, press <code>Escape</code>, or right-click the blinking control and choose <strong>Cancel MIDI Learn</strong>. Choosing <strong>Learn MIDI</strong> on a different control moves learn mode there instead.</p>
 <h2 id="recording"><a class="header" href="#recording">Recording</a></h2>
 <p>When something good happens (a filter sweep you rode by hand, a lucky generative passage, an improvisation on a MIDI keyboard), press <strong>● Rec</strong> or <code>Ctrl + R</code> to keep it. If the patch is stopped, Rec starts it.</p>
 <p>While recording, the button turns red, with a slowly pulsing light and the length of the take so far. Press it again, press <code>Ctrl + R</code>, or press <strong>⏹ Stop</strong> to end the take. A note pops up in the corner with the take's name and length, and <strong>📂 Show in folder</strong> opens it in your file manager.</p>
@@ -1755,7 +1765,7 @@ wait connect osc.sine Out -&gt; output.audio Mono
 <li><strong>Stopping.</strong> Rec again, the <strong>Rec</strong> gate falling, the bars running out, or the room: a take lasts at most a minute. Stopping the transport ends a take there.</li>
 <li><strong>The Rec jack</strong> takes over from the button, as <strong>Freeze</strong> does on the Vocoder: the Sampler records while the gate is high. A sequencer's gate resamples a phrase on cue.</li>
 <li><strong>Tidied as they're kept.</strong> Right-click <strong>Rec</strong> and tick <strong>Tidy takes</strong>, and each take is trimmed to its sound and set to −16 dBFS RMS as it's kept (see <a href="modules/sources/sampler.html#tidy-takes">Tidy takes</a>).</li>
-<li><strong>On a footswitch.</strong> Right-click <strong>Rec</strong> to learn a MIDI CC for it.</li>
+<li><strong>On a footswitch or a pad.</strong> Right-click <strong>Rec</strong> and choose <strong>Learn MIDI</strong>, then press a MIDI footswitch or hit a pad.</li>
 </ul>
 <p>Live input reaches the patch a round trip after it was played, so the take is written that much earlier, as the <a href="modules/sources/../utilities/looper.html">Looper</a>'s overdubs are. A take in bars begins with what you played on the bar line, within a few milliseconds at the latency your device reports. The patch's own sound has no round trip, and is taken as it comes.</p>
 <p>While a take comes in, the panel draws it in red, across a span that doubles whenever the take outgrows it, with the time so far in the corner and <strong>Rec</strong> showing ■. The Sampler goes on playing its old file until the take is done. Recording needs the patch playing.</p>
@@ -2315,13 +2325,13 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 <p>With several voices, each voice slides from <strong>its own</strong> previous note. Change chords with Glide up and every voice takes its own path, crossing and converging, the way the voices of a vintage polysynth do. A stolen voice slides from wherever it was. <strong>Mode</strong> decides where each slide starts: with <strong>Reuse</strong>, a note played again returns to the voice that last played it, so it doesn't slide at all; with <strong>Rotate</strong>, the voices take turns, so each slide starts from a different note of the last chord or two. In <strong>Legato</strong> mode a chord struck from nothing starts on its own pitches: notes arriving within 30 ms of the first count as part of that chord, since no hand strikes every key at once.</p>
 <p>To hear it, open First Sound and turn <strong>Glide</strong> to about 200 ms. Hold <strong>Z</strong> (C) and tap <strong>B</strong> (G): the pitch slides up to G and, when you let go of B, back down to C.</p>
 <h2 id="midi-learn-1"><a class="header" href="#midi-learn-1">MIDI Learn</a></h2>
-<p>Any knob in the patch can follow a MIDI controller (a mod wheel, a fader, a knob on your keyboard). This works with or without a Note In in the patch.</p>
+<p>Any knob in the patch can follow a MIDI controller (a mod wheel, a fader, a knob on your keyboard), and so can toggles, dropdowns and footswitches, from pads as well as knobs. This works with or without a Note In in the patch.</p>
 <ol>
-<li>Right-click the knob and choose <strong>Learn MIDI CC</strong>. A purple <strong>M</strong> badge blinks above it, and the status bar asks you to move a control.</li>
+<li>Right-click the knob and choose <strong>Learn MIDI</strong>. A purple <strong>M</strong> badge blinks above it, and the status bar asks you to move a control.</li>
 <li>Move the knob or fader on your controller. The badge stops blinking: the knob is mapped.</li>
 </ol>
 <p>Changed your mind, or no controller to hand? Press <code>Escape</code>, or right-click the blinking knob and choose <strong>Cancel MIDI Learn</strong>, and nothing is mapped. Starting learn on another knob moves it there instead.</p>
-<p>The controller sweeps the knob's whole range, on any MIDI channel. Right-click a mapped knob to see its CC number, to <strong>Re-learn MIDI CC</strong>, or to <strong>Clear MIDI</strong>. Mappings are saved with the patch. Moves made by a controller aren't added to the undo history.</p>
+<p>The controller sweeps the knob's whole range, on the channel it was learned on. Right-click a mapped knob to see its CC number and channel, to <strong>Re-learn MIDI</strong>, or to <strong>Clear MIDI</strong>. Mappings are saved with the patch. Moves made by a controller aren't added to the undo history. <a href="modules/midi/../../getting-started/interface-overview.html#midi-learn">MIDI Learn</a> in the interface overview says what pads do to each kind of control.</p>
 <h2 id="patch-examples-1"><a class="header" href="#patch-examples-1">Patch examples</a></h2>
 <p>The smallest playable voice, as in the First Sound example, with <strong>Voices</strong> at 1:</p>
 <pre><code class="language-text">[Note In Pitch] ──&gt; [Oscillator V/Oct]
@@ -4720,7 +4730,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 </div>
 <h2 id="footswitches"><a class="header" href="#footswitches">Footswitches</a></h2>
 <p>The four buttons under the ring do what the gate inputs do. Each one is labelled with what it does next: <strong>Rec</strong> reads <em>Play</em> while recording, <em>Dub</em> while playing, and <em>Play</em> while overdubbing, and <strong>Undo</strong> reads <em>Redo</em> once a layer has been taken back. Pressing a footswitch plays the Looper rather than editing the patch, so it isn't an undo step.</p>
-<p>Right-click a footswitch and choose <strong>Learn MIDI CC</strong> to press it from a MIDI controller. A footswitch pedal on a MIDI interface works this way: any CC value from 64 up presses it. A learned footswitch wears a small purple dot.</p>
+<p>Right-click a footswitch and choose <strong>Learn MIDI</strong> to press it from a MIDI controller. A footswitch pedal on a MIDI interface works this way: any CC value from 64 up presses it. So does a pad, which presses it for as long as it's held: four pads of a pad controller make a looper's pedalboard. A learned footswitch wears a small purple dot.</p>
 <h2 id="parameters-32"><a class="header" href="#parameters-32">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Speed</strong></td><td>½×, 1×, 2×</td><td>1×</td><td>Playback speed, as on tape: ½× plays an octave down and twice as long</td></tr>
@@ -5644,6 +5654,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <li><strong>Click a full pad</strong> to recall it: every knob it holds jumps there.</li>
 <li><strong>Shift+click a full pad</strong> to keep the knobs there instead.</li>
 <li><strong>Alt+click a full pad</strong> to clear it.</li>
+<li><strong>Right-click a pad and choose Learn MIDI</strong>, then hit a pad on your controller, to recall the scene from it. A mapped pad wears a small purple dot.</li>
 </ul>
 <p>The From and To pads glow, each in proportion to how near Morph has carried the knobs to it, so the light crossfades from one to the other as Morph turns. Along the bottom, a dot rides a line from From to To. The header says what the module reaches (<strong>PATCH</strong>, or its group's name) and where Morph is.</p>
 <p>Keeping, recalling and clearing a scene are each one undo step.</p>
@@ -5659,7 +5670,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <p>Morph only moves the knobs when it moves. Turn a knob by hand after a glide and it stays where you put it until Morph moves again. Undo works the same way: undoing a turn of Morph (or a change of From or To) puts the knobs back with it.</p>
 <h3 id="driving-morph"><a class="header" href="#driving-morph">Driving Morph</a></h3>
 <ul>
-<li><strong>By hand:</strong> turn Morph, or map it to a MIDI controller (right-click it, <strong>MIDI Learn</strong>) and ride it.</li>
+<li><strong>By hand:</strong> turn Morph, or map it to a MIDI controller (right-click it, <strong>Learn MIDI</strong>) and ride it.</li>
 <li><strong>An LFO:</strong> a very slow sine with <strong>Bipolar</strong> off breathes between two scenes. At 0.03 Hz it takes 32 seconds to go there and back.</li>
 <li><strong>The Arranger:</strong> patch a lane into Morph, and give each section a level. <strong>Jump</strong> switches scenes on the downbeat; <strong>Ramp</strong> glides over the section, for a build.</li>
 <li><strong>An envelope:</strong> a long ADSR swells into a scene and back as a key is held.</li>
@@ -6208,7 +6219,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <p>The click goes straight to the Mixer, never through the Looper, so it isn't recorded. Mute channels 1 and 2 when you no longer need it. The echo is a dotted eighth, ping-ponging, with tape wobble: it fills the space between a picked guitar's notes.</p>
 <h2 id="things-to-try-1"><a class="header" href="#things-to-try-1">Things to try</a></h2>
 <ul>
-<li><strong>Learn a footswitch.</strong> Right-click <strong>Rec</strong> on the Looper, choose <strong>Learn MIDI CC</strong>, and press a MIDI pedal. Now your hands stay on the instrument.</li>
+<li><strong>Learn a footswitch.</strong> Right-click <strong>Rec</strong> on the Looper, choose <strong>Learn MIDI</strong>, and press a MIDI pedal or hit a pad. Now your hands stay on the instrument.</li>
 <li><strong>Octave down.</strong> Set <strong>Speed</strong> to ½× after recording a guitar part: it becomes a bass line, twice as long.</li>
 <li><strong>Free time.</strong> Set <strong>Bars</strong> to Free and unpatch the Looper's <strong>Clock</strong>: the loop is exactly as long as you held it, for playing out of time.</li>
 <li><strong>Effects on the loop only.</strong> Patch <strong>Loop L/R</strong> through a filter or the Distortion while <strong>Out</strong> carries you dry.</li>

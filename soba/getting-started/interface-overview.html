@@ -243,7 +243,7 @@
 <tr><td>Nudge it</td><td>Hold <code>Alt</code> and scroll over it, or click it and press the arrow keys</td></tr>
 <tr><td>Set an exact value</td><td>Right-click, type into <strong>Value</strong> and press <code>Enter</code>: <code>440</code>, <code>1.2 kHz</code>, <code>250 ms</code>, <code>-6 dB</code>, <code>C#3</code></td></tr>
 <tr><td>Return to the default</td><td>Double-click, press <code>Home</code> once you've clicked it, or right-click and <strong>Reset</strong></td></tr>
-<tr><td>Map to a MIDI controller</td><td>Right-click, then <strong>Learn MIDI CC</strong></td></tr>
+<tr><td>Map to a MIDI controller</td><td>Right-click, then <strong>Learn MIDI</strong></td></tr>
 <tr><td>Let the DAW automate it (in the <a href="installation.html#the-plugin-clap-and-vst3">plugin</a>)</td><td>Right-click, then <strong>Map to Macro</strong></td></tr>
 </tbody></table>
 </div>
@@ -361,13 +361,23 @@
 <p><strong>In the browser</strong>, <strong>MIDI In</strong> starts as a <strong>🎹 Connect MIDI</strong> button. A web page may use MIDI only once you allow it, so click it and your browser asks; Firefox first offers a small add-on for the site that allows it. Then the menu lists your controllers, and a controller you plug in later appears by itself, with no Refresh needed. Allowing it lets <a href="../modules/output/midi-out.html">MIDI Out</a> play your devices too. If you said no, allow MIDI in the site settings (the icon to the left of the address) and click <strong>Connect MIDI</strong> again. Chrome, Edge and Firefox have MIDI; Safari doesn't, and the button says so.</p>
 <p>Two modules listen to the controller: <a href="../modules/midi/note-in.html">Note In</a>, for one voice or chords, and <a href="../modules/midi/midi-monitor.html">MIDI Monitor</a> to see what's arriving.</p>
 <h3 id="midi-learn"><a class="header" href="#midi-learn">MIDI Learn</a></h3>
-<p>Any knob can follow a MIDI controller's knob or fader:</p>
+<p>Any knob, toggle or dropdown can follow a control on your MIDI controller: a knob, a fader, a pad or a key. So can the <a href="../modules/utilities/looper.html">Looper</a>'s footswitches, the <a href="../modules/sources/sampler.html">Sampler</a>'s <strong>Rec</strong> and the pads of <a href="../modules/utilities/scenes.html">Scenes</a>.</p>
 <ol>
-<li>Right-click the knob and choose <strong>Learn MIDI CC</strong>. A purple <strong>M</strong> badge blinks above it.</li>
-<li>Move the control on your MIDI controller.</li>
+<li>Right-click it and choose <strong>Learn MIDI</strong>. A purple badge blinks on it, and the status bar asks you to move something.</li>
+<li>Turn a knob, move a fader, or hit a pad on your controller.</li>
 </ol>
-<p>The badge stops blinking and stays, and the knob now follows that control across its full range. Right-click it again to <strong>Re-learn MIDI CC</strong> or <strong>Clear MIDI</strong>. Mappings are saved with the patch.</p>
-<p>To back out before moving a control, press <code>Escape</code>, or right-click the blinking knob and choose <strong>Cancel MIDI Learn</strong>. Choosing <strong>Learn MIDI CC</strong> on a different knob moves learn mode to that knob instead.</p>
+<p>The badge stops blinking and stays. Right-click again to see what it's mapped to (<code>CC 74 · ch 1</code>, or <code>C2 · ch 10</code> for a pad), to <strong>Re-learn MIDI</strong>, or to <strong>Clear MIDI</strong>. Mappings are saved with the patch, and playing them isn't added to the undo history.</p>
+<p>What a control does depends on what it's mapped to:</p>
+<div class="table-wrapper"><table><thead><tr><th>Mapped to</th><th>A knob or fader (a CC)</th><th>A pad or key (a note)</th></tr></thead><tbody>
+<tr><td>A knob</td><td>turns it across its range</td><td>holds it at the top while held</td></tr>
+<tr><td>A toggle</td><td>switches it on from halfway up</td><td>flips it on each hit</td></tr>
+<tr><td>A dropdown</td><td>sweeps through the choices</td><td>steps to the next choice, and round</td></tr>
+<tr><td>A footswitch or <strong>Rec</strong></td><td>presses it from halfway up</td><td>presses it while held</td></tr>
+<tr><td>A Scenes pad</td><td>recalls the scene from halfway up</td><td>recalls the scene</td></tr>
+</tbody></table>
+</div>
+<p>A mapping listens on the MIDI channel it was learned on, so the keys and the pads of one controller can send the same note numbers without mixing up. (Mappings made before Soba learned channels still listen on all of them.)</p>
+<p>To back out before moving anything, press <code>Escape</code>, or right-click the blinking control and choose <strong>Cancel MIDI Learn</strong>. Choosing <strong>Learn MIDI</strong> on a different control moves learn mode there instead.</p>
 <h2 id="recording"><a class="header" href="#recording">Recording</a></h2>
 <p>When something good happens (a filter sweep you rode by hand, a lucky generative passage, an improvisation on a MIDI keyboard), press <strong>● Rec</strong> or <code>Ctrl + R</code> to keep it. If the patch is stopped, Rec starts it.</p>
 <p>While recording, the button turns red, with a slowly pulsing light and the length of the take so far. Press it again, press <code>Ctrl + R</code>, or press <strong>⏹ Stop</strong> to end the take. A note pops up in the corner with the take's name and length, and <strong>📂 Show in folder</strong> opens it in your file manager.</p>

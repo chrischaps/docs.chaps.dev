@@ -291,13 +291,13 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 <p>With several voices, each voice slides from <strong>its own</strong> previous note. Change chords with Glide up and every voice takes its own path, crossing and converging, the way the voices of a vintage polysynth do. A stolen voice slides from wherever it was. <strong>Mode</strong> decides where each slide starts: with <strong>Reuse</strong>, a note played again returns to the voice that last played it, so it doesn't slide at all; with <strong>Rotate</strong>, the voices take turns, so each slide starts from a different note of the last chord or two. In <strong>Legato</strong> mode a chord struck from nothing starts on its own pitches: notes arriving within 30 ms of the first count as part of that chord, since no hand strikes every key at once.</p>
 <p>To hear it, open First Sound and turn <strong>Glide</strong> to about 200 ms. Hold <strong>Z</strong> (C) and tap <strong>B</strong> (G): the pitch slides up to G and, when you let go of B, back down to C.</p>
 <h2 id="midi-learn"><a class="header" href="#midi-learn">MIDI Learn</a></h2>
-<p>Any knob in the patch can follow a MIDI controller (a mod wheel, a fader, a knob on your keyboard). This works with or without a Note In in the patch.</p>
+<p>Any knob in the patch can follow a MIDI controller (a mod wheel, a fader, a knob on your keyboard), and so can toggles, dropdowns and footswitches, from pads as well as knobs. This works with or without a Note In in the patch.</p>
 <ol>
-<li>Right-click the knob and choose <strong>Learn MIDI CC</strong>. A purple <strong>M</strong> badge blinks above it, and the status bar asks you to move a control.</li>
+<li>Right-click the knob and choose <strong>Learn MIDI</strong>. A purple <strong>M</strong> badge blinks above it, and the status bar asks you to move a control.</li>
 <li>Move the knob or fader on your controller. The badge stops blinking: the knob is mapped.</li>
 </ol>
 <p>Changed your mind, or no controller to hand? Press <code>Escape</code>, or right-click the blinking knob and choose <strong>Cancel MIDI Learn</strong>, and nothing is mapped. Starting learn on another knob moves it there instead.</p>
-<p>The controller sweeps the knob's whole range, on any MIDI channel. Right-click a mapped knob to see its CC number, to <strong>Re-learn MIDI CC</strong>, or to <strong>Clear MIDI</strong>. Mappings are saved with the patch. Moves made by a controller aren't added to the undo history.</p>
+<p>The controller sweeps the knob's whole range, on the channel it was learned on. Right-click a mapped knob to see its CC number and channel, to <strong>Re-learn MIDI</strong>, or to <strong>Clear MIDI</strong>. Mappings are saved with the patch. Moves made by a controller aren't added to the undo history. <a href="../../getting-started/interface-overview.html#midi-learn">MIDI Learn</a> in the interface overview says what pads do to each kind of control.</p>
 <h2 id="patch-examples"><a class="header" href="#patch-examples">Patch examples</a></h2>
 <p>The smallest playable voice, as in the First Sound example, with <strong>Voices</strong> at 1:</p>
 <pre><code class="language-text">[Note In Pitch] ──&gt; [Oscillator V/Oct]
