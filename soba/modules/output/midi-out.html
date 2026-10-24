@@ -196,7 +196,7 @@
 <p>Every input is optional. The module has no outputs.</p>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
-<tr><td><strong>Port</strong></td><td>A – D</td><td>A</td><td>Which device plays. Each port's device is a setting of this computer, not of the patch (see below)</td></tr>
+<tr><td><strong>Port</strong></td><td>A – H</td><td>A</td><td>Which device plays. Each port's device is a setting of this computer, not of the patch (see below)</td></tr>
 <tr><td><strong>Ch</strong></td><td>1 – 16</td><td>1</td><td>The MIDI channel the notes and CCs go out on</td></tr>
 <tr><td><strong>Clock</strong></td><td>On / Off</td><td>Off</td><td>Sends the Clock as MIDI clock: 24 ticks a beat, with Start, Stop and Continue</td></tr>
 <tr><td><strong>CC 1</strong> … <strong>CC 4</strong></td><td>0 – 127</td><td>1, 74, 71, 10</td><td>The controller number each lane sends. The defaults are the mod wheel, cutoff, resonance and pan, which most synths answer to</td></tr>
@@ -211,8 +211,9 @@
 <li><strong>The clock</strong>, bottom right: four beat lamps that take turns while clock is going out.</li>
 </ul>
 <h2 id="ports-not-devices"><a class="header" href="#ports-not-devices">Ports, not devices</a></h2>
-<p>A patch doesn't name a device. It names a <strong>port</strong>, A to D, and this computer remembers which device each port plays. Choose port A's device once and every MIDI Out on port A plays it, in this patch and the next. Share the patch and it plays whatever synth is on port A on the other computer. So it travels without either of you editing it.</p>
-<p>Click the device's name on the face to choose. The list shows every MIDI output this computer has, and it updates as you plug devices in. In the browser the menu offers <strong>🎹 Connect MIDI</strong> first, until you've allowed it. A port's device stays chosen while it's unplugged and plays again once it's back.</p>
+<p>A patch doesn't name a device. It names a <strong>port</strong>, A to H, and this computer remembers which device each port plays. Choose port A's device once and every MIDI Out on port A plays it, in this patch and the next. Share the patch and it plays whatever synth is on port A on the other computer. So it travels without either of you editing it.</p>
+<p>Click the device's name on the face to choose. The list shows every MIDI output this computer has, and it updates as you plug devices in. In the browser the menu offers <strong>🎹 Connect MIDI</strong> first, until you've allowed it. A port's device stays chosen while it's unplugged and plays again once it's back, even if the system has renumbered it (<code>2- Digitakt</code> is now <code>3- Digitakt</code>).</p>
+<p>To see all eight ports at once, open <a href="../../getting-started/interface-overview.html#the-rig">the Rig</a> (<code>Ctrl + Shift + H</code>, or <strong>The Rig…</strong> in the <strong>MIDI In</strong> menu). It shows each port's device, how the port is doing, and the last message it sent. It lists the MIDI inputs too.</p>
 <p>On Windows only one app can open a MIDI port at a time. If the lamp is red, close whatever else has the device (a DAW, or the maker's editor app), and MIDI Out tries again within a couple of seconds. To play a DAW on the same computer, use a virtual MIDI port such as <a href="https://www.tobias-erichsen.de/software/loopmidi.html">loopMIDI</a>: MIDI Out plays the port, and the DAW listens to it.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
 <p><strong>In time with the sound.</strong> Notes don't go out when the patch works them out. They go out when the audio beside them reaches your speakers, which is your audio device's delay later. So a hardware synth and Soba's own sounds play together, and each note is on time to within a millisecond or two. The browser can't promise to send at a given millisecond, so there Soba hands each message over up to a tenth of a second early, with the moment it's due, and the browser sends it then.</p>

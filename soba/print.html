@@ -446,7 +446,7 @@ against before.wav:
 <tr><td><strong>❓ Help</strong></td><td><strong>📖 Manual</strong> opens this manual, and <strong>⌨ Keyboard Shortcuts</strong> (<code>F1</code>) lists the <a href="getting-started/interface-overview.html#keyboard-shortcuts">shortcuts</a>, and <strong>🎓 Lessons</strong> opens the <a href="getting-started/lessons.html">lessons</a> you take inside the app. <strong>Check for Updates…</strong>, <strong>Check for Updates Automatically</strong>, and <strong>Roll Back</strong> after an update: see <a href="getting-started/installation.html#updates">Updates</a></td></tr>
 <tr><td><strong>Output</strong></td><td>The audio device to play through</td></tr>
 <tr><td><strong>Input</strong></td><td>The microphone, guitar or line input that <a href="getting-started/../modules/sources/audio-input.html">Audio Input</a> modules hear. It starts at <strong>None</strong>: nothing is opened until you choose a device. A filled dot (●) means it's open.</td></tr>
-<tr><td><strong>MIDI In</strong></td><td>The MIDI controllers to listen to, as many at once as are ticked. A filled dot (●) means one is open. At the foot of the menu, <strong>Map Mode</strong> (<code>Ctrl + L</code>) and the <strong>Controller Map</strong>: see <a href="getting-started/interface-overview.html#midi-learn">MIDI Learn</a>. Below them, <strong>Teach Your Controller…</strong>, <strong>Hands Follow Selection</strong> (<code>Ctrl + Shift + L</code>) and <strong>Show the Controller</strong> (<code>Ctrl + H</code>): see <a href="getting-started/interface-overview.html#playing-with-a-controller">Playing with a controller</a>.</td></tr>
+<tr><td><strong>MIDI In</strong></td><td>The MIDI controllers to listen to, as many at once as are ticked. A filled dot (●) means one is open. At the foot of the menu, <strong>Map Mode</strong> (<code>Ctrl + L</code>) and the <strong>Controller Map</strong>: see <a href="getting-started/interface-overview.html#midi-learn">MIDI Learn</a>. Below them, <strong>Teach Your Controller…</strong>, <strong>Hands Follow Selection</strong> (<code>Ctrl + Shift + L</code>) and <strong>Show the Controller</strong> (<code>Ctrl + H</code>): see <a href="getting-started/interface-overview.html#playing-with-a-controller">Playing with a controller</a>. <strong>The Rig…</strong> (<code>Ctrl + Shift + H</code>) shows every MIDI input and MIDI Out port at once: see <a href="getting-started/interface-overview.html#the-rig">The Rig</a>.</td></tr>
 </tbody></table>
 </div>
 <p>At the right end, the toolbar shows a CPU meter while the patch plays, the device's sample rate and channel count, and whether the audio engine is running. While an input is open, <strong>In</strong> shows how much audio is held between the input and output devices, in milliseconds; it turns amber for a moment after a dropout. Hover it for details.</p>
@@ -678,6 +678,30 @@ against before.wav:
 <li>Mappings that don't fit, or are on controls Soba wasn't taught, are counted at the left, with a link to the <a href="getting-started/interface-overview.html#the-controller-map">Controller Map</a>.</li>
 </ul>
 <p>The sketch keeps its size as you zoom, stays clear of the status bar, and only takes the clicks that land on it. Hover a control to see what it sends. Soba remembers whether it's shown.</p>
+<h3 id="the-rig"><a class="header" href="#the-rig">The Rig</a></h3>
+<p>With a room of hardware plugged in, choose <strong>The Rig…</strong> at the foot of the <strong>MIDI In</strong> menu, or press <code>Ctrl + Shift + H</code>. It shows every MIDI device Soba can hear or play on one panel.</p>
+<ul>
+<li><strong>MIDI In</strong> has a row for each input found, and for each one Soba remembers that isn't plugged in. Each row has:
+<ul>
+<li>a lamp: green while the input is open, flashing as it's heard; amber while it's unplugged;</li>
+<li>a tick to open or close it, as in the menu. An unplugged one has a ✕ instead, to forget it;</li>
+<li>its slot (<strong>In 1</strong> to <strong>In 8</strong>);</li>
+<li>the last message heard, as the <a href="getting-started/../modules/midi/midi-monitor.html">MIDI Monitor</a> writes it. It's bright when it arrives and fades to grey over a few seconds;</li>
+<li>how many modules have their <strong>Device</strong> set to it alone. Hover to see their names.</li>
+</ul>
+</li>
+<li><strong>MIDI Out</strong> has a row for each of the eight ports, <strong>A</strong> to <strong>H</strong>, that a <a href="getting-started/../modules/output/midi-out.html">MIDI Out</a> plays. Each row has:
+<ul>
+<li>the port's device, which you choose here or on a MIDI Out's face;</li>
+<li>how the port is doing: <strong>Sending</strong>, <strong>Ready</strong> (it has a device but no MIDI Out plays it), <strong>Unplugged</strong>, <strong>No device</strong>, or <strong>In use</strong> (another app has the device);</li>
+<li>a dot that lights on each beat while clock goes out;</li>
+<li>the last message sent;</li>
+<li>how many MIDI Outs play the port.</li>
+</ul>
+</li>
+</ul>
+<p>Ports and inputs are settings of this computer, not of the patch. <strong>🔄 Refresh</strong> looks for devices again at once. Otherwise Soba looks every couple of seconds.</p>
+<p><strong>After a reboot.</strong> Windows numbers devices that share a name in the order they were plugged in (<code>2- Digitakt</code>), and numbers a device's extra ports (<code>MIDIIN3 (FANTOM-06)</code>). Linux adds the device's client and port numbers to its name. Those numbers can change when you reboot or plug things in a different order. Soba finds a device by its exact name first, then by its name without those numbers, so every port and input finds its device again. A module whose <strong>Device</strong> is set to it, or a mapping learned from it, still hears it. If two devices are left that both fit, Soba uses neither, rather than guess. Hover a port's device to see whether it was found under a new number.</p>
 <h2 id="recording"><a class="header" href="#recording">Recording</a></h2>
 <p>When something good happens (a filter sweep you rode by hand, a lucky generative passage, an improvisation on a MIDI keyboard), press <strong>● Rec</strong> or <code>Ctrl + R</code> to keep it. If the patch is stopped, Rec starts it.</p>
 <p>While recording, the button turns red, with a slowly pulsing light and the length of the take so far. Press it again, press <code>Ctrl + R</code>, or press <strong>⏹ Stop</strong> to end the take. A note pops up in the corner with the take's name and length, and <strong>📂 Show in folder</strong> opens it in your file manager.</p>
@@ -790,6 +814,7 @@ against before.wav:
 <tr><td><code>Ctrl + L</code></td><td>Map Mode: click controls one after another to map them to MIDI</td></tr>
 <tr><td><code>Ctrl + Shift + L</code></td><td>The controller's encoders and faders follow the selection, or let go</td></tr>
 <tr><td><code>Ctrl + H</code></td><td>Show or hide the sketch of the controller, saying what each control does</td></tr>
+<tr><td><code>Ctrl + Shift + H</code></td><td>The Rig: every MIDI input and MIDI Out port, and the device each plays</td></tr>
 <tr><td><code>Alt</code> over a cable</td><td>Hear what the cable carries</td></tr>
 </tbody></table>
 </div>
@@ -6035,7 +6060,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <p>Every input is optional. The module has no outputs.</p>
 <h2 id="parameters-44"><a class="header" href="#parameters-44">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
-<tr><td><strong>Port</strong></td><td>A – D</td><td>A</td><td>Which device plays. Each port's device is a setting of this computer, not of the patch (see below)</td></tr>
+<tr><td><strong>Port</strong></td><td>A – H</td><td>A</td><td>Which device plays. Each port's device is a setting of this computer, not of the patch (see below)</td></tr>
 <tr><td><strong>Ch</strong></td><td>1 – 16</td><td>1</td><td>The MIDI channel the notes and CCs go out on</td></tr>
 <tr><td><strong>Clock</strong></td><td>On / Off</td><td>Off</td><td>Sends the Clock as MIDI clock: 24 ticks a beat, with Start, Stop and Continue</td></tr>
 <tr><td><strong>CC 1</strong> … <strong>CC 4</strong></td><td>0 – 127</td><td>1, 74, 71, 10</td><td>The controller number each lane sends. The defaults are the mod wheel, cutoff, resonance and pan, which most synths answer to</td></tr>
@@ -6050,8 +6075,9 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <li><strong>The clock</strong>, bottom right: four beat lamps that take turns while clock is going out.</li>
 </ul>
 <h2 id="ports-not-devices"><a class="header" href="#ports-not-devices">Ports, not devices</a></h2>
-<p>A patch doesn't name a device. It names a <strong>port</strong>, A to D, and this computer remembers which device each port plays. Choose port A's device once and every MIDI Out on port A plays it, in this patch and the next. Share the patch and it plays whatever synth is on port A on the other computer. So it travels without either of you editing it.</p>
-<p>Click the device's name on the face to choose. The list shows every MIDI output this computer has, and it updates as you plug devices in. In the browser the menu offers <strong>🎹 Connect MIDI</strong> first, until you've allowed it. A port's device stays chosen while it's unplugged and plays again once it's back.</p>
+<p>A patch doesn't name a device. It names a <strong>port</strong>, A to H, and this computer remembers which device each port plays. Choose port A's device once and every MIDI Out on port A plays it, in this patch and the next. Share the patch and it plays whatever synth is on port A on the other computer. So it travels without either of you editing it.</p>
+<p>Click the device's name on the face to choose. The list shows every MIDI output this computer has, and it updates as you plug devices in. In the browser the menu offers <strong>🎹 Connect MIDI</strong> first, until you've allowed it. A port's device stays chosen while it's unplugged and plays again once it's back, even if the system has renumbered it (<code>2- Digitakt</code> is now <code>3- Digitakt</code>).</p>
+<p>To see all eight ports at once, open <a href="modules/output/../../getting-started/interface-overview.html#the-rig">the Rig</a> (<code>Ctrl + Shift + H</code>, or <strong>The Rig…</strong> in the <strong>MIDI In</strong> menu). It shows each port's device, how the port is doing, and the last message it sent. It lists the MIDI inputs too.</p>
 <p>On Windows only one app can open a MIDI port at a time. If the lamp is red, close whatever else has the device (a DAW, or the maker's editor app), and MIDI Out tries again within a couple of seconds. To play a DAW on the same computer, use a virtual MIDI port such as <a href="https://www.tobias-erichsen.de/software/loopmidi.html">loopMIDI</a>: MIDI Out plays the port, and the DAW listens to it.</p>
 <h2 id="how-it-works-19"><a class="header" href="#how-it-works-19">How it works</a></h2>
 <p><strong>In time with the sound.</strong> Notes don't go out when the patch works them out. They go out when the audio beside them reaches your speakers, which is your audio device's delay later. So a hardware synth and Soba's own sounds play together, and each note is on time to within a millisecond or two. The browser can't promise to send at a given millisecond, so there Soba hands each message over up to a tenth of a second early, with the moment it's due, and the browser sends it then.</p>
