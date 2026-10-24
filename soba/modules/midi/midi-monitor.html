@@ -185,7 +185,7 @@
 <p><img src="../../images/module-midi-monitor.png" alt="MIDI Monitor module" />
 <em>The newest event is at the top, colored by kind.</em></p>
 <p>The MIDI Monitor shows the MIDI arriving from your device as it happens. Use it when you connect new gear, when a note won't play, or to find out which CC number a knob on your controller sends before you map it.</p>
-<p>It has no ports and makes no sound. It listens to the same device as every other MIDI module (the one chosen in <strong>MIDI In</strong> on the toolbar; see <a href="./note-in.html#choosing-a-midi-device">Choosing a MIDI device</a>), so you can drop it anywhere in a patch without patching anything.</p>
+<p>It has no ports and makes no sound. It listens to every device ticked in <strong>MIDI In</strong> on the toolbar (see <a href="./note-in.html#choosing-a-midi-device">Choosing a MIDI device</a>), so you can drop it anywhere in a patch without patching anything. To watch one device only, right-click it and choose it under <strong>Device</strong>.</p>
 <h2 id="controls"><a class="header" href="#controls">Controls</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Options</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Ch</strong> (Channel)</td><td>All / 1 – 16</td><td>All</td><td>Shows only events on this MIDI channel</td></tr>
@@ -208,6 +208,7 @@
 </div>
 <p>Note names put middle C (MIDI note 60) at C4. Pitch bend runs from −8192 to 8191, with 0 at the center. Pressure and program change can't be filtered out.</p>
 <p>The log holds the last few events and applies the filters to those, so turning a filter on hides lines rather than reaching further back. Notes played on the computer keys into a <a href="./note-in.html">Note In</a> module show up here too, marked <strong>Keys</strong> where a channel would be.</p>
+<p>While two or more devices are open and the Monitor hears any of them, each line ends with the name of the device it came from, shortened to ten letters.</p>
 <h2 id="uses"><a class="header" href="#uses">Uses</a></h2>
 <p><strong>Is anything arriving?</strong> Play a note. If the log still says <em>No MIDI events</em>, the problem is upstream: check that the device is selected and connected in <strong>MIDI In</strong>, and that the controller is sending.</p>
 <p><strong>Which channel?</strong> Play each device in turn and read the channel off the log. Then set <strong>Ch</strong> on your <a href="./note-in.html">Note In</a> modules to match, or leave them on Omni.</p>
