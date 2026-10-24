@@ -195,7 +195,7 @@
 <tr><td><strong>❓ Help</strong></td><td><strong>📖 Manual</strong> opens this manual, and <strong>⌨ Keyboard Shortcuts</strong> (<code>F1</code>) lists the <a href="#keyboard-shortcuts">shortcuts</a>, and <strong>🎓 Lessons</strong> opens the <a href="lessons.html">lessons</a> you take inside the app. <strong>Check for Updates…</strong>, <strong>Check for Updates Automatically</strong>, and <strong>Roll Back</strong> after an update: see <a href="installation.html#updates">Updates</a></td></tr>
 <tr><td><strong>Output</strong></td><td>The audio device to play through</td></tr>
 <tr><td><strong>Input</strong></td><td>The microphone, guitar or line input that <a href="../modules/sources/audio-input.html">Audio Input</a> modules hear. It starts at <strong>None</strong>: nothing is opened until you choose a device. A filled dot (●) means it's open.</td></tr>
-<tr><td><strong>MIDI In</strong></td><td>The MIDI controller to listen to. A filled dot (●) means it's connected.</td></tr>
+<tr><td><strong>MIDI In</strong></td><td>The MIDI controller to listen to. A filled dot (●) means it's connected. At the foot of the menu, <strong>Map Mode</strong> (<code>Ctrl + L</code>) and the <strong>Controller Map</strong>: see <a href="#midi-learn">MIDI Learn</a>.</td></tr>
 </tbody></table>
 </div>
 <p>At the right end, the toolbar shows a CPU meter while the patch plays, the device's sample rate and channel count, and whether the audio engine is running. While an input is open, <strong>In</strong> shows how much audio is held between the input and output devices, in milliseconds; it turns amber for a moment after a dropout. Hover it for details.</p>
@@ -382,6 +382,22 @@
 <p>To patch a fader or a wheel into a cable, rather than turn one knob with it, use a <a href="../modules/midi/controls.html">Controls</a> module: its slots learn the same way.</p>
 <p>A mapping listens on the MIDI channel it was learned on, so the keys and the pads of one controller can send the same note numbers without mixing up. (Mappings made before Soba learned channels still listen on all of them.)</p>
 <p>To back out before moving anything, press <code>Escape</code>, or right-click the blinking control and choose <strong>Cancel MIDI Learn</strong>. Choosing <strong>Learn MIDI</strong> on a different control moves learn mode there instead.</p>
+<h4 id="map-mode"><a class="header" href="#map-mode">Map Mode</a></h4>
+<p>To map a whole controller, turn on <strong>Map Mode</strong>: press <code>Ctrl + L</code>, or choose <strong>Map Mode</strong> at the foot of the <strong>MIDI In</strong> menu. A thin purple line runs round the canvas, and every control that can be learned wears a soft purple outline: knobs, toggles, dropdowns, footswitches, <strong>Rec</strong> and the Scenes pads. The ones already mapped keep their badges.</p>
+<p>Now a click on a control doesn't turn, flip or press it. It starts MIDI Learn on it instead, and its outline breathes while it waits. Move a knob or fader or hit a pad on your controller, and the control is mapped. Map Mode stays on, so click the next control and move the next thing, and so on down the controller: eight encoders, four faders and eight pads are twenty clicks and twenty moves, and no menus. Clicking another control before you move anything moves the learn there. The status bar says what Map Mode is waiting for, and what was mapped last.</p>
+<p>Right-click still opens a control's menu in Map Mode, to clear a mapping or change its hardware. Press <code>Escape</code> or <code>Ctrl + L</code> again to leave.</p>
+<h4 id="the-controller-map"><a class="header" href="#the-controller-map">The Controller Map</a></h4>
+<p>Choose <strong>Controller Map…</strong> at the foot of the <strong>MIDI In</strong> menu to see every mapping in the patch on one panel, in the order you made them. Each row is one mapping:</p>
+<div class="table-wrapper"><table><thead><tr><th>Column</th><th>What it shows</th></tr></thead><tbody>
+<tr><td><strong>Source</strong></td><td>What turns it: <code>CC 74 · ch 1</code>, <code>C2 · ch 10</code> for a pad, or <code>Macro 3</code> in a DAW</td></tr>
+<tr><td><strong>Module</strong> and <strong>Control</strong></td><td>The module, and the knob, switch or Scenes pad it turns</td></tr>
+<tr><td><strong>Range</strong></td><td>The two ends a knob or fader sweeps the knob between, typed in the knob's own units (<code>200 Hz</code>, <code>8 kHz</code>, <code>40%</code>). Press <code>Enter</code> to set one. They stay inside the knob's own range</td></tr>
+<tr><td><strong>Hardware</strong></td><td><strong>Knob or fader</strong>, or one of the two kinds of <strong>Encoder</strong>, as under Hardware in the knob's menu</td></tr>
+<tr><td><strong>Pick up</strong></td><td>A knob or fader waits to pick the knob up rather than jumping it</td></tr>
+<tr><td><strong>Invert</strong></td><td>The hardware's top is the control's bottom</td></tr>
+</tbody></table>
+</div>
+<p>The cross at the end of a row clears that mapping. Hover a row and its control lights up on the canvas, so you can find which knob it is. Changes here are changes to the patch: they're saved with it, and the patch shows it has unsaved changes until you save. A DAW macro's range and style are the DAW's, so its row only lists it. Map Mode has a button at the foot of the panel too, so you can keep mapping with the map open.</p>
 <h2 id="recording"><a class="header" href="#recording">Recording</a></h2>
 <p>When something good happens (a filter sweep you rode by hand, a lucky generative passage, an improvisation on a MIDI keyboard), press <strong>● Rec</strong> or <code>Ctrl + R</code> to keep it. If the patch is stopped, Rec starts it.</p>
 <p>While recording, the button turns red, with a slowly pulsing light and the length of the take so far. Press it again, press <code>Ctrl + R</code>, or press <strong>⏹ Stop</strong> to end the take. A note pops up in the corner with the take's name and length, and <strong>📂 Show in folder</strong> opens it in your file manager.</p>
@@ -445,7 +461,7 @@
 <tr><td><code>F</code></td><td>Zoom to the selection, or with nothing selected, to fit the whole patch</td></tr>
 <tr><td><code>Shift + F</code></td><td>Zoom to fit the whole patch</td></tr>
 <tr><td><code>F1</code></td><td>Show or hide the Keyboard Shortcuts window</td></tr>
-<tr><td><code>Escape</code></td><td>Close the add menu, quick-add box or Keyboard Shortcuts window, cancel MIDI Learn, finish typing a frame's name or a note, or go back out of a group</td></tr>
+<tr><td><code>Escape</code></td><td>Close the add menu, quick-add box or Keyboard Shortcuts window, cancel MIDI Learn or leave Map Mode, finish typing a frame's name or a note, or go back out of a group</td></tr>
 </tbody></table>
 </div>
 <h3 id="editing"><a class="header" href="#editing">Editing</a></h3>
@@ -491,6 +507,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Shortcut</th><th>Action</th></tr></thead><tbody>
 <tr><td><code>Shift + Space</code></td><td>Play or stop the patch</td></tr>
 <tr><td><code>Ctrl + R</code></td><td>Record, or end the take</td></tr>
+<tr><td><code>Ctrl + L</code></td><td>Map Mode: click controls one after another to map them to MIDI</td></tr>
 <tr><td><code>Alt</code> over a cable</td><td>Hear what the cable carries</td></tr>
 </tbody></table>
 </div>
