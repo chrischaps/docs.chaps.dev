@@ -443,14 +443,14 @@
 <li>
 <p><strong>MIDI Out</strong> has a row for each of the eight ports, <strong>A</strong> to <strong>H</strong>, that a <a href="../modules/output/midi-out.html">MIDI Out</a> plays. Each row has:</p>
 <ul>
-<li>the port's device, which you choose here or on a MIDI Out's face;</li>
+<li>the port's device, which you choose here or on a MIDI Out's face. Its menu can also <strong>📤 Send a SysEx file…</strong> to it: see <a href="#sending-sysex">Sending SysEx</a>;</li>
 <li>its <strong>Clock</strong>: what it sends of the patch's Clock. <strong>Clock + Transport</strong> sends the tempo with Start and Stop, <strong>Clock only</strong> the tempo alone, and <strong>Off</strong> nothing. The port sends it whether or not a MIDI Out plays it. While its device leads the Clock (see <a href="../modules/modulation/clock.html#leading-or-following-auto">Leading or following</a>), it reads <strong>leads</strong> in purple and sends nothing;</li>
 <li>its <strong>Offset</strong>: how many milliseconds later than the sound its notes, CCs and clock go out, to line a slow device up with the rest. Drag it, or click to type. It's amber when it asks for earlier than your audio device's delay allows;</li>
 <li>beside the offset, a ping (•)) to measure the device's delay and set the offset for you: see <a href="#measuring-a-devices-delay">Measuring a device's delay</a>;</li>
 <li>its <strong>Budget</strong>: how many messages a second it may send. <strong>No limit</strong> suits a USB device. A 5-pin DIN cable carries only about a thousand, so set <strong>DIN · 1000/s</strong> for a port that plays through a MIDI interface, or <strong>Gentle · 500/s</strong> for gear that falls behind at full speed. Over its budget, a port sends only the newest value of each CC, bend and pressure, and notes, programs and clock go on time;</li>
 <li>how the port is doing: <strong>Sending</strong>, <strong>Full</strong> (in amber, while its budget is thinning CCs), <strong>Ready</strong> (it has a device but nothing plays it), <strong>Unplugged</strong>, <strong>No device</strong>, or <strong>In use</strong> (another app has the device);</li>
 <li>a dot that lights on each beat while clock goes out;</li>
-<li>the last message sent;</li>
+<li>the last message sent. After SysEx it reads <strong>SysEx · 163 B</strong>, and while a long dump is still going out, how much is left (<strong>SysEx · 2.4 KB to go</strong>);</li>
 <li>how many MIDI Outs play the port.</li>
 </ul>
 </li>
@@ -468,6 +468,8 @@
 </li>
 </ul>
 <p>Ports, with their clocks, offsets and budgets, routes, and inputs are settings of this computer, not of the patch. <strong>🔄 Refresh</strong> looks for devices again at once. Otherwise Soba looks every couple of seconds.</p>
+<p><a id="sending-sysex"></a><strong>Sending SysEx.</strong> Some things only SysEx can do: give a Volca FM a DX7 voice, load a bank of 32, or set a device's settings that have no CC. Open a port's device menu, choose <strong>📤 Send a SysEx file…</strong> and pick a <code>.syx</code> file. Every message in it goes to that port's device whole and in order, and a line under the ports says how many went. A port with a <strong>Budget</strong> paces a long dump to it, since some devices drop SysEx that comes faster than their cable carries: a bank of 32 DX7 voices (4,104 bytes) takes about 1.4 seconds at <strong>DIN · 1000/s</strong>. The notes and clock keep their time meanwhile, and CCs wait for the dump.</p>
+<p>In the browser, the first file you send asks for one more permission, since SysEx can rewrite a device's sounds and settings: the browser asks to let Soba "control and reprogram your MIDI devices". Allow it, then send the file again. Notes and CCs never need it.</p>
 <p><strong>After a reboot.</strong> Windows numbers devices that share a name in the order they were plugged in (<code>2- Digitakt</code>), and numbers a device's extra ports (<code>MIDIIN3 (FANTOM-06)</code>). Linux adds the device's client and port numbers to its name. Those numbers can change when you reboot or plug things in a different order. Soba finds a device by its exact name first, then by its name without those numbers, so every port and input finds its device again. A module whose <strong>Device</strong> is set to it, or a mapping learned from it, still hears it. If two devices are left that both fit, Soba uses neither, rather than guess. Hover a port's device to see whether it was found under a new number.</p>
 <h4 id="measuring-a-devices-delay"><a class="header" href="#measuring-a-devices-delay">Measuring a device's delay</a></h4>
 <p>Every device takes its own time to turn a note into sound. With its audio plugged into your interface and open as the <strong>Input</strong> in the toolbar, Soba can time it for you:</p>
