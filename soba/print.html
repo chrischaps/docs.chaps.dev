@@ -1322,8 +1322,6 @@ wait connect osc.sine Out -&gt; output.audio Mono
 <tr><td><a href="modules/./midi/note-in.html">Note In</a></td><td><code>input.poly_midi</code></td><td>Play notes from the computer keyboard, its piano or a MIDI controller: one voice, or up to eight for chords</td></tr>
 <tr><td><a href="modules/./midi/controls.html">Controls</a></td><td><code>input.controls</code></td><td>A MIDI controller's faders, knobs, mod wheel, pitch bend and pressure as cables, learned from the hardware</td></tr>
 <tr><td><a href="modules/./midi/pads.html">Pads</a></td><td><code>input.pads</code></td><td>A pad controller's pads as eight gates, with velocity and pressure: finger drums, triggers and latches</td></tr>
-<tr><td><a href="modules/./midi/instrument.html">Instrument</a></td><td><code>source.instrument</code></td><td>A piece of hardware as a node: a synth's or drum machine's own knobs, by name, to turn and patch, and its notes over MIDI</td></tr>
-<tr><td><a href="modules/./midi/kit.html">Kit</a></td><td><code>source.kit</code></td><td>A hardware drum machine, sampler or groovebox as a node: its tracks, pads or parts as eight lanes to strike from a Trigger Sequencer, and its knobs by name, over MIDI</td></tr>
 </tbody></table>
 </div>
 <h3 id="filter"><a class="header" href="#filter">Filter</a></h3>
@@ -1384,6 +1382,8 @@ wait connect osc.sine Out -&gt; output.audio Mono
 <tr><td><a href="modules/./output/audio-output.html">Audio Output</a></td><td><code>output.audio</code></td><td>Stereo master output with volume, DC blocking and a peak limiter</td></tr>
 <tr><td><a href="modules/./output/link-out.html">Link Out</a></td><td><code>output.link</code></td><td>Send eight CV lanes, four gates and the Clock to the Seoul visualizer, to play its pictures from the patch</td></tr>
 <tr><td><a href="modules/./output/midi-out.html">MIDI Out</a></td><td><code>output.midi</code></td><td>Play hardware and other apps: gates and pitch as notes (poly cables as chords), bend and aftertouch, four CCs (7-bit, 14-bit or NRPN), programs and banks, and the Clock as MIDI clock</td></tr>
+<tr><td><a href="modules/./midi/instrument.html">Instrument</a></td><td><code>source.instrument</code></td><td>A piece of hardware as a node: a synth's or drum machine's own knobs, by name, to turn and patch, and its notes over MIDI</td></tr>
+<tr><td><a href="modules/./midi/kit.html">Kit</a></td><td><code>source.kit</code></td><td>A hardware drum machine, sampler or groovebox as a node: its tracks, pads or parts as eight lanes to strike from a Trigger Sequencer, and its knobs by name, over MIDI</td></tr>
 </tbody></table>
 </div>
 <p>Header colors describe what a module <em>is</em>. The colors of its jacks and cables describe the <em>signals</em> it handles, which is a separate palette: see <a href="modules/../concepts/signal-types.html">Signal Types</a>.</p>
@@ -2598,7 +2598,7 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 <li><strong>Triggers.</strong> In <strong>Trigger</strong>, a pad's short gate into a <a href="modules/midi/../utilities/sequencer.html">Step Sequencer</a>'s <strong>Reset</strong> starts the pattern over, however long the pad is held.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="instrument"><a class="header" href="#instrument">Instrument</a></h1>
-<p><strong>Module ID</strong> <code>source.instrument</code> · <strong>Category</strong> Source</p>
+<p><strong>Module ID</strong> <code>source.instrument</code> · <strong>Category</strong> Output</p>
 <p>An Instrument is a piece of hardware as a node. Choose <strong>MicroFreak</strong> on its face and its twelve knobs become the MicroFreak's own: <strong>Cutoff</strong>, <strong>Resonance</strong>, <strong>Osc Type</strong>, <strong>Osc Wave</strong>. Each knob has a jack beside it with the same name. Patch an <a href="modules/midi/../modulation/lfo.html">LFO</a> into <strong>Cutoff</strong> and the real filter sweeps. A <a href="modules/midi/../utilities/scenes.html">Scene</a> can morph the knobs, and the patch remembers where every one of them is.</p>
 <p>That last part matters most for gear that can't store a sound. A volca forgets its sound when you switch it off. With an Instrument, <strong>the patch becomes its preset memory</strong>: open the patch and Soba sends every knob back to the device.</p>
 <p>The Instrument also plays notes, as <a href="modules/midi/../output/midi-out.html">MIDI Out</a> does, from a <strong>Gate</strong> and a <strong>Pitch</strong> cable. It makes no sound of its own: the hardware does.</p>
@@ -2666,7 +2666,7 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 <li><a href="modules/midi/../../getting-started/interface-overview.html#the-rig">The Rig</a>: which device each port plays</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="kit"><a class="header" href="#kit">Kit</a></h1>
-<p><strong>Module ID</strong> <code>source.kit</code> · <strong>Category</strong> Source</p>
+<p><strong>Module ID</strong> <code>source.kit</code> · <strong>Category</strong> Output</p>
 <p>A Kit is a drum machine, sampler or groovebox as a node. An <a href="modules/midi/./instrument.html">Instrument</a> plays one voice, but a drum machine doesn't. A Digitakt has a track on each channel, the SP-404MKII's pads are notes, and a volca drum has a channel for each part. Choose one on the Kit's face, and its eight <strong>lanes</strong> take the device's own parts by name: <strong>Track 1</strong> to <strong>Track 8</strong>, <strong>Pad 1</strong> to <strong>Pad 8</strong>, <strong>Part 1</strong> to <strong>Part 6</strong>.</p>
 <p>Each lane has a <strong>Gate</strong> and a <strong>Vel</strong> jack, in the same order as a <a href="modules/midi/../utilities/trigger-sequencer.html">Trigger Sequencer</a>'s outputs. Patch the sequencer's eight lanes straight across, and it plays the device's eight tracks.</p>
 <p>The Kit has twelve knobs, as an Instrument does: the device's own controls, by name, each with a jack. It makes no sound of its own. The hardware does.</p>

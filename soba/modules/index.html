@@ -198,8 +198,6 @@
 <tr><td><a href="./midi/note-in.html">Note In</a></td><td><code>input.poly_midi</code></td><td>Play notes from the computer keyboard, its piano or a MIDI controller: one voice, or up to eight for chords</td></tr>
 <tr><td><a href="./midi/controls.html">Controls</a></td><td><code>input.controls</code></td><td>A MIDI controller's faders, knobs, mod wheel, pitch bend and pressure as cables, learned from the hardware</td></tr>
 <tr><td><a href="./midi/pads.html">Pads</a></td><td><code>input.pads</code></td><td>A pad controller's pads as eight gates, with velocity and pressure: finger drums, triggers and latches</td></tr>
-<tr><td><a href="./midi/instrument.html">Instrument</a></td><td><code>source.instrument</code></td><td>A piece of hardware as a node: a synth's or drum machine's own knobs, by name, to turn and patch, and its notes over MIDI</td></tr>
-<tr><td><a href="./midi/kit.html">Kit</a></td><td><code>source.kit</code></td><td>A hardware drum machine, sampler or groovebox as a node: its tracks, pads or parts as eight lanes to strike from a Trigger Sequencer, and its knobs by name, over MIDI</td></tr>
 </tbody></table>
 </div>
 <h3 id="filter"><a class="header" href="#filter">Filter</a></h3>
@@ -260,6 +258,8 @@
 <tr><td><a href="./output/audio-output.html">Audio Output</a></td><td><code>output.audio</code></td><td>Stereo master output with volume, DC blocking and a peak limiter</td></tr>
 <tr><td><a href="./output/link-out.html">Link Out</a></td><td><code>output.link</code></td><td>Send eight CV lanes, four gates and the Clock to the Seoul visualizer, to play its pictures from the patch</td></tr>
 <tr><td><a href="./output/midi-out.html">MIDI Out</a></td><td><code>output.midi</code></td><td>Play hardware and other apps: gates and pitch as notes (poly cables as chords), bend and aftertouch, four CCs (7-bit, 14-bit or NRPN), programs and banks, and the Clock as MIDI clock</td></tr>
+<tr><td><a href="./midi/instrument.html">Instrument</a></td><td><code>source.instrument</code></td><td>A piece of hardware as a node: a synth's or drum machine's own knobs, by name, to turn and patch, and its notes over MIDI</td></tr>
+<tr><td><a href="./midi/kit.html">Kit</a></td><td><code>source.kit</code></td><td>A hardware drum machine, sampler or groovebox as a node: its tracks, pads or parts as eight lanes to strike from a Trigger Sequencer, and its knobs by name, over MIDI</td></tr>
 </tbody></table>
 </div>
 <p>Header colors describe what a module <em>is</em>. The colors of its jacks and cables describe the <em>signals</em> it handles, which is a separate palette: see <a href="../concepts/signal-types.html">Signal Types</a>.</p>
