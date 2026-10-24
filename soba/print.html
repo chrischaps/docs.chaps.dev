@@ -627,6 +627,9 @@ against before.wav:
 <tr><td>A Scenes pad</td><td>recalls the scene from halfway up</td><td>recalls the scene</td></tr>
 </tbody></table>
 </div>
+<p><strong>Faders that don't jump.</strong> A fader or knob with ends doesn't yank the knob it's mapped to. Until you move the hardware past where the knob stands, a purple tick on the knob's rim shows where the hardware is, with a faint arc back to the knob, so you can see which way to go. Once the hardware reaches the knob it picks it up, the tick fades, and the knob follows. Turn the knob with the mouse, recall a scene or undo, and it waits to be picked up again. To have it jump instead, untick <strong>Pick up</strong> in its right-click menu.</p>
+<p><strong>Endless encoders.</strong> Many controllers have knobs that turn forever and send steps rather than a position. Soba listens to the first few values after you learn one and tells it apart from a fader, so the knob steps from wherever it stands, a hundred steps end to end, and one number at a time on a whole-number knob. If it guesses wrong, choose under <strong>Hardware</strong> in the knob's right-click menu. <strong>Invert</strong> turns any mapping upside down.</p>
+<p>A controller turns a knob the way the mouse does: a fader sweeps a frequency by octaves, so the middle of its throw is in the middle of what you hear.</p>
 <p>A mapping listens on the MIDI channel it was learned on, so the keys and the pads of one controller can send the same note numbers without mixing up. (Mappings made before Soba learned channels still listen on all of them.)</p>
 <p>To back out before moving anything, press <code>Escape</code>, or right-click the blinking control and choose <strong>Cancel MIDI Learn</strong>. Choosing <strong>Learn MIDI</strong> on a different control moves learn mode there instead.</p>
 <h2 id="recording"><a class="header" href="#recording">Recording</a></h2>
@@ -2331,7 +2334,7 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 <li>Move the knob or fader on your controller. The badge stops blinking: the knob is mapped.</li>
 </ol>
 <p>Changed your mind, or no controller to hand? Press <code>Escape</code>, or right-click the blinking knob and choose <strong>Cancel MIDI Learn</strong>, and nothing is mapped. Starting learn on another knob moves it there instead.</p>
-<p>The controller sweeps the knob's whole range, on the channel it was learned on. Right-click a mapped knob to see its CC number and channel, to <strong>Re-learn MIDI</strong>, or to <strong>Clear MIDI</strong>. Mappings are saved with the patch. Moves made by a controller aren't added to the undo history. <a href="modules/midi/../../getting-started/interface-overview.html#midi-learn">MIDI Learn</a> in the interface overview says what pads do to each kind of control.</p>
+<p>The controller sweeps the knob's whole range, on the channel it was learned on. A fader picks the knob up where it stands rather than jumping it, and an endless encoder steps it. Right-click a mapped knob to see its CC number and channel, to <strong>Re-learn MIDI</strong>, or to <strong>Clear MIDI</strong>. Mappings are saved with the patch. Moves made by a controller aren't added to the undo history. <a href="modules/midi/../../getting-started/interface-overview.html#midi-learn">MIDI Learn</a> in the interface overview says what pads do to each kind of control.</p>
 <h2 id="patch-examples-1"><a class="header" href="#patch-examples-1">Patch examples</a></h2>
 <p>The smallest playable voice, as in the First Sound example, with <strong>Voices</strong> at 1:</p>
 <pre><code class="language-text">[Note In Pitch] ──&gt; [Oscillator V/Oct]
