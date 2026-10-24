@@ -446,7 +446,7 @@ against before.wav:
 <tr><td><strong>❓ Help</strong></td><td><strong>📖 Manual</strong> opens this manual, and <strong>⌨ Keyboard Shortcuts</strong> (<code>F1</code>) lists the <a href="getting-started/interface-overview.html#keyboard-shortcuts">shortcuts</a>, and <strong>🎓 Lessons</strong> opens the <a href="getting-started/lessons.html">lessons</a> you take inside the app. <strong>Check for Updates…</strong>, <strong>Check for Updates Automatically</strong>, and <strong>Roll Back</strong> after an update: see <a href="getting-started/installation.html#updates">Updates</a></td></tr>
 <tr><td><strong>Output</strong></td><td>The audio device to play through</td></tr>
 <tr><td><strong>Input</strong></td><td>The microphone, guitar or line input that <a href="getting-started/../modules/sources/audio-input.html">Audio Input</a> modules hear. It starts at <strong>None</strong>: nothing is opened until you choose a device. A filled dot (●) means it's open.</td></tr>
-<tr><td><strong>MIDI In</strong></td><td>The MIDI controller to listen to. A filled dot (●) means it's connected. At the foot of the menu, <strong>Map Mode</strong> (<code>Ctrl + L</code>) and the <strong>Controller Map</strong>: see <a href="getting-started/interface-overview.html#midi-learn">MIDI Learn</a>.</td></tr>
+<tr><td><strong>MIDI In</strong></td><td>The MIDI controller to listen to. A filled dot (●) means it's connected. At the foot of the menu, <strong>Map Mode</strong> (<code>Ctrl + L</code>) and the <strong>Controller Map</strong>: see <a href="getting-started/interface-overview.html#midi-learn">MIDI Learn</a>. Below them, <strong>Teach Your Controller…</strong> and <strong>Hands Follow Selection</strong> (<code>Ctrl + Shift + L</code>): see <a href="getting-started/interface-overview.html#playing-with-a-controller">Playing with a controller</a>.</td></tr>
 </tbody></table>
 </div>
 <p>At the right end, the toolbar shows a CPU meter while the patch plays, the device's sample rate and channel count, and whether the audio engine is running. While an input is open, <strong>In</strong> shows how much audio is held between the input and output devices, in milliseconds; it turns amber for a moment after a dropout. Hover it for details.</p>
@@ -649,6 +649,24 @@ against before.wav:
 </tbody></table>
 </div>
 <p>The cross at the end of a row clears that mapping. Hover a row and its control lights up on the canvas, so you can find which knob it is. Changes here are changes to the patch: they're saved with it, and the patch shows it has unsaved changes until you save. A DAW macro's range and style are the DAW's, so its row only lists it. Map Mode has a button at the foot of the panel too, so you can keep mapping with the map open.</p>
+<h3 id="playing-with-a-controller"><a class="header" href="#playing-with-a-controller">Playing with a controller</a></h3>
+<p>Mapping is for a patch you've finished. While you're building one, you want the encoders under your hand to be the knobs of whatever you're working on: click an oscillator and they turn its knobs, click a filter and they turn the filter's. That's <strong>Hands Follow Selection</strong>.</p>
+<p><strong>Teach Soba your controller first.</strong> You do this once per controller. Choose <strong>Teach Your Controller…</strong> in the <strong>MIDI In</strong> menu, and the status bar walks you through it:</p>
+<ol>
+<li>"Turn encoder 1 a few slow clicks". Turn the first encoder a few clicks, slowly, in one direction. The status bar says what it heard (<code>Encoder 1 is CC 74 · ch 1, endless</code>) and asks for the next one, through encoder 8.</li>
+<li>"Move fader 1". Move each fader in turn, through fader 4.</li>
+</ol>
+<p>If your controller has fewer encoders or faders, press <code>Tab</code> (or <strong>Skip</strong>) to pass one, and <code>Enter</code> (or <strong>Done</strong>) to finish early. <code>Escape</code> gives up and keeps what Soba knew before. Turning slowly lets Soba tell an endless encoder, which sends steps, from a knob with ends, which sends where it is. Soba keeps what it learned under the controller's name, not in the patch, so it's there for every patch, and each controller you teach is remembered separately.</p>
+<p><strong>Then turn on Hands Follow Selection</strong> in the <strong>MIDI In</strong> menu, or press <code>Ctrl + Shift + L</code>. Teaching turns it on for you. While it's on:</p>
+<ul>
+<li>The encoders turn the selected module's first eight knobs, in the order its face shows them, and the faders turn the next four.</li>
+<li>Select a <a href="getting-started/interface-overview.html#groups">group</a> and they turn the knobs pinned to its face instead. With several modules selected, they turn the first one's.</li>
+<li>The knobs they turn wear small numbered purple badges, <code>1</code> to <code>8</code> for the encoders and <code>F1</code> to <code>F4</code> for the faders. The badges fade in each time you select something else.</li>
+<li>Endless encoders step the knob from wherever it stands. Faders, and knobs with ends, pick the knob up as mapped ones do: a tick on the rim shows where the fader is until it reaches the knob.</li>
+<li>The patch's own mappings on the taught encoders and faders pause, and their badges dim. Turn Hands Follow Selection off and they come back. Mappings on the controller's other controls, its pads and keys, carry on as before.</li>
+<li>As with mappings, turning a knob this way isn't added to the undo history.</li>
+</ul>
+<p>Map Mode and MIDI Learn come first. While either is on, the encoders don't follow the selection, so you can map them in the usual way.</p>
 <h2 id="recording"><a class="header" href="#recording">Recording</a></h2>
 <p>When something good happens (a filter sweep you rode by hand, a lucky generative passage, an improvisation on a MIDI keyboard), press <strong>● Rec</strong> or <code>Ctrl + R</code> to keep it. If the patch is stopped, Rec starts it.</p>
 <p>While recording, the button turns red, with a slowly pulsing light and the length of the take so far. Press it again, press <code>Ctrl + R</code>, or press <strong>⏹ Stop</strong> to end the take. A note pops up in the corner with the take's name and length, and <strong>📂 Show in folder</strong> opens it in your file manager.</p>
@@ -759,6 +777,7 @@ against before.wav:
 <tr><td><code>Shift + Space</code></td><td>Play or stop the patch</td></tr>
 <tr><td><code>Ctrl + R</code></td><td>Record, or end the take</td></tr>
 <tr><td><code>Ctrl + L</code></td><td>Map Mode: click controls one after another to map them to MIDI</td></tr>
+<tr><td><code>Ctrl + Shift + L</code></td><td>The controller's encoders and faders follow the selection, or let go</td></tr>
 <tr><td><code>Alt</code> over a cable</td><td>Hear what the cable carries</td></tr>
 </tbody></table>
 </div>
