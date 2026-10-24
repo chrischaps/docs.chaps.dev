@@ -442,14 +442,16 @@
 <li><strong>MIDI Out</strong> has a row for each of the eight ports, <strong>A</strong> to <strong>H</strong>, that a <a href="../modules/output/midi-out.html">MIDI Out</a> plays. Each row has:
 <ul>
 <li>the port's device, which you choose here or on a MIDI Out's face;</li>
-<li>how the port is doing: <strong>Sending</strong>, <strong>Ready</strong> (it has a device but no MIDI Out plays it), <strong>Unplugged</strong>, <strong>No device</strong>, or <strong>In use</strong> (another app has the device);</li>
+<li>its <strong>Clock</strong>: what it sends of the patch's Clock. <strong>Clock + Transport</strong> sends the tempo with Start and Stop, <strong>Clock only</strong> the tempo alone, and <strong>Off</strong> nothing. The port sends it whether or not a MIDI Out plays it;</li>
+<li>its <strong>Offset</strong>: how many milliseconds later than the sound its notes, CCs and clock go out, to line a slow device up with the rest. Drag it, or click to type. It's amber when it asks for earlier than your audio device's delay allows;</li>
+<li>how the port is doing: <strong>Sending</strong>, <strong>Ready</strong> (it has a device but nothing plays it), <strong>Unplugged</strong>, <strong>No device</strong>, or <strong>In use</strong> (another app has the device);</li>
 <li>a dot that lights on each beat while clock goes out;</li>
 <li>the last message sent;</li>
 <li>how many MIDI Outs play the port.</li>
 </ul>
 </li>
 </ul>
-<p>Ports and inputs are settings of this computer, not of the patch. <strong>🔄 Refresh</strong> looks for devices again at once. Otherwise Soba looks every couple of seconds.</p>
+<p>Ports, with their clocks and offsets, and inputs are settings of this computer, not of the patch. <strong>🔄 Refresh</strong> looks for devices again at once. Otherwise Soba looks every couple of seconds.</p>
 <p><strong>After a reboot.</strong> Windows numbers devices that share a name in the order they were plugged in (<code>2- Digitakt</code>), and numbers a device's extra ports (<code>MIDIIN3 (FANTOM-06)</code>). Linux adds the device's client and port numbers to its name. Those numbers can change when you reboot or plug things in a different order. Soba finds a device by its exact name first, then by its name without those numbers, so every port and input finds its device again. A module whose <strong>Device</strong> is set to it, or a mapping learned from it, still hears it. If two devices are left that both fit, Soba uses neither, rather than guess. Hover a port's device to see whether it was found under a new number.</p>
 <h2 id="recording"><a class="header" href="#recording">Recording</a></h2>
 <p>When something good happens (a filter sweep you rode by hand, a lucky generative passage, an improvisation on a MIDI keyboard), press <strong>● Rec</strong> or <code>Ctrl + R</code> to keep it. If the patch is stopped, Rec starts it.</p>

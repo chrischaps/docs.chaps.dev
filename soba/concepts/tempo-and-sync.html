@@ -213,13 +213,14 @@
 </ul>
 <p>Where MIDI clock carries the master's time down a cable, Link has every app keep the same time from the network's shared clock. Each app allows for its own audio delay, so they agree on when a beat reaches the speakers, not just when it's computed. See <a href="../modules/modulation/clock.html#playing-in-a-link-session">Playing in a Link session</a>.</p>
 <h2 id="leading-other-gear"><a class="header" href="#leading-other-gear">Leading other gear</a></h2>
-<p>It works the other way round too. Turn on <strong>Clock</strong> in a <a href="../modules/output/midi-out.html">MIDI Out</a> and the patch's Clock becomes the master: a DAW, a drum machine or an arpeggiator set to follow MIDI clock plays in Soba's time. MIDI Out:</p>
+<p>It works the other way round too. Turn on a port's <strong>Clock</strong> in <a href="../getting-started/interface-overview.html#the-rig">the Rig</a> and the patch's Clock becomes the master: a DAW, a drum machine or an arpeggiator on that port, set to follow MIDI clock, plays in Soba's time. The port, with <strong>Clock + Transport</strong>:</p>
 <ul>
 <li><strong>sends Start</strong> when the Clock starts from the top, or on the first downbeat after a count-in;</li>
 <li><strong>sends 24 ticks per beat</strong>, each placed on the beat to the sample, and sent as the audio beside it reaches your speakers, so the other gear and Soba's own sounds line up;</li>
 <li><strong>sends Stop</strong> when the Clock stops, and <strong>Continue</strong>, after a Song Position saying where, when it plays on from there.</li>
 </ul>
-<p>A follower measures the tempo from the ticks' spacing, so change the Clock's BPM and it follows. Don't send clock back to the gear the Clock follows: two clocks can't lead one another. A Clock playing in a Link session can lead MIDI gear, though. The same MIDI Out can also play the device's notes.</p>
+<p>With <strong>Clock only</strong> it sends the ticks alone, for gear that should follow the tempo but start and stop by itself. Each port also has an <strong>Offset</strong>, to line up gear that's slow to sound (see <a href="../modules/output/midi-out.html#how-it-works">MIDI Out</a>).</p>
+<p>A follower measures the tempo from the ticks' spacing, so change the Clock's BPM and it follows. Don't send clock back to the gear the Clock follows: two clocks can't lead one another. A Clock playing in a Link session can lead MIDI gear, though. A <a href="../modules/output/midi-out.html">MIDI Out</a> on the same port can also play the device's notes.</p>
 <h2 id="precision"><a class="header" href="#precision">Precision</a></h2>
 <p>The Clock counts its beat precisely enough that every pulse lands within a sample of where it belongs, even after ten minutes, so a slow phrase clock and a fast sixteenth clock started together stay together.</p>
 <p>Modules read the transport once per block of audio (a few milliseconds). Within the block, a synced LFO moves on at the tempo it read. When the beat jumps, as when the Clock restarts or a MIDI master suddenly changes tempo, a synced LFO can be up to one block late in following it. On a steady tempo, and from the next beat on, it's exact.</p>

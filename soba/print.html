@@ -693,14 +693,16 @@ against before.wav:
 <li><strong>MIDI Out</strong> has a row for each of the eight ports, <strong>A</strong> to <strong>H</strong>, that a <a href="getting-started/../modules/output/midi-out.html">MIDI Out</a> plays. Each row has:
 <ul>
 <li>the port's device, which you choose here or on a MIDI Out's face;</li>
-<li>how the port is doing: <strong>Sending</strong>, <strong>Ready</strong> (it has a device but no MIDI Out plays it), <strong>Unplugged</strong>, <strong>No device</strong>, or <strong>In use</strong> (another app has the device);</li>
+<li>its <strong>Clock</strong>: what it sends of the patch's Clock. <strong>Clock + Transport</strong> sends the tempo with Start and Stop, <strong>Clock only</strong> the tempo alone, and <strong>Off</strong> nothing. The port sends it whether or not a MIDI Out plays it;</li>
+<li>its <strong>Offset</strong>: how many milliseconds later than the sound its notes, CCs and clock go out, to line a slow device up with the rest. Drag it, or click to type. It's amber when it asks for earlier than your audio device's delay allows;</li>
+<li>how the port is doing: <strong>Sending</strong>, <strong>Ready</strong> (it has a device but nothing plays it), <strong>Unplugged</strong>, <strong>No device</strong>, or <strong>In use</strong> (another app has the device);</li>
 <li>a dot that lights on each beat while clock goes out;</li>
 <li>the last message sent;</li>
 <li>how many MIDI Outs play the port.</li>
 </ul>
 </li>
 </ul>
-<p>Ports and inputs are settings of this computer, not of the patch. <strong>🔄 Refresh</strong> looks for devices again at once. Otherwise Soba looks every couple of seconds.</p>
+<p>Ports, with their clocks and offsets, and inputs are settings of this computer, not of the patch. <strong>🔄 Refresh</strong> looks for devices again at once. Otherwise Soba looks every couple of seconds.</p>
 <p><strong>After a reboot.</strong> Windows numbers devices that share a name in the order they were plugged in (<code>2- Digitakt</code>), and numbers a device's extra ports (<code>MIDIIN3 (FANTOM-06)</code>). Linux adds the device's client and port numbers to its name. Those numbers can change when you reboot or plug things in a different order. Soba finds a device by its exact name first, then by its name without those numbers, so every port and input finds its device again. A module whose <strong>Device</strong> is set to it, or a mapping learned from it, still hears it. If two devices are left that both fit, Soba uses neither, rather than guess. Hover a port's device to see whether it was found under a new number.</p>
 <h2 id="recording"><a class="header" href="#recording">Recording</a></h2>
 <p>When something good happens (a filter sweep you rode by hand, a lucky generative passage, an improvisation on a MIDI keyboard), press <strong>● Rec</strong> or <code>Ctrl + R</code> to keep it. If the patch is stopped, Rec starts it.</p>
@@ -1174,13 +1176,14 @@ wait connect osc.sine Out -&gt; output.audio Mono
 </ul>
 <p>Where MIDI clock carries the master's time down a cable, Link has every app keep the same time from the network's shared clock. Each app allows for its own audio delay, so they agree on when a beat reaches the speakers, not just when it's computed. See <a href="concepts/../modules/modulation/clock.html#playing-in-a-link-session">Playing in a Link session</a>.</p>
 <h2 id="leading-other-gear"><a class="header" href="#leading-other-gear">Leading other gear</a></h2>
-<p>It works the other way round too. Turn on <strong>Clock</strong> in a <a href="concepts/../modules/output/midi-out.html">MIDI Out</a> and the patch's Clock becomes the master: a DAW, a drum machine or an arpeggiator set to follow MIDI clock plays in Soba's time. MIDI Out:</p>
+<p>It works the other way round too. Turn on a port's <strong>Clock</strong> in <a href="concepts/../getting-started/interface-overview.html#the-rig">the Rig</a> and the patch's Clock becomes the master: a DAW, a drum machine or an arpeggiator on that port, set to follow MIDI clock, plays in Soba's time. The port, with <strong>Clock + Transport</strong>:</p>
 <ul>
 <li><strong>sends Start</strong> when the Clock starts from the top, or on the first downbeat after a count-in;</li>
 <li><strong>sends 24 ticks per beat</strong>, each placed on the beat to the sample, and sent as the audio beside it reaches your speakers, so the other gear and Soba's own sounds line up;</li>
 <li><strong>sends Stop</strong> when the Clock stops, and <strong>Continue</strong>, after a Song Position saying where, when it plays on from there.</li>
 </ul>
-<p>A follower measures the tempo from the ticks' spacing, so change the Clock's BPM and it follows. Don't send clock back to the gear the Clock follows: two clocks can't lead one another. A Clock playing in a Link session can lead MIDI gear, though. The same MIDI Out can also play the device's notes.</p>
+<p>With <strong>Clock only</strong> it sends the ticks alone, for gear that should follow the tempo but start and stop by itself. Each port also has an <strong>Offset</strong>, to line up gear that's slow to sound (see <a href="concepts/../modules/output/midi-out.html#how-it-works">MIDI Out</a>).</p>
+<p>A follower measures the tempo from the ticks' spacing, so change the Clock's BPM and it follows. Don't send clock back to the gear the Clock follows: two clocks can't lead one another. A Clock playing in a Link session can lead MIDI gear, though. A <a href="concepts/../modules/output/midi-out.html">MIDI Out</a> on the same port can also play the device's notes.</p>
 <h2 id="precision"><a class="header" href="#precision">Precision</a></h2>
 <p>The Clock counts its beat precisely enough that every pulse lands within a sample of where it belongs, even after ten minutes, so a slow phrase clock and a fast sixteenth clock started together stay together.</p>
 <p>Modules read the transport once per block of audio (a few milliseconds). Within the block, a synced LFO moves on at the tempo it read. When the beat jumps, as when the Clock restarts or a MIDI master suddenly changes tempo, a synced LFO can be up to one block late in following it. On a steady tempo, and from the next beat on, it's exact.</p>
@@ -6046,7 +6049,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <p>See <a href="modules/output/../../recipes/pinwheel.html">Pinwheel</a> for a patch built for the link.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="midi-out"><a class="header" href="#midi-out">MIDI Out</a></h1>
 <p><strong>Module ID</strong> <code>output.midi</code> · <strong>Category</strong> Output</p>
-<p>MIDI Out plays other instruments from your patch: a hardware synth, a drum machine, or a soft synth in a DAW. A <strong>Gate</strong> and a <strong>Pitch</strong> cable become notes, a poly cable becomes chords, and four control cables become CCs. Turn on <strong>Send Clock</strong> and the patch's <a href="modules/output/../modulation/clock.html">Clock</a> goes out too, so the other gear follows Soba's tempo, starts when it starts and stops when it stops.</p>
+<p>MIDI Out plays other instruments from your patch: a hardware synth, a drum machine, or a soft synth in a DAW. A <strong>Gate</strong> and a <strong>Pitch</strong> cable become notes, a poly cable becomes chords, and four control cables become CCs. Turn on a port's <strong>Clock</strong> in <a href="modules/output/../../getting-started/interface-overview.html#the-rig">the Rig</a> and the patch's <a href="modules/output/../modulation/clock.html">Clock</a> goes out on it too, so the gear on that port follows Soba's tempo, starts when it starts and stops when it stops.</p>
 <p>Patch a <a href="modules/output/../utilities/sequencer.html">Step Sequencer</a> into it and the sequencer plays your synth. Patch a <a href="modules/output/../utilities/chord-sequencer.html">Chord Sequencer</a> and it plays chords.</p>
 <p>MIDI Out makes no sound of its own. It works in the desktop app, and in the browser in Chrome, Edge and Firefox once you've clicked <strong>🎹 Connect MIDI</strong> (in the device menu on its face, or the toolbar's MIDI In). Safari has no MIDI.</p>
 <h2 id="inputs-40"><a class="header" href="#inputs-40">Inputs</a></h2>
@@ -6062,7 +6065,6 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Port</strong></td><td>A – H</td><td>A</td><td>Which device plays. Each port's device is a setting of this computer, not of the patch (see below)</td></tr>
 <tr><td><strong>Ch</strong></td><td>1 – 16</td><td>1</td><td>The MIDI channel the notes and CCs go out on</td></tr>
-<tr><td><strong>Clock</strong></td><td>On / Off</td><td>Off</td><td>Sends the Clock as MIDI clock: 24 ticks a beat, with Start, Stop and Continue</td></tr>
 <tr><td><strong>CC 1</strong> … <strong>CC 4</strong></td><td>0 – 127</td><td>1, 74, 71, 10</td><td>The controller number each lane sends. The defaults are the mod wheel, cutoff, resonance and pan, which most synths answer to</td></tr>
 </tbody></table>
 </div>
@@ -6072,12 +6074,12 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <li><strong>The channel</strong>, top right.</li>
 <li><strong>A keyboard</strong> of five octaves, C2 to C7, with every note the module is holding lit, so a chord shows its shape. A note beyond either end lights the arrow at that end.</li>
 <li><strong>Four bars</strong>, one per CC lane, showing the value last sent, with the lane's CC number beneath. A lane with no cable is an empty slot.</li>
-<li><strong>The clock</strong>, bottom right: four beat lamps that take turns while clock is going out.</li>
+<li><strong>The clock</strong>, bottom right: four beat lamps that take turns while the port sends clock. The word <strong>clock</strong> under them is dim while the port's clock is off.</li>
 </ul>
 <h2 id="ports-not-devices"><a class="header" href="#ports-not-devices">Ports, not devices</a></h2>
 <p>A patch doesn't name a device. It names a <strong>port</strong>, A to H, and this computer remembers which device each port plays. Choose port A's device once and every MIDI Out on port A plays it, in this patch and the next. Share the patch and it plays whatever synth is on port A on the other computer. So it travels without either of you editing it.</p>
 <p>Click the device's name on the face to choose. The list shows every MIDI output this computer has, and it updates as you plug devices in. In the browser the menu offers <strong>🎹 Connect MIDI</strong> first, until you've allowed it. A port's device stays chosen while it's unplugged and plays again once it's back, even if the system has renumbered it (<code>2- Digitakt</code> is now <code>3- Digitakt</code>).</p>
-<p>To see all eight ports at once, open <a href="modules/output/../../getting-started/interface-overview.html#the-rig">the Rig</a> (<code>Ctrl + Shift + H</code>, or <strong>The Rig…</strong> in the <strong>MIDI In</strong> menu). It shows each port's device, how the port is doing, and the last message it sent. It lists the MIDI inputs too.</p>
+<p>To see all eight ports at once, open <a href="modules/output/../../getting-started/interface-overview.html#the-rig">the Rig</a> (<code>Ctrl + Shift + H</code>, or <strong>The Rig…</strong> in the <strong>MIDI In</strong> menu). It shows each port's device, its clock and offset, how the port is doing, and the last message it sent. It lists the MIDI inputs too.</p>
 <p>On Windows only one app can open a MIDI port at a time. If the lamp is red, close whatever else has the device (a DAW, or the maker's editor app), and MIDI Out tries again within a couple of seconds. To play a DAW on the same computer, use a virtual MIDI port such as <a href="https://www.tobias-erichsen.de/software/loopmidi.html">loopMIDI</a>: MIDI Out plays the port, and the DAW listens to it.</p>
 <h2 id="how-it-works-19"><a class="header" href="#how-it-works-19">How it works</a></h2>
 <p><strong>In time with the sound.</strong> Notes don't go out when the patch works them out. They go out when the audio beside them reaches your speakers, which is your audio device's delay later. So a hardware synth and Soba's own sounds play together, and each note is on time to within a millisecond or two. The browser can't promise to send at a given millisecond, so there Soba hands each message over up to a tenth of a second early, with the moment it's due, and the browser sends it then.</p>
@@ -6088,18 +6090,19 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <li>when you delete the module or open another patch, and when the audio stops. Soba lets go of every note the module was holding and sends All Notes Off on its channel;</li>
 <li>when you change the channel, the port or the port's device, on the one the notes started on.</li>
 </ul>
-<p><strong>Clock.</strong> With <strong>Clock</strong> on, MIDI Out sends the Clock's tempo and place, with no cable needed:</p>
+<p><strong>Clock belongs to the port.</strong> Each port's <strong>Clock</strong>, in the Rig, says what it sends of the patch's Clock, with no cable and no module needed:</p>
 <ul>
-<li><strong>Start</strong> when the Clock starts from the top. After a count-in, it comes on the first downbeat;</li>
-<li><strong>24 ticks a beat</strong>, placed on the beat to the sample;</li>
-<li><strong>Stop</strong> when the Clock stops;</li>
-<li><strong>Continue</strong> when it plays on from where it stopped, after a Song Position telling the other gear where that is. Most gear picks up from the next sixteenth.</li>
+<li><strong>Clock + Transport</strong>: <strong>Start</strong> when the Clock starts from the top (after a count-in, on the first downbeat), <strong>24 ticks a beat</strong> placed on the beat to the sample, <strong>Stop</strong> when the Clock stops, and <strong>Continue</strong> when it plays on, after a Song Position telling the other gear where. Most gear picks up from the next sixteenth;</li>
+<li><strong>Clock only</strong>: the ticks alone. The gear follows the tempo but starts and stops on its own, as a looper whose loops you start by foot wants;</li>
+<li><strong>Off</strong>: none of it.</li>
 </ul>
-<p>A patch with no Clock sends no clock. See <a href="modules/output/../../concepts/tempo-and-sync.html#leading-other-gear">Tempo and Sync</a>.</p>
+<p>The port sends it once, however many MIDI Outs play it, and a port no MIDI Out plays sends it too: a drum machine needs only its port's clock to follow Soba. Turn a port to <strong>Clock + Transport</strong> while the song plays and its gear comes in on the next sixteenth. A patch with no Clock sends no clock. See <a href="modules/output/../../concepts/tempo-and-sync.html#leading-other-gear">Tempo and Sync</a>.</p>
+<p>Like a port's device, its clock is a setting of this computer. A patch saved when MIDI Out had its own <strong>Send Clock</strong> switch turns that port's clock on as it opens, if it was off, and the load notes say so.</p>
+<p><strong>Offset.</strong> Every device takes its own time to turn MIDI into sound. A port's <strong>Offset</strong>, in the Rig, sends its notes, CCs and clock that many milliseconds later than the sound beside them, up to 50, to line a quick device up with a slow one. A negative offset sends them earlier, but only by as much as your audio device's delay, since a message can't leave before its sound is made. The Rig shows an offset it can't reach in amber.</p>
 <h2 id="tips-7"><a class="header" href="#tips-7">Tips</a></h2>
 <ul>
 <li><strong>One synth per channel.</strong> Two MIDI Outs on the same port, on channels 1 and 2, play two parts on a multitimbral synth or two tracks in a DAW.</li>
-<li><strong>Clock from one module.</strong> Turn <strong>Clock</strong> on in one MIDI Out per device. Two on the same port would send it twice, and the other gear would run at double speed.</li>
+<li><strong>Line the room up.</strong> Play a Soba hi-hat beside a device's arpeggio, and nudge the device's port <strong>Offset</strong> until they land together. Every MIDI Out on the port moves with it.</li>
 <li><strong>Velocity from anywhere.</strong> A Step Sequencer's second row, an LFO or a <a href="modules/output/../utilities/sample-hold.html">Sample &amp; Hold</a> on Velocity gives a part its accents.</li>
 <li><strong>CCs for movement.</strong> An <a href="modules/output/../modulation/lfo.html">LFO</a> with <strong>Bipolar</strong> off on CC 2 sweeps the synth's own filter. An <a href="modules/output/../modulation/adsr.html">ADSR</a> on the same gate opens it with each note.</li>
 <li><strong>Bipolar sources</strong> go below 0, which sends 0. Use an <a href="modules/output/../utilities/attenuverter.html">Attenuverter</a> to lift them into 0 to 1.</li>
