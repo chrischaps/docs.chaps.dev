@@ -860,7 +860,10 @@ against before.wav:
 <tr><td><code>Page Up</code> or <code>←</code></td><td>Presenting: play the beat again, or the one before if it's only just begun</td></tr>
 <tr><td><code>Escape</code></td><td>Stop presenting</td></tr>
 </tbody></table>
-</div><div style="break-before: page; page-break-before: always;"></div><h1 id="your-first-patch"><a class="header" href="#your-first-patch">Your First Patch</a></h1>
+</div>
+<p>A MIDI footswitch steps the beats too, once the script names its CC before the first beat: <code>advance cc 64</code>, <code>back cc 65</code> or <code>finish cc 66</code>, with a channel after the number if it's on only one. Set the pedal to momentary: each press counts once. While you present, nothing else hears that CC. No module, mapping, MIDI Learn or thru route gets it, so a sustain pedal on CC 64 doesn't hold any notes.</p>
+<p>Each run is kept as a take, a capture script with every beat's cues at the moment it played. <strong>Save take…</strong> in the notes window writes it, and so does stopping, if Soba was started with <code>--present script.txt --take take.txt</code>. Then <code>soba patch.json --capture take.txt</code> films the same run frame by frame, in time with the narration you recorded live. A beat you played again keeps only its last go, so the film holds still where you went back. Knobs you turn and the view you move by hand aren't in the take.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="your-first-patch"><a class="header" href="#your-first-patch">Your First Patch</a></h1>
 <p>In this tutorial you build a playable synthesizer voice from an empty canvas: an oscillator for the tone, a keyboard to play it, an envelope and a VCA to shape each note, and a filter to color it. It takes about fifteen minutes, and each step adds one idea you'll use in every patch after this one.</p>
 <blockquote>
 <p><strong>Rather learn by doing?</strong> The same ground is covered by five short <a href="getting-started/./lessons.html">Lessons</a> that run inside Soba (<strong>❓ Help › 🎓 Lessons</strong>). Each one points at what to do next and waits until you've done it.</p>
