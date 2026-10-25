@@ -547,7 +547,8 @@ against before.wav:
 <p>Select a module or a group and press <code>Ctrl + M</code>. Each of its knobs moves a small random step, and pressing it again wanders further. Hold it, and the knobs glide out further the longer you hold, from a nudge to a big jump; let go when you like what you hear. It's a way to explore by listening: mutate a Library group until it's yours.</p>
 <ul>
 <li><strong>What moves:</strong> every knob of the selected modules, and of every module inside a selected group. <code>Ctrl + Alt + M</code> moves their whole-number knobs, switches and dropdowns too.</li>
-<li><strong>What doesn't:</strong> a knob a cable drives, the Audio Output, and any knob that sets how loud something is (a level, gain, makeup, drive or feedback), so a variation is never louder than the patch was.</li>
+<li><strong>What doesn't:</strong> a knob a cable drives, the Audio Output, and any knob that sets how loud something is (a level, gain, makeup, drive, feedback or velocity), so a variation is never louder than the patch was. Nor does a port or a channel, which say where a module plays, not how it sounds.</li>
+<li><strong>Hardware:</strong> an <a href="getting-started/../modules/midi/instrument.html#exploring-its-sounds">Instrument</a>'s or a <a href="getting-started/../modules/midi/kit.html">Kit</a>'s knobs move the device, but not the ones its profile keeps from Mutate. A knob of named values moves by whole steps.</li>
 <li><strong>Keeping one:</strong> a strip of chips under the selection holds the knobs as they were and the last eight variations, each drawn as a tick per knob, as high as the knob is turned. Click one to go back to it.</li>
 <li><strong>Undo:</strong> each variation, and each click on the strip, is one step.</li>
 <li><strong>Keeping it for good:</strong> <code>Ctrl + Shift + M</code> keeps the knobs as they stand in the next free scene of a <a href="getting-started/../modules/utilities/scenes.html">Scenes</a> module: the one in the selection's group, or the patch's.</li>
@@ -2659,6 +2660,13 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 <li><strong>Undo takes back a turn of the hand.</strong> The moves of one turn are one step, the same as a mouse drag. The step ends after a second of stillness. Undoing it sends the knob's old value to the device.</li>
 </ul>
 <p>A stepped knob goes to the step nearest the value it hears. Knobs that nudge (the FANTOM-06's) send no value of their own back, so they don't listen.</p>
+<h2 id="exploring-its-sounds"><a class="header" href="#exploring-its-sounds">Exploring its sounds</a></h2>
+<p><a href="modules/midi/../../getting-started/interface-overview.html#mutate">Mutate</a> works on hardware too. Select the Instrument and press <code>Ctrl + M</code>: its knobs move a small random step, and the device follows. Press it again to wander further, or hold it to go a long way. Each press is one undo step, so <code>Ctrl + Z</code> walks back to the sound you liked, sending the old values as it goes. Think of the MicroFreak as a partner suggesting the sound next door, not a menu to dig through.</p>
+<ul>
+<li><strong>What stays put:</strong> a knob a cable drives, an empty knob, any parameter the profile marks <code>"mutate": false</code> (a volume, a tuning, a MIDI setting) or whose name says it's loud (a level, drive or feedback), and knobs that nudge, since undo couldn't take a nudge back.</li>
+<li><strong>Named values</strong> (an arpeggio type, a clock division) move only with <code>Ctrl + Alt + M</code>, and then by whole steps, so the device always lands on one of its own values.</li>
+<li><strong>Keeping one:</strong> <code>Ctrl + Shift + M</code> keeps the knobs in a <a href="modules/midi/../utilities/scenes.html">Scenes</a> module. Scenes morph an Instrument's knobs as they do any other knobs. A knob of named values holds until halfway, then switches once, rather than stepping through every value in between. Knobs that nudge aren't kept.</li>
+</ul>
 <h2 id="how-it-works-1"><a class="header" href="#how-it-works-1">How it works</a></h2>
 <p><strong>Knobs.</strong> A knob sends when you turn it. A patched knob sends wherever its cable moves within a block, up to a thousand times a second, so an LFO sweeps a filter as smoothly as the device can follow. A stepped knob (an oscillator type, an arpeggio mode) shares its travel evenly among its steps, and sends each step's own value from the maker's chart, so it lands on the right step whatever numbers the device uses.</p>
 <p><strong>Notes.</strong> Notes, bend and pressure play as <a href="modules/midi/../output/midi-out.html#how-it-works">MIDI Out</a> plays them: in time with the sound, chords from poly cables, and no stuck notes. When the Clock stops, a channel changes or the port changes, every note is let go.</p>
@@ -6077,7 +6085,8 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <p>The scenes live on the module, so you can see them in the patch, and they're saved with it.</p>
 <h2 id="what-a-scene-holds"><a class="header" href="#what-a-scene-holds">What a scene holds</a></h2>
 <p>A Scenes module at the top of the patch holds every knob and switch in the patch. Put one <strong>inside a group</strong>, and it holds only that group's knobs (and those of the groups inside it), so a voice can have scenes of its own without touching the drums.</p>
-<p>A scene leaves out the Audio Output, other Scenes modules, and switches that start, stop or record rather than shape the sound (a Clock's <strong>Run</strong>, a Sampler's <strong>Rec</strong>, an Audio Input's <strong>Channel</strong>).</p>
+<p>A scene leaves out the Audio Output, other Scenes modules, and switches that start, stop or record rather than shape the sound (a Clock's <strong>Run</strong>, a Sampler's <strong>Rec</strong>, an Audio Input's <strong>Channel</strong>), or say which device a module plays (a <strong>Port</strong>).</p>
+<p>An <a href="modules/utilities/../midi/instrument.html#exploring-its-sounds">Instrument</a>'s knobs are kept like any others, so a scene can hold a sound on the hardware. A knob of named values (an arpeggio type) flips at halfway, as a dropdown does. A knob that nudges the device rather than setting it (the FANTOM-06's Cutoff) isn't kept, because it has no place to come back to.</p>
 <h2 id="inputs-40"><a class="header" href="#inputs-40">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Morph</strong></td><td>Control (Orange)</td><td>Replaces the Morph knob: 0 is the From scene, 1 the To scene. Patch an LFO (with <strong>Bipolar</strong> off), an envelope or an <a href="modules/utilities/./arranger.html">Arranger</a> lane</td></tr>
@@ -6493,7 +6502,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <tr><td>●</td><td>Tune</td><td>CC 16</td><td>Sample</td><td>Mutate leaves it</td></tr>
 <tr><td>●</td><td>Sample Select</td><td>CC 19</td><td>Sample</td><td></td></tr>
 <tr><td>●</td><td>Bit Reduction</td><td>CC 18</td><td>Sample</td><td></td></tr>
-<tr><td>●</td><td>Overdrive</td><td>CC 81</td><td>Amp</td><td></td></tr>
+<tr><td>●</td><td>Overdrive</td><td>CC 81</td><td>Amp</td><td>Mutate leaves it</td></tr>
 <tr><td>●</td><td>Delay Send</td><td>CC 82</td><td>FX</td><td></td></tr>
 <tr><td>●</td><td>Reverb Send</td><td>CC 83</td><td>FX</td><td></td></tr>
 <tr><td>●</td><td>Decay</td><td>CC 80</td><td>Amp</td><td></td></tr>
@@ -6543,7 +6552,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <tr><td></td><td>Delay Time</td><td>CC 85 (ch 9)</td><td>FX</td><td></td></tr>
 <tr><td></td><td>Delay Pingpong</td><td>CC 86 (ch 9)</td><td>FX</td><td></td></tr>
 <tr><td></td><td>Delay Width</td><td>CC 87 (ch 9)</td><td>FX</td><td></td></tr>
-<tr><td></td><td>Delay Feedback</td><td>CC 88 (ch 9)</td><td>FX</td><td></td></tr>
+<tr><td></td><td>Delay Feedback</td><td>CC 88 (ch 9)</td><td>FX</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Delay Highpass</td><td>CC 89 (ch 9)</td><td>FX</td><td></td></tr>
 <tr><td></td><td>Delay Lowpass</td><td>CC 90 (ch 9)</td><td>FX</td><td></td></tr>
 <tr><td></td><td>Delay to Reverb</td><td>CC 91 (ch 9)</td><td>FX</td><td></td></tr>
@@ -6778,7 +6787,7 @@ Each bank is on its own channel: A on channel 1 to J on channel 10.</p>
 <tr><td>●</td><td>Cutoff</td><td>CC 1</td><td>Filter</td><td></td></tr>
 <tr><td>●</td><td>Resonance</td><td>CC 11</td><td>Filter</td><td></td></tr>
 <tr><td>●</td><td>Filter Type</td><td>CC 9</td><td>Filter</td><td></td></tr>
-<tr><td>●</td><td>Overdrive</td><td>CC 12</td><td>FX</td><td></td></tr>
+<tr><td>●</td><td>Overdrive</td><td>CC 12</td><td>FX</td><td>Mutate leaves it</td></tr>
 <tr><td>●</td><td>Bit Depth</td><td>CC 13</td><td>FX</td><td></td></tr>
 <tr><td>●</td><td>Tune</td><td>CC 5</td><td>Oscillator</td><td>Mutate leaves it</td></tr>
 <tr><td>●</td><td>Finetune</td><td>CC 3</td><td>Oscillator</td><td>Mutate leaves it</td></tr>
@@ -6903,8 +6912,8 @@ Each bank is on its own channel: A on channel 1 to J on channel 10.</p>
 <tr><td></td><td>EG Rel 1+2</td><td>CC 25</td><td>Envelope</td><td></td></tr>
 <tr><td></td><td>Bit Reduction</td><td>CC 49</td><td>FX</td><td></td></tr>
 <tr><td></td><td>Fold</td><td>CC 50</td><td>FX</td><td></td></tr>
-<tr><td></td><td>Drive</td><td>CC 51</td><td>FX</td><td></td></tr>
-<tr><td></td><td>Dry Gain</td><td>CC 52</td><td>Mix</td><td></td></tr>
+<tr><td></td><td>Drive</td><td>CC 51</td><td>FX</td><td>Mutate leaves it</td></tr>
+<tr><td></td><td>Dry Gain</td><td>CC 52</td><td>Mix</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Pan</td><td>CC 10</td><td>Mix</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Send</td><td>CC 103</td><td>FX</td><td></td></tr>
 <tr><td></td><td>WG Model</td><td>CC 116</td><td>FX</td><td></td></tr>
@@ -6939,15 +6948,15 @@ Each bank is on its own channel: A on channel 1 to J on channel 10.</p>
 <h2 id="parameters-53"><a class="header" href="#parameters-53">Parameters</a></h2>
 <p>The first 12 are an Instrument's knobs when it's first made. Each part takes them on its own channel.</p>
 <div class="table-wrapper"><table><thead><tr><th></th><th>Parameter</th><th>Message</th><th>Group</th><th>Values</th></tr></thead><tbody>
-<tr><td>●</td><td>Cutoff</td><td>CC 74</td><td>Filter</td><td>an offset: 64 is no change</td></tr>
-<tr><td>●</td><td>Resonance</td><td>CC 71</td><td>Filter</td><td>an offset: 64 is no change</td></tr>
-<tr><td>●</td><td>Attack</td><td>CC 73</td><td>Envelope</td><td>an offset: 64 is no change</td></tr>
-<tr><td>●</td><td>Decay</td><td>CC 75</td><td>Envelope</td><td>an offset: 64 is no change</td></tr>
-<tr><td>●</td><td>Release</td><td>CC 72</td><td>Envelope</td><td>an offset: 64 is no change</td></tr>
+<tr><td>●</td><td>Cutoff</td><td>CC 74</td><td>Filter</td><td>an offset: 64 is no change; Mutate leaves it</td></tr>
+<tr><td>●</td><td>Resonance</td><td>CC 71</td><td>Filter</td><td>an offset: 64 is no change; Mutate leaves it</td></tr>
+<tr><td>●</td><td>Attack</td><td>CC 73</td><td>Envelope</td><td>an offset: 64 is no change; Mutate leaves it</td></tr>
+<tr><td>●</td><td>Decay</td><td>CC 75</td><td>Envelope</td><td>an offset: 64 is no change; Mutate leaves it</td></tr>
+<tr><td>●</td><td>Release</td><td>CC 72</td><td>Envelope</td><td>an offset: 64 is no change; Mutate leaves it</td></tr>
 <tr><td>●</td><td>Modulation</td><td>CC 1</td><td>Voice</td><td></td></tr>
-<tr><td>●</td><td>Vibrato Rate</td><td>CC 76</td><td>LFO</td><td>an offset: 64 is no change</td></tr>
-<tr><td>●</td><td>Vibrato Depth</td><td>CC 77</td><td>LFO</td><td>an offset: 64 is no change</td></tr>
-<tr><td>●</td><td>Vibrato Delay</td><td>CC 78</td><td>LFO</td><td>an offset: 64 is no change</td></tr>
+<tr><td>●</td><td>Vibrato Rate</td><td>CC 76</td><td>LFO</td><td>an offset: 64 is no change; Mutate leaves it</td></tr>
+<tr><td>●</td><td>Vibrato Depth</td><td>CC 77</td><td>LFO</td><td>an offset: 64 is no change; Mutate leaves it</td></tr>
+<tr><td>●</td><td>Vibrato Delay</td><td>CC 78</td><td>LFO</td><td>an offset: 64 is no change; Mutate leaves it</td></tr>
 <tr><td>●</td><td>Reverb Send</td><td>CC 91</td><td>FX</td><td></td></tr>
 <tr><td>●</td><td>Chorus Send</td><td>CC 93</td><td>FX</td><td></td></tr>
 <tr><td>●</td><td>Portamento</td><td>CC 5</td><td>Voice</td><td></td></tr>

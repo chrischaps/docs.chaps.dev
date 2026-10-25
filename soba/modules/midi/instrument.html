@@ -240,6 +240,13 @@
 <li><strong>Undo takes back a turn of the hand.</strong> The moves of one turn are one step, the same as a mouse drag. The step ends after a second of stillness. Undoing it sends the knob's old value to the device.</li>
 </ul>
 <p>A stepped knob goes to the step nearest the value it hears. Knobs that nudge (the FANTOM-06's) send no value of their own back, so they don't listen.</p>
+<h2 id="exploring-its-sounds"><a class="header" href="#exploring-its-sounds">Exploring its sounds</a></h2>
+<p><a href="../../getting-started/interface-overview.html#mutate">Mutate</a> works on hardware too. Select the Instrument and press <code>Ctrl + M</code>: its knobs move a small random step, and the device follows. Press it again to wander further, or hold it to go a long way. Each press is one undo step, so <code>Ctrl + Z</code> walks back to the sound you liked, sending the old values as it goes. Think of the MicroFreak as a partner suggesting the sound next door, not a menu to dig through.</p>
+<ul>
+<li><strong>What stays put:</strong> a knob a cable drives, an empty knob, any parameter the profile marks <code>"mutate": false</code> (a volume, a tuning, a MIDI setting) or whose name says it's loud (a level, drive or feedback), and knobs that nudge, since undo couldn't take a nudge back.</li>
+<li><strong>Named values</strong> (an arpeggio type, a clock division) move only with <code>Ctrl + Alt + M</code>, and then by whole steps, so the device always lands on one of its own values.</li>
+<li><strong>Keeping one:</strong> <code>Ctrl + Shift + M</code> keeps the knobs in a <a href="../utilities/scenes.html">Scenes</a> module. Scenes morph an Instrument's knobs as they do any other knobs. A knob of named values holds until halfway, then switches once, rather than stepping through every value in between. Knobs that nudge aren't kept.</li>
+</ul>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
 <p><strong>Knobs.</strong> A knob sends when you turn it. A patched knob sends wherever its cable moves within a block, up to a thousand times a second, so an LFO sweeps a filter as smoothly as the device can follow. A stepped knob (an oscillator type, an arpeggio mode) shares its travel evenly among its steps, and sends each step's own value from the maker's chart, so it lands on the right step whatever numbers the device uses.</p>
 <p><strong>Notes.</strong> Notes, bend and pressure play as <a href="../output/midi-out.html#how-it-works">MIDI Out</a> plays them: in time with the sound, chords from poly cables, and no stuck notes. When the Clock stops, a channel changes or the port changes, every note is let go.</p>
