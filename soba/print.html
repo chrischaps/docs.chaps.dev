@@ -691,6 +691,7 @@ against before.wav:
 <li>the last message heard, as the <a href="getting-started/../modules/midi/midi-monitor.html">MIDI Monitor</a> writes it. It's bright when it arrives and fades to grey over a few seconds;</li>
 <li>how many modules have their <strong>Device</strong> set to it alone. Hover to see their names.</li>
 </ul>
+<p>An input a route comes from also has a <strong>thru</strong> chip by its name. Click it to make the input <strong>Thru only</strong>: it stays open and its routes pass as before, but the patch doesn't hear it. Modules set to any device, MIDI Learn, mappings learned from any device, the MIDI Monitor and the pianos all pass it by. A module whose <strong>Device</strong> names it still hears it, since naming it is asking for it. While it's Thru only, the chip is lit, the name steps back, and the row reads <strong>routes only</strong> where the modules would be. It's for a keyboard that's only there to play your hardware. Click the chip again to let the patch hear it.</p>
 </li>
 <li>
 <p><strong>MIDI Out</strong> has a row for each of the eight ports, <strong>A</strong> to <strong>H</strong>, that a <a href="getting-started/../modules/output/midi-out.html">MIDI Out</a> plays. Each row has:</p>
@@ -716,7 +717,7 @@ against before.wav:
 <li>what it's doing: <strong>Thru</strong>, <strong>Open input</strong> (click to open it), <strong>No input</strong>, <strong>No device</strong>, <strong>Unplugged</strong> or <strong>Loop</strong>;</li>
 <li>a ✕ to take it away. Notes it was holding are let go.</li>
 </ul>
-<p>A route goes out the moment it comes in, ahead of anything else on the thread that sends MIDI, without waiting for the audio or for the port's <strong>Offset</strong>: it's for playing, and adds well under a millisecond. A route that would play the device it comes from is refused and says <strong>Loop</strong>, since a device that echoes what it hears would feed back forever; the <strong>To</strong> menu won't offer that port. The patch still hears an open input: a Note In set to any device plays along, so set its <strong>Device</strong> to another one to keep them apart. Up to sixteen routes.</p>
+<p>A route goes out the moment it comes in, ahead of anything else on the thread that sends MIDI, without waiting for the audio or for the port's <strong>Offset</strong>: it's for playing, and adds well under a millisecond. A route that would play the device it comes from is refused and says <strong>Loop</strong>, since a device that echoes what it hears would feed back forever; the <strong>To</strong> menu won't offer that port. The patch still hears an open input: a Note In set to any device plays along. To keep them apart, make the input <strong>Thru only</strong> with the chip by its name under MIDI In. Up to sixteen routes.</p>
 </li>
 </ul>
 <p>Ports, with their clocks, offsets and budgets, routes, and inputs are settings of this computer, not of the patch. <strong>🔄 Refresh</strong> looks for devices again at once. Otherwise Soba looks every couple of seconds.</p>
@@ -8302,7 +8303,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <li><strong>Your own patterns.</strong> Click a row in the Setlist to choose another pattern for a section, or <strong>+</strong> to add a row for another device: the FANTOM-06's scenes, the ZOIA's patches, the SP-404MKII's banks.</li>
 <li><strong>Another sound for the MicroFreak.</strong> Select its Instrument and press <code>Ctrl + M</code> to <a href="recipes/../getting-started/interface-overview.html#mutate">mutate</a> its knobs a step. Turn its real knobs and the node's knobs follow, so saving the patch keeps the sound you made by hand.</li>
 <li><strong>Another voice for the volca.</strong> Press <strong>Mutate</strong> on the FM Voice and the volca plays the child at once. The garden keeps every voice you bred.</li>
-<li><strong>Your keyboard in the room.</strong> In the Rig's <strong>Thru</strong>, add a route from your keyboard to port B and play the MicroFreak over the song, past the patch.</li>
+<li><strong>Your keyboard in the room.</strong> In the Rig's <strong>Thru</strong>, add a route from your keyboard to port B and play the MicroFreak over the song, past the patch. Click the <strong>thru</strong> chip by the keyboard's name under MIDI In so the patch's own modules don't play along.</li>
 <li><strong>Another device.</strong> Choose another profile on either Instrument, or point a Setlist row at another port.</li>
 </ul>
 <h2 id="mix-and-space-1"><a class="header" href="#mix-and-space-1">Mix and space</a></h2>

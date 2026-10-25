@@ -440,6 +440,7 @@
 <li>the last message heard, as the <a href="../modules/midi/midi-monitor.html">MIDI Monitor</a> writes it. It's bright when it arrives and fades to grey over a few seconds;</li>
 <li>how many modules have their <strong>Device</strong> set to it alone. Hover to see their names.</li>
 </ul>
+<p>An input a route comes from also has a <strong>thru</strong> chip by its name. Click it to make the input <strong>Thru only</strong>: it stays open and its routes pass as before, but the patch doesn't hear it. Modules set to any device, MIDI Learn, mappings learned from any device, the MIDI Monitor and the pianos all pass it by. A module whose <strong>Device</strong> names it still hears it, since naming it is asking for it. While it's Thru only, the chip is lit, the name steps back, and the row reads <strong>routes only</strong> where the modules would be. It's for a keyboard that's only there to play your hardware. Click the chip again to let the patch hear it.</p>
 </li>
 <li>
 <p><strong>MIDI Out</strong> has a row for each of the eight ports, <strong>A</strong> to <strong>H</strong>, that a <a href="../modules/output/midi-out.html">MIDI Out</a> plays. Each row has:</p>
@@ -465,7 +466,7 @@
 <li>what it's doing: <strong>Thru</strong>, <strong>Open input</strong> (click to open it), <strong>No input</strong>, <strong>No device</strong>, <strong>Unplugged</strong> or <strong>Loop</strong>;</li>
 <li>a ✕ to take it away. Notes it was holding are let go.</li>
 </ul>
-<p>A route goes out the moment it comes in, ahead of anything else on the thread that sends MIDI, without waiting for the audio or for the port's <strong>Offset</strong>: it's for playing, and adds well under a millisecond. A route that would play the device it comes from is refused and says <strong>Loop</strong>, since a device that echoes what it hears would feed back forever; the <strong>To</strong> menu won't offer that port. The patch still hears an open input: a Note In set to any device plays along, so set its <strong>Device</strong> to another one to keep them apart. Up to sixteen routes.</p>
+<p>A route goes out the moment it comes in, ahead of anything else on the thread that sends MIDI, without waiting for the audio or for the port's <strong>Offset</strong>: it's for playing, and adds well under a millisecond. A route that would play the device it comes from is refused and says <strong>Loop</strong>, since a device that echoes what it hears would feed back forever; the <strong>To</strong> menu won't offer that port. The patch still hears an open input: a Note In set to any device plays along. To keep them apart, make the input <strong>Thru only</strong> with the chip by its name under MIDI In. Up to sixteen routes.</p>
 </li>
 </ul>
 <p>Ports, with their clocks, offsets and budgets, routes, and inputs are settings of this computer, not of the patch. <strong>🔄 Refresh</strong> looks for devices again at once. Otherwise Soba looks every couple of seconds.</p>
