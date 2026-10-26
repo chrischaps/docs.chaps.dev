@@ -258,7 +258,8 @@ finish   cc 66          # finish the beat on show
 <pre><code class="language-text">soba patches/basic-subtractive.json --present presentations/ep4-filters.txt --take ep4-take.txt
 </code></pre>
 <p>or click <strong>Save take…</strong> in the notes at any point.</p>
-<p>A take keeps the script's cues, not your hands. A knob you turn or a view you move by hand during a beat isn't in it, so anything the film needs to show belongs in the script. A beat you played again replaces the first try: the take holds still where you went back, which is where the editor cuts your retake of the narration.</p>
+<p>A take keeps the script's cues, not your hands. A knob you turn or a view you move by hand during a beat isn't in it, so anything the film needs to show belongs in the script. A beat you played again replaces the first try: the take holds still where you went back, which is where the editor cuts your retake of the narration. The take says so in a comment under that beat (<code># Played again: the film holds still from 1:10.2…</code>).</p>
+<p>A take is text: it records no sound or picture. The picture and the patch's sound come from filming it, and your voice from your own recorder.</p>
 <h2 id="from-rehearsal-to-film"><a class="header" href="#from-rehearsal-to-film">From rehearsal to film</a></h2>
 <p>This is how a video gets made with it:</p>
 <ol>
@@ -269,7 +270,7 @@ finish   cc 66          # finish the beat on show
 <p><strong>Rehearse live.</strong> Size Soba's window to the shape of the film (tall for a Short, wide for a video), because the camera frames modules to fit the window and the take keeps that view. Play the beats, rewrite them and go again until the pacing feels right. Fix the script between runs and present it again: there's no need to restart Soba.</p>
 </li>
 <li>
-<p><strong>Record the take.</strong> Record your voice as you present (any recorder will do), and present with <code>--take</code>. Play a beat again if you fluff a line.</p>
+<p><strong>Record the take.</strong> Present with <code>--take</code>, and record two tracks as you go: your mic, and Soba's own sound (desktop or loopback audio). OBS in audio-only mode does it, as do Reaper and Audacity. Wear headphones, so the mic doesn't hear the patch. Play a beat again if you fluff a line.</p>
 </li>
 <li>
 <p><strong>Film the take.</strong> A capture films it with the patch's sound, frame by frame, so nothing stutters however busy the patch is:</p>
@@ -277,10 +278,19 @@ finish   cc 66          # finish the beat on show
 </code></pre>
 </li>
 <li>
-<p><strong>Line up the voice.</strong> The film's zero is your first press, so put the start of the first beat in your recording at zero, and cut out any retakes where the film holds still.</p>
+<p><strong>Line up the voice.</strong> The film's zero is your first press. <code>take_sync.py</code> finds it in your recording by matching the film's sound against the Soba track, and writes your voice from that moment on, ready to put at 0:00 under the film:</p>
+<pre><code class="language-text">python tools/showcase/take_sync.py target/showcase/ep4 narration.mkv --track 1 --voice-track 0 --out voice.wav
+</code></pre>
+<p>It also says whether the recorder's clock drifted from Soba's, and stretches the voice to match if it did.</p>
 </li>
 <li>
-<p><strong>Encode it.</strong> <code>python tools/showcase/encode.py ep4 ep4.mp4 --lufs -14</code> makes the clip, at the loudness video sites play at.</p>
+<p><strong>Cut it.</strong> <code>take_markers.py</code> lists each beat where it starts in the film and every retake to cut. With <code>--edl</code> it writes them as markers DaVinci Resolve imports, and with <code>--script</code> it prints the presentation's sections as YouTube chapters:</p>
+<pre><code class="language-text">python tools/showcase/take_markers.py ep4-take.txt --script presentations/ep4-filters.txt --edl markers.edl
+</code></pre>
+<p>Cut picture and patch sound together, where the patch holds still, and never inside a moment of listening.</p>
+</li>
+<li>
+<p><strong>Encode it.</strong> <code>python tools/showcase/encode.py ep4 ep4.mp4 --lufs -14</code> makes a clip of the film alone, at the loudness video sites play at. With narration, mix and export from your editor at −14 LUFS instead, with the patch about 10–12 dB under your voice while you talk.</p>
 </li>
 </ol>
 <p>A take plays its cues against the patch as it stands, so if you change the patch or the script, present it again for a new take.</p>
