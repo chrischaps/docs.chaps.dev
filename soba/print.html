@@ -1058,7 +1058,8 @@ auto  6
 <p>The cues are the ones a capture script uses, so anything Soba can be filmed doing, a beat can do live. These are the ones a presentation uses most:</p>
 <div class="table-wrapper"><table><thead><tr><th>Cue</th><th>What it does</th></tr></thead><tbody>
 <tr><td><code>look filter.svf 0.8</code></td><td>Glides the camera to frame a module, as <code>F</code> frames a selection, over 0.8 s.</td></tr>
-<tr><td><code>look osc.sine 1.4 2.0</code></td><td>Centres a module at zoom 1.4, over 2 s.</td></tr>
+<tr><td><code>look osc.sine 1.4 2.0</code></td><td>Centres a module at zoom 1.4, over 2 s. The canvas zooms in as far as 5×.</td></tr>
+<tr><td><code>look close util.vca 0.8</code></td><td>Frames a module as close as it fits, so its knobs and displays fill the screen. Use it to show one control up close. A frame works too: <code>look close frame:Tone</code>.</td></tr>
 <tr><td><code>look frame:Tone 0.8</code></td><td>Frames a frame, by its title.</td></tr>
 <tr><td><code>param filter.svf Cutoff 260 3.6</code></td><td>Turns a knob to a value over 3.6 s. Frequencies and times glide evenly in octaves.</td></tr>
 <tr><td><code>note 36 80 5.0</code></td><td>Plays a MIDI note into Note In: note number, velocity, length in seconds.</td></tr>
