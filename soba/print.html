@@ -1050,6 +1050,7 @@ auto  6
 </code></pre>
 <ul>
 <li><strong><code>title</code></strong> names the presentation in the notes and the status bar.</li>
+<li><strong><code>window &lt;width&gt;x&lt;height&gt;</code></strong> sizes Soba's window as presenting starts, in points, so what you see live is what the film shows. A film at <code>--size 1920x1080 --ppp 1.5</code> is <code>window 1280x720</code>. If the window can't be that size, the status bar says so at the first press, and the take notes the size it was and how to film it.</li>
 <li><strong><code>beat &lt;name&gt;</code></strong> starts a beat. A beat with no name is called by its number.</li>
 <li><strong><code>say</code></strong> is a paragraph for the notes. Use one <code>say</code> line per paragraph. A beat with nothing to say is fine: the notes then tell you to let it play.</li>
 <li><strong><code>auto &lt;seconds&gt;</code></strong> moves on to the next beat by itself that long after this one starts, without a press. Use it for a cold open that runs straight into the first explanation.</li>
@@ -1094,7 +1095,7 @@ finish   cc 66          # finish the beat on show
 <p><strong>Write the script</strong> against the patch, one beat per idea, each ending on something to listen to.</p>
 </li>
 <li>
-<p><strong>Rehearse live.</strong> Size Soba's window to the shape of the film (tall for a Short, wide for a video), because the camera frames modules to fit the window and the take keeps that view. Play the beats, rewrite them and go again until the pacing feels right. Fix the script between runs and present it again: there's no need to restart Soba.</p>
+<p><strong>Rehearse live.</strong> Give the script a <code>window</code> line the shape of the film (tall for a Short, wide for a video), because the camera frames modules to fit the window and the take keeps that view. Play the beats, rewrite them and go again until the pacing feels right. Fix the script between runs and present it again: there's no need to restart Soba.</p>
 </li>
 <li>
 <p><strong>Record the take.</strong> Present with <code>--take</code>, and record two tracks as you go: your mic, and Soba's own sound (desktop or loopback audio). OBS in audio-only mode does it, as do Reaper and Audacity. Wear headphones, so the mic doesn't hear the patch. Play a beat again if you fluff a line.</p>
