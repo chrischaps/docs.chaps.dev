@@ -187,13 +187,13 @@
 <p><strong>From the maker's chart:</strong> Polyend Tracker Manual v1.7.0, ch. 11 MIDI (11.2 Configuration, 11.4 CC mapping, 11.9 MIDI Synthesizer), ch. 8 Master mixer, https://polyend-website.fra1.digitaloceanspaces.com/wp-content/uploads/2023/08/01084159/Polyend-Tracker-Manual-1.7.0.pdf</p>
 </blockquote>
 <h2 id="before-you-play"><a class="header" href="#before-you-play">Before you play</a></h2>
-<p>Set Config &gt; MIDI: Notes In and CC In to USB or MIDI In jack, and Notes Input Channel / CC In channel to match this profile (each is All or Ch 1-16; the manual gives no factory channel, so 1 is an assumption). Stop the sequencer to play it as a MIDI synthesizer: notes play the last selected instrument. Synth CCs 1-31 and 83-118 act on that instrument; CC 51-62 drive Perform mode effect slots, 71-82 the mixer. The Tracker receives no program change.</p>
+<p>Set Config &gt; MIDI: Notes In and CC In to USB or MIDI In jack, and Notes Input Channel / CC In channel to match this profile (each is All or Ch 1-16; the manual gives no factory channel, so 1 is an assumption). Stop the sequencer to play it as a MIDI synthesizer: notes play the last selected instrument. Synth CCs 1-31 and 83-118 act on that instrument; CC 51-62 drive Perform mode effect slots, 71-82 the mixer. The Tracker receives no program change. Filter Type picks one of Disabled, Low-pass, High-pass and Band-pass, so Mutate moves it only with Ctrl+Alt+M; the manual doesn't say which CC 9 values pick which, so it reads as a number.</p>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <p>The first 12 are an Instrument's knobs when it's first made.</p>
 <div class="table-wrapper"><table><thead><tr><th></th><th>Parameter</th><th>Message</th><th>Group</th><th>Values</th></tr></thead><tbody>
 <tr><td>●</td><td>Cutoff</td><td>CC 1</td><td>Filter</td><td></td></tr>
 <tr><td>●</td><td>Resonance</td><td>CC 11</td><td>Filter</td><td></td></tr>
-<tr><td>●</td><td>Filter Type</td><td>CC 9</td><td>Filter</td><td></td></tr>
+<tr><td>●</td><td>Filter Type</td><td>CC 9</td><td>Filter</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td>●</td><td>Overdrive</td><td>CC 12</td><td>FX</td><td>Mutate leaves it</td></tr>
 <tr><td>●</td><td>Bit Depth</td><td>CC 13</td><td>FX</td><td></td></tr>
 <tr><td>●</td><td>Tune</td><td>CC 5</td><td>Oscillator</td><td>Mutate leaves it</td></tr>

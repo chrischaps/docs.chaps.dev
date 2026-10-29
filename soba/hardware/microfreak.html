@@ -187,13 +187,13 @@
 <p><strong>From the maker's chart:</strong> Arturia MicroFreak User Manual v5.0.1 (7/6/2023), Appendix D: CC# Values (p.141-142), https://dl.arturia.net/products/microfreak/manual/microfreak_Manual_5_0_1_EN.pdf</p>
 </blockquote>
 <h2 id="before-you-play"><a class="header" href="#before-you-play">Before you play</a></h2>
-<p>Set Utility &gt; MIDI &gt; Input Chan to match the channel Soba sends on (the manual does not state the factory input channel; output defaults to all channels). The knobs' CC send is a Utility setting; reception of CCs is the same CC list. Clock source is chosen in Utility (USB, MIDI or Sync). Set Local Control to match your use. The manual names the 22 oscillator types (BasicWaves to Vocoder) but not the CC 9 value each sits at, so Osc Type shows numbers.</p>
+<p>Set Utility &gt; MIDI &gt; Input Chan to match the channel Soba sends on (the manual does not state the factory input channel; output defaults to all channels). The knobs' CC send is a Utility setting; reception of CCs is the same CC list. Clock source is chosen in Utility (USB, MIDI or Sync). Set Local Control to match your use. Osc Type, LFO Sync Rate and Arp Sync Rate pick one of several (an oscillator engine, a division), so Mutate moves them only with Ctrl+Alt+M and a scene flips them at halfway. The manual names the 22 oscillator types in order (BasicWaves, SuperWave, Wavetable, Harmo, KarplusStr, V.Analog, Waveshaper, Two Op.FM, Formant, Chords, Speech, Modal, Noise, Bass, SawX, Harm, WaveUser, Sample, Scan Grains, Cloud Grains, Hit Grains, Vocoder), the LFO's synced divisions (8/1 to 1/32) and the arp's (1/1 to 1/32t), but not the CC value each starts at, so they read as numbers until the bands are heard from the device.</p>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <p>The first 12 are an Instrument's knobs when it's first made.</p>
 <div class="table-wrapper"><table><thead><tr><th></th><th>Parameter</th><th>Message</th><th>Group</th><th>Values</th></tr></thead><tbody>
 <tr><td>●</td><td>Cutoff</td><td>CC 23</td><td>Filter</td><td></td></tr>
 <tr><td>●</td><td>Resonance</td><td>CC 83</td><td>Filter</td><td></td></tr>
-<tr><td>●</td><td>Osc Type</td><td>CC 9</td><td>Oscillator</td><td></td></tr>
+<tr><td>●</td><td>Osc Type</td><td>CC 9</td><td>Oscillator</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td>●</td><td>Osc Wave</td><td>CC 10</td><td>Oscillator</td><td></td></tr>
 <tr><td>●</td><td>Osc Timbre</td><td>CC 12</td><td>Oscillator</td><td></td></tr>
 <tr><td>●</td><td>Osc Shape</td><td>CC 13</td><td>Oscillator</td><td></td></tr>
@@ -208,9 +208,9 @@
 <tr><td></td><td>Cyc Env Fall</td><td>CC 103</td><td>Envelope</td><td></td></tr>
 <tr><td></td><td>Cyc Env Hold</td><td>CC 28</td><td>Envelope</td><td></td></tr>
 <tr><td></td><td>LFO Rate</td><td>CC 93</td><td>LFO</td><td></td></tr>
-<tr><td></td><td>LFO Sync Rate</td><td>CC 94</td><td>LFO</td><td></td></tr>
+<tr><td></td><td>LFO Sync Rate</td><td>CC 94</td><td>LFO</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>Arp Rate</td><td>CC 91</td><td>Arp</td><td></td></tr>
-<tr><td></td><td>Arp Sync Rate</td><td>CC 92</td><td>Arp</td><td></td></tr>
+<tr><td></td><td>Arp Sync Rate</td><td>CC 92</td><td>Arp</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 </tbody></table>
 </div>
 <h2 id="buttons"><a class="header" href="#buttons">Buttons</a></h2>

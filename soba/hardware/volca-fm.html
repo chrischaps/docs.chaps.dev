@@ -187,19 +187,19 @@
 <p><strong>From the maker's chart:</strong> KORG volca fm MIDI Implementation Rev. 1.01 (2016.4.07) and volca fm MIDI Implementation Chart Ver. 1.01 (2016.04.07, Model: volca fm), plus volca fm Owner's Manual (volca_fm_OM_EFGSCJ5), https://www.korg.com/us/support/download/product/0/558/</p>
 </blockquote>
 <h2 id="before-you-play"><a class="header" href="#before-you-play">Before you play</a></h2>
-<p>The volca fm has a MIDI In only (no MIDI Out), and takes no Program Change. The manual does not state the factory MIDI channel (channel 1 is assumed): set it by holding MEMORY while powering on and pressing keyboard button 1-16. Hold FUNC while powering on and set global parameter 7 'MIDI RX ShortMessage' to On (the factory default), or notes, CCs and pitch bend are ignored; clock, Start and Stop are followed only while parameter 6 'MIDI Clock Src' is Auto (the default). Transpose steps shown apply when 'TRANSPOSE NOTE' is On; with it Off, CC 40 gives octave-range transposition of -36 to +36 semitones instead. Modulator/Carrier Attack and Decay run -63 to +63 around the voice's own setting (64 is no change). Korg's hex and decimal columns disagree in a few of the step tables, so Soba sends each step from the middle of its band, inside it whichever column is right.</p>
+<p>The volca fm has a MIDI In only (no MIDI Out), and takes no Program Change. The manual does not state the factory MIDI channel (channel 1 is assumed): set it by holding MEMORY while powering on and pressing keyboard button 1-16. Hold FUNC while powering on and set global parameter 7 'MIDI RX ShortMessage' to On (the factory default), or notes, CCs and pitch bend are ignored; clock, Start and Stop are followed only while parameter 6 'MIDI Clock Src' is Auto (the default). Transpose steps shown apply when 'TRANSPOSE NOTE' is On; with it Off, CC 40 gives octave-range transposition of -36 to +36 semitones instead. Modulator/Carrier Attack and Decay run -63 to +63 around the voice's own setting (64 is no change). Korg's hex and decimal columns disagree in a few of the step tables, so Soba sends each step from the middle of its band, inside it whichever column is right. Algorithm's bands are the implementation's table *7 (CC 48 value to algorithm), shown 1-32. That table reads 32 for CC 125-127 although algorithms run 0-31, so Algo 32 is sent at 124, inside the band of 121-124 the table gives it.</p>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <p>The first 12 are an Instrument's knobs when it's first made.</p>
 <div class="table-wrapper"><table><thead><tr><th></th><th>Parameter</th><th>Message</th><th>Group</th><th>Values</th></tr></thead><tbody>
-<tr><td>●</td><td>Algorithm</td><td>CC 48</td><td>Oscillator</td><td></td></tr>
+<tr><td>●</td><td>Algorithm</td><td>CC 48</td><td>Oscillator</td><td>Algo 1, Algo 2 … Algo 32; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td>●</td><td>Mod Attack</td><td>CC 42</td><td>Envelope</td><td>starts at 64</td></tr>
 <tr><td>●</td><td>Mod Decay</td><td>CC 43</td><td>Envelope</td><td>starts at 64</td></tr>
 <tr><td>●</td><td>Carrier Attack</td><td>CC 44</td><td>Envelope</td><td>starts at 64</td></tr>
 <tr><td>●</td><td>Carrier Decay</td><td>CC 45</td><td>Envelope</td><td>starts at 64</td></tr>
 <tr><td>●</td><td>LFO Rate</td><td>CC 46</td><td>LFO</td><td></td></tr>
 <tr><td>●</td><td>LFO Pitch Dep</td><td>CC 47</td><td>LFO</td><td></td></tr>
-<tr><td>●</td><td>Arp Type</td><td>CC 49</td><td>Arp</td><td>Off, Rise 1, Rise 2, Rise 3, Fall 1, Fall 2, Fall 3, Random 1, Random 2, Random 3</td></tr>
-<tr><td>●</td><td>Arp Div</td><td>CC 50</td><td>Arp</td><td>1/12, 1/8, 1/4, 1/3, 1/2, 2/3, 1/1, 3/2, 2/1, 3/1, 4/1</td></tr>
+<tr><td>●</td><td>Arp Type</td><td>CC 49</td><td>Arp</td><td>Off, Rise 1, Rise 2, Rise 3, Fall 1, Fall 2, Fall 3, Random 1, Random 2, Random 3; Mutate moves it only with Ctrl+Alt+M</td></tr>
+<tr><td>●</td><td>Arp Div</td><td>CC 50</td><td>Arp</td><td>1/12, 1/8, 1/4, 1/3, 1/2, 2/3, 1/1, 3/2, 2/1, 3/1, 4/1; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td>●</td><td>Transpose</td><td>CC 40</td><td>Voice</td><td>-3, -2, -1, 0, +1, +2, +3; Mutate leaves it</td></tr>
 <tr><td>●</td><td>Velocity</td><td>CC 41</td><td>Amp</td><td>1–127; Mutate leaves it</td></tr>
 </tbody></table>

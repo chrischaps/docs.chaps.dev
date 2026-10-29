@@ -187,7 +187,7 @@
 <p><strong>From the maker's chart:</strong> KORG volca drum MIDI Implementation Chart (Split channel), Date 2019.2.20 v1.00, https://www.korg.com/us/support/download/manual/0/809/4259/ ; (Single channel) https://www.korg.com/us/support/download/manual/0/809/4260/ ; Owner's Manual https://www.korg.com/us/support/download/manual/0/809/4195/</p>
 </blockquote>
 <h2 id="before-you-play"><a class="header" href="#before-you-play">Before you play</a></h2>
-<p>Factory default is split-channel mode: Part 1-6 on MIDI channels 1-6, any note triggers the part (sounds do not map to note numbers) and the CCs are per part on its channel. Set the global parameter MIDI RX ShortMessage to On (the factory default) or the CCs are ignored. Clock, Start, Stop and Continue are received only when MIDI Clock Src is Auto (the factory default); nothing is transmitted. Single-channel mode (chosen by setting a MIDI channel with REC held while powering on; all six parts on that one channel) uses other CC numbers per part: Part 1 Select 14, Level 15, Mod Amt 16, Mod Rate 17, Pitch 18, EG Attack 19, EG Release 20, Send 103, Pan 109, each acting on both layers; the later parts continue in blocks (Part 2 from 23, Send 104, Pan 110, up to Part 6 at 89-100, Send 108, Pan 114), and the waveguide stays on 116-119. No Program Change is documented. The chart marks Program Change as received, and the Owner's Manual keeps 16 programs on the step buttons; which program change picks which isn't stated, so program change 0 is taken as program 1.</p>
+<p>Factory default is split-channel mode: Part 1-6 on MIDI channels 1-6, any note triggers the part (sounds do not map to note numbers) and the CCs are per part on its channel. Set the global parameter MIDI RX ShortMessage to On (the factory default) or the CCs are ignored. Clock, Start, Stop and Continue are received only when MIDI Clock Src is Auto (the factory default); nothing is transmitted. Single-channel mode (chosen by setting a MIDI channel with REC held while powering on; all six parts on that one channel) uses other CC numbers per part: Part 1 Select 14, Level 15, Mod Amt 16, Mod Rate 17, Pitch 18, EG Attack 19, EG Release 20, Send 103, Pan 109, each acting on both layers; the later parts continue in blocks (Part 2 from 23, Send 104, Pan 110, up to Part 6 at 89-100, Send 108, Pan 114), and the waveguide stays on 116-119. No Program Change is documented. The chart marks Program Change as received, and the Owner's Manual keeps 16 programs on the step buttons; which program change picks which isn't stated, so program change 0 is taken as program 1. Select and WG Model (the waveguide model) pick one of several, so Mutate moves them only with Ctrl+Alt+M; the chart doesn't say which values pick which, so they read as numbers.</p>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <p>The first 12 are an Instrument's knobs when it's first made. Each part takes them on its own channel.</p>
 <div class="table-wrapper"><table><thead><tr><th></th><th>Parameter</th><th>Message</th><th>Group</th><th>Values</th></tr></thead><tbody>
@@ -203,9 +203,9 @@
 <tr><td>●</td><td>EG Attack 2</td><td>CC 21</td><td>Envelope</td><td></td></tr>
 <tr><td>●</td><td>EG Release 1</td><td>CC 23</td><td>Envelope</td><td></td></tr>
 <tr><td>●</td><td>EG Release 2</td><td>CC 24</td><td>Envelope</td><td></td></tr>
-<tr><td></td><td>Select 1</td><td>CC 14</td><td>Oscillator</td><td></td></tr>
-<tr><td></td><td>Select 2</td><td>CC 15</td><td>Oscillator</td><td></td></tr>
-<tr><td></td><td>Select 1+2</td><td>CC 16</td><td>Oscillator</td><td></td></tr>
+<tr><td></td><td>Select 1</td><td>CC 14</td><td>Oscillator</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
+<tr><td></td><td>Select 2</td><td>CC 15</td><td>Oscillator</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
+<tr><td></td><td>Select 1+2</td><td>CC 16</td><td>Oscillator</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>Level 1+2</td><td>CC 19</td><td>Mix</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Pitch 1+2</td><td>CC 28</td><td>Oscillator</td><td></td></tr>
 <tr><td></td><td>Mod Amt 1+2</td><td>CC 31</td><td>Oscillator</td><td></td></tr>
@@ -218,7 +218,7 @@
 <tr><td></td><td>Dry Gain</td><td>CC 52</td><td>Mix</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Pan</td><td>CC 10</td><td>Mix</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Send</td><td>CC 103</td><td>FX</td><td></td></tr>
-<tr><td></td><td>WG Model</td><td>CC 116</td><td>FX</td><td></td></tr>
+<tr><td></td><td>WG Model</td><td>CC 116</td><td>FX</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>WG Decay</td><td>CC 117</td><td>FX</td><td></td></tr>
 <tr><td></td><td>WG Body</td><td>CC 118</td><td>FX</td><td></td></tr>
 <tr><td></td><td>WG Tune</td><td>CC 119</td><td>FX</td><td></td></tr>

@@ -187,14 +187,14 @@
 <p><strong>From the maker's chart:</strong> Elektron Digitakt User Manual, OS 1.53 (2026-09), Appendix B: MIDI and sections 8.4 and 15.5, https://www.elektron.se/wp-content/uploads/2026/09/Digitakt-User-Manual_ENG_OS1.53_260909.pdf</p>
 </blockquote>
 <h2 id="before-you-play"><a class="header" href="#before-you-play">Before you play</a></h2>
-<p>In Settings &gt; MIDI Config &gt; Port Config turn Receive CC/NRPN and Receive Notes on. Tracks 1-8 are on their default channels 1-8 (notes 0-7 trigger tracks 1-8 only then). Program changes need Prg Ch Receive on in MIDI Sync; the channel is set by Prg Chg In Ch. The Delay and Reverb parameters go to the FX Control channel, not a track's: set FX Control Ch to 9 in Settings &gt; MIDI Config &gt; Channels (the manual gives no factory setting). The compressor and the external-in mixer (also in B.7) are left out, because the manual doesn't say which channel they listen on.</p>
+<p>In Settings &gt; MIDI Config &gt; Port Config turn Receive CC/NRPN and Receive Notes on. Tracks 1-8 are on their default channels 1-8 (notes 0-7 trigger tracks 1-8 only then). Program changes need Prg Ch Receive on in MIDI Sync; the channel is set by Prg Chg In Ch. The Delay and Reverb parameters go to the FX Control channel, not a track's: set FX Control Ch to 9 in Settings &gt; MIDI Config &gt; Channels (the manual gives no factory setting). The compressor and the external-in mixer (also in B.7) are left out, because the manual doesn't say which channel they listen on. Sample Select, Play Mode, Filter Type, SRR Routing, the LFOs' Mult, Dest, Wave and Trig mode, Filter Trig, LFO Trig and Delay Pingpong each pick one of several (Filter Type: Off, 2-pole Lowpass, 2-pole Highpass, EQ 1-5), so Mutate moves them only with Ctrl+Alt+M. Appendix B gives their CCs but not which values pick which, so they read as numbers.</p>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
 <p>The first 12 are an Instrument's knobs when it's first made. Each part takes them on its own channel, except those with a channel of their own.</p>
 <div class="table-wrapper"><table><thead><tr><th></th><th>Parameter</th><th>Message</th><th>Group</th><th>Values</th></tr></thead><tbody>
 <tr><td>●</td><td>Filter Freq</td><td>CC 74</td><td>Filter</td><td></td></tr>
 <tr><td>●</td><td>Resonance</td><td>CC 75</td><td>Filter</td><td></td></tr>
 <tr><td>●</td><td>Tune</td><td>CC 16</td><td>Sample</td><td>Mutate leaves it</td></tr>
-<tr><td>●</td><td>Sample Select</td><td>CC 19</td><td>Sample</td><td></td></tr>
+<tr><td>●</td><td>Sample Select</td><td>CC 19</td><td>Sample</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td>●</td><td>Bit Reduction</td><td>CC 18</td><td>Sample</td><td></td></tr>
 <tr><td>●</td><td>Overdrive</td><td>CC 81</td><td>Amp</td><td>Mutate leaves it</td></tr>
 <tr><td>●</td><td>Delay Send</td><td>CC 82</td><td>FX</td><td></td></tr>
@@ -204,11 +204,11 @@
 <tr><td>●</td><td>Level</td><td>CC 7</td><td>Amp</td><td>Mutate leaves it</td></tr>
 <tr><td>●</td><td>Pan</td><td>CC 10</td><td>Amp</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Sample Level</td><td>CC 23</td><td>Sample</td><td>Mutate leaves it</td></tr>
-<tr><td></td><td>Play Mode</td><td>CC 17</td><td>Sample</td><td></td></tr>
+<tr><td></td><td>Play Mode</td><td>CC 17</td><td>Sample</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>Param E</td><td>CC 20</td><td>Sample</td><td></td></tr>
 <tr><td></td><td>Param F</td><td>CC 21</td><td>Sample</td><td></td></tr>
 <tr><td></td><td>Param G</td><td>CC 22</td><td>Sample</td><td></td></tr>
-<tr><td></td><td>Filter Type</td><td>CC 76</td><td>Filter</td><td></td></tr>
+<tr><td></td><td>Filter Type</td><td>CC 76</td><td>Filter</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>Filter Attack</td><td>CC 70</td><td>Filter</td><td></td></tr>
 <tr><td></td><td>Filter Decay</td><td>CC 71</td><td>Filter</td><td></td></tr>
 <tr><td></td><td>Filter Sus</td><td>CC 72</td><td>Filter</td><td></td></tr>
@@ -217,34 +217,34 @@
 <tr><td></td><td>Filter Base</td><td>CC 84</td><td>Filter</td><td></td></tr>
 <tr><td></td><td>Filter Width</td><td>CC 85</td><td>Filter</td><td></td></tr>
 <tr><td></td><td>SRR</td><td>CC 87</td><td>Filter</td><td></td></tr>
-<tr><td></td><td>SRR Routing</td><td>CC 88</td><td>Filter</td><td></td></tr>
+<tr><td></td><td>SRR Routing</td><td>CC 88</td><td>Filter</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>Amp Attack</td><td>CC 78</td><td>Amp</td><td></td></tr>
 <tr><td></td><td>Amp Hold</td><td>CC 79</td><td>Amp</td><td></td></tr>
 <tr><td></td><td>LFO1 Speed</td><td>CC 102</td><td>LFO</td><td></td></tr>
-<tr><td></td><td>LFO1 Mult</td><td>CC 103</td><td>LFO</td><td></td></tr>
+<tr><td></td><td>LFO1 Mult</td><td>CC 103</td><td>LFO</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>LFO1 Fade</td><td>CC 104</td><td>LFO</td><td></td></tr>
-<tr><td></td><td>LFO1 Dest</td><td>CC 105</td><td>LFO</td><td></td></tr>
-<tr><td></td><td>LFO1 Wave</td><td>CC 106</td><td>LFO</td><td></td></tr>
+<tr><td></td><td>LFO1 Dest</td><td>CC 105</td><td>LFO</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
+<tr><td></td><td>LFO1 Wave</td><td>CC 106</td><td>LFO</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>LFO1 Phase</td><td>CC 107</td><td>LFO</td><td></td></tr>
-<tr><td></td><td>LFO1 Trig</td><td>CC 108</td><td>LFO</td><td></td></tr>
+<tr><td></td><td>LFO1 Trig</td><td>CC 108</td><td>LFO</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>LFO1 Depth</td><td>CC 109/61 (14-bit)</td><td>LFO</td><td></td></tr>
 <tr><td></td><td>LFO2 Speed</td><td>CC 112</td><td>LFO</td><td></td></tr>
-<tr><td></td><td>LFO2 Mult</td><td>CC 113</td><td>LFO</td><td></td></tr>
+<tr><td></td><td>LFO2 Mult</td><td>CC 113</td><td>LFO</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>LFO2 Fade</td><td>CC 114</td><td>LFO</td><td></td></tr>
-<tr><td></td><td>LFO2 Dest</td><td>CC 115</td><td>LFO</td><td></td></tr>
-<tr><td></td><td>LFO2 Wave</td><td>CC 116</td><td>LFO</td><td></td></tr>
+<tr><td></td><td>LFO2 Dest</td><td>CC 115</td><td>LFO</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
+<tr><td></td><td>LFO2 Wave</td><td>CC 116</td><td>LFO</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>LFO2 Phase</td><td>CC 117</td><td>LFO</td><td></td></tr>
-<tr><td></td><td>LFO2 Trig</td><td>CC 118</td><td>LFO</td><td></td></tr>
+<tr><td></td><td>LFO2 Trig</td><td>CC 118</td><td>LFO</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>LFO2 Depth</td><td>CC 119/63 (14-bit)</td><td>LFO</td><td></td></tr>
 <tr><td></td><td>Track Level</td><td>CC 95</td><td>Mix</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Mute</td><td>CC 94</td><td>Mix</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Trig Note</td><td>CC 3</td><td>Voice</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Trig Velocity</td><td>CC 4</td><td>Voice</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Trig Length</td><td>CC 5</td><td>Voice</td><td></td></tr>
-<tr><td></td><td>Filter Trig</td><td>CC 13</td><td>Voice</td><td></td></tr>
-<tr><td></td><td>LFO Trig</td><td>CC 14</td><td>Voice</td><td></td></tr>
+<tr><td></td><td>Filter Trig</td><td>CC 13</td><td>Voice</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
+<tr><td></td><td>LFO Trig</td><td>CC 14</td><td>Voice</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>Delay Time</td><td>CC 85 (ch 9)</td><td>FX</td><td></td></tr>
-<tr><td></td><td>Delay Pingpong</td><td>CC 86 (ch 9)</td><td>FX</td><td></td></tr>
+<tr><td></td><td>Delay Pingpong</td><td>CC 86 (ch 9)</td><td>FX</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 <tr><td></td><td>Delay Width</td><td>CC 87 (ch 9)</td><td>FX</td><td></td></tr>
 <tr><td></td><td>Delay Feedback</td><td>CC 88 (ch 9)</td><td>FX</td><td>Mutate leaves it</td></tr>
 <tr><td></td><td>Delay Highpass</td><td>CC 89 (ch 9)</td><td>FX</td><td></td></tr>
