@@ -611,7 +611,7 @@
 </tbody></table>
 </div>
 <p>A MIDI footswitch steps the beats too, once the script names its CC before the first beat: <code>advance cc 64</code>, <code>back cc 65</code> or <code>finish cc 66</code>, with a channel after the number if it's on only one. Set the pedal to momentary: each press counts once. While you present, nothing else hears that CC. No module, mapping, MIDI Learn or thru route gets it, so a sustain pedal on CC 64 doesn't hold any notes.</p>
-<p>Each run is kept as a take, a capture script with every beat's cues at the moment it played. <strong>Save take…</strong> in the notes window writes it, and so does stopping, if Soba was started with <code>--present script.txt --take take.txt</code>. Then <code>soba patch.json --capture take.txt</code> films the same run frame by frame, in time with the narration you recorded live. A beat you played again keeps only its last go, so the film holds still where you went back. Knobs you turn and the view you move by hand aren't in the take.</p>
+<p>Each run is kept as a take, a capture script with every beat's cues at the moment it played. It's written as each beat begins and when you stop, to a new file in a <code>takes</code> folder beside the script, or to the file <code>--take take.txt</code> names. <strong>Save take…</strong> in the notes window writes a copy anywhere. Then <code>soba patch.json --capture take.txt</code> films the same run frame by frame, in time with the narration you recorded live. A beat you played again keeps only its last go, so the film holds still where you went back. Knobs you turn and the view you move by hand aren't in the take.</p>
 
                     </main>
 
