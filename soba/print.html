@@ -2852,17 +2852,18 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 <p><strong>Module ID</strong> <code>source.instrument</code> · <strong>Category</strong> Output</p>
 <p>An Instrument is a piece of hardware as a node. Choose <strong>MicroFreak</strong> on its face and its twelve knobs become the MicroFreak's own: <strong>Cutoff</strong>, <strong>Resonance</strong>, <strong>Osc Type</strong>, <strong>Osc Wave</strong>. Each knob has a jack beside it with the same name. Patch an <a href="modules/midi/../modulation/lfo.html">LFO</a> into <strong>Cutoff</strong> and the real filter sweeps. A <a href="modules/midi/../utilities/scenes.html">Scene</a> can morph the knobs, and the patch remembers where every one of them is.</p>
 <p>That last part matters most for gear that can't store a sound. A volca forgets its sound when you switch it off. With an Instrument, <strong>the patch becomes its preset memory</strong>: open the patch and Soba sends every knob back to the device.</p>
-<p>The Instrument also plays notes, as <a href="modules/midi/../output/midi-out.html">MIDI Out</a> does, from a <strong>Gate</strong> and a <strong>Pitch</strong> cable. It makes no sound of its own: the hardware does.</p>
+<p>The Instrument also plays notes, as <a href="modules/midi/../output/midi-out.html">MIDI Out</a> does, from a <strong>Gate</strong> and a <strong>Pitch</strong> cable, and presses the device's <a href="modules/midi/instrument.html#buttons">buttons</a>: an RC-505's <strong>Rec/Play</strong>, a FANTOM's <strong>Hold</strong>. It makes no sound of its own: the hardware does.</p>
 <h2 id="choosing-what-it-plays"><a class="header" href="#choosing-what-it-plays">Choosing what it plays</a></h2>
 <p>Click <strong>Choose an instrument</strong> on the face (or the name that's there) for the list of <a href="modules/midi/../../hardware/instruments.html">profiles</a>: the ones that ship with Soba, then your own. Choosing one:</p>
 <ul>
 <li>gives each knob one of the profile's parameters, its first twelve in order;</li>
+<li>gives each button one of its buttons, its first eight in order;</li>
 <li>sets each knob to the parameter's default, if the maker's chart gives one, or else to the middle;</li>
 <li>sets <strong>Ch</strong> to the device's factory channel;</li>
 <li>sets <strong>Port</strong> to the port whose device looks like it (a port playing "MicroFreak MIDI" for the MicroFreak), if <a href="modules/midi/../../getting-started/interface-overview.html#the-rig">the Rig</a> has one;</li>
 <li>and sends every knob to the device.</li>
 </ul>
-<p>It's one step to undo. <strong>None</strong>, at the bottom of the list, empties the knobs.</p>
+<p>It's one step to undo. <strong>None</strong>, at the bottom of the list, empties the knobs and the buttons.</p>
 <p>Or skip the face: in <a href="modules/midi/../../getting-started/interface-overview.html#quick-add">Quick add</a>, type a device's name or its maker (<code>freak</code>, <code>korg</code>) and choose <strong>Instrument · MicroFreak</strong>. The node arrives already playing it, chosen just as above, and one undo takes it away again.</p>
 <h2 id="inputs-7"><a class="header" href="#inputs-7">Inputs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
@@ -2872,9 +2873,10 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 <tr><td><strong>Bend</strong></td><td>Control (Orange)</td><td>-1 to 1, sent as Pitch Bend wherever it moves. Unplugged, it springs back to the middle</td></tr>
 <tr><td><strong>Pressure</strong></td><td>Control (Orange), poly</td><td>0 to 1, sent as aftertouch: Channel Pressure from a one-channel cable, each note's own from a poly cable</td></tr>
 <tr><td><strong>Cutoff</strong>, <strong>Resonance</strong>… (one per knob)</td><td>Control (Orange)</td><td>0 to 1 across the knob's travel. Patched, the cable turns the knob, and the knob follows it</td></tr>
+<tr><td><strong>Target Trk Rec/Play</strong>, <strong>Hold</strong>… (one per button)</td><td>Gate (Green)</td><td>Presses its button while the gate is high, or flips a toggle each time it rises. Beside its button, under the knobs</td></tr>
 </tbody></table>
 </div>
-<p>Each knob's jack is named for the parameter the knob holds. An empty knob's jack is called <strong>Slot 1</strong> to <strong>Slot 12</strong>, as it is in the patch file. Every input is optional. The module has no outputs.</p>
+<p>Each knob's jack is named for the parameter the knob holds. An empty knob's jack is called <strong>Slot 1</strong> to <strong>Slot 12</strong>, as it is in the patch file. Each button's jack is named for its button, and is <strong>Button 1</strong> to <strong>Button 8</strong> in the patch file. A button that presses nothing has no jack. Every input is optional. The module has no outputs.</p>
 <h2 id="parameters-12"><a class="header" href="#parameters-12">Parameters</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Port</strong></td><td>A – H</td><td>A</td><td>Which device plays, as <a href="modules/midi/../output/midi-out.html#ports-not-devices">MIDI Out's ports</a> do: each port's device is a setting of this computer</td></tr>
@@ -2882,15 +2884,39 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 <tr><td><strong>Slot 1</strong> … <strong>Slot 12</strong></td><td>0 – 1</td><td>0.5</td><td>Each knob's travel. The knob shows what it sends, as the device names it</td></tr>
 </tbody></table>
 </div>
+<p><strong>Press 1</strong> to <strong>Press 8</strong>, in the patch file, are the buttons held down on the face. They have no control of their own.</p>
 <h2 id="the-display-5"><a class="header" href="#the-display-5">The display</a></h2>
 <ul>
-<li><strong>The lamp and device</strong>, top left. Green while messages are going out, and it flashes with each one. Amber while the port has no device, or its device is unplugged. Red when the device won't open. <strong>Click the device's name</strong> to choose another. The channel is at the right.</li>
-<li><strong>The profile's name</strong>, beneath, with its maker. Click it to choose another. A name with a <strong>?</strong> is a profile this computer doesn't have (see below).</li>
-<li><strong>Send all</strong>, at the right, sends every knob to the device again.</li>
-<li><strong>Twelve knobs</strong>, four to a row. Each is named for its parameter and coloured by its group: an oscillator's blue, a filter's teal, an envelope's orange, an effect's cyan. Each reads out what it sends, as the device names it: <strong>Saw</strong>, <strong>+12</strong>, <strong>74</strong>.</li>
+<li>
+<p><strong>The lamp and device</strong>, top left. Green while messages are going out, and it flashes with each one. Amber while the port has no device, or its device is unplugged. Red when the device won't open. <strong>Click the device's name</strong> to choose another. The channel is at the right.</p>
+</li>
+<li>
+<p><strong>The profile's name</strong>, beneath, with its maker. Click it to choose another. A name with a <strong>?</strong> is a profile this computer doesn't have (see below).</p>
+</li>
+<li>
+<p><strong>Send all</strong>, at the right, sends every knob to the device again.</p>
+</li>
+<li>
+<p><strong>Twelve knobs</strong>, four to a row. Each is named for its parameter and coloured by its group: an oscillator's blue, a filter's teal, an envelope's orange, an effect's cyan. Each reads out what it sends, as the device names it: <strong>Saw</strong>, <strong>+12</strong>, <strong>74</strong>.</p>
+</li>
+<li>
+<p><strong>Buttons</strong>, under the knobs, one to a row, for a device that has them. See <a href="modules/midi/instrument.html#buttons">Buttons</a>.</p>
+</li>
 </ul>
 <p><strong>Right-click a knob</strong> to change what it holds. <strong>Holds</strong> lists the profile's parameters by group. <strong>Nothing</strong> empties the knob. The menu's heading says where the knob sends: <strong>Cutoff · CC 23</strong>, or <strong>Delay Time · CC 85 ch 9</strong> for a parameter on a channel of its own.</p>
 <p>The menu's <strong>Value</strong> field is in the device's numbers too, so you can send an exact value: type <strong>100</strong> into Cutoff and CC 23 goes out at 100. For a parameter with named values, type the name (<strong>Fall 2</strong>, in any case, or just enough of its start to pick one out) or choose it from <strong>Steps</strong>. For one that nudges, type an offset: <strong>+12</strong> or <strong>−5</strong>. <strong>Reset to</strong> names the chart's default, and double-clicking the knob goes there too.</p>
+<h2 id="buttons"><a class="header" href="#buttons">Buttons</a></h2>
+<p>Some of a device's controls are buttons rather than knobs: a looper's <strong>Rec/Play</strong>, a synth's <strong>Hold</strong>. A profile lists them with the CC each sends, and whether it's <strong>momentary</strong> or a <strong>toggle</strong>. The Instrument gives each of the first eight a row under its knobs, with a Gate jack beside it named for the button.</p>
+<ul>
+<li><strong>A momentary button</strong> is pressed while its gate is high: its on value (usually 127) goes out as the gate rises, and its off value (usually 0) as it falls. Patch a lane of an <a href="modules/midi/../utilities/arranger.html">Arranger</a> into the RC-505's <strong>Target Trk Rec/Play</strong>, and the lane's gate presses it.</li>
+<li><strong>A toggle</strong> flips each time its gate rises: on, then off at the next rise. The FANTOM-06's <strong>Portamento</strong> is one.</li>
+<li><strong>Click a button</strong> to press it by hand. It's held while you hold the mouse down, and a toggle flips once a click.</li>
+<li><strong>It lights while it's on</strong>, as a <a href="modules/midi/./pad.html">Pad</a> does: a momentary button while it's held, a toggle while it's flipped on. The row's right end says what it sends: <strong>CC 14</strong>, or <strong>CC 65 · toggle</strong>.</li>
+<li><strong>It lets go.</strong> When the Clock stops, a button that's on is turned off, a toggle too, so a looper isn't left recording or a Hold left down. One still held stays off until its gate falls and rises again. Unplugging its jack lets it go too, as does moving the Instrument to another channel.</li>
+</ul>
+<p><strong>Right-click a button</strong> to change what it presses. <strong>Presses</strong> lists the profile's buttons, all of them: the RC-505mkII has thirteen. <strong>Nothing</strong> empties it.</p>
+<p>A device that's all buttons and no knobs, like either RC-505, shows its buttons in place of the knobs, and its empty knobs' jacks go too.</p>
+<p>Each button presses its profile's button of that name, as each knob plays its profile's parameter, so a CC corrected in the profile reaches the patch. A button sends only as it changes: <strong>Send all</strong> doesn't press anything.</p>
 <h2 id="send-all"><a class="header" href="#send-all">Send all</a></h2>
 <p>The device comes back to the patch whenever every knob is sent:</p>
 <ul>
@@ -2920,13 +2946,15 @@ Note:        C4  D   E   F   G   A   B   C5  D   E
 </ul>
 <h2 id="how-it-works-1"><a class="header" href="#how-it-works-1">How it works</a></h2>
 <p><strong>Knobs.</strong> A knob sends when you turn it. A patched knob sends wherever its cable moves within a block, up to a thousand times a second, so an LFO sweeps a filter as smoothly as the device can follow. A stepped knob (an oscillator type, an arpeggio mode) shares its travel evenly among its steps, and sends each step's own value from the maker's chart, so it lands on the right step whatever numbers the device uses.</p>
+<p><strong>Buttons.</strong> A button's press goes out on the sample its gate rises, as a note does, and only when it changes: a gate held high for a minute sends one on and one off.</p>
 <p><strong>Notes.</strong> Notes, bend and pressure play as <a href="modules/midi/../output/midi-out.html#how-it-works">MIDI Out</a> plays them: in time with the sound, chords from poly cables, and no stuck notes. When the Clock stops, a channel changes or the port changes, every note is let go.</p>
 <p><strong>A new port</strong> hears every knob afresh: move the Instrument to port B, and port B's device gets the whole sound.</p>
-<p><strong>The profile is read, not copied.</strong> Each knob plays its profile's parameter of that name. Correct a CC in your profile and every patch that uses it sends the corrected one. The patch also writes each knob's parameter down, so it still plays on a computer that doesn't have the profile. Its name shows with a <strong>?</strong>, and its knobs send what the patch wrote. Add the profile to that computer's <strong>Documents/Soba/Instruments</strong> folder and it reads the profile again.</p>
+<p><strong>The profile is read, not copied.</strong> Each knob plays its profile's parameter of that name, and each button its button. Correct a CC in your profile and every patch that uses it sends the corrected one. The patch also writes each knob's parameter down, so it still plays on a computer that doesn't have the profile. Its name shows with a <strong>?</strong>, and its knobs send what the patch wrote. Add the profile to that computer's <strong>Documents/Soba/Instruments</strong> folder and it reads the profile again.</p>
 <h2 id="playing-it-1"><a class="header" href="#playing-it-1">Playing it</a></h2>
 <ul>
 <li><strong>A filter sweep on real hardware.</strong> An <a href="modules/midi/../modulation/lfo.html">LFO</a>, slow, into <strong>Cutoff</strong>. Turn the LFO's <strong>Rate</strong> up for a wobble.</li>
 <li><strong>A sequencer playing the device.</strong> A <a href="modules/midi/../modulation/clock.html">Clock</a> into a <a href="modules/midi/../utilities/sequencer.html">Step Sequencer</a>, its <strong>Gate</strong> and <strong>Pitch</strong> into the Instrument's. A second sequencer lane into <strong>Osc Type</strong> changes the oscillator step by step.</li>
+<li><strong>A looper that records on the bar.</strong> Choose <strong>RC-505</strong>, and patch an <a href="modules/midi/../utilities/arranger.html">Arranger</a> lane's gate into <strong>Target Trk Rec/Play</strong>: a one-bar gate at the top of the verse starts recording, and the next one plays it back. <a href="modules/midi/../../recipes/the-rig.html">The Rig</a> does this.</li>
 <li><strong>Saved sounds for a volca.</strong> Choose <strong>volca fm</strong>, set the knobs, and save the patch. Next time, open the patch and the volca plays that sound again.</li>
 </ul>
 <h2 id="related-1"><a class="header" href="#related-1">Related</a></h2>
@@ -6845,7 +6873,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 </ul>
 <h2 id="4-change-it-with-the-song"><a class="header" href="#4-change-it-with-the-song">4. Change it with the song</a></h2>
 <p>An <a href="hardware/../modules/utilities/arranger.html">Arranger</a> knows when the verse ends. A <a href="hardware/../modules/midi/setlist.html">Setlist</a> passes that on to the room. Each section can move the Digitakt to another pattern, the FANTOM to another scene, the RC-505 to another memory. A row can go a little ahead of the bar line, for gear that queues its next pattern, so every device changes on the downbeat.</p>
-<p>The Arranger's lanes can press buttons too. A lane's gate into a MIDI Out's CC jack presses whatever that CC is assigned to on the device, such as the RC-505's Rec/Play.</p>
+<p>The Arranger's lanes can press buttons too. A lane's gate into an Instrument's button presses it by name, such as the RC-505's <strong>Target Trk Rec/Play</strong> (see <a href="hardware/../modules/midi/instrument.html#buttons">Buttons</a>). For a device without a profile, a lane's gate into a MIDI Out's CC jack presses whatever that CC is assigned to.</p>
 <h2 id="5-wire-the-room"><a class="header" href="#5-wire-the-room">5. Wire the room</a></h2>
 <p>With every device plugged into the computer, the computer is your patch bay. In the Rig's <strong>Thru</strong>, a route passes what one MIDI In plays straight to one port, past the patch. Play the MicroFreak from the FANTOM's keys, or drive the volcas from the Tracker, while the patch does something else. A route can pass only some kinds of message, and move them to another channel. See <a href="hardware/../getting-started/interface-overview.html#the-rig">The Rig</a>.</p>
 <h2 id="6-explore"><a class="header" href="#6-explore">6. Explore</a></h2>
@@ -7134,7 +7162,7 @@ Gate:   _|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_______|‾‾‾
 <tr><td>Pad 16</td><td>39</td><td>1</td></tr>
 </tbody></table>
 </div>
-<h2 id="buttons"><a class="header" href="#buttons">Buttons</a></h2>
+<h2 id="buttons-1"><a class="header" href="#buttons-1">Buttons</a></h2>
 <p>A gate presses a momentary button while it's open, and flips a toggle each time it opens.</p>
 <div class="table-wrapper"><table><thead><tr><th>Button</th><th>CC</th><th>Kind</th><th>On / off</th></tr></thead><tbody>
 <tr><td>Looper Delete</td><td>87</td><td>momentary</td><td>127 / 0</td></tr>
@@ -7157,7 +7185,7 @@ Each bank is on its own channel: A on channel 1 to J on channel 10.</p>
 </blockquote>
 <h2 id="before-you-play-2"><a class="header" href="#before-you-play-2">Before you play</a></h2>
 <p>Original RC-505 has 8 assigns per phrase memory (the default ones are an EXP pedal, CTL1 undo/redo and CTL2 rhythm level), so set up in the Assign page: Source = CC#1-#31 / CC#64-#95 as listed, Target = TGT TR REC/PLAY for CC 14, TGT TR STOP 15, TGT TR CLEAR 16, TGT TR UNDO/REDO 17, ALL START/STOP 18, TEMPO(TAP) 19, INPUT FX ON/OFF 20, TRACK FX ON/OFF 21, then save to the phrase memory. The TGT TR targets act on the Target Track set in the same page (not per-track CCs). Set Sys MIDI Rx Ch to the Soba channel (factory 1; Omni is a separate setting). CC on/off values are an assumption. Phrase memories 1-99 by program change 1-99; 100-128 ignored; Bank Select ignored.</p>
-<h2 id="buttons-1"><a class="header" href="#buttons-1">Buttons</a></h2>
+<h2 id="buttons-2"><a class="header" href="#buttons-2">Buttons</a></h2>
 <p>A gate presses a momentary button while it's open, and flips a toggle each time it opens.</p>
 <div class="table-wrapper"><table><thead><tr><th>Button</th><th>CC</th><th>Kind</th><th>On / off</th></tr></thead><tbody>
 <tr><td>Target Trk Rec/Play</td><td>14</td><td>momentary</td><td>127 / 0</td></tr>
@@ -7182,7 +7210,7 @@ Each bank is on its own channel: A on channel 1 to J on channel 10.</p>
 </blockquote>
 <h2 id="before-you-play-3"><a class="header" href="#before-you-play-3">Before you play</a></h2>
 <p>The manuals list no factory-default CC assigns, so set them in MENU &gt; ASSIGN (16 slots, stored per memory, so WRITE): for each button, SW ON, SOURCE = MIDI CC# as listed (CC 1-31 and 64-95 are valid), TARGET = the matching function (TRK1-5 REC/PLY for CC 14-18, ALL ST/STP for 19, CUR.TRK UN/RED for 20, CUR.TRK CLEAR for 21, CUR.TRK STOP for 22, TAP TEMPO for 23, INPUT FX for 24, CUR.TRK INC for 25, CUR.TRK DEC for 26). The manual doesn't say whether a CC source acts on press or on value, so the on 127 / off 0 pair is an assumption. Set MIDI &gt; RX CH CTL to the Soba channel (the manual gives no factory number). Memories 1-99 by program change 1-99 (100-128 ignored; Bank Select ignored). Rhythm notes use RX CH RHYTHM (default 10), not covered here.</p>
-<h2 id="buttons-2"><a class="header" href="#buttons-2">Buttons</a></h2>
+<h2 id="buttons-3"><a class="header" href="#buttons-3">Buttons</a></h2>
 <p>A gate presses a momentary button while it's open, and flips a toggle each time it opens.</p>
 <div class="table-wrapper"><table><thead><tr><th>Button</th><th>CC</th><th>Kind</th><th>On / off</th></tr></thead><tbody>
 <tr><td>Track 1 Rec/Play</td><td>14</td><td>momentary</td><td>127 / 0</td></tr>
@@ -7237,7 +7265,7 @@ Each bank is on its own channel: A on channel 1 to J on channel 10.</p>
 <tr><td></td><td>Arp Sync Rate</td><td>CC 92</td><td>Arp</td><td>one of several, as a number; Mutate moves it only with Ctrl+Alt+M</td></tr>
 </tbody></table>
 </div>
-<h2 id="buttons-3"><a class="header" href="#buttons-3">Buttons</a></h2>
+<h2 id="buttons-4"><a class="header" href="#buttons-4">Buttons</a></h2>
 <p>A gate presses a momentary button while it's open, and flips a toggle each time it opens.</p>
 <div class="table-wrapper"><table><thead><tr><th>Button</th><th>CC</th><th>Kind</th><th>On / off</th></tr></thead><tbody>
 <tr><td>Keyboard Hold</td><td>64</td><td>toggle</td><td>127 / 0</td></tr>
@@ -7467,7 +7495,7 @@ Each bank is on its own channel: A on channel 1 to J on channel 10.</p>
 <tr><td>Zone 16</td><td>–</td><td>16</td></tr>
 </tbody></table>
 </div>
-<h2 id="buttons-4"><a class="header" href="#buttons-4">Buttons</a></h2>
+<h2 id="buttons-5"><a class="header" href="#buttons-5">Buttons</a></h2>
 <p>A gate presses a momentary button while it's open, and flips a toggle each time it opens.</p>
 <div class="table-wrapper"><table><thead><tr><th>Button</th><th>CC</th><th>Kind</th><th>On / off</th></tr></thead><tbody>
 <tr><td>Hold</td><td>64</td><td>momentary</td><td>127 / 0</td></tr>
@@ -8591,7 +8619,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <li><strong><a href="recipes/../modules/midi/setlist.html">Setlist</a>: the song changes the room.</strong> Each section names the Digitakt's pattern, sent half a second before its bar line so the Digitakt queues it and starts it on the downbeat. At the top it puts the RC-505 on phrase memory 1.</li>
 <li><strong><a href="recipes/../modules/midi/instrument.html">Instrument</a>: a synth as a node.</strong> The MicroFreak's knobs are on the node by name. A step sequencer plays it, and an LFO is patched into its <strong>Cutoff</strong> jack.</li>
 <li><strong><a href="recipes/../modules/midi/fm-voice.html">FM Voice</a>: the patch is the volca's memory.</strong> It holds the volca fm's whole DX7 voice and sends it when the patch opens. A second Instrument plays the volca's notes.</li>
-<li><strong><a href="recipes/../modules/output/midi-out.html">MIDI Out</a> presses a button.</strong> An <a href="recipes/../modules/utilities/arranger.html">Arranger</a> lane hits <strong>CC 14</strong> on the RC-505's Rec/Play, once to record and once to play.</li>
+<li><strong><a href="recipes/../modules/midi/instrument.html#buttons">Instrument</a> presses a button.</strong> The RC-505 is an Instrument too, all buttons. An <a href="recipes/../modules/utilities/arranger.html">Arranger</a> lane's gate presses its <strong>Target Trk Rec/Play</strong>, once to record and once to play.</li>
 <li><strong>Clock on the ports.</strong> Soba's <a href="recipes/../modules/modulation/clock.html">Clock</a> sends the tempo, Start and Stop to the Digitakt and the RC-505, so their own patterns and loops keep time with the song. Its <strong>Source</strong> is <strong>Auto</strong>: when a device starts playing, Soba follows it.</li>
 </ul>
 <h2 id="the-room"><a class="header" href="#the-room">The room</a></h2>
@@ -8599,7 +8627,7 @@ The patch file is <a href="https://github.com/chrischaps/Soba/blob/master/patche
 <tr><td><strong>A</strong></td><td>Digitakt</td><td>Nothing plays it: it plays its own patterns. The Setlist chooses them</td><td><strong>Stand-in drums</strong>: four Drums from a Trigger Sequencer, a pattern for each section</td></tr>
 <tr><td><strong>B</strong></td><td>MicroFreak</td><td>An Instrument plays a step sequencer's line and turns eleven of its knobs. A two-bar LFO rides <strong>Cutoff</strong> between a third and three quarters open</td><td><strong>Stand-in synth</strong>: a saw through a ladder filter that the same LFO opens</td></tr>
 <tr><td><strong>C</strong></td><td>volca fm</td><td>The FM Voice sends its voice, SOFT KEYS. An Instrument plays three-note chords in the Chorus</td><td><strong>Stand-in keys</strong>: the <a href="recipes/../concepts/groups.html#the-library">Electric Piano</a> from the library, playing the same chords</td></tr>
-<tr><td><strong>D</strong></td><td>RC-505</td><td>A MIDI Out presses Rec/Play on the Take's downbeat and again on the Verse's</td><td>A <a href="recipes/../modules/utilities/looper.html">Looper</a>, pressed at the same moments, taking the same four bars of the MicroFreak</td></tr>
+<tr><td><strong>D</strong></td><td>RC-505</td><td>An Instrument presses its <strong>Target Trk Rec/Play</strong> on the Take's downbeat and again on the Verse's</td><td>A <a href="recipes/../modules/utilities/looper.html">Looper</a>, pressed at the same moments, taking the same four bars of the MicroFreak</td></tr>
 </tbody></table>
 </div>
 <p>The MicroFreak's Instrument leaves <strong>Osc Type</strong> off its knobs. Whichever engine you've chosen on the MicroFreak, the patch shapes it rather than replacing it. The volca's Instrument leaves off <strong>Algorithm</strong> and the LFO, because the FM Voice already sets them. Its envelope knobs sit in the middle, which leaves the voice as it is, and its arpeggiator is off.</p>
