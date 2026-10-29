@@ -1,0 +1,293 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Control - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded "><a href="../../getting-started/lessons.html"><strong aria-hidden="true">4.</strong> Lessons</a></li><li class="chapter-item expanded "><a href="../../getting-started/presenting.html"><strong aria-hidden="true">5.</strong> Presenting</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../../concepts/signal-types.html"><strong aria-hidden="true">6.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../../concepts/connections.html"><strong aria-hidden="true">7.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../../concepts/polyphony.html"><strong aria-hidden="true">8.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../../concepts/tempo-and-sync.html"><strong aria-hidden="true">9.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../../concepts/groups.html"><strong aria-hidden="true">10.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../../modules/index.html"><strong aria-hidden="true">11.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../modules/sources/oscillator.html"><strong aria-hidden="true">11.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../../modules/sources/noise.html"><strong aria-hidden="true">11.2.</strong> Noise</a></li><li class="chapter-item "><a href="../../modules/sources/drum.html"><strong aria-hidden="true">11.3.</strong> Drum</a></li><li class="chapter-item "><a href="../../modules/sources/resonator.html"><strong aria-hidden="true">11.4.</strong> Resonator</a></li><li class="chapter-item "><a href="../../modules/sources/sampler.html"><strong aria-hidden="true">11.5.</strong> Sampler</a></li><li class="chapter-item "><a href="../../modules/sources/chopper.html"><strong aria-hidden="true">11.6.</strong> Chopper</a></li><li class="chapter-item "><a href="../../modules/sources/cloud.html"><strong aria-hidden="true">11.7.</strong> Cloud</a></li><li class="chapter-item "><a href="../../modules/sources/audio-input.html"><strong aria-hidden="true">11.8.</strong> Audio Input</a></li><li class="chapter-item "><a href="../../modules/midi/midi-in.html"><strong aria-hidden="true">11.9.</strong> MIDI In</a></li><li class="chapter-item "><a href="../../modules/midi/note-in.html"><strong aria-hidden="true">11.10.</strong> Note In</a></li><li class="chapter-item expanded "><a href="../../modules/midi/control.html" class="active"><strong aria-hidden="true">11.11.</strong> Control</a></li><li class="chapter-item "><a href="../../modules/midi/pad.html"><strong aria-hidden="true">11.12.</strong> Pad</a></li><li class="chapter-item "><a href="../../modules/midi/instrument.html"><strong aria-hidden="true">11.13.</strong> Instrument</a></li><li class="chapter-item "><a href="../../modules/midi/kit.html"><strong aria-hidden="true">11.14.</strong> Kit</a></li><li class="chapter-item "><a href="../../modules/midi/setlist.html"><strong aria-hidden="true">11.15.</strong> Setlist</a></li><li class="chapter-item "><a href="../../modules/midi/fm-voice.html"><strong aria-hidden="true">11.16.</strong> FM Voice</a></li><li class="chapter-item "><a href="../../modules/filters/svf-filter.html"><strong aria-hidden="true">11.17.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../../modules/filters/ladder-filter.html"><strong aria-hidden="true">11.18.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../../modules/modulation/adsr.html"><strong aria-hidden="true">11.19.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../../modules/modulation/lfo.html"><strong aria-hidden="true">11.20.</strong> LFO</a></li><li class="chapter-item "><a href="../../modules/modulation/slope.html"><strong aria-hidden="true">11.21.</strong> Slope</a></li><li class="chapter-item "><a href="../../modules/effects/delay.html"><strong aria-hidden="true">11.22.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../../modules/effects/reverb.html"><strong aria-hidden="true">11.23.</strong> Reverb</a></li><li class="chapter-item "><a href="../../modules/effects/eq.html"><strong aria-hidden="true">11.24.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../../modules/effects/distortion.html"><strong aria-hidden="true">11.25.</strong> Distortion</a></li><li class="chapter-item "><a href="../../modules/effects/chorus.html"><strong aria-hidden="true">11.26.</strong> Chorus</a></li><li class="chapter-item "><a href="../../modules/effects/tape.html"><strong aria-hidden="true">11.27.</strong> Tape</a></li><li class="chapter-item "><a href="../../modules/effects/slicer.html"><strong aria-hidden="true">11.28.</strong> Slicer</a></li><li class="chapter-item "><a href="../../modules/effects/compressor.html"><strong aria-hidden="true">11.29.</strong> Compressor</a></li><li class="chapter-item "><a href="../../modules/effects/vocoder.html"><strong aria-hidden="true">11.30.</strong> Vocoder</a></li><li class="chapter-item "><a href="../../modules/modulation/clock.html"><strong aria-hidden="true">11.31.</strong> Clock</a></li><li class="chapter-item "><a href="../../modules/utilities/vca.html"><strong aria-hidden="true">11.32.</strong> VCA</a></li><li class="chapter-item "><a href="../../modules/utilities/attenuverter.html"><strong aria-hidden="true">11.33.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../../modules/utilities/mix.html"><strong aria-hidden="true">11.34.</strong> Mix</a></li><li class="chapter-item "><a href="../../modules/utilities/mixer.html"><strong aria-hidden="true">11.35.</strong> Mixer</a></li><li class="chapter-item "><a href="../../modules/utilities/sample-hold.html"><strong aria-hidden="true">11.36.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../../modules/utilities/quantizer.html"><strong aria-hidden="true">11.37.</strong> Quantizer</a></li><li class="chapter-item "><a href="../../modules/utilities/divider.html"><strong aria-hidden="true">11.38.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../../modules/utilities/logic.html"><strong aria-hidden="true">11.39.</strong> Logic</a></li><li class="chapter-item "><a href="../../modules/utilities/looper.html"><strong aria-hidden="true">11.40.</strong> Looper</a></li><li class="chapter-item "><a href="../../modules/visualization/oscilloscope.html"><strong aria-hidden="true">11.41.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../../modules/visualization/spectrum.html"><strong aria-hidden="true">11.42.</strong> Spectrum</a></li><li class="chapter-item "><a href="../../modules/visualization/dancer.html"><strong aria-hidden="true">11.43.</strong> Dancer</a></li><li class="chapter-item "><a href="../../modules/utilities/sequencer.html"><strong aria-hidden="true">11.44.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/chord-sequencer.html"><strong aria-hidden="true">11.45.</strong> Chord Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">11.46.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../../modules/utilities/arranger.html"><strong aria-hidden="true">11.47.</strong> Arranger</a></li><li class="chapter-item "><a href="../../modules/utilities/scenes.html"><strong aria-hidden="true">11.48.</strong> Scenes</a></li><li class="chapter-item "><a href="../../modules/midi/midi-monitor.html"><strong aria-hidden="true">11.49.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../../modules/output/audio-output.html"><strong aria-hidden="true">11.50.</strong> Audio Output</a></li><li class="chapter-item "><a href="../../modules/output/link-out.html"><strong aria-hidden="true">11.51.</strong> Link Out</a></li><li class="chapter-item "><a href="../../modules/output/midi-out.html"><strong aria-hidden="true">11.52.</strong> MIDI Out</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Playing Hardware</li><li class="chapter-item expanded "><a href="../../hardware/index.html"><strong aria-hidden="true">12.</strong> Hardware Overview</a></li><li class="chapter-item expanded "><a href="../../hardware/instruments.html"><strong aria-hidden="true">13.</strong> Instrument Profiles</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../hardware/digitakt.html"><strong aria-hidden="true">13.1.</strong> Digitakt</a></li><li class="chapter-item "><a href="../../hardware/sp-404mkii.html"><strong aria-hidden="true">13.2.</strong> SP-404MKII</a></li><li class="chapter-item "><a href="../../hardware/rc-505.html"><strong aria-hidden="true">13.3.</strong> RC-505</a></li><li class="chapter-item "><a href="../../hardware/rc-505mkii.html"><strong aria-hidden="true">13.4.</strong> RC-505mkII</a></li><li class="chapter-item "><a href="../../hardware/microfreak.html"><strong aria-hidden="true">13.5.</strong> MicroFreak</a></li><li class="chapter-item "><a href="../../hardware/polyend-tracker.html"><strong aria-hidden="true">13.6.</strong> Polyend Tracker</a></li><li class="chapter-item "><a href="../../hardware/volca-fm.html"><strong aria-hidden="true">13.7.</strong> volca fm</a></li><li class="chapter-item "><a href="../../hardware/volca-drum.html"><strong aria-hidden="true">13.8.</strong> volca drum</a></li><li class="chapter-item "><a href="../../hardware/fantom-06.html"><strong aria-hidden="true">13.9.</strong> FANTOM-06</a></li><li class="chapter-item "><a href="../../hardware/zoia.html"><strong aria-hidden="true">13.10.</strong> ZOIA</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../../recipes/basic-subtractive.html"><strong aria-hidden="true">14.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../../recipes/fm-synthesis.html"><strong aria-hidden="true">15.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../../recipes/lush-pad.html"><strong aria-hidden="true">16.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../../recipes/sampled-keys.html"><strong aria-hidden="true">17.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../../recipes/live-looper.html"><strong aria-hidden="true">18.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../../recipes/generative-ambient.html"><strong aria-hidden="true">19.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../../recipes/shoreline.html"><strong aria-hidden="true">20.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../../recipes/rhythmic-sequence.html"><strong aria-hidden="true">21.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../../recipes/backbeat.html"><strong aria-hidden="true">22.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../../recipes/drum-machine.html"><strong aria-hidden="true">23.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../../recipes/roll-call.html"><strong aria-hidden="true">24.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../../recipes/pad-kit.html"><strong aria-hidden="true">25.</strong> Pad Kit</a></li><li class="chapter-item expanded "><a href="../../recipes/hands-on.html"><strong aria-hidden="true">26.</strong> Hands On</a></li><li class="chapter-item expanded "><a href="../../recipes/the-rig.html"><strong aria-hidden="true">27.</strong> The Rig</a></li><li class="chapter-item expanded "><a href="../../recipes/pinwheel.html"><strong aria-hidden="true">28.</strong> Pinwheel</a></li><li class="chapter-item expanded "><a href="../../recipes/afterglow.html"><strong aria-hidden="true">29.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../../recipes/front-porch.html"><strong aria-hidden="true">30.</strong> Front Porch</a></li><li class="chapter-item expanded "><a href="../../recipes/soba-speaks.html"><strong aria-hidden="true">31.</strong> Soba Speaks</a></li><li class="chapter-item expanded "><a href="../../recipes/held-vowels.html"><strong aria-hidden="true">32.</strong> Held Vowels</a></li><li class="chapter-item expanded "><a href="../../recipes/interlock.html"><strong aria-hidden="true">33.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../../recipes/cut-up.html"><strong aria-hidden="true">34.</strong> Cut-Up</a></li><li class="chapter-item expanded "><a href="../../recipes/choir-of-one.html"><strong aria-hidden="true">35.</strong> Choir of One</a></li><li class="chapter-item expanded "><a href="../../recipes/breakdown.html"><strong aria-hidden="true">36.</strong> Breakdown</a></li><li class="chapter-item expanded "><a href="../../recipes/sympathetic-strings.html"><strong aria-hidden="true">37.</strong> Sympathetic Strings</a></li><li class="chapter-item expanded affix "><li class="part-title">Songs</li><li class="chapter-item expanded "><a href="../../songs/from-one-sine.html"><strong aria-hidden="true">38.</strong> From One Sine</a></li><li class="chapter-item expanded "><a href="../../songs/clair-de-satellite.html"><strong aria-hidden="true">39.</strong> Clair de Satellite</a></li><li class="chapter-item expanded "><a href="../../songs/canopy.html"><strong aria-hidden="true">40.</strong> Canopy</a></li><li class="chapter-item expanded "><a href="../../songs/orrery.html"><strong aria-hidden="true">41.</strong> Orrery</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/modules/midi/control.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="control"><a class="header" href="#control">Control</a></h1>
+<p><strong>Module ID</strong> <code>input.control</code> · <strong>Category</strong> Source</p>
+<p>A Control turns one fader, knob, wheel or strip of a MIDI controller into a cable. It hears one control and puts it out as a Control signal, so you can patch it wherever a cable goes: a fader into a filter's <strong>Cutoff</strong>, a knob into a VCA, the mod wheel through an <a href="../utilities/attenuverter.html">Attenuverter</a> into an LFO's <strong>Rate</strong>.</p>
+<p>A controller is as many Controls as it has faders and knobs to patch, in a <a href="../../concepts/groups.html">group</a>: four for a MiniLab 3's faders, nine for a controller with nine, one for an expression pedal. The Library has two ready to use: <strong>MiniLab 3 Faders</strong> and <strong>Controls ×4</strong> (see <a href="#the-librarys-controls">The Library's Controls</a>). It works the way a <a href="./pad.html">Pad</a> does: one Pad is one pad, and eight of them make a pad controller.</p>
+<p><a href="../../getting-started/interface-overview.html#midi-learn">MIDI Learn</a> can also turn a knob from your controller, but only a knob that's already on a module. A Control is for when the controller is the source: one move feeding several places, a fader scaled and flipped before it arrives, or a control mixed with an LFO.</p>
+<p>It listens to the devices ticked in <strong>MIDI In</strong> on the toolbar, or to the one chosen under <strong>Device</strong> in its right-click menu (see <a href="./note-in.html#listening-to-one-device">Listening to one device</a>), or to the one a <a href="./midi-in.html">MIDI In</a> patched into its purple <strong>MIDI</strong> input names. It reads each move on its own sample, as <a href="./note-in.html">Note In</a> reads notes.</p>
+<h2 id="outputs"><a class="header" href="#outputs">Outputs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Port</th><th>Signal Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Out</strong></td><td>Control (Orange)</td><td>The control: 0 to 1, or −1 to 1 when its range is bipolar</td></tr>
+</tbody></table>
+</div>
+<h2 id="the-face"><a class="header" href="#the-face">The face</a></h2>
+<p>One slim fader that moves with the hardware, showing what its cable carries. The fill rises from the bottom, or from the middle when it's bipolar. The cap warms to orange while the control moves, and cools again once it rests. Beside the fader is what it hears (<code>CC 74</code>, <code>Bend</code>, <code>Mod</code>, <code>Press</code>) and the value it's sending, lit orange once a cable leaves it. Along the top are the channel it hears and <strong>learn</strong>. Hover the fader to read it in full.</p>
+<p>A new Control hears the mod wheel, so it works with any keyboard before you learn anything.</p>
+<h3 id="on-a-groups-face"><a class="header" href="#on-a-groups-face">On a group's face</a></h3>
+<p>In a group, right-click the fader and choose <strong>Show on group</strong>, and it's on the group's face too, moving there with the hardware. Faders on a face sit in a row, up to six across, each under its name. Right-click one there to rename it, learn it, choose what it hears, or <strong>Hide from group</strong>. The Library's groups and old Controls patches come with every fader on the face, each named for its jack.</p>
+<h2 id="learning-a-control"><a class="header" href="#learning-a-control">Learning a control</a></h2>
+<ol>
+<li>Click <strong>learn</strong> at the top right of the face. The fader blinks purple, and the status bar asks you to move something.</li>
+<li>Move a fader or a knob, bend the pitch wheel or strip, or press a key down on your controller.</li>
+</ol>
+<p>The Control now hears that control, on the channel it came on. If it was an endless encoder, the next few steps tell it so, and it counts steps from then on. Learning it again replaces what it heard, and <strong>Undo</strong> takes a learn back. To give up before moving anything, press <code>Escape</code> or click <strong>cancel</strong>. In Map Mode, clicking the fader starts the learn.</p>
+<p>Learning a Control only teaches the Control. Nothing is mapped, and a note you play while it waits still plays.</p>
+<h3 id="learning-a-group-in-order"><a class="header" href="#learning-a-group-in-order">Learning a group in order</a></h3>
+<p>To learn every Control in a group at once, right-click the group and choose <strong>Learn in order</strong>, then move your controller's faders and knobs one after another. The Controls take them in the order they sit: the top row first, each row left to right. The one waiting blinks purple and says <strong>skip</strong>, the ones to come show their number, and each one learned shows a tick. Press <code>Tab</code> to leave one as it is, or <code>Escape</code> to stop, keeping what was learned. A control already learned in the walk is passed by, so a fader you're still moving doesn't teach the next Control too. The whole walk is one <strong>Undo</strong>.</p>
+<p>It's the same walk a group of Pads takes (see <a href="./pad.html#learning-a-group-in-order">Learning a group in order</a>), and a group holding both learns its pads and faders in one go.</p>
+<h2 id="its-menu"><a class="header" href="#its-menu">Its menu</a></h2>
+<p>Right-click the fader to learn it from the menu, or to choose what it hears by hand:</p>
+<div class="table-wrapper"><table><thead><tr><th>Item</th><th>Choices</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Source</strong></td><td>CC / Pitch Bend / Mod Wheel / Pressure</td><td>What it hears. For a CC, set its number here too</td></tr>
+<tr><td><strong>Channel</strong></td><td>Omni / 1 – 16</td><td>Only hear this MIDI channel. Omni hears all of them. A learned Control hears the channel it was learned on</td></tr>
+<tr><td><strong>Range</strong></td><td>Auto / 0 to 1 / −1 to 1</td><td><strong>0 to 1</strong> runs from the bottom of the control's travel to the top. <strong>−1 to 1</strong> puts 0 at the middle, for a bend or for a fader that should push both ways. <strong>Auto</strong> is −1 to 1 for the pitch bend, which rests in the middle, and 0 to 1 for everything else</td></tr>
+<tr><td><strong>Hardware</strong></td><td>Absolute / Encoder (64 ±) / Encoder (1 / 127)</td><td>For a CC: a knob or fader with ends, or an endless encoder that sends steps. Learning tells them apart from the first few values the control sends</td></tr>
+</tbody></table>
+</div>
+<p>An <strong>endless encoder</strong> has no ends, so the Control counts its steps instead: each step moves it 1% of the way, up or down, from wherever it stands, and it stops at the ends. A hundred steps take it from the bottom to the top. Telling a Control that was a fader that it's an encoder doesn't move it: the next step goes on from where it is.</p>
+<h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Control</th><th>Range</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Slew</strong></td><td>Off – 2 s</td><td>20 ms</td><td>How long the output takes to follow its control. A MIDI CC has only 128 steps, and a filter's cutoff swept by one jumps from step to step with a faint zipper. 20 ms smooths the steps away without making the control feel late. Turn it up for slow, gliding moves, or down to Off for a control that should land at once</td></tr>
+</tbody></table>
+</div>
+<h2 id="the-librarys-controls"><a class="header" href="#the-librarys-controls">The Library's Controls</a></h2>
+<p>Both are under <strong>Library</strong> ▸ <strong>Controllers</strong> in the add menu, their faders on their faces. Each has a <strong>MIDI</strong> jack that goes into every Control inside: plug a <a href="./midi-in.html">MIDI In</a> into it and they all hear that controller, or leave it empty and each hears its own <strong>Device</strong>.</p>
+<div class="table-wrapper"><table><thead><tr><th>Group</th><th>Controls</th><th>Jacks</th></tr></thead><tbody>
+<tr><td><strong>MiniLab 3 Faders</strong></td><td>An Arturia MiniLab 3 as it comes from the box: its four faders on CC 82, 83, 85 and 17, the pitch strip and the mod strip</td><td><strong>Fader 1</strong> – <strong>Fader 4</strong>, <strong>Bend</strong>, <strong>Mod</strong></td></tr>
+<tr><td><strong>Controls ×4</strong></td><td>A keyboard's own controls: the mod wheel, the pitch bend (−1 to 1), the pressure and CC 74, which many controllers send from their first knob</td><td><strong>A</strong>, <strong>B</strong>, <strong>C</strong>, <strong>D</strong></td></tr>
+</tbody></table>
+</div>
+<p>For another controller, add <strong>Controls ×4</strong>, right-click it, choose <strong>Learn in order</strong> and move four of its controls. Double-click the group to open it: duplicate a Control for each fader more, right-click each one's <strong>Out</strong> and choose <strong>Show on group</strong> to give it a jack, and its fader's menu to put it on the face.</p>
+<h2 id="patches-made-with-controls"><a class="header" href="#patches-made-with-controls">Patches made with Controls</a></h2>
+<p>Controls, the module this one replaced, was four slots, <strong>A</strong> to <strong>D</strong>, in one node. A patch made with it opens with a group named <strong>Controls</strong> in its place, holding four Controls, each hearing what its slot heard, with the <strong>Slew</strong> they shared, hearing the same Device, its fader on the group's face. The group's jacks are <strong>A</strong> to <strong>D</strong>, so every cable stays where it was, and it sounds exactly as it did.</p>
+<h2 id="uses"><a class="header" href="#uses">Uses</a></h2>
+<ul>
+<li><strong>A fader on a filter.</strong> Learn a Control from a fader and patch <strong>Out</strong> into an SVF Filter's <strong>Cutoff</strong>. The filter follows the fader with no zipper noise at the default <strong>Slew</strong>.</li>
+<li><strong>The touch strips.</strong> A Control on the pitch bend and one on the mod wheel: the bend into a filter for a wah, the mod strip into a vibrato's depth.</li>
+<li><strong>One fader, several places.</strong> Patch one output into as many inputs as you like, and put an <a href="../utilities/attenuverter.html">Attenuverter</a> in front of any that should move the other way or less.</li>
+<li><strong>Pressure as expression.</strong> A Control on <strong>Pressure</strong> hears how hard you press a held key: patch it into a VCA or a filter to swell a note as you lean in.</li>
+<li><strong>An expression pedal.</strong> One Control, learned from the pedal, into a VCA's <strong>CV</strong> for a volume pedal or a filter for a wah.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../modules/midi/note-in.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../modules/midi/pad.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../modules/midi/note-in.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../modules/midi/pad.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
