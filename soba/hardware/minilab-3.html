@@ -1,0 +1,270 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Pad Lights: MiniLab 3 - Soba Documentation</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A node-based modular audio synthesizer in Rust">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "coal" : "coal";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Getting Started</li><li class="chapter-item expanded "><a href="../getting-started/installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../getting-started/interface-overview.html"><strong aria-hidden="true">2.</strong> Interface Overview</a></li><li class="chapter-item expanded "><a href="../getting-started/your-first-patch.html"><strong aria-hidden="true">3.</strong> Your First Patch</a></li><li class="chapter-item expanded "><a href="../getting-started/lessons.html"><strong aria-hidden="true">4.</strong> Lessons</a></li><li class="chapter-item expanded "><a href="../getting-started/presenting.html"><strong aria-hidden="true">5.</strong> Presenting</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Concepts</li><li class="chapter-item expanded "><a href="../concepts/signal-types.html"><strong aria-hidden="true">6.</strong> Signal Types</a></li><li class="chapter-item expanded "><a href="../concepts/connections.html"><strong aria-hidden="true">7.</strong> Connections</a></li><li class="chapter-item expanded "><a href="../concepts/polyphony.html"><strong aria-hidden="true">8.</strong> Polyphony</a></li><li class="chapter-item expanded "><a href="../concepts/tempo-and-sync.html"><strong aria-hidden="true">9.</strong> Tempo and Sync</a></li><li class="chapter-item expanded "><a href="../concepts/groups.html"><strong aria-hidden="true">10.</strong> Groups</a></li><li class="chapter-item expanded affix "><li class="part-title">Modules</li><li class="chapter-item expanded "><a href="../modules/index.html"><strong aria-hidden="true">11.</strong> Module Overview</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../modules/sources/oscillator.html"><strong aria-hidden="true">11.1.</strong> Oscillator</a></li><li class="chapter-item "><a href="../modules/sources/noise.html"><strong aria-hidden="true">11.2.</strong> Noise</a></li><li class="chapter-item "><a href="../modules/sources/drum.html"><strong aria-hidden="true">11.3.</strong> Drum</a></li><li class="chapter-item "><a href="../modules/sources/resonator.html"><strong aria-hidden="true">11.4.</strong> Resonator</a></li><li class="chapter-item "><a href="../modules/sources/sampler.html"><strong aria-hidden="true">11.5.</strong> Sampler</a></li><li class="chapter-item "><a href="../modules/sources/chopper.html"><strong aria-hidden="true">11.6.</strong> Chopper</a></li><li class="chapter-item "><a href="../modules/sources/cloud.html"><strong aria-hidden="true">11.7.</strong> Cloud</a></li><li class="chapter-item "><a href="../modules/sources/audio-input.html"><strong aria-hidden="true">11.8.</strong> Audio Input</a></li><li class="chapter-item "><a href="../modules/midi/midi-in.html"><strong aria-hidden="true">11.9.</strong> MIDI In</a></li><li class="chapter-item "><a href="../modules/midi/note-in.html"><strong aria-hidden="true">11.10.</strong> Note In</a></li><li class="chapter-item "><a href="../modules/midi/control.html"><strong aria-hidden="true">11.11.</strong> Control</a></li><li class="chapter-item "><a href="../modules/midi/pad.html"><strong aria-hidden="true">11.12.</strong> Pad</a></li><li class="chapter-item "><a href="../modules/midi/instrument.html"><strong aria-hidden="true">11.13.</strong> Instrument</a></li><li class="chapter-item "><a href="../modules/midi/kit.html"><strong aria-hidden="true">11.14.</strong> Kit</a></li><li class="chapter-item "><a href="../modules/midi/strike.html"><strong aria-hidden="true">11.15.</strong> Strike</a></li><li class="chapter-item "><a href="../modules/midi/cc-out.html"><strong aria-hidden="true">11.16.</strong> CC Out</a></li><li class="chapter-item "><a href="../modules/midi/setlist.html"><strong aria-hidden="true">11.17.</strong> Setlist</a></li><li class="chapter-item "><a href="../modules/midi/fm-voice.html"><strong aria-hidden="true">11.18.</strong> FM Voice</a></li><li class="chapter-item "><a href="../modules/filters/svf-filter.html"><strong aria-hidden="true">11.19.</strong> SVF Filter</a></li><li class="chapter-item "><a href="../modules/filters/ladder-filter.html"><strong aria-hidden="true">11.20.</strong> Ladder Filter</a></li><li class="chapter-item "><a href="../modules/modulation/adsr.html"><strong aria-hidden="true">11.21.</strong> ADSR Envelope</a></li><li class="chapter-item "><a href="../modules/modulation/lfo.html"><strong aria-hidden="true">11.22.</strong> LFO</a></li><li class="chapter-item "><a href="../modules/modulation/slope.html"><strong aria-hidden="true">11.23.</strong> Slope</a></li><li class="chapter-item "><a href="../modules/effects/delay.html"><strong aria-hidden="true">11.24.</strong> Stereo Delay</a></li><li class="chapter-item "><a href="../modules/effects/reverb.html"><strong aria-hidden="true">11.25.</strong> Reverb</a></li><li class="chapter-item "><a href="../modules/effects/eq.html"><strong aria-hidden="true">11.26.</strong> 3-Band EQ</a></li><li class="chapter-item "><a href="../modules/effects/distortion.html"><strong aria-hidden="true">11.27.</strong> Distortion</a></li><li class="chapter-item "><a href="../modules/effects/chorus.html"><strong aria-hidden="true">11.28.</strong> Chorus</a></li><li class="chapter-item "><a href="../modules/effects/tape.html"><strong aria-hidden="true">11.29.</strong> Tape</a></li><li class="chapter-item "><a href="../modules/effects/slicer.html"><strong aria-hidden="true">11.30.</strong> Slicer</a></li><li class="chapter-item "><a href="../modules/effects/compressor.html"><strong aria-hidden="true">11.31.</strong> Compressor</a></li><li class="chapter-item "><a href="../modules/effects/vocoder.html"><strong aria-hidden="true">11.32.</strong> Vocoder</a></li><li class="chapter-item "><a href="../modules/modulation/clock.html"><strong aria-hidden="true">11.33.</strong> Clock</a></li><li class="chapter-item "><a href="../modules/utilities/vca.html"><strong aria-hidden="true">11.34.</strong> VCA</a></li><li class="chapter-item "><a href="../modules/utilities/attenuverter.html"><strong aria-hidden="true">11.35.</strong> Attenuverter</a></li><li class="chapter-item "><a href="../modules/utilities/mix.html"><strong aria-hidden="true">11.36.</strong> Mix</a></li><li class="chapter-item "><a href="../modules/utilities/mixer.html"><strong aria-hidden="true">11.37.</strong> Mixer</a></li><li class="chapter-item "><a href="../modules/utilities/sample-hold.html"><strong aria-hidden="true">11.38.</strong> Sample & Hold</a></li><li class="chapter-item "><a href="../modules/utilities/quantizer.html"><strong aria-hidden="true">11.39.</strong> Quantizer</a></li><li class="chapter-item "><a href="../modules/utilities/divider.html"><strong aria-hidden="true">11.40.</strong> Clock Divider</a></li><li class="chapter-item "><a href="../modules/utilities/logic.html"><strong aria-hidden="true">11.41.</strong> Logic</a></li><li class="chapter-item "><a href="../modules/utilities/looper.html"><strong aria-hidden="true">11.42.</strong> Looper</a></li><li class="chapter-item "><a href="../modules/visualization/oscilloscope.html"><strong aria-hidden="true">11.43.</strong> Oscilloscope</a></li><li class="chapter-item "><a href="../modules/visualization/spectrum.html"><strong aria-hidden="true">11.44.</strong> Spectrum</a></li><li class="chapter-item "><a href="../modules/visualization/dancer.html"><strong aria-hidden="true">11.45.</strong> Dancer</a></li><li class="chapter-item "><a href="../modules/utilities/sequencer.html"><strong aria-hidden="true">11.46.</strong> Step Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/chord-sequencer.html"><strong aria-hidden="true">11.47.</strong> Chord Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/trigger-sequencer.html"><strong aria-hidden="true">11.48.</strong> Trigger Sequencer</a></li><li class="chapter-item "><a href="../modules/utilities/arranger.html"><strong aria-hidden="true">11.49.</strong> Arranger</a></li><li class="chapter-item "><a href="../modules/utilities/scenes.html"><strong aria-hidden="true">11.50.</strong> Scenes</a></li><li class="chapter-item "><a href="../modules/midi/midi-monitor.html"><strong aria-hidden="true">11.51.</strong> MIDI Monitor</a></li><li class="chapter-item "><a href="../modules/output/audio-output.html"><strong aria-hidden="true">11.52.</strong> Audio Output</a></li><li class="chapter-item "><a href="../modules/output/link-out.html"><strong aria-hidden="true">11.53.</strong> Link Out</a></li><li class="chapter-item "><a href="../modules/output/midi-out.html"><strong aria-hidden="true">11.54.</strong> MIDI Out</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Playing Hardware</li><li class="chapter-item expanded "><a href="../hardware/index.html"><strong aria-hidden="true">12.</strong> Hardware Overview</a></li><li class="chapter-item expanded "><a href="../hardware/instruments.html"><strong aria-hidden="true">13.</strong> Instrument Profiles</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../hardware/digitakt.html"><strong aria-hidden="true">13.1.</strong> Digitakt</a></li><li class="chapter-item "><a href="../hardware/sp-404mkii.html"><strong aria-hidden="true">13.2.</strong> SP-404MKII</a></li><li class="chapter-item "><a href="../hardware/rc-505.html"><strong aria-hidden="true">13.3.</strong> RC-505</a></li><li class="chapter-item "><a href="../hardware/rc-505mkii.html"><strong aria-hidden="true">13.4.</strong> RC-505mkII</a></li><li class="chapter-item "><a href="../hardware/microfreak.html"><strong aria-hidden="true">13.5.</strong> MicroFreak</a></li><li class="chapter-item "><a href="../hardware/polyend-tracker.html"><strong aria-hidden="true">13.6.</strong> Polyend Tracker</a></li><li class="chapter-item "><a href="../hardware/volca-fm.html"><strong aria-hidden="true">13.7.</strong> volca fm</a></li><li class="chapter-item "><a href="../hardware/volca-drum.html"><strong aria-hidden="true">13.8.</strong> volca drum</a></li><li class="chapter-item "><a href="../hardware/fantom-06.html"><strong aria-hidden="true">13.9.</strong> FANTOM-06</a></li><li class="chapter-item "><a href="../hardware/zoia.html"><strong aria-hidden="true">13.10.</strong> ZOIA</a></li></ol></li><li class="chapter-item expanded "><a href="../hardware/minilab-3.html" class="active"><strong aria-hidden="true">14.</strong> Pad Lights: MiniLab 3</a></li><li class="chapter-item expanded affix "><li class="part-title">Recipes</li><li class="chapter-item expanded "><a href="../recipes/basic-subtractive.html"><strong aria-hidden="true">15.</strong> Basic Subtractive Synth</a></li><li class="chapter-item expanded "><a href="../recipes/fm-synthesis.html"><strong aria-hidden="true">16.</strong> FM Synthesis</a></li><li class="chapter-item expanded "><a href="../recipes/lush-pad.html"><strong aria-hidden="true">17.</strong> Lush Pad</a></li><li class="chapter-item expanded "><a href="../recipes/sampled-keys.html"><strong aria-hidden="true">18.</strong> Sampled Keys</a></li><li class="chapter-item expanded "><a href="../recipes/live-looper.html"><strong aria-hidden="true">19.</strong> Live Looper</a></li><li class="chapter-item expanded "><a href="../recipes/generative-ambient.html"><strong aria-hidden="true">20.</strong> Generative Ambient</a></li><li class="chapter-item expanded "><a href="../recipes/shoreline.html"><strong aria-hidden="true">21.</strong> Shoreline</a></li><li class="chapter-item expanded "><a href="../recipes/rhythmic-sequence.html"><strong aria-hidden="true">22.</strong> Rhythmic Sequence</a></li><li class="chapter-item expanded "><a href="../recipes/backbeat.html"><strong aria-hidden="true">23.</strong> Backbeat</a></li><li class="chapter-item expanded "><a href="../recipes/drum-machine.html"><strong aria-hidden="true">24.</strong> Drum Machine</a></li><li class="chapter-item expanded "><a href="../recipes/roll-call.html"><strong aria-hidden="true">25.</strong> Roll Call</a></li><li class="chapter-item expanded "><a href="../recipes/pad-kit.html"><strong aria-hidden="true">26.</strong> Pad Kit</a></li><li class="chapter-item expanded "><a href="../recipes/hands-on.html"><strong aria-hidden="true">27.</strong> Hands On</a></li><li class="chapter-item expanded "><a href="../recipes/the-rig.html"><strong aria-hidden="true">28.</strong> The Rig</a></li><li class="chapter-item expanded "><a href="../recipes/pinwheel.html"><strong aria-hidden="true">29.</strong> Pinwheel</a></li><li class="chapter-item expanded "><a href="../recipes/afterglow.html"><strong aria-hidden="true">30.</strong> Afterglow</a></li><li class="chapter-item expanded "><a href="../recipes/front-porch.html"><strong aria-hidden="true">31.</strong> Front Porch</a></li><li class="chapter-item expanded "><a href="../recipes/soba-speaks.html"><strong aria-hidden="true">32.</strong> Soba Speaks</a></li><li class="chapter-item expanded "><a href="../recipes/held-vowels.html"><strong aria-hidden="true">33.</strong> Held Vowels</a></li><li class="chapter-item expanded "><a href="../recipes/interlock.html"><strong aria-hidden="true">34.</strong> Interlock</a></li><li class="chapter-item expanded "><a href="../recipes/cut-up.html"><strong aria-hidden="true">35.</strong> Cut-Up</a></li><li class="chapter-item expanded "><a href="../recipes/choir-of-one.html"><strong aria-hidden="true">36.</strong> Choir of One</a></li><li class="chapter-item expanded "><a href="../recipes/breakdown.html"><strong aria-hidden="true">37.</strong> Breakdown</a></li><li class="chapter-item expanded "><a href="../recipes/sympathetic-strings.html"><strong aria-hidden="true">38.</strong> Sympathetic Strings</a></li><li class="chapter-item expanded affix "><li class="part-title">Songs</li><li class="chapter-item expanded "><a href="../songs/from-one-sine.html"><strong aria-hidden="true">39.</strong> From One Sine</a></li><li class="chapter-item expanded "><a href="../songs/clair-de-satellite.html"><strong aria-hidden="true">40.</strong> Clair de Satellite</a></li><li class="chapter-item expanded "><a href="../songs/canopy.html"><strong aria-hidden="true">41.</strong> Canopy</a></li><li class="chapter-item expanded "><a href="../songs/orrery.html"><strong aria-hidden="true">42.</strong> Orrery</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Soba Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/chrischaps/Soba/edit/master/docs/src/hardware/minilab-3.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="pad-lights-minilab-3"><a class="header" href="#pad-lights-minilab-3">Pad Lights: MiniLab 3</a></h1>
+<p>The Arturia MiniLab 3's eight pads have RGB lights, and the computer can set their colours. When Soba plays a MiniLab, each pad lights up in the colour of what it plays in the patch, so the controller itself shows what each pad does.</p>
+<div class="table-wrapper"><table><thead><tr><th>A pad that…</th><th>Lights</th></tr></thead><tbody>
+<tr><td>plays a <a href="../modules/midi/pad.html">Pad</a> whose <strong>Gate</strong> goes into a module</td><td>in that module's colour, dimly: blue for a <a href="../modules/sources/drum.html">Drum</a>, orange for an <a href="../modules/modulation/adsr.html">ADSR</a></td></tr>
+<tr><td>plays a Pad with nothing on its Gate</td><td>Gate green, dimly</td></tr>
+<tr><td>is learned to a knob, toggle or dropdown (MIDI Learn)</td><td>in its module's colour, dimly</td></tr>
+<tr><td>is learned to a <a href="../modules/utilities/scenes.html">Scenes</a> pad</td><td>in the Scenes' colour, glowing steadily while that scene is the current one</td></tr>
+<tr><td>plays nothing</td><td>dark</td></tr>
+</tbody></table>
+</div>
+<p><strong>A hit flashes the pad.</strong> The harder you hit it, the brighter it flashes, and the flash fades as fast as it does on the Pad's face. A pad that's latched, or held down, glows steadily until it's let go.</p>
+<p>If a Pad's Gate isn't patched, its <strong>Velocity</strong> cable picks the colour. When two things listen to one pad, the brighter of the two lights it.</p>
+<h2 id="turning-the-lights-on"><a class="header" href="#turning-the-lights-on">Turning the lights on</a></h2>
+<p>The lights go out through a MIDI Out port, like anything else Soba sends to hardware.</p>
+<ol>
+<li>Open <strong>the Rig</strong> (<code>Ctrl+Shift+H</code>).</li>
+<li>Choose the MiniLab as the device for a free <strong>Out</strong> port. On Windows the MiniLab has two outputs, <code>Minilab3 MIDI</code> and <code>MIDIOUT2 (Minilab3 MIDI)</code>. Either one works with Soba, and Arturia's own DAW scripts use the second.</li>
+<li>The pads light up. To turn them off, set the port back to <strong>None</strong>.</li>
+</ol>
+<p>Soba sends a pad only when its colour changes. It sends each port at most thirty times a second, so a busy patch can't flood the controller, and it waits whenever a SysEx dump is still going out on that port. Every two seconds it sends all the pads again, so a MiniLab that's unplugged and plugged back in lights up again.</p>
+<p><strong>💡 Test its pad lights</strong>, in the port's device menu, plays a rainbow across the pads for four seconds. It works with an empty patch, so you can check the lights on their own.</p>
+<h2 id="which-pad-is-which"><a class="header" href="#which-pad-is-which">Which pad is which</a></h2>
+<p>Soba recognises each pad by the note it sends from the factory. Bank A sends notes 36 to 43 and bank B sends 44 to 51, all on channel 10, which are the notes the Library's <strong>Pads ×8</strong> listens to. A Pad learned from the MiniLab hears those same notes, so it lights the pad you hit.</p>
+<p>If you changed the pads' notes in Arturia's MIDI Control Center, Soba won't know which pad is which. Put the new notes in <code>src/hardware/lights/minilab-3.json</code>.</p>
+<h2 id="still-to-be-checked-on-the-device"><a class="header" href="#still-to-be-checked-on-the-device">Still to be checked on the device</a></h2>
+<p>Arturia doesn't publish the MiniLab 3's SysEx. The colour message Soba sends comes from <a href="https://gist.github.com/Janiczek/04a87c2534b9d1435a1d8159c742d260">people who worked it out by testing</a>:</p>
+<pre><code class="language-text">F0 00 20 6B 7F 42 02 02 16 &lt;pad&gt; &lt;red&gt; &lt;green&gt; &lt;blue&gt; F7
+</code></pre>
+<p>Here <code>&lt;pad&gt;</code> is <code>04</code> to <code>0B</code> for bank A and <code>14</code> to <code>1B</code> for bank B. Red, green and blue each run from 0 to 127. The <code>02 02</code> is said to set the colours for DAW mode, <code>02 01</code> for Arturia mode and <code>02 00</code> for the current User mode.</p>
+<p>It hasn't been tried on a real MiniLab yet. If <strong>Test its pad lights</strong> shows no rainbow:</p>
+<ul>
+<li><strong>Try the other output port.</strong></li>
+<li><strong>Switch the MiniLab to DAW mode.</strong> Hold <strong>Shift</strong> and press pad 3 until the display says <strong>DAW</strong>.</li>
+<li><strong>Edit the message.</strong> Change <code>02 02</code> to <code>02 01</code> in <code>src/hardware/lights/minilab-3.json</code> (the <code>colour</code> line), rebuild, and try again. You can add messages Soba should send before the first colour as <code>enter</code>, and messages for when the lights stop as <code>leave</code>, each as hex bytes.</li>
+</ul>
+<p>Once you've seen it work, set <code>"confirmed": true</code> in the file, and the Rig stops saying the message is unchecked.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../hardware/zoia.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../recipes/basic-subtractive.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../hardware/zoia.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../recipes/basic-subtractive.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
