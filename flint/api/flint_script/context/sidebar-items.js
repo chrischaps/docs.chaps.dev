@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CueParam","DrawCommand","LogLevel","ScriptCommand"],"struct":["CameraFollowState","ConductedCue","ConductedPulse","ConductedSnapshot","InputSnapshot","ScriptCallContext","ShakeState","StateScope","WorldScope"]};
+window.SIDEBAR_ITEMS = {"enum":["CueParam","DrawCommand","LogLevel","ScriptCommand"],"struct":["CameraFollowState","ConductedCue","ConductedPulse","ConductedSnapshot","DrawItem","InputSnapshot","ScriptCallContext","ShakeState","StateScope","WorldScope"],"type":["TextMeasurer"]};

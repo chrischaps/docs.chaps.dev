@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EXTENSION","FORMAT_VERSION","HEADER_LEN","MAGIC"],"enum":["BundleError"],"fn":["total_len"],"struct":["Bundle","BundleEntry","BundleManifest","LateBundle"]};

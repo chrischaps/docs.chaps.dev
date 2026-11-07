@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="User-authored styles (#274, ADR 0112): a game describes a style in `styles/&#60;name&#62;.shader.toml` and writes one WGSL function beside it."><title>flint_render::stylize::custom - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint_render" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module custom</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../flint_render/index.html">flint_<wbr>render</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module custom</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In flint_<wbr>render::<wbr>stylize</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">flint_render</a>::<wbr><a href="../index.html">stylize</a></div><h1>Module <span>custom</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/flint_render/stylize/custom.rs.html#1-2021">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>User-authored styles (#274, ADR 0112): a game describes a style in
+<code>styles/&lt;name&gt;.shader.toml</code> and writes one WGSL function beside it.</p>
+<div class="example-wrap"><pre class="language-toml"><code># styles/duotone.shader.toml
+version = 1
+name = &quot;duotone&quot;
+label = &quot;Duotone&quot;
+stage = &quot;display&quot;          # or &quot;hdr&quot;
+shader = &quot;duotone.wgsl&quot;
+inputs = [&quot;depth&quot;]         # colour is always there; also &quot;mask&quot;, &quot;edges&quot;
+
+[params.mix]
+default = 1.0
+min = 0.0
+max = 1.0
+help = &quot;How far to the two inks&quot;</code></pre></div><div class="example-wrap"><pre class="language-wgsl"><code>// styles/duotone.wgsl
+fn style(p: StylePixel) -&gt; vec4&lt;f32&gt; {
+    let l = flint_luma(p.color.rgb);
+    return vec4&lt;f32&gt;(mix(p.color.rgb, vec3&lt;f32&gt;(l), params.mix), 1.0);
+}</code></pre></div>
+<p>The framework writes everything else: a prelude with the bindings, the
+<code>params</code> struct (one <code>f32</code> per declared parameter), helpers
+(<code>flint_sample</code>, <code>flint_view_depth</code>, <code>flint_style_blend</code>, …) and the
+entry points. At the display stage <code>p.color</code> and the returned colour
+are display values (what the eye sees) on any target format: the
+prelude decodes and encodes an sRGB target, so a user never meets the
+gotcha the built-ins work around by hand.</p>
+<p>The composed module is parsed and validated with naga before wgpu sees
+it (natively), and an error comes back as <code>file:line:col</code> in the user’s
+file. A style that fails draws its input unchanged (a passthrough) and
+its error is kept for the host to show (<a href="fn.errors.html" title="fn flint_render::stylize::custom::errors"><code>errors</code></a>). The WGSL is polled
+for changes (natively, a few times a second) and rebuilt in place; an
+edit that fails keeps the last good build drawing.</p>
+<p>The registry is append-only ([<code>super::register_runtime</code>]): a style keeps
+its index for the run. An edited <code>.shader.toml</code> is read again by
+<a href="fn.reload_changed.html" title="fn flint_render::stylize::custom::reload_changed"><code>reload_changed</code></a> (#275), which hosts call a few times a second: the
+new descriptor takes the old one’s index ([<code>super::replace_runtime</code>]),
+the renderer builds it again on the next frame, and the host re-reads
+the scene’s settings for it (<a href="fn.refresh_settings.html" title="fn flint_render::stylize::custom::refresh_settings"><code>refresh_settings</code></a>).</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Composed.html" title="struct flint_render::stylize::custom::Composed">Composed</a></dt><dd>The module wgpu compiles: the generated prelude, the user’s source, the
+entry points, and where the user’s lines start.</dd><dt><a class="struct" href="struct.Inputs.html" title="struct flint_render::stylize::custom::Inputs">Inputs</a></dt><dd>Which optional buffers a style reads.</dd><dt><a class="struct" href="struct.ParamDef.html" title="struct flint_render::stylize::custom::ParamDef">Param<wbr>Def</a></dt><dd>One <code>[params.&lt;name&gt;]</code> table.</dd><dt><a class="struct" href="struct.Reload.html" title="struct flint_render::stylize::custom::Reload">Reload</a></dt><dd>What <a href="fn.reload_changed.html" title="fn flint_render::stylize::custom::reload_changed"><code>reload_changed</code></a> did.</dd><dt><a class="struct" href="struct.Report.html" title="struct flint_render::stylize::custom::Report">Report</a></dt><dd>What a check found: warnings about a shader that compiles.</dd><dt><a class="struct" href="struct.ShaderStyleDef.html" title="struct flint_render::stylize::custom::ShaderStyleDef">Shader<wbr>Style<wbr>Def</a></dt><dd>A parsed <code>*.shader.toml</code>.</dd><dt><a class="struct" href="struct.StyleSource.html" title="struct flint_render::stylize::custom::StyleSource">Style<wbr>Source</a></dt><dd>A style description, checked: what <a href="fn.compose.html" title="fn flint_render::stylize::custom::compose"><code>compose</code></a> and the pass need.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.MAX_PARAMS.html" title="constant flint_render::stylize::custom::MAX_PARAMS">MAX_<wbr>PARAMS</a></dt><dd>How many parameters a style may declare: 64 floats is a 272-byte
+uniform, well inside every backend’s limit.</dd><dt><a class="constant" href="constant.PASSTHROUGH.html" title="constant flint_render::stylize::custom::PASSTHROUGH">PASSTHROUGH</a></dt><dd>What the user writes when they have nothing yet: the input, unchanged.</dd><dt><a class="constant" href="constant.SUFFIX.html" title="constant flint_render::stylize::custom::SUFFIX">SUFFIX</a></dt><dd>The file suffix of a style description.</dd><dt><a class="constant" href="constant.TEXTURE_READ_WARN.html" title="constant flint_render::stylize::custom::TEXTURE_READ_WARN">TEXTURE_<wbr>READ_<wbr>WARN</a></dt><dd>Texture reads a pixel may make before the check warns (a 9x9 blur is
+81): past it, a full-screen pass gets expensive fast.</dd><dt><a class="constant" href="constant.VERSION.html" title="constant flint_render::stylize::custom::VERSION">VERSION</a></dt><dd>The only <code>version</code> this loader reads.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.check.html" title="fn flint_render::stylize::custom::check">check</a></dt><dd>Parse and validate <code>user</code> as <code>source</code>’s shader, the way it will be
+built. <code>Err</code> is the message to show, lines in the user’s file.</dd><dt><a class="fn" href="fn.compose.html" title="fn flint_render::stylize::custom::compose">compose</a></dt><dd><code>user</code> (the style’s WGSL) inside its prelude and entry points.</dd><dt><a class="fn" href="fn.errors.html" title="fn flint_render::stylize::custom::errors">errors</a></dt><dd>Every loaded user style with its current error, for a host to show
+(a console line, an overlay). Empty when all of them compile.</dd><dt><a class="fn" href="fn.load_dir.html" title="fn flint_render::stylize::custom::load_dir">load_<wbr>dir</a></dt><dd>Register every <code>*.shader.toml</code> in <code>scene_dir</code>’s style folders that
+isn’t registered yet. Call it before the scene’s <code>[post_process]</code> is
+read, or its tables name an unknown style. Returns one message for each
+file that couldn’t be loaded (and each warning a check raised); a
+style whose shader fails still registers, drawing a passthrough.</dd><dt><a class="fn" href="fn.load_file.html" title="fn flint_render::stylize::custom::load_file">load_<wbr>file</a></dt><dd>Register the style <code>path</code> describes (see <a href="fn.load_dir.html" title="fn flint_render::stylize::custom::load_dir"><code>load_dir</code></a>).</dd><dt><a class="fn" href="fn.params_size.html" title="fn flint_render::stylize::custom::params_size">params_<wbr>size</a></dt><dd>The size in bytes of a style’s <code>Params</code> uniform.</dd><dt><a class="fn" href="fn.prelude.html" title="fn flint_render::stylize::custom::prelude">prelude</a></dt><dd>The prelude for <code>source</code>: everything before the user’s first line.</dd><dt><a class="fn" href="fn.refresh_settings.html" title="fn flint_render::stylize::custom::refresh_settings">refresh_<wbr>settings</a></dt><dd>Re-read the settings of each style <code>reload</code> touched from <code>authored</code>
+(the scene’s <code>[post_process]</code>, parsed again now that the registry
+knows their new parameters) into <code>config</code>, leaving every other style as
+the host has it (#275).</dd><dt><a class="fn" href="fn.reload_changed.html" title="fn flint_render::stylize::custom::reload_changed">reload_<wbr>changed</a></dt><dd>Hot reload of the descriptions (#275), natively: read again every
+loaded <code>.shader.toml</code> whose modified time moved, and load any new one
+in <code>scene_dir</code>’s style folders. A description that no longer reads
+keeps the style as it was and shows the error (<a href="fn.errors.html" title="fn flint_render::stylize::custom::errors"><code>errors</code></a>); one that
+does replaces the style at its registry index, so the renderer builds
+it again on the next frame. The WGSL itself is polled by the pass, so
+a shader edit needs nothing from the host.</dd><dt><a class="fn" href="fn.report_build_panic.html" title="fn flint_render::stylize::custom::report_build_panic">report_<wbr>build_<wbr>panic</a></dt><dd>Record that style <code>name</code>’s pass panicked while it was built (the
+renderer caught it): it stays off, and its error says so.</dd><dt><a class="fn" href="fn.source.html" title="fn flint_render::stylize::custom::source">source</a></dt><dd>The source a loaded user style was read from.</dd><dt><a class="fn" href="fn.style_dirs.html" title="fn flint_render::stylize::custom::style_dirs">style_<wbr>dirs</a></dt><dd>The folders a scene in <code>scene_dir</code> finds styles in: its own <code>styles/</code>,
+then its parent’s (a game’s <code>levels/</code> beside <code>styles/</code>), as models are.</dd></dl></section></div></main></body></html>

@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -235,6 +235,16 @@ source_radius = 0.1
 <p><strong>Resolution.</strong> <code>--shadow-resolution</code> defaults to 2048 texels per cascade. Before ADR 0049 the shader hardcoded a 1/2048 texel size, so any other resolution filtered incorrectly and the flag was effectively decorative. The texel size is now uploaded with the cascade uniforms, so 512, 1024 and 4096 are real choices; the F4 menu’s Shadows section rebuilds the shadow pass when you pick one.</p>
 <p><strong>Contact hardening (PCSS).</strong> When the shadow-casting directional light has a non-zero <code>angular_size</code>, the shader switches from a fixed 3x3 PCF kernel to percentage-closer soft shadows (ADR 0057): a Vogel-disk blocker search estimates the average occluder depth, the penumbra width grows with the occluder-to-receiver distance and <code>tan(angular_size)</code>, and the filter kernel is sized to match. Shadows are sharp where an object touches the ground and soften as it lifts away. <code>angular_size = 0</code> takes the legacy PCF path verbatim, which keeps existing renders byte-identical.</p>
 <p><strong>Skinned casters.</strong> Skinned meshes cast shadows through a dedicated <code>vs_skinned_shadow</code> entry point that applies bone transforms before the depth write.</p>
+<p><strong>Turning casting off.</strong> Every mesh casts by default, transparent ones included: the shadow pass writes depth only, so a sheet at <code>opacity = 0.02</code> casts as dark a shadow as a wall. Set <strong><code>material.cast_shadows = false</code></strong> (ADR 0100) on anything that shouldn’t, like mist, glass, spray or a smoke card:</p>
+<pre><code class="language-toml">[entities.valley_mist.material]
+opacity = 0.3
+cast_shadows = false
+</code></pre>
+<ul>
+<li><strong>Where it applies:</strong> imported, runtime, skinned and procedural (<code>bounds</code>) meshes, opaque or transparent. An entity with no value of its own takes its parent’s, so a GLB expanded into child nodes stops casting as one.</li>
+<li><strong>It’s read every frame</strong>, so a script or extension can turn it on and off. It costs nothing: the draw just stays out of the cascades. The mesh still takes shadows from everything else.</li>
+<li><strong>Terrain and grass</strong> don’t read it: terrain chunks always cast, and grass casts into the two nearest cascades.</li>
+</ul>
 <h2 id="the-environment-block"><a class="header" href="#the-environment-block">The <code>[environment]</code> Block</a></h2>
 <p>Scene-wide shading lives in <code>[environment]</code>, next to the skybox path. Every lever here follows the same convention: absent or zero means the exact original shading, so scenes that never set them look the way they always did.</p>
 <pre><code class="language-toml">[environment]

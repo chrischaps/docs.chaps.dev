@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["MAX_SCOPES"],"struct":["GpuPassTime","GpuScope","GpuTimer","GpuTimings"]};

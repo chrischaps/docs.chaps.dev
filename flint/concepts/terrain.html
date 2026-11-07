@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -345,11 +345,12 @@ depth = 384.0
 </div>
 <p>How it works, per frame:</p>
 <ol>
-<li>A <strong>compute pass</strong> walks a grid whose spacing is <code>1 / sqrt(density)</code>, samples the splat map’s <code>density_layer</code> at each cell, skips cells under <code>density_threshold</code>, applies a probabilistic falloff between <code>fade_start</code> and <code>max_distance</code>, and writes a 32-byte instance (position on the heightmap, rotation, height scale, packed tint) into a storage buffer.</li>
+<li>A <strong>compute pass</strong> walks the cells within <code>max_distance</code> of the camera on a grid whose spacing is <code>1 / sqrt(density)</code>, samples the splat map’s <code>density_layer</code> at each cell, skips cells under <code>density_threshold</code>, applies a probabilistic falloff between <code>fade_start</code> and <code>max_distance</code>, and writes a 32-byte instance (position on the heightmap, rotation, height scale, packed tint) into a storage buffer. A blade’s root takes the heightmap’s bilinear blend at its spot, the same blend <code>sample_height</code> makes, so the blades stand on the terrain’s surface (ADR 0098).</li>
 <li>A <strong>render pass</strong> draws one shared blade mesh per instance. The vertex shader sways blades by a time-driven wind term and pushes them away from up to eight entity positions within <code>bend_radius</code>; the fragment shader blends <code>color_base</code> to <code>color_tip</code> along the blade, mixes in <code>color_dry</code>, and shades with the same lighting levers and PCSS shadows as other geometry. The player feeds the camera position as the bend entity.</li>
 <li>The <strong>shadow pass</strong> renders the instances into the nearest two cascades, so grass darkens the ground under it.</li>
 </ol>
 <p>The pipeline participates in MSAA when the player runs with <code>--msaa 4</code>, and grass appears in <code>flint render</code> snapshots at time zero, so the wind is frozen but the field is fully populated.</p>
+<p>The grass isn’t tied to a terrain. A game with mesh ground gives it a density mask and a height instead: see <a href="grass-ground.html">Grass on Any Ground</a>.</p>
 <p>The <strong>Grass Debug</strong> panel (<code>F3</code> in the player, see <a href="../guides/debug-panels.html">Debug Panels</a>) exposes every field above live and can commit them back to the scene file, which is how the meadow demo’s numbers were found.</p>
 <h2 id="physics-collision"><a class="header" href="#physics-collision">Physics Collision</a></h2>
 <p>Terrain automatically gets a <strong>trimesh physics collider</strong> via Rapier. The mesh geometry is exported as vertices and triangle indices, then registered as a fixed (immovable) rigid body. This means:</p>
@@ -360,6 +361,7 @@ depth = 384.0
 </ul>
 <p>The collider shape exactly matches the rendered mesh, so what you see is what you collide with.</p>
 <h2 id="height-sampling-from-scripts"><a class="header" href="#height-sampling-from-scripts">Height Sampling from Scripts</a></h2>
+<p>A game that makes its own ground rather than loading a <code>terrain</code> registers it as a <code>GroundField</code> instead, and scripts read it with <code>ground_height(x, z)</code> and pick it with <code>screen_to_heightfield(x, y)</code> (see <a href="../guides/player-extensions.html#picking-a-ground-that-isnt-flat">Player extensions</a>).</p>
 <p>The <code>terrain_height(x, z)</code> function is available in <a href="scripting.html">Rhai scripts</a> to query the terrain height at any world position:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -429,7 +431,7 @@ depth = 384.0
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../concepts/particles.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../concepts/grass-ground.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -443,7 +445,7 @@ depth = 384.0
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../concepts/particles.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../concepts/grass-ground.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

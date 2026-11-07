@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Backdrop"],"fn":["default_camera","effect_dir","pathdiff_relative","run","run_headless","run_interactive","unique_name"],"mod":["gizmo","presets","save","sim","ui"],"struct":["EmitterView","ParticleEditApp","ParticleEditArgs","PlayState","UiActions"]};

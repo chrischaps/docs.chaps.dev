@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Need","Step"],"struct":["DecodeQueue","Decoded","Decoding"]};

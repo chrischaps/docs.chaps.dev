@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Symbol"],"fn":["binary_tree_lsystem","stochastic_tree_lsystem"],"struct":["LSystem","LSystemBuilder","LSystemParams"]};
+window.SIDEBAR_ITEMS = {"enum":["Symbol"],"fn":["binary_tree_lsystem","stochastic_tree_lsystem"],"mod":["grammar"],"struct":["LSystem","LSystemBuilder","LSystemParams"]};

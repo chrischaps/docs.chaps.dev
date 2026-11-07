@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["MIN_RENDER_SCALE"],"fn":["clamp_render_scale","scaled_size"]};

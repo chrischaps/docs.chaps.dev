@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CheckStatus"],"fn":["validate_output"],"struct":["ValidationCheck","ValidationConstraints","ValidationReport"]};
+window.SIDEBAR_ITEMS = {"constant":["MAP_TEXEL_SHARE","PALETTE_DELTA_E","PALETTE_TEXEL_SHARE"],"enum":["CheckStatus"],"fn":["validate_model","validate_output"],"struct":["ValidationCheck","ValidationConstraints","ValidationReport"]};

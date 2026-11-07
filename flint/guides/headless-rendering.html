@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -210,6 +210,8 @@
 <tr><td><code>--no-grid</code></td><td><code>false</code></td><td>Disable ground grid</td></tr>
 <tr><td><code>--schemas &lt;path&gt;</code></td><td><code>schemas</code></td><td>Path to schemas directory (repeatable)</td></tr>
 <tr><td><code>--msaa &lt;1|4&gt;</code></td><td><code>1</code></td><td>Scene-pass MSAA sample count</td></tr>
+<tr><td><code>--render-scale &lt;f32&gt;</code></td><td><code>1</code></td><td>Draw the scene at this fraction of the image (0.25–1), upscaled</td></tr>
+<tr><td><code>--gpu-time &lt;frames&gt;</code></td><td>(none)</td><td>Render this many frames with GPU timing and print each pass’s ms</td></tr>
 </tbody>
 </table>
 </div>
@@ -255,15 +257,34 @@ flint render scene.toml --ssao-samples 16 --dof 0.6 --dof-focus 10 --dof-range 5
 <tr><td><code>--kuwahara-sharpness &lt;f32&gt;</code></td><td><code>8.0</code></td><td>Kuwahara sector sharpness</td></tr>
 <tr><td><code>--kuwahara-hardness &lt;f32&gt;</code></td><td><code>8.0</code></td><td>Kuwahara sector hardness</td></tr>
 <tr><td><code>--kuwahara-anisotropy &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Kuwahara anisotropy, 0–1</td></tr>
+<tr><td><code>--edge-depth &lt;f32&gt;</code> / <code>--edge-normal &lt;f32&gt;</code></td><td><code>0.6</code> / <code>2.5</code></td><td>Shared geometry edges’ thresholds (<code>--style edges_view</code> shows what they find)</td></tr>
 <tr><td><code>--render-mode &lt;0-5&gt;</code></td><td><code>0</code></td><td>Stylized render mode</td></tr>
 <tr><td><code>--mode-mix &lt;f32&gt;</code></td><td><code>0</code></td><td>Render mode blend, 0–1</td></tr>
 <tr><td><code>--mode-params &lt;x,y,z,w&gt;</code></td><td><code>0,0,0,0</code></td><td>Per-mode parameters</td></tr>
 <tr><td><code>--film-grain &lt;f32&gt;</code></td><td><code>0</code></td><td>Film grain intensity</td></tr>
 <tr><td><code>--grain-time &lt;f32&gt;</code></td><td><code>0</code></td><td>Post time driving grain and mode animation</td></tr>
+<tr><td><code>--style &lt;name[:k=v,...]&gt;</code></td><td>(none)</td><td>Turn on any registered style over the scene, e.g. <code>ascii:cell=12,ramp=blocks</code>, <code>invert</code>, <code>kuwahara:radius=6</code>, <code>ascii:off</code>; repeatable; <code>--style help</code> lists them, <code>--list-styles [--json]</code> with stages and ranges (<a href="../concepts/stylize-passes.html#using-a-style">Stylize Passes</a>)</td></tr>
+<tr><td><code>--style-time &lt;f32&gt;</code></td><td><code>0</code></td><td>Post time animated styles read (the same clock as <code>--grain-time</code>)</td></tr>
+<tr><td><code>--look &lt;name|path&gt;</code></td><td>(none)</td><td>A preset <code>[post_process]</code> block merged over the scene’s: <code>ascii_noir</code>, <code>matrix</code>, <code>ink_wash</code>, <code>graphite</code>, or a <code>styles/&lt;name&gt;.look.toml</code>; other flags apply over it; <code>--look help</code> lists them (<a href="../concepts/stylize-passes.html#looks-and-sweeps">Looks and sweeps</a>)</td></tr>
+<tr><td><code>--sweep &lt;key=v1,v2,...&gt;</code></td><td>(none)</td><td>One labelled contact sheet of the frame at each value: <code>ascii.cell=6,8,12</code>, <code>post.exposure=0.8,1.2</code>, <code>look=a,b</code>; cells default to 640x360</td></tr>
 <tr><td><code>--grade-lift &lt;r,g,b&gt;</code></td><td><code>0,0,0</code></td><td>Color grade lift</td></tr>
 <tr><td><code>--grade-gamma &lt;r,g,b&gt;</code></td><td><code>1,1,1</code></td><td>Color grade gamma</td></tr>
 <tr><td><code>--grade-gain &lt;r,g,b&gt;</code></td><td><code>1,1,1</code></td><td>Color grade gain</td></tr>
 <tr><td><code>--fxaa</code></td><td><code>false</code></td><td>Run the FXAA pass</td></tr>
+<tr><td><code>--ascii</code></td><td>(off)</td><td>The full-screen ASCII style (#265): one glyph per cell on one grid</td></tr>
+<tr><td><code>--ascii-font</code> / <code>--ascii-ramp</code> / <code>--ascii-color</code></td><td><code>builtin</code> / the set’s / <code>source</code></td><td>ASCII style glyph set, ramp and colour mode (<code>source</code>, <code>tint</code>, <code>raw</code>, <code>mono</code>, <code>palette</code>)</td></tr>
+<tr><td><code>--ascii-palette</code> / <code>--ascii-ground</code> / <code>--ascii-glow</code></td><td><code>phosphor</code> / <code>dim</code> / <code>0</code></td><td>ASCII style palette (<code>cga</code>, <code>cga16</code>, <code>amber</code>… or a <code>.palette.toml</code>), ground (<code>dim</code>, <code>black</code>, <code>inverse</code>) and glyph halo</td></tr>
+<tr><td><code>--ascii-tint &lt;r,g,b&gt;</code> / <code>--ascii-background &lt;f32&gt;</code></td><td>phosphor green / <code>0.15</code></td><td>ASCII style tint and how much cell colour fills behind glyphs</td></tr>
+<tr><td><code>--ascii-brightness</code> / <code>--ascii-contrast</code> / <code>--ascii-ink</code></td><td><code>0</code> / <code>1</code> / <code>1</code></td><td>ASCII style luminance remap and ink brightness</td></tr>
+<tr><td><code>--ascii-dither</code></td><td><code>0</code></td><td>ASCII style ordered dither, fixed to the cell grid (#277)</td></tr>
+<tr><td><code>--ascii-exposure</code> / <code>--ascii-normalize</code></td><td><code>0</code> / <code>0</code></td><td>ASCII style exposure in stops, and per-style-id tone normalisation so dark props stay legible (#289)</td></tr>
+<tr><td><code>--pixels-per-point &lt;f32&gt;</code></td><td><code>1</code></td><td>High-DPI scale factor for styles sized in points</td></tr>
+<tr><td><code>--ascii-cell &lt;n&gt;</code></td><td><code>8</code></td><td>ASCII cell width in points</td></tr>
+<tr><td><code>--ascii-levels &lt;n&gt;</code> / <code>--ascii-footprint &lt;cells&gt;</code></td><td><code>0</code> / <code>1</code></td><td>ASCII tone bands and tone footprint</td></tr>
+<tr><td><code>--ascii-no-edges</code></td><td><code>false</code></td><td>No line glyphs on edges</td></tr>
+<tr><td><code>--ascii-edges &lt;f32&gt;</code></td><td><code>1</code></td><td>ASCII style edge glyph strength (0 off)</td></tr>
+<tr><td><code>--ascii-edge-threshold &lt;f32&gt;</code> / <code>--ascii-edge-max &lt;f32&gt;</code></td><td><code>0.5</code> / <code>3</code></td><td>ASCII style: cell widths of edge that make a line glyph, and past which it’s texture</td></tr>
+<tr><td><code>--ascii-edge-depth &lt;f32&gt;</code> / <code>--ascii-edge-normal &lt;f32&gt;</code></td><td><code>0.6</code> / <code>2.5</code></td><td>Edge sensitivity</td></tr>
 </tbody>
 </table>
 </div>
@@ -291,7 +312,7 @@ flint render scene.toml --debug-mode wireframe --output wireframe.png
 # Surface normals
 flint render scene.toml --debug-mode normals --output normals.png
 
-# Other modes: depth, uv, unlit, metalrough
+# Other modes: depth, uv, unlit, metalrough, style
 flint render scene.toml --debug-mode depth --output depth.png
 
 # Wireframe overlay on solid geometry
@@ -309,7 +330,7 @@ flint render scene.toml --no-tonemapping --output linear.png
 <tr><th>Flag</th><th>Default</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>--debug-mode &lt;mode&gt;</code></td><td>(none)</td><td><code>wireframe</code>, <code>normals</code>, <code>depth</code>, <code>uv</code>, <code>unlit</code>, <code>metalrough</code></td></tr>
+<tr><td><code>--debug-mode &lt;mode&gt;</code></td><td>(none)</td><td><code>wireframe</code>, <code>normals</code>, <code>depth</code>, <code>uv</code>, <code>unlit</code>, <code>metalrough</code>, <code>style</code></td></tr>
 <tr><td><code>--wireframe-overlay</code></td><td><code>false</code></td><td>Draw wireframe edges over solid shading</td></tr>
 <tr><td><code>--show-normals</code></td><td><code>false</code></td><td>Draw face-normal direction arrows</td></tr>
 <tr><td><code>--no-tonemapping</code></td><td><code>false</code></td><td>Disable tonemapping for raw linear output</td></tr>
@@ -320,10 +341,10 @@ flint render scene.toml --no-tonemapping --output linear.png
 <h2 id="determinism-and-the-gates"><a class="header" href="#determinism-and-the-gates">Determinism and the Gates</a></h2>
 <p><code>flint render</code> is built to be byte-stable so that pixel-diff gates can trust it. Identical scene, flags and GPU driver produce identical PNGs, with these caveats:</p>
 <ul>
-<li><strong>Time is pinned.</strong> Film grain and render-mode animation read a post time that headless render fixes at 0. Pass <code>--grain-time</code> to pick a different but equally repeatable frame; two renders at the same value match, different values differ.</li>
+<li><strong>Time is pinned.</strong> Film grain, render-mode animation and animated styles read a post time that headless render fixes at 0. Pass <code>--style-time</code> (or <code>--grain-time</code>) to pick a different but equally repeatable frame; two renders at the same value match, different values differ.</li>
 <li><strong>MSAA and FXAA default off</strong> precisely so the default path stays single-sample and single-pass. Turn them on for hero shots, not for baselines.</li>
 <li><strong>Animation does not run.</strong> Skinned meshes render at bind pose. For a posed headless frame use the model previewer’s render mode instead: <code>flint edit model.glb --render out.png --anim-time 1.5</code>, or <code>--sequence file.sequence.toml --anim-time 2.0</code> to replay a timed sequence deterministically.</li>
-<li><strong>Particles start at t = 0</strong>, so emitters appear empty.</li>
+<li><strong>Particles start at t = 0</strong>, so emitters appear empty unless you pass <code>--particle-time &lt;s&gt;</code>, which steps them deterministically before the capture.</li>
 <li><strong>Cost levers are free to change</strong> without affecting geometry: <code>--ssao-samples 16</code> is roughly four times cheaper than the default 64 and usually indistinguishable on matte scenes (ADR 0052), which matters when a CI job renders dozens of frames.</li>
 </ul>
 <h2 id="ci-pipeline-integration"><a class="header" href="#ci-pipeline-integration">CI Pipeline Integration</a></h2>
@@ -341,8 +362,49 @@ flint render scene.toml --no-tonemapping --output linear.png
     name: screenshots
     path: screenshots/
 </code></pre>
+<h2 id="golden-suites"><a class="header" href="#golden-suites">Golden Suites</a></h2>
+<p><code>flint render-suite</code> given a <code>*.goldens.toml</code> renders a list of cases with <code>flint render</code> and compares each with a golden PNG (#271). It exits non-zero when any case moves past its tolerance, so it works as a gate in a script or a test:</p>
+<pre><code class="language-bash">flint render-suite crates/flint-cli/tests/golden/stylize.goldens.toml
+#   PASS  ascii-full      0.00% past 48 (limit 2.00%), mean 0.00 (limit 3.00), max 0, 1316 ms
+#   ...
+flint render-suite my.goldens.toml --case tavern --out-dir out/goldens
+flint render-suite my.goldens.toml --bless          # write the renders over the goldens
+</code></pre>
+<pre><code class="language-toml">[suite]
+name = "stylize"
+root = "../../../.."            # cases run from here; scene paths are relative to it
+width = 640                     # default 640 x 360
+height = 360
+args = ["--schemas", "schemas"] # before every case's own flags
+
+[tolerance]                     # the defaults below; a case may override any
+level = 48                      # a pixel differs past this many levels (largest channel, 0-255)
+share = 0.02                    # fail when more than this share of pixels differ...
+mean = 3.0                      # ...or the mean difference passes this
+
+[[case]]
+name = "ascii-full"
+scene = "demo/pbr_test.scene.toml"
+golden = "ascii_pbr_test.png"   # beside the manifest; default "&lt;name&gt;.png"
+args = ["--style", "ascii"]     # any flint render flags
+# width, height and tolerance = { ... } override the suite's
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--bless</code></td><td>Write each render over its golden instead of comparing. Look at them before committing</td></tr>
+<tr><td><code>--case &lt;name&gt;</code></td><td>Only this case, or every case whose name contains it; repeatable</td></tr>
+<tr><td><code>--out-dir &lt;dir&gt;</code></td><td>Where renders, <code>&lt;case&gt;.diff.png</code> (the golden dimmed, amber where a pixel moved, red past the level) and <code>report.json</code> go; default a folder in the system temp dir</td></tr>
+<tr><td><code>--require-gpu</code></td><td>Fail instead of skipping when there is no GPU adapter</td></tr>
+</tbody>
+</table>
+</div>
+<p>Without a GPU adapter every case is skipped and the suite passes, which is what happens on CI today. Engine styles are pinned by <code>crates/flint-cli/tests/golden/stylize.goldens.toml</code> (<a href="../concepts/stylize-passes.html#goldens">Stylize Passes</a>).</p>
 <h2 id="visual-regression-testing"><a class="header" href="#visual-regression-testing">Visual Regression Testing</a></h2>
-<p>A basic visual regression workflow:</p>
+<p>For a game’s own scenes, a golden suite as above is the shortest path. By hand, the same workflow is:</p>
 <ol>
 <li>
 <p><strong>Baseline</strong> — render a reference image and commit it:</p>
@@ -401,7 +463,7 @@ done
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../guides/ai-agent-workflow.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../guides/stylized-rendering.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -415,7 +477,7 @@ done
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../guides/ai-agent-workflow.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../guides/stylized-rendering.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

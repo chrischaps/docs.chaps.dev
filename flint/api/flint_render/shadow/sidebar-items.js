@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["CASCADE_COUNT","DEFAULT_SHADOW_RESOLUTION"],"struct":["ShadowDrawUniforms","ShadowPass","ShadowUniforms"]};
+window.SIDEBAR_ITEMS = {"constant":["CASCADE_COUNT","DEFAULT_SHADOW_RESOLUTION","SHADOW_DRAW_STRIDE"],"struct":["ShadowDrawUniforms","ShadowPass","ShadowUniforms"]};

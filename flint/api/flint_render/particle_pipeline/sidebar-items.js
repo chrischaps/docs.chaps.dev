@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["ParticleDrawCall","ParticleDrawData","ParticleInstanceGpu","ParticlePipeline","ParticleUniforms"]};
+window.SIDEBAR_ITEMS = {"enum":["ParticleBlendMode"],"fn":["blend_state","sort_particle_draws"],"struct":["ParticleDrawCall","ParticleDrawData","ParticleInstance","ParticlePipeline","ParticleUniforms"]};

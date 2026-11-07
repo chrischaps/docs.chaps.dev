@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["AudioSync"]};
+window.SIDEBAR_ITEMS = {"constant":["CULL_FADE","CULL_REACH","RESUME_REACH","SILENT_VOLUME"],"struct":["AudioSync"]};

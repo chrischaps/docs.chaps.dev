@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ASSET_DIRS","ASSET_EXTENSIONS","DEFAULT_EXCLUDE","DEFAULT_INCLUDE","DEFAULT_LATE_AUDIO"],"fn":["candidates","check_references","check_scenes","check_user_styles","collect","glob_match","looks_like_file","mb","parent_of","rhai_refs","run","toml_refs"],"struct":["BundleArgs","BundleConfig","Missing","Rules"]};

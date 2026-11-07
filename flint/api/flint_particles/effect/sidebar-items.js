@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["MAX_PARTICLES_PER_EMITTER"],"enum":["CountDef","CurveDef","ForceDef","RangeDef","ShapeDef","ShapeField"],"struct":["BurstDef","EmitterDef","Key","ParticleEffect","ResolveContext","SubEmitterDef","TrailDef"]};

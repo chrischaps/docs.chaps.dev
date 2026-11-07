@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -434,7 +434,7 @@
 <li><code>StyleGuide</code> — TOML-defined visual vocabulary (palette, materials, geometry constraints) for prompt enrichment</li>
 <li><code>SemanticAssetDef</code> — maps intent (description, material, wear level) to generation requests</li>
 <li>Batch scene resolution with strategies: <code>AiGenerate</code>, <code>HumanTask</code>, <code>AiThenHuman</code></li>
-<li><code>validate_model()</code> — checks GLB geometry and materials against style constraints</li>
+<li><code>validate_model()</code> — reads a GLB with <code>flint_procgen::read_model</code> and runs <code>flint_procgen::validate_model</code> with the style’s constraints (<code>StyleGuide::validation_constraints</code>): the checks <code>flint gen --validate</code> runs</li>
 <li><code>BuildManifest</code> — provenance tracking (provider, prompt, content hash) for all generated assets</li>
 <li><code>FlintConfig</code> — layered configuration for API keys and provider settings</li>
 <li><code>JobStore</code> — persistent tracking of async generation jobs (for long-running 3D model generation)</li>
@@ -446,14 +446,18 @@
 <li><code>GeneratorRegistry</code> — register and look up generators by type name</li>
 <li><code>ProcGenSpec</code> — TOML spec format with metadata, seed config, and generator parameters</li>
 <li>Built-in generators: <code>tree_v1</code> (L-system/space colonization trees), <code>texture_v1</code> (PBR texture maps), <code>creature_v1</code></li>
-<li><code>ProcGenCache</code> — LRU cache keyed by (spec_hash, seed) with memory budget</li>
+<li><code>ProcGenCache</code> — LRU cache keyed by (spec_hash, seed) with memory budget, over a <code>DiskCache</code> tier in <code>.flint/procgen-cache/</code> that keeps outputs between runs</li>
 <li>Algorithmic building blocks: noise (Perlin, simplex, Worley, FBM), L-system engine, mesh builder, space colonization</li>
 </ul>
 <h3 id="flint-procgen-ai"><a class="header" href="#flint-procgen-ai">flint-procgen-ai</a></h3>
 <p>AI-assisted procedural generation (tool-time only):</p>
 <ul>
-<li><code>ProcGenAgent</code> trait — <code>interpret_spec()</code>, <code>create_spec_from_prompt()</code>, <code>refine_spec()</code></li>
-<li><code>MockAgent</code> implementation for testing</li>
+<li><code>ProcGenAgent</code> trait — <code>interpret_spec()</code>, <code>create_spec_from_prompt()</code>, <code>refine_spec()</code>; object-safe (<code>Box&lt;dyn ProcGenAgent&gt;</code>)</li>
+<li><code>MockAgent</code> — local and deterministic (no network, no key): specs start from the generator’s <code>param_schema()</code> defaults, a small keyword table shapes them (“tall”, “autumn”, “brick”), and <code>"tree"</code> resolves to <code>tree_v1</code></li>
+<li><code>schema</code> — <code>check_params</code> / <code>repair_params</code> hold a spec’s params against its generator’s schema (unknown params, ranges, enums, hex colours, required keys); <code>interpret_spec</code> reports these as suggestions with a repaired <code>revised_spec</code></li>
+<li><code>AnthropicAgent</code> — asks Claude over the Messages API (<code>ureq</code>, API version <code>2026-10-21</code>, default model <code>claude-opus-5-5</code>). The system prompt holds the generator’s <code>param_schema()</code> verbatim, the spec format and a valid example, and it is the same for every call to that generator, so it is cached. Each reply’s params are checked against the schema and then actually generated (an empty mesh counts as a failure). A failed reply goes back with the validator’s report for another round, up to <code>max_iterations</code>; after that the schema repair clamps what it can. <code>refine_spec</code> sends the reference image as base64, beside a picture of what the spec builds now: a texture’s own pixels, or whatever the caller’s <code>Previewer</code> draws (<code>with_previewer</code>; <code>flint-cli</code> renders meshes with the headless model renderer, so this crate stays free of <code>flint-render</code>). With both images it measures their distance (<code>measure::distance</code>: mean colour, luminance histogram, 16x16 layout) and loops, rendering each round’s result and sending it back while the distance falls, up to <code>refine_rounds</code>; the closest spec is returned. <code>Report.distances</code> holds the distance per round and <code>Report.kept</code> the round returned. The <code>*_reported</code> methods return a <code>Report</code> with each round’s issues and token usage. 429/529/5xx responses are retried (honouring <code>retry-after</code>); 401 is not.</li>
+<li><code>AgentConfig</code> — <code>Debug</code> redacts the API key and serialization skips it; <code>ANTHROPIC_API_KEY</code> takes precedence over a key in the config; optional <code>effort</code></li>
+<li><code>cargo run -p flint-procgen-ai --example walkthrough -- out/</code> writes create/refine specs for <code>flint gen</code>; <code>--example claude_live -- out/</code> does the same against the real API (spends tokens)</li>
 </ul>
 <h3 id="flint-terrain"><a class="header" href="#flint-terrain">flint-terrain</a></h3>
 <p>Heightmap terrain system:</p>

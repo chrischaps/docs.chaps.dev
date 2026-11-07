@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -302,16 +302,18 @@ flint asset resolve my_scene.scene.toml --strategy ai_generate --style medieval_
 flint asset resolve my_scene.scene.toml --strategy human_task --output-dir tasks/
 </code></pre>
 <h2 id="model-validation"><a class="header" href="#model-validation">Model Validation</a></h2>
-<p>After generating a 3D model, Flint can validate it against a style guide’s constraints. The validator imports the GLB file through the same <code>import_gltf()</code> pipeline used by the player, then checks:</p>
+<p>After generating a 3D model, Flint can validate it against a style guide’s constraints. The validator imports the GLB file through the same <code>import_gltf()</code> pipeline used by the player, then runs the checks <code>flint gen --validate</code> runs on procedural output, under the same names (see <a href="procgen.html#validation">Validation</a> for the full table):</p>
 <ul>
-<li><strong>Triangle count</strong> against <code>geometry.max_triangles</code></li>
-<li><strong>UV coordinates</strong> present if <code>geometry.require_uvs</code> is set</li>
-<li><strong>Normals</strong> present if <code>geometry.require_normals</code> is set</li>
-<li><strong>Material properties</strong> against <code>materials.roughness_range</code> and <code>materials.metallic_range</code></li>
+<li><strong>mesh integrity</strong> and <strong>degenerate triangles</strong></li>
+<li><strong>style triangle budget</strong> against <code>geometry.max_triangles</code>, per mesh (per LOD for a <code>LOD_0</code>, <code>LOD_1</code>, … file)</li>
+<li><strong>UV range</strong>: missing UVs warn, or fail if <code>geometry.require_uvs</code> is set</li>
+<li><strong>normals</strong>: zero normals fail; missing ones warn, or fail if <code>geometry.require_normals</code> is set</li>
+<li><strong>PBR roughness / metallic</strong> against <code>materials.roughness_range</code> and <code>materials.metallic_range</code></li>
+<li><strong>palette</strong>: each material’s base colour against the style’s <code>palette</code></li>
 </ul>
 <pre><code class="language-bash">flint asset validate model.glb --style medieval_tavern
 </code></pre>
-<p>Each check reports Pass, Warn, or Fail status.</p>
+<p>Each check reports PASS, WARN, or FAIL; any FAIL exits 1.</p>
 <h2 id="build-manifests"><a class="header" href="#build-manifests">Build Manifests</a></h2>
 <p>Build manifests track the provenance of all generated assets in a project. They record which provider generated each asset, what prompt was used, and the content hash:</p>
 <pre><code class="language-bash">flint asset manifest --assets-dir assets --output build/manifest.toml

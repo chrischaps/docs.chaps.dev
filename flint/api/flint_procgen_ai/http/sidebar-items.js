@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["base64","extract_json_object","image_media_type","parse_response"],"struct":["HttpRequest","HttpResponse","Reply","ScriptedTransport","UreqTransport","Usage"],"trait":["Transport"]};

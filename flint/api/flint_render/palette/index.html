@@ -1,0 +1,93 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Colour palettes (#276): a short list of ink colours and a background, read from a `*.palette.toml`, for any style that wants a fixed set of colours (ASCII’s `palette` colour mode first)."><title>flint_render::palette - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="flint_render" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module palette</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../flint_render/index.html">flint_<wbr>render</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module palette</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate flint_<wbr>render</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">flint_render</a></div><h1>Module <span>palette</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/flint_render/palette.rs.html#1-437">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Colour palettes (#276): a short list of ink colours and a background,
+read from a <code>*.palette.toml</code>, for any style that wants a fixed set of
+colours (ASCII’s <code>palette</code> colour mode first).</p>
+<div class="example-wrap"><pre class="language-toml"><code># palettes/phosphor.palette.toml
+match = &quot;luminance&quot;          # nearest (default) | luminance
+background = &quot;#020a04&quot;       # the ground behind the inks (default black)
+colors = [&quot;#1f6e33&quot;, &quot;#33b04d&quot;, &quot;#4dff6e&quot;, &quot;#b4ffc4&quot;]</code></pre></div>
+<p><code>nearest</code> gives each cell the ink closest to its own colour (a CGA
+screen); <code>luminance</code> lists the inks darkest first and picks one by the
+cell’s brightness alone (a one-colour phosphor tube). Colours are
+display (sRGB) values, <code>#rrggbb</code> or <code>#rgb</code>, at most <a href="constant.MAX_COLORS.html" title="constant flint_render::palette::MAX_COLORS"><code>MAX_COLORS</code></a>.</p>
+<p>A style names a palette as <code>builtin</code> names (<a href="constant.BUILTIN_PALETTES.html" title="constant flint_render::palette::BUILTIN_PALETTES"><code>BUILTIN_PALETTES</code></a>), a
+bare name looked up as <code>&lt;dir&gt;/palettes/&lt;name&gt;.palette.toml</code> in the
+scene’s folder then its parent, or a <code>.palette.toml</code> path. Every read
+goes through the vfs.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Palette.html" title="struct flint_render::palette::Palette">Palette</a></dt><dd>A named set of inks and the ground behind them, in display values 0-1.</dd><dt><a class="struct" href="struct.PaletteCache.html" title="struct flint_render::palette::PaletteCache">Palette<wbr>Cache</a></dt><dd>Palettes by the name a style gives, loaded once each. Failures are
+kept, so a bad name warns once rather than every frame.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.PaletteError.html" title="enum flint_render::palette::PaletteError">Palette<wbr>Error</a></dt><dd>A palette did not parse or could not be found.</dd><dt><a class="enum" href="enum.PaletteMatch.html" title="enum flint_render::palette::PaletteMatch">Palette<wbr>Match</a></dt><dd>How a palette’s ink is chosen for a colour.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.BUILTIN_PALETTES.html" title="constant flint_render::palette::BUILTIN_PALETTES">BUILTIN_<wbr>PALETTES</a></dt><dd>The palettes built into the engine, by name.</dd><dt><a class="constant" href="constant.MAX_COLORS.html" title="constant flint_render::palette::MAX_COLORS">MAX_<wbr>COLORS</a></dt><dd>The most inks a palette holds (what the styles’ uniforms make room for).</dd><dt><a class="constant" href="constant.PALETTE_SUFFIX.html" title="constant flint_render::palette::PALETTE_SUFFIX">PALETTE_<wbr>SUFFIX</a></dt><dd>File suffix of a palette.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.parse_hex.html" title="fn flint_render::palette::parse_hex">parse_<wbr>hex</a></dt><dd><code>#rrggbb</code>, <code>rrggbb</code>, <code>#rgb</code> or <code>rgb</code> as display values 0-1.</dd></dl></section></div></main></body></html>

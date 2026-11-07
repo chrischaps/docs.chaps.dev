@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -216,7 +216,7 @@
 <tr><td><code>flint calibrate &lt;manifest&gt;</code></td><td>Tap-to-beat latency calibration, written to <code>logs/latency/</code></td></tr>
 <tr><td><code>flint play-chart &lt;manifest&gt;</code></td><td>Play a suite against its chart with live gamepad capture</td></tr>
 <tr><td><code>flint replay-chart &lt;manifest&gt;</code></td><td>Replay a recorded or synthetic session through judgment, headless</td></tr>
-<tr><td><code>flint render-suite &lt;manifest&gt;</code></td><td>Render a scripted suite session to WAV, offline and deterministic</td></tr>
+<tr><td><code>flint render-suite &lt;manifest&gt;</code></td><td>Render a suite offline and deterministically: a music <code>.suite.toml</code> to WAV, or a <code>.goldens.toml</code> of scenes gated against golden PNGs (<a href="../guides/headless-rendering.html#golden-suites">Headless Rendering</a>)</td></tr>
 <tr><td><code>flint spike-rumble</code></td><td>Time the gamepad rumble command paths</td></tr>
 </tbody>
 </table>
@@ -238,6 +238,8 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 <tr><td><code>--input-config &lt;path&gt;</code></td><td>Input config overlay path (highest priority, overrides all other layers)</td></tr>
 <tr><td><code>--music-volume &lt;f32&gt;</code></td><td>Initial gain for the <code>music</code> mixer bus</td></tr>
 <tr><td><code>--sfx-volume &lt;f32&gt;</code></td><td>Initial gain for the <code>sfx</code> mixer bus</td></tr>
+<tr><td><code>--gpu &lt;name&gt;</code></td><td>GPU adapter to use (case-insensitive substring, e.g. <code>NVIDIA</code>). See <a href="#gpu-selection">GPU Selection</a></td></tr>
+<tr><td><code>--list-gpus</code></td><td>Print available GPU adapters and exit</td></tr>
 </tbody>
 </table>
 </div>
@@ -245,7 +247,101 @@ flint play levels/tavern.scene.toml --schemas schemas --fullscreen
 without its score. See <a href="../concepts/audio.html#mixer-buses">Audio: Mixer Buses</a>.</p>
 <p>The standalone <code>flint-player</code> binary takes the same flags plus <code>--msaa &lt;1|4&gt;</code>
 (default <code>1</code>) for multisample anti-aliasing of the scene passes; <code>flint play</code>
-does not expose <code>--msaa</code>.</p>
+does not expose <code>--msaa</code>. Its <code>--procgen-defer</code> shows placeholders for a
+scene’s procgen assets at once and generates them over the following frames
+instead of during load (see <a href="../concepts/procgen.html#specs-in-scenes">Specs in Scenes</a>).</p>
+<h3 id="player-screenshots-hud-included"><a class="header" href="#player-screenshots-hud-included">Player Screenshots (HUD included)</a></h3>
+<p><code>flint render</code> is headless and never runs scripts, so it cannot show a
+script-drawn HUD. The standalone <code>flint-player</code> can capture the frame it
+actually presents — scene <em>and</em> egui overlay — and exit on its own, which
+makes it the tool for verifying <code>on_draw_ui</code> output:</p>
+<pre><code class="language-bash">flint-player scenes/race.scene.toml --schemas engine/schemas --schemas schemas   --width 1280 --height 720   --screenshot renders/hud.png --screenshot-at 6 --exit-after 6.5
+</code></pre>
+<p>With <code>--screenshot</code>, <code>--exit-after</code> or <code>--input-script</code>, the run is a capture
+and ignores the real keyboard, mouse and pads, so a stray scroll over its
+window can’t change the shot. Only the input script drives it (see
+<a href="../concepts/input-gates.html#during-a-capture">input gates</a>).</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--width &lt;px&gt;</code> / <code>--height &lt;px&gt;</code></td><td>Initial window size in physical pixels (default <code>1280</code>x<code>720</code>; ignored with <code>--fullscreen</code>)</td></tr>
+<tr><td><code>--screenshot &lt;path&gt;</code></td><td>Write a PNG of the presented frame (scene + HUD). Parent directories are created</td></tr>
+<tr><td><code>--screenshot-at &lt;secs&gt;</code></td><td>Game time at which to capture: the first frame whose clock reaches this value (default <code>0</code>, the first frame)</td></tr>
+<tr><td><code>--screenshot-every &lt;secs&gt;</code></td><td>Keep capturing every N seconds after <code>--screenshot-at</code> until exit; files are numbered <code>hud_0001.png</code>, <code>hud_0002.png</code>, … next to <code>--screenshot</code></td></tr>
+<tr><td><code>--exit-after &lt;secs&gt;</code></td><td>Exit once game time reaches this value, printing the average frame time and the average draw calls, entity draws, culled draws and triangles per frame (both skip the first 2 s)</td></tr>
+<tr><td><code>--frame-step &lt;secs&gt;</code></td><td>Advance the clock exactly this much per frame, whatever the wall time</td></tr>
+<tr><td><code>--input-script &lt;file&gt;</code></td><td>Play timed keys, typed text, axes, gamepad buttons, the wheel and the mouse, one event per line (below). Scripted keys reach egui and the debug keys too, so <code>2.0 tap F2</code> opens the stats overlay</td></tr>
+<tr><td><code>--stats</code></td><td>Open the F2 rendering stats overlay from the first frame. F2 still closes it</td></tr>
+<tr><td><code>--perf</code></td><td>Print a perf line every 10 s: frame p50/p99/max, each phase’s CPU time (mean/max), each pass’s GPU time where the adapter can time, draws and triangles. The same line the web page’s <code>?perf=1</code> copies, so a desktop and a browser can be set side by side</td></tr>
+</tbody>
+</table>
+</div>
+<p>An input script plays its events at set game times. <code>#</code> starts a comment:</p>
+<pre><code class="language-text">0.0   down    KeyW               # hold a key (names as in input configs)
+2.5   up      KeyW
+3.0   tap     KeyF 0.4           # down now, up 0.4 s later (default 0.06)
+3.0   axis    LeftStickX -0.35   # stick value on the script pad
+4.0   press   South              # gamepad button down
+4.2   release South
+4.5   pull    RightTrigger2 0.6  # a trigger pulled part-way (0 lets go)
+5.0   wheel   1                  # one wheel line up this frame
+5.5   wheel   -0.5 2             # half a line down, two lines right
+6.0   mouse   640 360            # pointer to (640, 360) in window pixels
+6.1   down    MouseLeft          # mouse buttons work with down, up and tap
+6.2   mouse   900 500 0.5        # glide there over 0.5 s: a drag
+6.8   up      MouseLeft
+7.0   click   320 200            # pointer there, then tap MouseLeft
+7.5   click   320 200 MouseRight
+8.0   down    ShiftLeft          # held modifiers reach egui: a shift-drag
+9.0   type    200 planks         # text into the focused egui field
+9.5   tap     Enter
+10.0  look    40 -10             # raw mouse motion, for mouse-look
+10.5  look    300 0 1.5          # spread over 1.5 s
+</code></pre>
+<p><code>pull</code> sets an analog button’s travel, as a real pad’s trigger sends it: a
+<code>gamepad_button</code> binding to <code>RightTrigger2</code> reads 0.6, not the 0 or 1 that
+<code>press</code> gives. It sets the value alone, so add a <code>press</code> and <code>release</code> too
+when a script wants the button’s press edge. <code>axis RightTrigger2</code> writes an
+axis of that name, which a button binding never reads.</p>
+<p>The mouse buttons are <code>MouseLeft</code>, <code>MouseRight</code>, <code>MouseMiddle</code>, <code>MouseBack</code>
+and <code>MouseForward</code>. Pointer positions are physical window pixels, the same
+pixels a screenshot has, so a point read off a capture can be clicked in the
+next one. A glide moves the pointer a little every frame, as a hand would.</p>
+<p>The mouse takes the path a real one does (ADR 0082): egui first, then game
+extensions, then <code>InputState</code> and scripts. So a scripted click can press an
+egui button, drag between egui widgets or open a tooltip, and a click over a
+panel stays out of the world. The wheel goes the same way: turned over a
+panel, it scrolls the panel (<code>wheel -10</code> scrolls a list down) and the game’s
+<code>mouse_wheel_*()</code> reads zero, as with a real wheel. Two things wait a frame,
+however coarse the frames: a button press or a wheel turn in the frame the
+pointer jumped (egui decides who gets a click or a scroll from where the
+pointer was the frame before), and any release in the frame of its press. A
+<code>click</code> therefore takes three frames: move, press, release.</p>
+<p>Keys take the path a real keyboard does too (ADR 0097). egui gets each one
+as egui-winit would have made it, the key and, on a press, the character it
+types on a US layout (<code>KeyA</code> with Shift held types <code>A</code>; nothing while Ctrl is
+held). Shift, Ctrl, Alt and Super also send a <code>ModifiersChanged</code>, so egui
+sees a held modifier on the clicks and drags that follow, and so do
+extensions. Then the same focus rule as a real key: while an egui field has
+keyboard focus, the key stops there, and <code>InputState</code>, scripts and the debug
+keys never see it. <code>type</code> sends the rest of its line as egui text, spaces and
+all, without pressing any keys; click a field first to focus it. A key egui
+passes on goes to game extensions’ <code>on_key</code> next, as a real one does (ADR
+0103), with the character it stands for on a US layout. Two differences from
+a real keyboard: extensions’ <code>on_window_event</code> never sees a scripted key
+(winit’s <code>KeyEvent</code> can’t be built outside winit), so read keys in <code>on_key</code>
+to script them, and a scripted Esc doesn’t quit the player. The real cursor still moves the pointer if it crosses the window
+during a capture, so keep it outside.</p>
+<p><code>look</code> feeds raw mouse motion, what <code>mouse_delta_x()</code> / <code>mouse_delta_y()</code> read, at once or spread over the seconds given. As a real mouse’s motion, it reaches the game only while the cursor is captured and no egui field has focus (<a href="../concepts/input-gates.html">Cursor Capture and Input Gates</a>, ADR 0110). The script’s pad plays whether or not the window has focus. A real pad doesn’t.</p>
+<p>Times are <code>GameClock</code> seconds (what scripts see via <code>total_time()</code>), not
+wall-clock seconds since launch, so a capture lands on the same gameplay
+moment regardless of load time. The capture reads the swapchain back on the
+GPU, so it requires a surface that advertises <code>COPY_SRC</code>; on adapters that do
+not (some GL/Android surfaces) the player logs a warning and skips the
+screenshot rather than failing. <code>flint play</code> does not expose these flags.</p>
 <h3 id="player-controls-defaults"><a class="header" href="#player-controls-defaults">Player Controls (Defaults)</a></h3>
 <p>These are the built-in defaults. Games can override any binding via input config files (see <a href="../concepts/physics-and-runtime.html#input-system">Physics and Runtime: Input System</a>).</p>
 <div class="table-wrapper">
@@ -343,19 +439,47 @@ flint render scene.toml -o shot.png --distance 20 --pitch 30 --yaw 45 --target 0
 <tr><td><code>--output &lt;path&gt;</code> / <code>-o</code></td><td><code>render.png</code></td><td>Output file path</td></tr>
 <tr><td><code>--width &lt;px&gt;</code></td><td><code>1920</code></td><td>Image width</td></tr>
 <tr><td><code>--height &lt;px&gt;</code></td><td><code>1080</code></td><td>Image height</td></tr>
+<tr><td><code>--gpu &lt;name&gt;</code></td><td>(high-perf)</td><td>GPU adapter to use (substring match); <code>--list-gpus</code> prints the names</td></tr>
+<tr><td><code>--list-styles</code></td><td></td><td>Print every registered style, its stage, table, and each parameter’s default and range, then exit; with a scene, its <code>styles/</code> user styles too (<a href="../concepts/stylize-passes.html#listing-the-styles">Stylize Passes</a>)</td></tr>
+<tr><td><code>--json</code></td><td></td><td>With <code>--list-styles</code>: the list as JSON, for agents</td></tr>
 <tr><td><code>--distance &lt;f32&gt;</code></td><td>(auto)</td><td>Camera distance from target</td></tr>
 <tr><td><code>--yaw &lt;deg&gt;</code></td><td>(auto)</td><td>Horizontal camera angle</td></tr>
 <tr><td><code>--pitch &lt;deg&gt;</code></td><td>(auto)</td><td>Vertical camera angle</td></tr>
 <tr><td><code>--target &lt;x,y,z&gt;</code></td><td>(auto)</td><td>Camera look-at point</td></tr>
 <tr><td><code>--fov &lt;deg&gt;</code></td><td>(auto)</td><td>Field of view</td></tr>
 <tr><td><code>--no-grid</code></td><td><code>false</code></td><td>Disable ground grid</td></tr>
-<tr><td><code>--debug-mode &lt;mode&gt;</code></td><td>(none)</td><td><code>wireframe</code>, <code>normals</code>, <code>depth</code>, <code>uv</code>, <code>unlit</code>, <code>metalrough</code></td></tr>
+<tr><td><code>--debug-mode &lt;mode&gt;</code></td><td>(none)</td><td><code>wireframe</code>, <code>normals</code>, <code>depth</code>, <code>uv</code>, <code>unlit</code>, <code>metalrough</code>, <code>style</code></td></tr>
 <tr><td><code>--wireframe-overlay</code></td><td><code>false</code></td><td>Wireframe edges on solid geometry</td></tr>
 <tr><td><code>--show-normals</code></td><td><code>false</code></td><td>Normal direction arrows</td></tr>
 <tr><td><code>--no-tonemapping</code></td><td><code>false</code></td><td>Raw linear output</td></tr>
 <tr><td><code>--no-shadows</code></td><td><code>false</code></td><td>Disable shadow mapping</td></tr>
 <tr><td><code>--shadow-resolution &lt;px&gt;</code></td><td><code>2048</code></td><td>Shadow map resolution per cascade. A real control since the per-resolution texel upload (ADR 0049); earlier builds silently filtered as if 2048</td></tr>
 <tr><td><code>--msaa &lt;n&gt;</code></td><td><code>1</code></td><td>MSAA sample count for the scene passes: <code>1</code> (off) or <code>4</code>. Default 1 keeps headless pixel-diff gates single-sample (ADR 0058)</td></tr>
+<tr><td><code>--render-scale &lt;f32&gt;</code></td><td><code>1</code></td><td>Draw the scene at this fraction of the image on each side (0.25–1), upscaled in the composite, as <code>flint-player --render-scale</code> (#122)</td></tr>
+<tr><td><code>--gpu-time &lt;frames&gt;</code></td><td>(none)</td><td>Render the frame this many times with GPU timing on and print each pass’s smoothed time (ADR 0108) before writing the image</td></tr>
+<tr><td><code>--ascii</code></td><td>(off)</td><td>The full-screen ASCII style (#265, <a href="../concepts/stylize-passes.html#ascii">Stylize Passes</a>): one glyph per cell on one screen grid. Any <code>--ascii-*</code> flag below marked <em>style</em> also turns it on</td></tr>
+<tr><td><code>--ascii-font &lt;name&gt;</code></td><td><code>builtin</code></td><td><em>Style:</em> glyph set, <code>builtin</code> or <code>fonts/&lt;name&gt;.glyphs.toml</code> beside the scene (<a href="../concepts/glyph-atlas.html">Glyph Atlas</a>)</td></tr>
+<tr><td><code>--ascii-ramp &lt;name&gt;</code></td><td>the set’s</td><td><em>Style:</em> ramp of that set (built-in: <code>classic</code>, <code>blocks</code>, <code>minimal</code>, <code>detailed</code>)</td></tr>
+<tr><td><code>--ascii-color &lt;mode&gt;</code></td><td><code>source</code></td><td><em>Style:</em> <code>source</code> (the cell’s hue), <code>tint</code> (one colour), <code>raw</code> (the cell’s colour as it is), <code>mono</code> (white on grey) or <code>palette</code> (<a href="../concepts/stylize-passes.html#colour-modes">colour modes</a>)</td></tr>
+<tr><td><code>--ascii-palette &lt;name&gt;</code></td><td><code>phosphor</code></td><td><em>Style:</em> palette for <code>palette</code> mode: <code>cga</code>, <code>cga-warm</code>, <code>cga16</code>, <code>phosphor</code>, <code>amber</code>, <code>mono</code> or <code>palettes/&lt;name&gt;.palette.toml</code> beside the scene; sets <code>--ascii-color palette</code> unless that’s given</td></tr>
+<tr><td><code>--ascii-ground &lt;mode&gt;</code></td><td><code>dim</code></td><td><em>Style:</em> behind the glyph: <code>dim</code> (the mode’s own), <code>black</code> or <code>inverse</code> (ink fills the cell, the glyph is cut out)</td></tr>
+<tr><td><code>--ascii-glow &lt;f32&gt;</code></td><td><code>0</code></td><td><em>Style:</em> halo around bright glyphs (0.6 reads as a phosphor tube)</td></tr>
+<tr><td><code>--ascii-tint &lt;r,g,b&gt;</code></td><td><code>0.35,1,0.45</code></td><td><em>Style:</em> the tint colour; sets <code>--ascii-color tint</code> unless that’s given</td></tr>
+<tr><td><code>--ascii-background &lt;f32&gt;</code></td><td><code>0.15</code></td><td><em>Style:</em> how much of the cell’s colour fills behind its glyph (0 black)</td></tr>
+<tr><td><code>--ascii-brightness &lt;f32&gt;</code> / <code>--ascii-contrast &lt;f32&gt;</code></td><td><code>0</code> / <code>1</code></td><td><em>Style:</em> luminance remap before the ramp: contrast about mid-grey, then an offset</td></tr>
+<tr><td><code>--ascii-ink &lt;f32&gt;</code></td><td><code>1</code></td><td><em>Style:</em> glyph ink brightness</td></tr>
+<tr><td><code>--ascii-dither &lt;f32&gt;</code></td><td><code>0</code></td><td><em>Style:</em> ordered dither before the ramp, fixed to the grid (#277)</td></tr>
+<tr><td><code>--ascii-exposure &lt;f32&gt;</code> / <code>--ascii-normalize &lt;f32&gt;</code></td><td><code>0</code> / <code>0</code></td><td><em>Style:</em> stops of gain on each cell’s colour; stretch each style id’s tone range over the ramp, from this frame (#289)</td></tr>
+<tr><td><code>--pixels-per-point &lt;f32&gt;</code></td><td><code>1</code></td><td>A high-DPI window’s scale factor: styles sized in points (ASCII cells) scale by it</td></tr>
+<tr><td><code>--ascii-cell &lt;n&gt;</code></td><td><code>8</code></td><td>ASCII cell width in points (height follows the font)</td></tr>
+<tr><td><code>--ascii-levels &lt;n&gt;</code></td><td><code>0</code></td><td>ASCII tone bands; <code>0</code> keeps the whole ramp</td></tr>
+<tr><td><code>--ascii-footprint &lt;cells&gt;</code></td><td><code>1</code></td><td>How many cells wide each cell’s tone is averaged over</td></tr>
+<tr><td><code>--ascii-no-edges</code></td><td><code>false</code></td><td>Turn off the line glyphs (<code>─ │ ╱ ╲</code>) drawn on depth, normal and silhouette edges; the style’s <code>edges = 0</code></td></tr>
+<tr><td><code>--ascii-edges &lt;f32&gt;</code></td><td><code>1</code></td><td><em>Style:</em> edge glyph strength over the tone glyph, 0 off to 1 (<a href="../concepts/stylize-passes.html#edges">Edges</a>, #267)</td></tr>
+<tr><td><code>--ascii-edge-threshold &lt;f32&gt;</code></td><td><code>0.5</code></td><td><em>Style:</em> cell widths of edge a cell needs to draw a line glyph (lower finds more)</td></tr>
+<tr><td><code>--ascii-edge-max &lt;f32&gt;</code></td><td><code>3</code></td><td><em>Style:</em> more edge than this is texture (grass) and keeps its tone glyph; a styled entity’s outline ignores it</td></tr>
+<tr><td><code>--ascii-edge-depth &lt;f32&gt;</code></td><td><code>0.6</code></td><td>Relative view-distance step that counts as an edge (lower finds more)</td></tr>
+<tr><td><code>--ascii-edge-normal &lt;f32&gt;</code></td><td><code>2.5</code></td><td>Normal change that counts as a crease (lower finds more)</td></tr>
 <tr><td><code>--no-postprocess</code></td><td><code>false</code></td><td>Disable post-processing</td></tr>
 <tr><td><code>--bloom-intensity &lt;f32&gt;</code></td><td><code>0.04</code></td><td>Bloom strength</td></tr>
 <tr><td><code>--bloom-threshold &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Bloom brightness threshold</td></tr>
@@ -377,8 +501,12 @@ flint render scene.toml -o shot.png --distance 20 --pitch 30 --yaw 45 --target 0
 <tr><td><code>--kuwahara-sharpness &lt;f32&gt;</code></td><td><code>8.0</code></td><td>Kuwahara sector sharpness</td></tr>
 <tr><td><code>--kuwahara-hardness &lt;f32&gt;</code></td><td><code>8.0</code></td><td>Kuwahara sector hardness</td></tr>
 <tr><td><code>--kuwahara-anisotropy &lt;f32&gt;</code></td><td><code>1.0</code></td><td>Kuwahara anisotropy (0 = isotropic, 1 = full)</td></tr>
+<tr><td><code>--edge-depth &lt;f32&gt;</code> / <code>--edge-normal &lt;f32&gt;</code></td><td><code>0.6</code> / <code>2.5</code></td><td>The <a href="../concepts/stylize-passes.html#shared-edges">shared geometry edges</a>’ silhouette and crease thresholds, for every style that reads them</td></tr>
 <tr><td><code>--film-grain &lt;f32&gt;</code></td><td><code>0</code></td><td>Animated film grain (0 = off; 0.02–0.05 is subtle)</td></tr>
 <tr><td><code>--grain-time &lt;s&gt;</code></td><td><code>0.0</code></td><td>Post time for grain and render-mode animation. Deterministic: two renders at the same value are identical</td></tr>
+<tr><td><code>--style &lt;name[:k=v,...]&gt;</code></td><td>(none)</td><td>Turn on any registered style over the scene’s post-processing: <code>ascii</code>, <code>ascii:cell=12,ramp=blocks</code>, <code>invert:strength=0.5</code>, <code>kuwahara:radius=6</code>, <code>ascii:off</code>. Repeatable; a later word wins; <code>--style help</code> lists every style and its keys (<a href="../concepts/stylize-passes.html#using-a-style">Stylize Passes</a>)</td></tr>
+<tr><td><code>--style-time &lt;s&gt;</code></td><td><code>0.0</code></td><td>Post time animated styles read; the same clock as <code>--grain-time</code>, and it wins when both are given</td></tr>
+<tr><td><code>--particle-time &lt;s&gt;</code></td><td>(none)</td><td>Simulate particle emitters and effects for this long at a fixed 1/60 s step before capturing. Deterministic; without it no particles are drawn</td></tr>
 <tr><td><code>--grade-lift &lt;r,g,b&gt;</code></td><td><code>0,0,0</code></td><td>Colour-grade lift (per-channel add after ACES)</td></tr>
 <tr><td><code>--grade-gamma &lt;r,g,b&gt;</code></td><td><code>1,1,1</code></td><td>Colour-grade gamma (per-channel curve)</td></tr>
 <tr><td><code>--grade-gain &lt;r,g,b&gt;</code></td><td><code>1,1,1</code></td><td>Colour-grade gain (per-channel multiply)</td></tr>
@@ -402,7 +530,8 @@ captured without one. For script-driven world state, bake a fixture scene
 with the values you want; for animation, note that skinned meshes render at
 <strong>bind pose</strong> headlessly. To capture a posed frame of a rigged model, use the
 model previewer instead: <code>flint edit model.glb --render out.png --anim-time 1.5</code>
-(optionally with <code>--clip</code>, <code>--layer</code> or <code>--sequence</code>).</p>
+(optionally with <code>--clip</code>, <code>--layer</code> or <code>--sequence</code>). Particles are the
+exception: <code>--particle-time 2</code> steps every emitter before the capture.</p>
 </blockquote>
 <h2 id="the-edit-command"><a class="header" href="#the-edit-command">The <code>edit</code> Command</a></h2>
 <p>Unified interactive editor that auto-detects file type and opens the appropriate tool:</p>
@@ -413,6 +542,7 @@ flint edit models/character.glb --watch        # Model previewer with file watch
 flint edit specs/oak_tree.procgen.toml         # Procgen previewer (mesh/texture)
 flint edit specs/stone_wall.procgen.toml       # Texture pipeline editor (if pipeline pattern)
 flint edit terrain.terrain.toml                # Terrain editor
+flint edit fx/fire.particles.toml              # Particle effect editor (created from --preset if missing)
 </code></pre>
 <h3 id="file-type-detection"><a class="header" href="#file-type-detection">File Type Detection</a></h3>
 <div class="table-wrapper">
@@ -425,11 +555,30 @@ flint edit terrain.terrain.toml                # Terrain editor
 <tr><td><code>.procgen.toml</code> (pipeline pattern)</td><td>Texture pipeline editor</td><td>Node graph for texture specs</td></tr>
 <tr><td><code>.procgen.toml</code> (other)</td><td>Procgen previewer</td><td>Live preview of generated mesh/texture</td></tr>
 <tr><td><code>.terrain.toml</code></td><td>Terrain editor</td><td>Heightmap terrain editing</td></tr>
+<tr><td><code>.particles.toml</code></td><td>Particle effect editor</td><td>Emitters, curves, forces, bursts; scrub timeline; headless <code>--render</code></td></tr>
 <tr><td><code>.glb</code>, <code>.gltf</code></td><td>Model previewer</td><td>Orbit camera, animation playback</td></tr>
 </tbody>
 </table>
 </div>
-<h3 id="common-flags"><a class="header" href="#common-flags">Common Flags</a></h3>
+<h3 id="gpu-selection"><a class="header" href="#gpu-selection">GPU Selection</a></h3>
+<p>Both windowed (<code>play</code>, <code>flint-player</code>, editors) and headless (<code>render</code>)
+contexts choose their wgpu adapter through the same chain, first match wins:</p>
+<ol>
+<li><code>--gpu &lt;name&gt;</code> on <code>play</code>, <code>render</code>, or <code>flint-player</code></li>
+<li><code>WGPU_ADAPTER_NAME=&lt;name&gt;</code> environment variable</li>
+<li><code>WGPU_POWER_PREF=high|low|none</code> environment variable</li>
+<li>Default: high-performance adapter</li>
+</ol>
+<p>The name is a case-insensitive substring of the adapter name; if nothing
+matches, the engine warns with the available names and falls back to the
+power preference. <code>--list-gpus</code> prints every adapter with its type and backend.
+Run with <code>RUST_LOG=info</code> to see which adapter was picked:</p>
+<pre><code>INFO flint_render::gpu_select: GPU adapter: NVIDIA GeForce RTX 5070 Laptop GPU (DiscreteGpu, Vulkan, ...)
+</code></pre>
+<p>The default matters on dual-GPU laptops: before this, <code>PowerPreference::None</code>
+let the backend hand back whichever adapter enumerated first, usually the
+integrated GPU.</p>
+<h2 id="common-flags"><a class="header" href="#common-flags">Common Flags</a></h2>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -468,9 +617,40 @@ flint edit terrain.terrain.toml                # Terrain editor
 <tr><td><code>--sequence-loop</code></td><td><code>false</code></td><td>Loop the sequence regardless of its <code>loop</code> setting</td></tr>
 <tr><td><code>--anim-time &lt;s&gt;</code></td><td>(none)</td><td>With <code>--render</code>: sample the animation (or replay the sequence) at this time</td></tr>
 <tr><td><code>--render &lt;path&gt;</code></td><td>(none)</td><td>Render to PNG instead of opening a window</td></tr>
+<tr><td><code>--style &lt;name[:k=v,...]&gt;</code> / <code>--style-time &lt;s&gt;</code></td><td>(none)</td><td>With <code>--render</code>: a registered style over the snapshot, as on <code>flint render</code> (also for <code>.particles.toml</code>)</td></tr>
 </tbody>
 </table>
 </div>
+<h3 id="particle-editor-flags"><a class="header" href="#particle-editor-flags">Particle Editor Flags</a></h3>
+<p>The camera flags above (<code>--distance</code>, <code>--yaw</code>, <code>--pitch</code>, <code>--target</code>, <code>--fov</code>), <code>--render</code> and <code>--anim-time</code> apply to <code>.particles.toml</code> files too. In addition:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--preset &lt;name&gt;</code></td><td><code>sparks</code></td><td>Preset written when the file does not exist yet: <code>fire</code>, <code>smoke</code>, <code>sparks</code>, <code>rain</code></td></tr>
+<tr><td><code>--anim-time &lt;s&gt;</code></td><td><code>1.0</code></td><td>With <code>--render</code>: simulation time of the snapshot (fixed 1/120 s steps; deterministic)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="particle-editor-controls"><a class="header" href="#particle-editor-controls">Particle Editor Controls</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Input</th><th>Action</th></tr>
+</thead>
+<tbody>
+<tr><td>Space / R</td><td>Play-pause / restart</td></tr>
+<tr><td>Home / End, ← / →</td><td>Seek start / end, step (Shift: 0.1 s)</td></tr>
+<tr><td>L, <code>[</code> / <code>]</code></td><td>Loop, halve / double speed</td></tr>
+<tr><td>O, G, X, B, H</td><td>Auto-orbit, grid, shape gizmos, backdrop, hide UI</td></tr>
+<tr><td>Ctrl+S, Ctrl+Z / Ctrl+Y, Ctrl+D, Delete, Ctrl+R</td><td>Save, undo / redo, duplicate emitter, delete emitter, reload</td></tr>
+<tr><td>Curve widgets</td><td>Drag keys; double-click adds; right-click removes; Shift-drag locks t</td></tr>
+</tbody>
+</table>
+</div>
+<p>See the <a href="../guides/particle-editor.html">Particle Editor guide</a>.</p>
 <h3 id="scene-viewer-controls"><a class="header" href="#scene-viewer-controls">Scene Viewer Controls</a></h3>
 <div class="table-wrapper">
 <table>
@@ -494,7 +674,7 @@ flint edit terrain.terrain.toml                # Terrain editor
 <tr><td>Escape</td><td>Cancel gizmo drag / exit</td></tr>
 <tr><td>F2</td><td>Toggle the render stats overlay</td></tr>
 <tr><td>F3</td><td>Toggle normal arrows</td></tr>
-<tr><td>F4</td><td>Toggle the <strong>Rendering &amp; Effects</strong> menu (all render and post toggles and parameters, debug shading mode, shadows, an authored-vs-viewer-default post switch, and DoF follow)</td></tr>
+<tr><td>F4</td><td>Toggle the <strong>Rendering &amp; Effects</strong> menu (all render and post toggles and parameters, debug shading mode, shadows, an authored-vs-viewer-default post switch, DoF follow, and the live Particles controls)</td></tr>
 </tbody>
 </table>
 </div>
@@ -567,13 +747,42 @@ flint gen specs/oak_tree.procgen.toml --batch 10 --seed-start 0
 <tr><td><code>--seed &lt;u64&gt;</code></td><td>(from spec)</td><td>Override the spec’s seed</td></tr>
 <tr><td><code>--dry-run</code></td><td><code>false</code></td><td>Print estimated cost without generating</td></tr>
 <tr><td><code>--format &lt;fmt&gt;</code></td><td>(auto)</td><td>Force output format: <code>glb</code> or <code>png</code></td></tr>
-<tr><td><code>--batch &lt;N&gt;</code></td><td>(none)</td><td>Generate N variants with sequential seeds</td></tr>
-<tr><td><code>--seed-start &lt;u64&gt;</code></td><td><code>0</code></td><td>Starting seed for batch generation</td></tr>
-<tr><td><code>--register</code></td><td><code>false</code></td><td>Store output in content store with provenance</td></tr>
-<tr><td><code>--force</code></td><td><code>false</code></td><td>Regenerate even if cached</td></tr>
+<tr><td><code>--batch &lt;N&gt;</code></td><td>(none)</td><td>Generate N (at least 1) variants with sequential seeds, named <code>&lt;stem&gt;_&lt;seed&gt;.&lt;ext&gt;</code></td></tr>
+<tr><td><code>--seed-start &lt;u64&gt;</code></td><td><code>0</code></td><td>First seed of a batch (requires <code>--batch</code>)</td></tr>
+<tr><td><code>--register</code></td><td><code>false</code></td><td>Store output in the content store with a provenance sidecar; reuse a stored result for the same spec + seed</td></tr>
+<tr><td><code>--force</code></td><td><code>false</code></td><td>With <code>--register</code>, regenerate even if this spec + seed is stored</td></tr>
 <tr><td><code>--validate</code></td><td><code>false</code></td><td>Validate output after generation</td></tr>
 <tr><td><code>--strict</code></td><td><code>false</code></td><td>Treat warnings as failures</td></tr>
 <tr><td><code>--style-guide &lt;path&gt;</code></td><td>(none)</td><td>Style guide TOML for validation constraints</td></tr>
+<tr><td><code>--report &lt;fmt&gt;</code></td><td><code>human</code></td><td>Validation report format: <code>human</code>, or <code>json</code> (one object per variant on stdout, with each check’s <code>actual</code> and <code>limit</code>; human output moves to stderr). Requires <code>--validate</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>AI assistance runs before generation; the agent’s feedback goes to stderr:</p>
+<pre><code class="language-bash">ANTHROPIC_API_KEY=... flint gen --ai-create "twisted dead tree" -o tree.glb
+flint gen specs/oak_tree.procgen.toml --ai-assist --max-cost 0.50 -o tree.glb
+flint gen specs/stone_wall.procgen.toml --ai-refine --reference photo.png -o wall.png
+flint gen --cost-report --since 2026-10-01
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--ai-create &lt;text&gt;</code></td><td>(none)</td><td>Create a spec from a description, then generate it (no spec file)</td></tr>
+<tr><td><code>--ai-generator &lt;name&gt;</code></td><td>(guessed)</td><td>With <code>--ai-create</code>: <code>tree_v1</code>, <code>texture_v1</code> or <code>creature_v1</code></td></tr>
+<tr><td><code>--ai-assist</code></td><td><code>false</code></td><td>Interpret the spec, then refine it</td></tr>
+<tr><td><code>--ai-refine</code></td><td><code>false</code></td><td>Refine against <code>--reference &lt;image&gt;</code></td></tr>
+<tr><td><code>--refine-rounds &lt;N&gt;</code></td><td><code>--ai-iterations</code></td><td>With <code>--reference</code>: most measured refine rounds (1-8). Each round’s result is rendered (meshes headlessly) and measured against the reference; the refine asks again while the distance falls and keeps the closest spec</td></tr>
+<tr><td><code>--ai-provider &lt;name&gt;</code></td><td><code>anthropic</code></td><td><code>anthropic</code> or <code>mock</code> (offline, free)</td></tr>
+<tr><td><code>--ai-model &lt;id&gt;</code></td><td><code>claude-opus-5-5</code></td><td>Model; <code>.flint/procgen_ai.toml</code> can set the default</td></tr>
+<tr><td><code>--ai-iterations &lt;N&gt;</code></td><td><code>3</code></td><td>Rounds per AI step (1-20)</td></tr>
+<tr><td><code>--print-spec</code></td><td><code>false</code></td><td>Print the final spec as TOML on stdout (the summary moves to stderr)</td></tr>
+<tr><td><code>--save-spec &lt;path&gt;</code></td><td>(none)</td><td>Write the final spec to a file</td></tr>
+<tr><td><code>--max-cost &lt;USD&gt;</code></td><td>(none)</td><td>Refuse any AI call that could take the run past this amount</td></tr>
+<tr><td><code>--cost-report</code></td><td><code>false</code></td><td>Summarize <code>.flint/procgen_costs.json</code> by provider, model and spec</td></tr>
+<tr><td><code>--since &lt;date&gt;</code></td><td>(none)</td><td>With <code>--cost-report</code>: only calls from <code>YYYY-MM-DD</code> on</td></tr>
 </tbody>
 </table>
 </div>
@@ -627,7 +836,7 @@ flint query "entities where archetype == 'door'" --scene levels/tavern.scene.tom
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../guides/debug-panels.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../guides/particle-editor.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -641,7 +850,7 @@ flint query "entities where archetype == 'door'" --scene levels/tavern.scene.tom
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../guides/debug-panels.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../guides/particle-editor.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

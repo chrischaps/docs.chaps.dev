@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-c3ee08a0.js"></script>
+        <script src="toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -231,6 +231,29 @@ pass with screen-space refraction, per-channel absorption and turbidity, and
 underwater. What remains here is the <em>general</em> case: sorted alpha blending
 and an <code>opacity</code> material field for glass, shields and smoke.</p>
 </blockquote>
+<h3 id="todo-honour-gltf-material-flags-on-import"><a class="header" href="#todo-honour-gltf-material-flags-on-import">TODO: honour glTF material flags on import</a></h3>
+<p>Added 2026-09-04 after the Trike driver pod (a translucent glb sphere) rendered
+with triangular patches. The alpha pass now draws blended meshes in two passes
+(back faces, then front faces), which fixes convex translucent objects, but the
+importer still throws away what the model says about itself:</p>
+<ul>
+<li><code>doubleSided</code> is not read (<code>flint-import/src/gltf_import.rs</code>, <code>ImportedMaterial</code>
+in <code>types.rs</code> has no field for it). Every mesh renders as if double-sided in the
+transparent pass and back-culled in the opaque pass, whatever the file asks for.
+Add a <code>double_sided: bool</code> to <code>ImportedMaterial</code>, plumb it to the draw call, and
+pick the cull mode per draw: single-sided blended meshes need only the front
+pass; double-sided opaque meshes (foliage cards, cloth) need <code>cull_mode: None</code>.</li>
+<li><code>alphaCutoff</code> is imported (<code>gltf_import.rs</code> ~255) but <code>gpu_mesh.rs</code> hardcodes
+<code>alpha_cutoff: 0.5</code> in all three material paths, so a model’s cutoff never
+reaches the shader. <code>emissiveFactor</code> / <code>KHR_materials_emissive_strength</code> are
+not read at all.</li>
+<li><code>COLOR_0</code> vertex colours and <code>TANGENT</code> are not read (<code>use_vertex_color</code> is
+hardcoded false for glTF; normal maps sample without a tangent frame).</li>
+<li>Node <code>extras</code> are not read, so authoring tools cannot attach per-node metadata
+(colliders, joints, gameplay tags) inside the asset.</li>
+</ul>
+<p>The rule to land: <strong>a glb’s own flags win, with the scene TOML able to override
+them</strong>, the same way <code>material.color</code> already overrides <code>baseColorFactor</code>.</p>
 <h2 id="script-modules--shared-code"><a class="header" href="#script-modules--shared-code">Script Modules &amp; Shared Code</a></h2>
 <p><strong>Priority: High</strong></p>
 <p>As games grow beyond a handful of scripts, there’s no way to share utility functions. Every <code>.rhai</code> file is isolated — common code (damage formulas, inventory helpers, math utilities) gets copy-pasted across scripts. This is the biggest developer-productivity bottleneck for larger projects.</p>
@@ -325,7 +348,7 @@ script-driven 3D line API is still open.</p>
 <p>These are ideas under consideration, not committed plans:</p>
 <ul>
 <li><strong>Networking</strong> — multiplayer support with entity replication</li>
-<li><strong>Plugin system</strong> — third-party engine extensions</li>
+<li><strong>Plugin system</strong> — third-party engine extensions. Compiled-in <a href="guides/player-extensions.html">player extensions</a> are the first step</li>
 <li><strong>Package manager</strong> — share schemas, constraints, and assets between projects</li>
 <li><strong>WebAssembly</strong> — browser-based viewer and potentially runtime</li>
 <li><strong>Shader graph</strong> — visual shader editing for non-programmers</li>

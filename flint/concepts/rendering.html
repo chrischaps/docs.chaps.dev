@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -192,7 +192,7 @@
 <p>Diffuse shading is Lambert by default, but the scene can blend toward Oren-Nayar, soften the terminator with diffuse wrap, and add a Charlie-sheen rim through the <code>[environment]</code> block. Those levers, the light component, and area lights are documented on the <a href="lighting.html">Lighting</a> page.</p>
 <h2 id="shadow-mapping"><a class="header" href="#shadow-mapping">Shadow Mapping</a></h2>
 <p>Directional lights cast shadows via cascaded shadow maps. Multiple shadow cascades cover different distance ranges from the camera, giving high-resolution shadows close up and broader coverage at distance. A directional light with a non-zero <code>angular_size</code> gets contact-hardening PCSS shadows instead of the fixed PCF kernel.</p>
-<p>Shadows are toggled at runtime from the Rendering &amp; Effects menu (<strong>F4</strong>), which also offers the shadow-map resolution (512 to 4096). Headlessly, use <code>--no-shadows</code> and <code>--shadow-resolution</code>. See <a href="lighting.html#shadows">Lighting</a> for details.</p>
+<p>Shadows are toggled at runtime from the Rendering &amp; Effects menu (<strong>F4</strong>), which also offers the shadow-map resolution (512 to 4096). Headlessly, use <code>--no-shadows</code> and <code>--shadow-resolution</code>. One entity stops casting with <code>material.cast_shadows = false</code>. See <a href="lighting.html#shadows">Lighting</a> for details.</p>
 <h2 id="camera-modes"><a class="header" href="#camera-modes">Camera Modes</a></h2>
 <p>The renderer supports two camera modes that share the same view/projection math:</p>
 <div class="table-wrapper">
@@ -207,8 +207,62 @@
 </table>
 </div>
 <p>The camera mode is determined by the entry point: <code>edit</code> uses orbit, <code>play</code> uses first-person. Both produce the same view and projection matrices. A scene’s <code>[camera]</code> block seeds the orbit camera in the viewer and the framing in <code>flint render</code>; in the viewer, <strong>Space</strong> returns to that authored framing.</p>
+<h3 id="world-lines"><a class="header" href="#world-lines">World lines</a></h3>
+<p><code>SceneRenderer::set_world_lines(Vec&lt;WorldLine&gt;, pixels_per_point)</code> gives the renderer segments to draw in every following frame, until they’re replaced. Each <code>flint_core::world_line::WorldLine</code> has two world points, a display-space RGBA colour and a width in logical points. The player sets them each frame from the scripts’ <code>draw_world_line</code> calls.</p>
+<p>They’re drawn after the composite and FXAA, straight onto the final target, before the HUD. Each segment is projected with the frame’s own camera and cut at the near plane. It’s expanded on the CPU into a screen-space quad of the requested width, with a one-pixel feather that the fragment shader fades. That’s the anti-aliasing, since the pass comes after MSAA and FXAA. The pass tests against the frame’s resolved single-sample depth (<code>LessEqual</code>) and doesn’t write depth. Each end is pulled toward the eye by 0.2% of its distance (<code>world_line_pipeline::DEPTH_SLACK</code>), so a line lying on a surface doesn’t fight it for depth. The colours are display-space, like the HUD’s, and they’re linearised when the target is sRGB, so a ring keeps the colour it had as a HUD line. The pipeline is built on the first frame that has lines, and its vertex buffer grows to fit the busiest frame. A renderer without the HDR chain and with MSAA has no resolved depth, so it skips the pass.</p>
+<h3 id="world-text"><a class="header" href="#world-text">World text</a></h3>
+<p>World text (<code>draw_world_text</code>, ADR 0104) is the player’s, not the renderer’s, because it’s egui’s text. Inside the HUD’s egui pass the player lays each label out with egui’s fonts, so the glyphs it needs go up with that pass’s font atlas. After the pass it tessellates each label on its own and moves the vertices into clip space. A billboard keeps its screen layout at its anchor’s depth, with the anchor snapped to a whole pixel. Text on a plane is laid in the plane and projected corner by corner, with its true <code>w</code>, so its glyphs are sampled in perspective. The labels are drawn onto the HUD’s target before the HUD, in one pass against the context’s depth view (<code>LessEqual</code>, no depth write), with egui’s blend and colour maths and its font atlas’s bind group. Its pipeline’s texture layout has the same entries as egui-wgpu’s, and wgpu pools layouts by their entries, so egui’s bind groups fit it. <code>SceneRenderer::frame_depth_ready()</code> says whether the depth view holds the frame’s depth once <code>render</code> returns. It doesn’t with MSAA and no HDR chain, and then world text isn’t drawn.</p>
+<h3 id="picking-the-ground"><a class="header" href="#picking-the-ground">Picking the ground</a></h3>
+<p><code>Camera::screen_to_ground(x, y, width, height, plane_y)</code> returns the <code>[x, z]</code> point on the plane <code>y = plane_y</code> under a screen point, or <code>None</code> where the view doesn’t reach it. Screen points start at the top-left with y down. Any unit works as long as the cursor and the viewport size use the same one, so logical points or physical pixels both give the right answer on a HiDPI display. Scripts get the same function as <code>screen_to_ground(x, y, plane_y)</code>.</p>
+<p>To pick what’s drawn rather than the ground, a wall or a roof, make it a ray target (see <a href="#runtime-meshes">Runtime meshes</a>) and use <code>screen_to_mesh(x, y)</code> (ADR 0105).</p>
+<p>It is built on <code>Camera::unproject_ray(ndc_x, ndc_y)</code>. That returns a ray whose origin is on the near plane, so the same code serves perspective cameras (rays fan out from the eye) and orthographic ones (parallel rays). It honours <code>ndc_offset</code>. The arithmetic is in <code>flint_core::projection</code> and runs in <code>f64</code>, because an <code>f32</code> inverse of a projection whose far plane is thousands of times its near plane would let distant hits drift off the cursor.</p>
+<p>A camera looking straight down has no defined “right” (<code>forward × up</code> is zero). In that case the view basis puts north (-Z) at the top of the screen and east (+X) on the right, like a map. Without that fallback the view matrix collapses and nothing renders.</p>
 <h2 id="gltf-mesh-rendering"><a class="header" href="#gltf-mesh-rendering">glTF Mesh Rendering</a></h2>
 <p>Imported glTF models are rendered with their full mesh geometry and materials. The <code>flint-import</code> crate extracts meshes, materials, and textures from <code>.glb</code>/<code>.gltf</code> files, which the renderer draws with PBR shading.</p>
+<h3 id="recolouring-a-model-per-entity"><a class="header" href="#recolouring-a-model-per-entity">Recolouring a model per entity</a></h3>
+<p>Two ECS components tint an imported model without touching the GLB:</p>
+<ul>
+<li><code>material.base_color_r/g/b[/a]</code> on the entity (or its direct parent) replaces the base colour of <strong>every</strong> primitive the entity draws. Scripts write it with <code>set_material_color</code>.</li>
+<li><code>material_overrides</code> maps glTF <strong>material names</strong> to colours: <code>Frame = [0.9, 0.3, 0.1]</code>, <code>Capsule = [0.2, 0.6, 1.0, 0.5]</code>. The renderer looks it up on the drawn entity and then on each ancestor, so a single component on a model’s root entity recolours the matching materials on all of its expanded child nodes, including meshes that mix several materials. A three-component value keeps the material’s own alpha. It takes precedence over <code>material.base_color_*</code> for the named material. Scripts write it with <code>set_material_override(id, name, r, g, b, a)</code>.</li>
+</ul>
+<p>Both are re-read whenever the renderer re-extracts the world (every frame in the player), so colour changes are live. A vertex-coloured mesh ignores both: tint it with <code>material.vertex_tint_*</code> (<a href="#tinting-vertex-colours-per-entity">Tinting vertex colours per entity</a>).</p>
+<h3 id="runtime-meshes"><a class="header" href="#runtime-meshes">Runtime meshes</a></h3>
+<p>Code can build meshes while the game runs and draw them like imported models. A mesh has a name. Any entity whose <code>model.asset</code> is that name draws it at the entity’s transform.</p>
+<ul>
+<li>
+<p><strong>Create or replace:</strong> <code>SceneRenderer::load_procedural_mesh(device, name, vertices, indices, material)</code>.</p>
+<ul>
+<li>Uploading under a name already in use replaces that mesh.</li>
+<li>The old GPU buffers are freed once the current frame’s draw list lets go of them, so a mesh can be rebuilt every frame without GPU memory growing.</li>
+</ul>
+</li>
+<li>
+<p><strong>Remove:</strong> <code>SceneRenderer::remove_mesh(name)</code>. An entity that still names the mesh draws nothing until the name is uploaded again. If the entity has a <code>bounds</code> box, it draws the box instead.</p>
+</li>
+<li>
+<p><strong>From a player extension:</strong> use <code>ExtensionGpu::upload_mesh</code> and <code>ExtensionGpu::remove_mesh</code> in <code>pre_update</code>. <code>ExtensionCtx::attach_mesh(entity, name)</code> sets the entity’s model.</p>
+</li>
+<li>
+<p><strong>Declared in a scene:</strong> add <code>runtime = true</code> to the model so the model loader doesn’t look for a file:</p>
+<pre><code class="language-toml">[entities.ground.model]
+asset = "city_ground"   # uploaded by code at runtime
+runtime = true
+</code></pre>
+</li>
+</ul>
+<p><strong>Vertex colours.</strong> <code>ImportedMaterial::vertex_colored(name)</code> makes a material that takes its colour from each vertex. One mesh can then carry many colours without one material per colour. Vertex colours are <strong>linear</strong>, so convert sRGB values such as hex codes with <code>flint_render::srgb_to_linear</code>, or they wash out.</p>
+<p><strong>Ray targets.</strong> A runtime mesh can also be something rays meet (ADR 0105), so a game describes a building once, to draw it, and a camera keeping out of walls or a click picking a roof meets the same triangles. <code>SceneRenderer::set_ray_mesh(name, Some(mesh))</code> hands over a <code>flint_core::ray_mesh::RayMesh</code> built from the positions and indices the mesh was uploaded with: its triangles under a bounding volume hierarchy, kept on the CPU. Each <code>update_from_world</code> then places it, for every entity drawing the mesh, at that entity’s world matrix, in a new <code>RayScene</code>, which <code>SceneRenderer::ray_scene()</code> hands out. Uploading the mesh again or removing it stops it being a target, so set it after each upload. A player extension does both at once with <code>ExtensionGpu::upload_mesh_with(.., MeshOptions { ray_target: true })</code>.</p>
+<p>The scene is made while the frame’s draws are gathered, before culling, so a target off screen or behind the camera is still met, and the player hands it to scripts after each update: a ray cast during a frame meets things where the last frame drew them. <code>RayScene::cast(origin, dir, max)</code> and <code>segment(from, to)</code> answer with a <code>RayHit</code>: the entity, the distance in world units, the point, the normal (turned to face the ray’s origin) and the triangle’s index in the mesh’s <code>indices</code>. Triangles are two-sided, so a ray from inside a box meets its far wall. The scene tests each placed mesh’s world box and casts into the mesh’s own space, so a scale or a turn on the entity is honoured; it walks the placed meshes one by one, so make targets of what rays need to meet (the buildings, not the lamps on them), and merge many small meshes into a few.</p>
+<p><strong>Culling.</strong> Every static mesh has a local bounding box, which the renderer computes from its vertices at upload. Each frame, opaque and transparent mesh draws whose world box is outside the camera frustum are skipped. Each shadow cascade skips the draws outside its own frustum as well. The F2 stats overlay shows the main-view count as <code>Entities: N (M culled)</code>, and <code>RenderStats::culled_draws</code> holds the same number. Skinned meshes, wireframes and <code>bounds</code> boxes are never culled. Large meshes are hard to cull, so split a sprawling mesh into sectors if most of it is usually off screen.</p>
+<h3 id="levels-of-detail-and-draw-distance"><a class="header" href="#levels-of-detail-and-draw-distance">Levels of detail and draw distance</a></h3>
+<p>A model can carry simpler copies of itself for distance: each glTF primitive (or mesh, for all its primitives) may hold a band in its <code>extras</code>:</p>
+<pre><code class="language-json">"extras": { "flint_lod": { "near": 70, "far": 160, "draw_distance": 400,
+                           "ref_min": [-90, -2, -90], "ref_max": [90, 30, 90] } }
+</code></pre>
+<p>Every key is optional. The primitive draws while the camera’s distance to the box <code>ref_min..ref_max</code> (model space; the primitive’s own bounds when absent) is in <code>near..far</code> and under <code>draw_distance</code>. Give every level of a group the same box and bands that meet (<code>0..70</code>, <code>70..160</code>, <code>160..</code>): the distance is then the same number for all of them, so exactly one level draws at any distance and the levels hand over together. Measured to the nearest point of a region’s box, a level switches only once every part of the region is that far away. The choice is made per camera, before the shadow pass, so a far region’s shadow is cast by its simple level too.</p>
+<p>Keep a model’s levels as primitives of <strong>one mesh on one node</strong>. A GLB with several mesh nodes is expanded into a child entity per node, and each entity costs extraction work every frame, drawn or not.</p>
+<p>An entity’s <code>lod</code> component caps a whole model: <code>draw_distance = 300</code> stops drawing it (and its shadow) when the camera is 300 m from its bounds. It applies to a multi-node model’s nodes too.</p>
+<p>Two runtime scales serve quality settings: the <strong>LOD scale</strong> multiplies every <code>near</code>/<code>far</code>, so 0.5 drops models to their simpler levels at half the distance, and the <strong>draw-distance scale</strong> multiplies every <code>draw_distance</code>. Scripts call <code>set_lod_scale(s)</code> and <code>set_draw_distance_scale(s)</code> (applied after the frame’s scripts, kept across scenes) and read them with <code>lod_scale()</code> and <code>draw_distance_scale()</code>; Rust calls <code>SceneRenderer::set_lod_settings</code>. They start at 1, or at <code>FLINT_LOD_SCALE</code> and <code>FLINT_DRAW_DISTANCE_SCALE</code>, and are clamped to 0.05 and up. <code>FLINT_LOD_SCALE=1000</code> holds every model at its first level, for comparisons. <code>RenderStats::lod_culled_draws</code> counts the draws set aside by level or distance (they’re also in <code>culled_draws</code>), and <code>--exit-after</code> prints it.</p>
 <h2 id="skinned-mesh-pipeline"><a class="header" href="#skinned-mesh-pipeline">Skinned Mesh Pipeline</a></h2>
 <p>For skeletal animation, the renderer provides a separate GPU pipeline that applies bone matrix skinning in the vertex shader. This avoids the 32-byte overhead of bone data on static geometry.</p>
 <p><strong>How it works:</strong></p>
@@ -281,6 +335,88 @@ fullbright = true
 <h2 id="pbr-materials"><a class="header" href="#pbr-materials">PBR Materials</a></h2>
 <p><img src="../images/pbr-materials.png" alt="PBR material showcase — varying roughness and metallic values"></p>
 <p><em>PBR materials with varying roughness and metallic values. Left to right: rough dielectric, smooth dielectric, rough metal, polished metal.</em></p>
+<h3 id="emission"><a class="header" href="#emission">Emission</a></h3>
+<p>A material can give off light of its own (ADR 0076): lamps, lit windows, embers, a glowing crown. Emission is added after lighting and before tonemapping, so it doesn’t depend on facing, the sun or the ambient, and with post-processing on, bloom picks up anything brighter than its threshold. It lights only its own surface. To light the things around it, put a point light beside it.</p>
+<ul>
+<li><strong><code>ImportedMaterial::emissive</code></strong> is the light, as linear RGB. It defaults to zero.</li>
+<li><strong><code>emissive_strength</code></strong> multiplies it, so radiance can go past 1. It defaults to 1.</li>
+<li><strong><code>emissive_texture</code></strong> is an optional emissive map, sRGB, whose RGB multiplies the light, so painted-on lights (a grid of windows, signage, panel lines) glow only where they’re painted. As in glTF, a map does nothing while <code>emissive</code> is zero: set the factor to white to take the map’s colours as they are.</li>
+<li><strong>glTF:</strong> <code>emissiveFactor</code>, <code>emissiveTexture</code> and <code>KHR_materials_emissive_strength</code> are read into those three fields. The map uses the mesh’s first UV set, like the other maps.</li>
+</ul>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let lamp = ImportedMaterial {
+    base_color: [0.05, 0.05, 0.05, 1.0],
+    emissive: [1.0, 0.7, 0.35],
+    emissive_strength: 4.0, // well past a bloom threshold of 1-3
+    ..ImportedMaterial::default()
+};
+<span class="boring">}</span></code></pre>
+<p><strong>Per-vertex emission</strong> suits runtime meshes coloured per vertex, where one mesh mixes lit faces with glowing ones. Set <code>vertex_emission: true</code> on a <code>vertex_colored</code> material. Each vertex’s alpha then says how much of it is surface:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Vertex alpha</th><th>The face is…</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>an ordinary surface, lit as usual. Every existing vertex colour is unchanged.</td></tr>
+<tr><td>0</td><td>light. It reflects no diffuse and gives off its RGB × <code>emissive_strength</code>.</td></tr>
+<tr><td>between</td><td>a blend of the two.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Vertex RGB may go past 1 for bright lights. In this mode vertex alpha is no longer opacity, but the entity’s <code>material.opacity</code> still applies. A glowing face keeps its normal, so it can still take a faint specular highlight on top, like lit glass.</p>
+<h4 id="changing-the-glow-after-upload"><a class="header" href="#changing-the-glow-after-upload">Changing the glow after upload</a></h4>
+<p>A mesh’s emission is set when it’s uploaded, but an entity can scale it every frame with <strong><code>material.emissive_scale</code></strong> (ADR 0090). It multiplies all of the mesh’s emission: the material’s own <code>emissive</code> and the per-vertex kind. The default is 1, which is the mesh as uploaded. Nothing is re-uploaded, so a city’s worth of windows can come on with the evening as one number per entity.</p>
+<pre><code class="language-toml">[entities.lamp_post.material]
+emissive_scale = 0.0   # off by day; a script or extension raises it at dusk
+</code></pre>
+<ul>
+<li><strong>Where it applies:</strong> imported and runtime meshes, skinned or not. An entity with no scale of its own takes its parent’s, so a GLB expanded into child nodes dims as one.</li>
+<li><strong>Zero is dark.</strong> At 0, a per-vertex light face goes black, like an unlit bulb. It doesn’t turn back into a lit, see-through surface, and surface vertices are lit as usual. Negative values count as 0.</li>
+<li><strong>Only the strength changes.</strong> To slide a face from lit paint by day to light by night, use <code>glow_surface</code> as well (below). Glass that is lit like any surface and gives off light from its material’s <code>emissive</code> is often enough: at 0 it’s plain glass.</li>
+<li><strong>Cost:</strong> a new scale rebuilds that draw’s small material uniform on the next frame, as a new <code>opacity</code> does. If hundreds of entities glow at once, change the value in steps rather than by a hair every frame.</li>
+</ul>
+<p>From an extension, write the field like any other component:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let mut material = toml::Table::new();
+material.insert("emissive_scale".into(), (night * 1.6).into());
+world.set_component(id, "material", material.into())?;
+<span class="boring">}</span></code></pre>
+<h4 id="lighting-the-glow-as-surface-too"><a class="header" href="#lighting-the-glow-as-surface-too">Lighting the glow as surface too</a></h4>
+<p><strong><code>material.glow_surface</code></strong> (ADR 0096), 0 to 1, says how much of each per-vertex light part is also an ordinary lit surface of its colour. It adds the surface and takes none of the light away, so <code>emissive_scale</code> and <code>glow_surface</code> set a light face’s two halves apart: how much light it gives off, and how much paint the sun and sky can light. The default is 0, the mesh as uploaded. Surface vertices (alpha 1) don’t change, so a mesh can mix plain faces with ones that slide.</p>
+<p>Upload the sliding faces as pure light (alpha 0) at the colour you want, once. Then, every frame:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th><code>glow_surface</code></th><th><code>emissive_scale</code></th><th>The face is…</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>0</td><td>lit paint: gold in the sun</td></tr>
+<tr><td>0.6</td><td>0.25</td><td>gold paint with a little light in it, at dusk</td></tr>
+<tr><td>0</td><td>1.6</td><td>light only, bright at night</td></tr>
+</tbody>
+</table>
+</div>
+<p>A vertex of alpha <code>a</code> is lit as surface by <code>a + (1 − a) × glow_surface</code> of its colour and gives off <code>(1 − a)</code> of it times the strength, as before. It applies wherever per-vertex emission does, skinned or not, with the same inheritance from the parent as <code>emissive_scale</code>, and the same cost when it changes. Values are clamped to 0..1.</p>
+<h4 id="tinting-vertex-colours-per-entity"><a class="header" href="#tinting-vertex-colours-per-entity">Tinting vertex colours per entity</a></h4>
+<p><strong><code>material.vertex_tint_r/g/b</code></strong> (ADR 0102) multiplies every vertex colour of the entity’s meshes, as surface and as per-vertex light alike, every frame. Leave it unset for white, the mesh as uploaded. Set all three or none. An entity with no tint of its own takes its parent’s, as with <code>emissive_scale</code>, and a new tint costs the same. Negative values count as 0, and values over 1 brighten.</p>
+<p>It’s separate from <code>material.base_color_*</code>, which a vertex-coloured mesh ignores: many meshes are uploaded with a material colour equal to their vertices’, and multiplying the two would darken them. A glTF’s <code>COLOR_0</code> isn’t read yet (see the roadmap), so nothing imported changes either.</p>
+<p>With the two fields above, a face uploaded once as white light (alpha 0) can move in colour as well as in brightness. A window that’s glass by day and lamp-coloured at night, with surface share <code>S</code> and light <code>R</code>, takes:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td><code>vertex_tint_*</code></td><td><code>mix(glass, lamp, R / (S + R))</code></td></tr>
+<tr><td><code>glow_surface</code></td><td><code>S</code></td></tr>
+<tr><td><code>emissive_scale</code></td><td><code>R</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Its albedo is then the hue times <code>S</code> and its light the hue times <code>R</code>, the same as a vertex rebuilt every hour with that colour.</p>
 <h2 id="debug-visualization"><a class="header" href="#debug-visualization">Debug Visualization</a></h2>
 <p>The renderer provides eight shading modes, selected from the <strong>Shading</strong> combo in the Rendering &amp; Effects menu (F4) or with <code>--debug-mode</code> headlessly:</p>
 <div class="table-wrapper">
@@ -297,6 +433,7 @@ fullbright = true
 <tr><td><strong>UV Checker</strong></td><td><code>uv</code></td><td>UV coordinates as a procedural checkerboard</td></tr>
 <tr><td><strong>Unlit</strong></td><td><code>unlit</code></td><td>Albedo color only, no lighting</td></tr>
 <tr><td><strong>Metal/Rough</strong></td><td><code>metalrough</code></td><td>Metallic (red channel) and roughness (green channel)</td></tr>
+<tr><td><strong>Style Mask</strong></td><td><code>style</code></td><td>The entity style mask: each <code>style_mask</code> style in its own hue, unstyled pixels grey (needs post-processing; see <a href="stylize-passes.html#the-entity-style-mask">Stylize Passes</a>)</td></tr>
 </tbody>
 </table>
 </div>
@@ -305,7 +442,7 @@ fullbright = true
 <ul>
 <li><strong>Normal arrows</strong> (F3 in the viewer, <code>--show-normals</code> in render) — draws face-normal direction arrows</li>
 <li><strong>Skeleton overlay</strong> (model previewer) — draws the armature over a rigged model, following the animated pose, with a colour mode that paints joints by last writer, layer weight, mask, or keyed joints. See <a href="animation.html">Animation</a>.</li>
-<li><strong>Render stats</strong> (F2 in the viewer and the player) — frame time, draw counts, resolution</li>
+<li><strong>Render stats</strong> (F2 in the viewer and the player) — frame time, draw counts, resolution, and in the player the GPU’s time per phase where the device can time (see <a href="../guides/profiling.html">Profiling</a>)</li>
 </ul>
 <p><img src="../images/debug-wireframe.png" alt="Wireframe debug mode"></p>
 <p><em>Wireframe debug mode showing mesh topology.</em></p>

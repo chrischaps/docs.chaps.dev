@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["intersect_rect","parse_points","ring_indices","ring_points","ring_steps","ring_sweep"]};

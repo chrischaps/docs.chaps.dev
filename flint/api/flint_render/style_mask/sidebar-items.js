@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["BLEND_FIELD","BLEND_ONE","INITIAL_MASK_SLOTS","MSAA_SAMPLES","NO_STYLE","SLOPE_TOLERANCE","STYLE_MASK_COMPONENT","STYLE_MASK_FORMAT","VEIL_FORMAT"],"fn":["debug_color","debug_color_name","encode_blend","legend","legend_line","mask_slots_for","read_overrides"],"struct":["LegendEntry","StyleIds","StyleMaskPass","StyleVariant"]};

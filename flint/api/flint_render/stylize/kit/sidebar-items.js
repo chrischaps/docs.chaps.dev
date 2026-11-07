@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["fullscreen_pass","fullscreen_pipeline","mask_layout","sampled_layout","shader","texture_layout","uint_layout","uniform_buffer","uniform_layout"]};

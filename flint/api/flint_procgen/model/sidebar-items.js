@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ModelLayout"],"fn":["model_from_import","read_model","read_png"],"struct":["Model","ModelMesh"]};

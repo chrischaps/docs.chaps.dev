@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["LATE_LINES_PER_WINDOW","REPORT_SECONDS"],"struct":["BufferMeter","BufferStats","MeterLines"]};

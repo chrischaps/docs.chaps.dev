@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["PatternCell","PatternField"],"trait":["Pattern"]};
+window.SIDEBAR_ITEMS = {"struct":["PatternCell","PatternField","SeamSteps"],"trait":["Pattern"]};

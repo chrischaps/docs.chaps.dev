@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -202,17 +202,30 @@
 <li><strong>CharacterController</strong> — kinematic first-person movement with gravity, jumping, ground detection, and sprint</li>
 </ul>
 <h2 id="physics-schemas"><a class="header" href="#physics-schemas">Physics Schemas</a></h2>
-<p>Three component schemas define physics properties:</p>
+<p>Four component schemas define physics properties:</p>
 <p><strong>Rigidbody</strong> (<code>rigidbody.toml</code>) — determines how an entity participates in physics:</p>
 <ul>
 <li><code>body_type</code>: <code>"static"</code> (immovable world geometry), <code>"dynamic"</code> (simulated), or <code>"kinematic"</code> (script-controlled)</li>
-<li><code>mass</code>, <code>gravity_scale</code></li>
+<li><code>mass</code>, <code>gravity_scale</code>, <code>linear_damping</code>, <code>angular_damping</code></li>
+<li><code>mode_2d</code>: lock to the XY plane (Z = 0, Z rotation only)</li>
 </ul>
 <p><strong>Collider</strong> (<code>collider.toml</code>) — defines the collision shape:</p>
 <ul>
-<li><code>shape</code>: <code>"box"</code>, <code>"sphere"</code>, or <code>"capsule"</code></li>
+<li><code>shape</code>: <code>"box"</code>, <code>"sphere"</code>, <code>"capsule"</code>, <code>"cylinder"</code> (Y axis, <code>size = [diameter, height]</code>), or <code>"sprite"</code> (auto-sized from the <code>sprite</code> component)</li>
 <li><code>size</code>: dimensions of the collision volume</li>
-<li><code>friction</code>: surface friction coefficient</li>
+<li><code>friction</code>, <code>restitution</code>: surface response</li>
+<li><code>is_sensor</code>: detect overlaps without producing contacts</li>
+<li><code>offset</code>, <code>rotation</code>: collider pose relative to the entity (added to the <code>bounds</code> centre; <code>rotation = [0, 0, 90]</code> lays a cylinder on its side as a wheel)</li>
+</ul>
+<p><strong>Joint</strong> (<code>joint.toml</code>) — attaches this entity’s body to another with a Rapier impulse joint (see <a href="#joints">Joints</a>):</p>
+<ul>
+<li><code>type</code>: <code>"hinge"</code>, <code>"prismatic"</code>, <code>"spherical"</code>, or <code>"fixed"</code></li>
+<li><code>parent</code>: entity name to attach to; empty uses the transform parent</li>
+<li><code>anchor</code>, <code>axis</code>: pivot and axis in this entity’s local frame</li>
+<li><code>limits</code>: <code>[min, max]</code> in degrees (hinge/spherical) or metres (prismatic); <code>min &gt;= max</code> means free</li>
+<li><code>motor_target</code>, <code>motor_stiffness</code>, <code>motor_damping</code>, <code>motor_max_force</code>, <code>motor_model</code>: a position motor that scripts retarget each frame</li>
+<li><code>motor_axis</code>: which angular axis a spherical joint’s motor and limits act on</li>
+<li><code>contacts_enabled</code>: let the two jointed bodies collide</li>
 </ul>
 <p><strong>Character Controller</strong> (<code>character_controller.toml</code>) — first-person movement parameters:</p>
 <ul>
@@ -249,6 +262,71 @@ body_type = "static"
 <p>Then play the scene:</p>
 <pre><code class="language-bash">flint play my_scene.scene.toml
 </code></pre>
+<h2 id="joints"><a class="header" href="#joints">Joints</a></h2>
+<p>Joints (ADR 0069) connect a <strong>dynamic</strong> body to a parent body so that Rapier
+supplies the secondary motion — overshoot, settle, bounce — while scripts
+keep authoring the primary motion. The intended pattern is a hybrid: the root
+and most nodes stay kinematic and script-posed, and a few nodes (a folding
+rear section, a hydraulic piston, a driver pod on a gimbal) become dynamic
+bodies jointed to their kinematic parent. The script writes the joint’s
+<code>motor_target</code> from its own state; physics supplies the rest.</p>
+<pre><code class="language-toml">[entities.rig]
+[entities.rig.transform]
+position = [0, 3, 0]
+[entities.rig.rigidbody]
+body_type = "kinematic"          # posed by script with rotate_local()
+[entities.rig.collider]
+shape = "box"
+size = [1.2, 0.3, 1.2]
+
+[entities.piston]
+parent = "rig"                   # authored in the rig's local frame
+[entities.piston.transform]
+position = [0, 1, 0]
+[entities.piston.rigidbody]
+body_type = "dynamic"
+[entities.piston.collider]
+shape = "box"
+size = [0.6, 0.6, 0.6]
+[entities.piston.joint]
+type = "prismatic"
+axis = [0, 1, 0]
+limits = [-0.5, 0.5]
+motor_stiffness = 200.0
+motor_damping = 10.0
+</code></pre>
+<pre><code class="language-rhai">// each frame: spring the piston toward the script's stroke, in metres
+set_joint_target(piston, stroke);
+let actual = get_joint_position(piston);   // simulated slide, metres
+</code></pre>
+<p>Rules that follow from the implementation:</p>
+<ul>
+<li><strong>Bodies live in world space.</strong> A rigidbody on a parented entity (including
+the <code>root__Node__Child</code> entities a multi-node glTF model expands into) is
+placed from its world matrix, and a dynamic body’s simulated pose is written
+back as a local <code>position</code> and <code>rotation_quat</code> against the parent’s world
+matrix. Kinematic bodies follow their world matrix every fixed step, so a
+script posing the root drags jointed children along.</li>
+<li><strong>Unit scale on the physics chain.</strong> Anchors, axes and collider offsets are
+entity-local only when every entity from the body up to the root has unit
+scale. The engine warns once per entity otherwise.</li>
+<li><strong>Units are degrees and metres in TOML.</strong> Hinge and spherical targets and
+limits are degrees, prismatic ones metres; the engine converts to Rapier’s
+radians internally. <code>motor_target = 0</code> is the rest pose the joint was
+created in.</li>
+<li><strong>The joint is created once</strong>, when both bodies exist (a body added later is
+picked up on the next fixed step), and retargeted in place afterwards: field
+writes to <code>joint.*</code> are compared against the last push and only differences
+reach Rapier. Removing either entity removes the joint.</li>
+<li><strong>Script writes land next frame.</strong> Scripts run after the fixed-physics loop,
+so a target written this frame is applied on the next step.</li>
+<li><code>flint render</code> and the scene viewer do not simulate physics; a <code>joint</code>
+component is inert there and the authored rest pose is what renders.</li>
+</ul>
+<p><code>demo/joint_test.scene.toml</code> is the reference bench: a hinged pendulum, a
+sprung prismatic slider on a yawing kinematic base, a gimballed pod with a
+driven spherical motor, and a cylinder wheel.</p>
+<p><img src="../images/joint-test-bench.png" alt="Joint test bench at rest: pendulum anchor and bob on the left, slider base and block in the middle, gimbal base and pod on the right, wheel on the floor"></p>
 <h2 id="raycasting"><a class="header" href="#raycasting">Raycasting</a></h2>
 <p>The physics system provides raycasting for line-of-sight checks, hitscan weapons, and interaction targeting. <code>PhysicsWorld::raycast()</code> casts a ray through the Rapier collision world and returns the first hit:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
@@ -270,7 +348,7 @@ body_type = "static"
 <li><strong>Keyboard keys</strong> (<code>Key { code }</code>) — any winit <code>KeyCode</code> name (e.g., <code>"KeyW"</code>, <code>"Space"</code>, <code>"ShiftLeft"</code>)</li>
 <li><strong>Mouse buttons</strong> (<code>MouseButton { button }</code>) — <code>"Left"</code>, <code>"Right"</code>, <code>"Middle"</code>, <code>"Back"</code>, <code>"Forward"</code></li>
 <li><strong>Mouse delta</strong> (<code>MouseDelta { axis, scale }</code>) — raw mouse movement for camera look</li>
-<li><strong>Mouse wheel</strong> (<code>MouseWheel { axis, scale }</code>) — scroll wheel input</li>
+<li><strong>Mouse wheel</strong> (<code>MouseWheel { axis, scale }</code>) — scroll wheel input, in lines (notches) this frame, up and right positive; a touchpad’s pixel scroll counts 50 px to a line. Bind it to an <code>axis1d</code> action (<code>type = "mouse_wheel"</code>, <code>axis = "y"</code>) and read it with <code>action_value</code>. A wheel turned over egui doesn’t reach it</li>
 <li><strong>Gamepad buttons</strong> (<code>GamepadButton { button, gamepad }</code>) — any gilrs button name (e.g., <code>"South"</code>, <code>"RightTrigger"</code>)</li>
 <li><strong>Gamepad axes</strong> (<code>GamepadAxis { axis, gamepad, deadzone, scale, invert, threshold, direction }</code>) — analog sticks and triggers with full processing pipeline</li>
 </ul>
@@ -324,7 +402,13 @@ gamepad = "any"
 <ol>
 <li><strong>Engine built-in defaults</strong> — hardcoded WASD + mouse baseline (always present)</li>
 <li><strong>Game default config</strong> — <code>&lt;game_root&gt;/config/input.toml</code> (checked into the repo)</li>
-<li><strong>User overrides</strong> — <code>~/.flint/input_{game_id}.toml</code> (per-player remapping, written at runtime)</li>
+<li><strong>User overrides</strong> — per-player remapping, written at runtime. The first that exists of:
+<ul>
+<li><code>&lt;scene_dir&gt;/.flint/input.user.toml</code> (project-local, for development)</li>
+<li><code>&lt;config&gt;/flint/input_{game_id}.toml</code>, where <code>&lt;config&gt;</code> is the OS config directory (<code>%APPDATA%</code> on Windows, <code>~/Library/Application Support</code> on macOS, <code>~/.config</code> on Linux)</li>
+<li><code>&lt;config&gt;/flint/input.user.toml</code>, shared by games with no <code>game_id</code> of their own (or <code>game_id = "flint"</code>)</li>
+</ul>
+</li>
 <li><strong>CLI override</strong> — <code>--input-config &lt;path&gt;</code> flag (one-off testing/debugging)</li>
 </ol>
 <p>Scenes can also reference an input config via the <code>input_config</code> field in the <code>[scene]</code> table.</p>
@@ -371,13 +455,14 @@ gamepad = "any"
 <li><strong>Swap</strong> — remove this binding from any other action, assign to target</li>
 </ul>
 </li>
-<li>User overrides are automatically saved to <code>~/.flint/input_{game_id}.toml</code></li>
+<li>User overrides are automatically saved to <code>&lt;config&gt;/flint/input_{game_id}.toml</code>, or back to the project-local <code>.flint/input.user.toml</code> if that’s the one that was loaded. The user override is looked up once the game default has set <code>game_id</code>, so a game’s rebinds are found on the next start</li>
 </ol>
 <h2 id="runtime-physics-updates"><a class="header" href="#runtime-physics-updates">Runtime Physics Updates</a></h2>
 <p>The physics system handles several runtime updates beyond the core simulation:</p>
 <ul>
 <li><strong>Sensor flag updates</strong> — when game logic marks an entity as dead, its collider can be set to a sensor (non-solid) so other entities pass through it</li>
-<li><strong>Kinematic body sync</strong> — script-controlled position changes are written back to Rapier kinematic bodies each frame</li>
+<li><strong>Kinematic body sync</strong> — script-controlled transforms (world matrix, <code>rotation_quat</code> honoured) are pushed to Rapier kinematic bodies each fixed step; dynamic bodies write back both <code>position</code> and <code>rotation_quat</code></li>
+<li><strong>Joint retargeting</strong> — changed <code>joint.motor_target</code> / gains / limits are pushed into the live impulse joint each fixed step and the child body is woken</li>
 <li><strong>Collision event drain</strong> — the <code>ChannelEventCollector</code> collects collision and contact events each physics step; these are drained and dispatched as script callbacks (<code>on_collision</code>, <code>on_trigger_enter</code>, <code>on_trigger_exit</code>)</li>
 </ul>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DIM","FRAME","GLYPH","GUTTER","LABEL","MARGIN","PAPER","PER_ROW","TITLE"],"fn":["blend","compose","draw_legend","draw_text","fit_text","frame","text_scale"],"struct":["SheetText"]};

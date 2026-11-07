@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The entity style mask (#263): a per-pixel style id that says which style, if any, drew each pixel, so a style pass can stylize chosen entities and leave the rest of the scene alone."><title>flint_render::style_mask - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="flint_render" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module style_mask</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../flint_render/index.html">flint_<wbr>render</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module style_<wbr>mask</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#per-entity-settings-266" title="Per-entity settings (#266)">Per-entity settings (#266)</a></li><li><a href="#how-the-mask-is-drawn" title="How the mask is drawn">How the mask is drawn</a></li><li><a href="#blending-in-and-out-278" title="Blending in and out (#278)">Blending in and out (#278)</a></li><li><a href="#whats-in-front-the-veil-290" title="What’s in front: the veil (#290)">What’s in front: the veil (#290)</a></li><li><a href="#terrain-and-transparents-310" title="Terrain and transparents (#310)">Terrain and transparents (#310)</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate flint_<wbr>render</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">flint_render</a></div><h1>Module <span>style_<wbr>mask</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/flint_render/style_mask.rs.html#1-1758">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The entity style mask (#263): a per-pixel style id that says which
+style, if any, drew each pixel, so a style pass can stylize chosen
+entities and leave the rest of the scene alone.</p>
+<p>An entity asks for a style with the <code>style_mask</code> component:</p>
+<div class="example-wrap"><pre class="language-toml"><code>[entities.barrel.style_mask]
+style = &quot;ascii&quot;</code></pre></div>
+<p>Its descendants inherit the style unless they carry a <code>style_mask</code> of
+their own; <code>enabled = false</code> takes an entity and its subtree out again.</p>
+<h3 id="per-entity-settings-266"><a class="doc-anchor" href="#per-entity-settings-266">§</a>Per-entity settings (#266)</h3>
+<p>A style that takes settings per entity names a component of its own
+(<a href="../stylize/struct.StyleDescriptor.html#structfield.component" title="field flint_render::stylize::StyleDescriptor::component"><code>StyleDescriptor::component</code></a>, <code>ascii_style</code> for ASCII). Its fields are
+the style’s parameters and options, and any it leaves out come from the
+scene’s <code>[post_process.styles.&lt;name&gt;]</code> table, then the style’s defaults:</p>
+<div class="example-wrap"><pre class="language-toml"><code>[entities.barrel.ascii_style]
+ramp = &quot;blocks&quot;
+tint = [1.0, 0.7, 0.3]   # a 3-array fills a style&#39;s tint_r/g/b</code></pre></div>
+<p>Each distinct set of settings is a <a href="struct.StyleVariant.html" title="struct flint_render::style_mask::StyleVariant"><code>StyleVariant</code></a> with an id of its
+own, so entities that say the same thing share an id and a pass reads
+the settings of every pixel’s id from one small table. A style whose
+<code>grid</code> option is <code>object</code> gets one variant per styled root, anchored at
+that root’s world origin. <code>enabled = false</code> on the component is an
+opt-out variant: it keeps the entity out of that style even where the
+style covers the whole screen. A plain <code>style_mask { style = "ascii" }</code>
+is the same as an empty <code>ascii_style</code>.</p>
+<h3 id="how-the-mask-is-drawn"><a class="doc-anchor" href="#how-the-mask-is-drawn">§</a>How the mask is drawn</h3>
+<p>The ASCII spike (#261) measured the two ways to write it and chose a
+redraw over a new attachment on every scene pipeline. After the scene
+pass (and the MSAA depth resolve), each visible opaque draw of a styled
+entity is drawn again into one <code>Rg16Uint</code> target at scene resolution,
+with its cached transform bind group (and, for skinned meshes, its bone
+bind group), so the per-entity loop makes no buffer and no bind group.
+There’s no depth attachment: each fragment tests itself against the
+frame’s single-sample depth with a tolerance of its own depth slope, so
+the mask works at any render scale and the scene pipelines don’t
+change.</p>
+<p>Under MSAA (#306) the mask is drawn 4x instead, into a multisampled
+target of its own, each covered sample testing itself against that
+sample of the scene’s multisampled depth, and a resolve folds it into
+the single-sample mask with any styled sample beating the empty ones.
+Drawn at pixel centres against the sample-0 depth, a feature about a
+pixel thin (a bench seat’s edge at a grazing angle) lost the pixels
+the scene’s samples gave it, and an outline style drew the gaps.</p>
+<p>Each draw’s id goes into one dynamic-offset uniform buffer, uploaded in
+a single write a frame. The mask target lives in the post chain’s
+<a href="../stylize/struct.StyleTargets.html" title="struct flint_render::stylize::StyleTargets"><code>StyleTargets</code></a>, so a resize drops it with
+every bind group over it, and it is only made, and only drawn, while a
+style that reads it is on (<a href="../stylize/struct.StyleDescriptor.html#structfield.uses_mask" title="field flint_render::stylize::StyleDescriptor::uses_mask"><code>StyleDescriptor::uses_mask</code></a>) or the
+<code>style</code> debug view is showing.</p>
+<h3 id="blending-in-and-out-278"><a class="doc-anchor" href="#blending-in-and-out-278">§</a>Blending in and out (#278)</h3>
+<p>A <code>blend</code> field on the style component (or the <code>style_mask</code>) draws the
+entity with that much of the style, 0 to 1. It rides in the mask beside
+the id (the <code>.g</code> channel), not in the variant, so a script ramping it
+every frame keeps the entity’s id and makes no new variant. A style
+mixes its own pixel with what it was given by that amount; ASCII can
+also dissolve, turning that share of its cells.</p>
+<h3 id="whats-in-front-the-veil-290"><a class="doc-anchor" href="#whats-in-front-the-veil-290">§</a>What’s in front: the veil (#290)</h3>
+<p>Transparents and particles write no depth, so a depth-tested redraw
+alone would leave a styled stone masked where fire or glass sits in
+front of it, and the style would glyphize the fire as stone. Just before
+the mask, a veil pass draws every visible transparent mesh (static and
+skinned) and every particle into an <code>R8Unorm</code> target, depth-tested
+against the scene with no depth write, each with the alpha it is drawn
+with (an additive particle by its alpha times its brightest channel),
+“over” blended so layers add up to their combined coverage. The mask
+then writes each styled pixel’s blend times what the veil leaves
+uncovered. The rule: <strong>what’s in front unmasks by its coverage.</strong> A
+style that honours the blend (ASCII, user styles through
+<code>flint_style_blend</code>) shows the fire as fire and the stone through any
+uncovered share; a fully covered pixel keeps its id at blend 0. A
+transparent that is itself styled is left out of the veil: it is in
+the mask itself, as a lens (below).</p>
+<h3 id="terrain-and-transparents-310"><a class="doc-anchor" href="#terrain-and-transparents-310">§</a>Terrain and transparents (#310)</h3>
+<p>Terrain chunks are masked when the terrain’s entity (named by
+<code>SceneRenderer::set_terrain_entity</code>) is styled: they use the standard
+<code>Vertex</code> and transform layout, so the static pipeline draws them as is.</p>
+<p>A styled transparent is a lens. Its draws come after every opaque one,
+back to front as the scene drew them; they write no depth, but each
+fragment still tests against the opaques’ depth, so where one shows it
+is the nearest styled surface and its id replaces what’s behind it. The
+style then draws the whole pixel, glass and what’s seen through it.</p>
+<p>Particles, sprites, grass and water stay unmasked (particles and
+unstyled transparents only veil): grass is instanced, and the others
+write no depth.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.LegendEntry.html" title="struct flint_render::style_mask::LegendEntry">Legend<wbr>Entry</a></dt><dd>One row of the style mask view’s legend: an id, the style variant it
+stands for and the colour the view paints it.</dd><dt><a class="struct" href="struct.StyleIds.html" title="struct flint_render::style_mask::StyleIds">Style<wbr>Ids</a></dt><dd>The styles entities ask for, numbered from 1 in name order. Ids change
+only when the set of names does, and are the same for the same scene
+on every run (no entity id or hash order goes into them).</dd><dt><a class="struct" href="struct.StyleMaskPass.html" title="struct flint_render::style_mask::StyleMaskPass">Style<wbr>Mask<wbr>Pass</a></dt><dd>The mask’s pipelines and its per-draw uniform buffer, made the first
+time a frame needs the mask.</dd><dt><a class="struct" href="struct.StyleVariant.html" title="struct flint_render::style_mask::StyleVariant">Style<wbr>Variant</a></dt><dd>What one style id stands for (#266): the style that draws it and the
+settings its entities give that differ from the scene’s.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.BLEND_FIELD.html" title="constant flint_render::style_mask::BLEND_FIELD">BLEND_<wbr>FIELD</a></dt><dd>The field of a style component (or <code>style_mask</code>) that says how much of
+the style an entity is drawn with (#278): 0 is its own shading, 1 the
+style’s, anything between a mix (a cross-fade, or for ASCII’s
+<code>transition = "dissolve"</code> the share of cells that have turned).</dd><dt><a class="constant" href="constant.BLEND_ONE.html" title="constant flint_render::style_mask::BLEND_ONE">BLEND_<wbr>ONE</a></dt><dd>The mask’s <code>.g</code> for a blend of 1: the style fully on.</dd><dt><a class="constant" href="constant.INITIAL_MASK_SLOTS.html" title="constant flint_render::style_mask::INITIAL_MASK_SLOTS">INITIAL_<wbr>MASK_<wbr>SLOTS</a></dt><dd>The per-draw slots the mask’s uniform buffer starts with (4 KB, #311).
+A frame with more styled draws grows it to the next power of two, so a
+scene pays for the draws it has and every one of them is masked.</dd><dt><a class="constant" href="constant.MSAA_SAMPLES.html" title="constant flint_render::style_mask::MSAA_SAMPLES">MSAA_<wbr>SAMPLES</a></dt><dd>The scene’s sample count the mask matches under MSAA.</dd><dt><a class="constant" href="constant.NO_STYLE.html" title="constant flint_render::style_mask::NO_STYLE">NO_<wbr>STYLE</a></dt><dd>The id of a pixel no style drew.</dd><dt><a class="constant" href="constant.SLOPE_TOLERANCE.html" title="constant flint_render::style_mask::SLOPE_TOLERANCE">SLOPE_<wbr>TOLERANCE</a></dt><dd>How far behind the scene’s depth a mask fragment may be, in multiples
+of its own depth slope (<code>fwidth(z)</code>). The spike’s value: it absorbs the
+rasterisers’ small disagreements (and, under MSAA, the half pixel
+between the centre’s depth and a sample’s) without letting a hidden
+face through.</dd><dt><a class="constant" href="constant.STYLE_MASK_COMPONENT.html" title="constant flint_render::style_mask::STYLE_MASK_COMPONENT">STYLE_<wbr>MASK_<wbr>COMPONENT</a></dt><dd>The component an entity names its style in.</dd><dt><a class="constant" href="constant.STYLE_MASK_FORMAT.html" title="constant flint_render::style_mask::STYLE_MASK_FORMAT">STYLE_<wbr>MASK_<wbr>FORMAT</a></dt><dd>The mask’s format: one style id a pixel in <code>.r</code>, 0 where no style
+drew, and the entity’s blend in <code>.g</code> (#278), <code>0..=BLEND_ONE</code> for 0..1.
+A reader that only wants the id reads <code>.r</code>, as it did when the mask
+was <code>R16Uint</code>.</dd><dt><a class="constant" href="constant.VEIL_FORMAT.html" title="constant flint_render::style_mask::VEIL_FORMAT">VEIL_<wbr>FORMAT</a></dt><dd>The veil’s format: one blendable coverage a pixel.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.debug_color.html" title="fn flint_render::style_mask::debug_color">debug_<wbr>color</a></dt><dd>The debug view’s colour for style <code>id</code>: hues a golden angle apart, so
+neighbouring ids never look alike. <code>NO_STYLE</code> is black.</dd><dt><a class="fn" href="fn.debug_color_name.html" title="fn flint_render::style_mask::debug_color_name">debug_<wbr>color_<wbr>name</a></dt><dd>A word for <a href="fn.debug_color.html" title="fn flint_render::style_mask::debug_color"><code>debug_color</code></a>’s hue of <code>id</code>, so a legend can say “blue”
+rather than a triple (#309). <code>NO_STYLE</code> is “black”.</dd><dt><a class="fn" href="fn.encode_blend.html" title="fn flint_render::style_mask::encode_blend">encode_<wbr>blend</a></dt><dd>A blend in the mask’s <code>.g</code> encoding.</dd><dt><a class="fn" href="fn.legend.html" title="fn flint_render::style_mask::legend">legend</a></dt><dd>The legend for the style mask view (#309): each id in <code>ids</code>, in id
+order, with its hue.</dd><dt><a class="fn" href="fn.legend_line.html" title="fn flint_render::style_mask::legend_line">legend_<wbr>line</a></dt><dd>The legend on one line, as <code>flint render</code> prints it:
+<code>style mask: 1 ascii (blue), 2 pencil (green)</code>, or a note that nothing
+is styled.</dd><dt><a class="fn" href="fn.mask_slots_for.html" title="fn flint_render::style_mask::mask_slots_for">mask_<wbr>slots_<wbr>for</a></dt><dd>The slots a buffer holding <code>capacity</code> needs to grow to for <code>draws</code>:
+<code>capacity</code> while it fits, else the next power of two.</dd><dt><a class="fn" href="fn.read_overrides.html" title="fn flint_render::style_mask::read_overrides">read_<wbr>overrides</a></dt><dd>Read a style component’s fields into <code>variant</code>: the descriptor’s
+options as strings, its parameters as numbers, and a colour <code>x</code> (a
+3-array, <a href="../stylize/struct.StyleColor.html" title="struct flint_render::stylize::StyleColor"><code>StyleColor</code></a>) as the parameters
+<code>x_r</code>, <code>x_g</code>, <code>x_b</code>. Anything else (<code>enabled</code>, a key the
+style doesn’t take, a value of the wrong type) is skipped: the scene
+loader has already warned about it against the component’s schema.</dd></dl></section></div></main></body></html>

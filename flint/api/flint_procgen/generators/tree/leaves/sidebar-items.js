@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["generate_leaves"]};
+window.SIDEBAR_ITEMS = {"fn":["along_branch_clusters","card_index_count","card_size","generate_leaves","season_tint"]};

@@ -1,0 +1,1025 @@
+<!DOCTYPE HTML>
+<html lang="en" class="coal sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Stylize Passes - Flint Engine</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Documentation for the Flint CLI-first, AI-agent-optimized 3D game engine">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/css/custom-8d5049aa.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "coal";
+            const default_dark_theme = "coal";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-82612fbe.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('coal')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Flint Engine</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/chrischaps/flint" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="stylize-passes"><a class="header" href="#stylize-passes">Stylize Passes</a></h1>
+<p>A stylize pass is a full-screen effect that changes how the picture looks rather than how the light behaves: the painterly Kuwahara filter, ASCII, the pencil sketch and watercolor (epic #260). They share one framework in <code>flint-render</code> (<code>crates/flint-render/src/stylize/</code>), so a new style is mostly a shader and a parameter list.</p>
+<p>This page is the reference. For choosing between a whole-frame and a per-entity style, which grid glyphs sit on and which stage a style runs at, with the captures the choice was made from, see the guide <a href="../guides/stylized-rendering.html">Stylized Rendering</a> and <a href="https://github.com/chrischaps/flint/blob/main/docs/adr/0111-stylized-rendering.md">ADR 0111</a>.</p>
+<h2 id="using-a-style"><a class="header" href="#using-a-style">Using a style</a></h2>
+<p>A scene switches a style on with a table under <code>[post_process]</code>:</p>
+<pre><code class="language-toml">[post_process]
+bloom_enabled = true
+
+[post_process.styles.invert]
+strength = 1.0          # a parameter: a number
+</code></pre>
+<p>A table switches its style on unless it says <code>enabled = false</code>. Every other key is one of the style’s parameters (a number) or one of its options (a string, such as a font or a ramp). Unknown style names and keys are reported as warnings when the scene loads, with the names that do exist:</p>
+<pre><code class="language-text">WARN unknown style 'watercolour' in [post_process.styles]; registered: kuwahara, watercolor, ascii, pencil, invert, mask_view
+WARN style 'invert' has no parameter 'wobble'; it takes: strength
+</code></pre>
+<p>Kuwahara predates the table and keeps its own <code>kuwahara_*</code> fields (see <a href="post-processing.html#kuwahara-painterly-filter">Post-Processing</a>).</p>
+<p>From the command line, <code>--style name[:key=value,...]</code> turns any registered style on over a scene without editing it (#271), on <code>flint render</code> and on <code>flint edit &lt;model or effect&gt; --render</code>:</p>
+<pre><code class="language-bash">flint render demo/pbr_test.scene.toml --style ascii
+flint render demo/stylize_props.scene.toml --style ascii:ramp=detailed,color=tint,cell=10
+flint render demo/pbr_test.scene.toml --style invert:strength=0.5 --style kuwahara:radius=6
+flint render demo/stylize_props.scene.toml --style ascii:color=tint,tint=#ffb340   # a colour: #rrggbb or r/g/b
+flint render levels/tavern.scene.toml --style ascii:off       # the scene's table off (entities' ascii_style stay on, #376)
+flint edit demo/models/barrel.glb --render barrel.png --style ascii:cell=6
+flint render demo/pbr_test.scene.toml --style help            # every style and its keys
+</code></pre>
+<h3 id="listing-the-styles"><a class="header" href="#listing-the-styles">Listing the styles</a></h3>
+<p><code>flint render --list-styles</code> prints every registered style (#303): its stage, where a scene sets it, its options with their choices and its parameters with their defaults, F4 ranges and whether they step by whole numbers, each with its hover help. Add <code>--json</code> for an agent; give a scene and the user styles in its <code>styles/</code> folder are listed too:</p>
+<pre><code class="language-bash">flint render --list-styles
+flint render demo/user_styles.scene.toml --list-styles --json
+</code></pre>
+<pre><code class="language-text">kuwahara (Kuwahara) [hdr, builtin]
+  [post_process] kuwahara_*
+  kuwahara_radius      4  [1 .. 8, integer]
+  ...
+invert (Invert) [display, builtin]
+  [post_process.styles.invert]
+  strength  1  [0 .. 1]  — How far toward the negative: 0 = none, 1 = full
+</code></pre>
+<p>Each JSON entry has <code>name</code>, <code>label</code>, <code>stage</code> (<code>hdr</code> or <code>display</code>), <code>source</code> (<code>builtin</code> or <code>user</code>), <code>table</code>, <code>component</code> (the per-entity component, or null), <code>uses_mask</code>, <code>params</code> (<code>name</code>, <code>key</code> as the scene writes it, <code>default</code>, <code>min</code>, <code>max</code>, <code>integer</code>, <code>color</code> (the colour it is a channel of, or null), <code>label</code>, <code>help</code>), <code>options</code> (<code>name</code>, <code>default</code>, <code>choices</code>, <code>label</code>, <code>help</code>; empty choices take any text) and <code>colors</code> (<code>key</code>, <code>default</code> as <code>[r, g, b]</code>, <code>channels</code>, <code>label</code>, <code>help</code>; #315). The text form lists a colour once, by its key. A range is the F4 menu’s: a value outside it is taken as written. Every table also takes <code>enabled</code> and <code>order</code>. The list is read from the same declarations as F4 and <code>--style</code>, so a new style appears in it with nothing added (<code>flint_render::stylize::catalog</code>).</p>
+<p>The keys are checked against the style’s declaration: a number for a parameter, text for an option (one of its choices when it lists them), a <a href="#colours">colour</a> as <code>#rrggbb</code> or <code>r/g/b</code> (<code>tint=0.3/1/0.4</code>: commas split the keys, so not <code>r,g,b</code>), <code>off</code> or <code>enabled=false</code>. A mistake names what would have worked (<code>--style ascii has no key 'colour'; it takes: cell=8, ..., color=source|tint|raw, off</code>). <code>kuwahara:</code> takes <code>radius</code>, <code>sharpness</code>, <code>hardness</code> and <code>anisotropy</code>, its <code>kuwahara_*</code> fields. <code>--style-time &lt;s&gt;</code> fixes the post time animated styles read (headless captures default to 0).</p>
+<p>In the player and the scene viewer, <strong>F4 → Styles</strong> lists every style that reads the table, each in a section of its own drawn from the style’s declaration (#268). A style needs no UI code to appear there:</p>
+<ul>
+<li>
+<p><strong>A row per setting.</strong> A combo per option with a closed list of choices, a text field per option that takes any name (a font; it applies on Enter), a slider per parameter, and one colour picker for each <code>&lt;base&gt;_r</code>, <code>&lt;base&gt;_g</code>, <code>&lt;base&gt;_b</code> triple (ASCII’s <code>tint</code>). The rows are labelled, explained on hover, and step by whole numbers where the style says so (<a href="#writing-a-style">hints</a>).</p>
+</li>
+<li>
+<p><strong>↺</strong> beside a value that isn’t the default puts it back.</p>
+</li>
+<li>
+<p><strong>Defaults</strong> clears the style’s values. <strong>Authored</strong> puts back what the scene says, on and off included. <strong>Copy TOML</strong> puts the <code>[post_process.styles.&lt;name&gt;]</code> block that reproduces what’s on screen on the clipboard, with only the values that differ from the defaults, so a look tuned by eye goes back into the scene in one paste:</p>
+<pre><code class="language-toml">[post_process.styles.ascii]
+color = "palette"
+palette = "amber"
+cell = 16
+levels = 5
+glow = 0.77
+</code></pre>
+</li>
+<li>
+<p><strong>Against the scene.</strong> The header says <em>edited</em> while the style differs from the scene’s own table, and a dot marks each value that does (hover it for the scene’s value).</p>
+</li>
+</ul>
+<p><img src="../images/f4-styles-editor.png" alt="F4’s Styles section in the player: the meadow under an authored amber ASCII look, with cell size, tone bands and glow tuned by eye. Each tuned value has a dot because it now differs from the scene, and Copy TOML has just copied the block above"></p>
+<p>The same editor is the player’s <strong>F3 Styles</strong> panel, which appears with the other scene panels when the scene uses a style (a <code>[post_process.styles]</code> table or a <code>style_mask</code> entity). It also lists the scene’s styled entities, the style each asks for, and the hue the <a href="#the-entity-style-mask">mask view</a> paints that style in.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Style</th><th>Stage</th><th>Parameters</th></tr>
+</thead>
+<tbody>
+<tr><td><code>kuwahara</code></td><td>HDR</td><td>the <code>kuwahara_*</code> fields</td></tr>
+<tr><td><code>watercolor</code></td><td>Display</td><td>see <a href="#watercolor">Watercolor</a></td></tr>
+<tr><td><code>ascii</code></td><td>Display</td><td>see <a href="#ascii">ASCII</a></td></tr>
+<tr><td><code>pencil</code></td><td>Display</td><td>see <a href="#pencil">Pencil</a></td></tr>
+<tr><td><code>invert</code></td><td>Display</td><td><code>strength</code> 0–1 (default 1): how far toward the negative</td></tr>
+<tr><td><code>mask_view</code></td><td>Display</td><td><code>shading</code> 0–1 (0.8), <code>dim</code> 0–1 (0.35), <code>outline</code> 0–4 px (1): shows the <a href="#the-entity-style-mask">entity style mask</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>invert</code> is the template style: the smallest one that exercises the framework.</p>
+<h2 id="ascii"><a class="header" href="#ascii">ASCII</a></h2>
+<p>The full-screen ASCII style (#265) turns every cell of one screen grid into a glyph from a <a href="glyph-atlas.html">glyph set</a>. The cell’s luminance picks a step of the ramp, so glyph density carries brightness, and the glyph is inked in the cell’s colour or a tint.</p>
+<p><img src="../images/ascii-lantern.png" alt="demo/ascii_lantern.scene.toml: two crates under a lamp post, a barrel and a figure on a black ground, against a thin band of dusk under a starred sky, in the classic ramp at 8 px cells"></p>
+<p><em><code>flint render demo/ascii_lantern.scene.toml --width 1280 --height 720</code>, with no other flags: the scene’s <code>[camera]</code> frames it and its <code>[post_process.styles.ascii]</code> block sets the look.</em></p>
+<p>The style rewards value contrast. Glyph density follows luminance, so a scene lit for PBR, mid-greys everywhere, turns into an even field of <code>=</code> and <code>-</code>. <code>demo/ascii_lantern.scene.toml</code> (#316) is authored for glyphs instead: a near-black ground that stays empty, crates lit warm from one side by a lamp so each has a bright face and a dark one, and a figure and a barrel standing against the last band of a low sun under a dark, starred sky. Its block raises <code>contrast</code> to 1.5, which pushes the dim sky to black and keeps the glyphs for what is lit. The ground’s top sits 2 cm above y = 0, so the editor grid <code>flint render</code> draws by default is hidden under it instead of being traced into dashes. The same scene in each built-in ramp:</p>
+<p><img src="../images/ascii-lantern-ramps.png" alt="The lantern scene in the classic, blocks, minimal and detailed ramps"></p>
+<p><em><code>flint render demo/ascii_lantern.scene.toml --sweep ascii.ramp=classic,blocks,minimal,detailed</code></em></p>
+<pre><code class="language-toml">[post_process.styles.ascii]
+cell = 8                # cell width in points; the height follows the font's aspect
+font = "builtin"        # or a fonts/&lt;name&gt;.glyphs.toml set beside the scene
+ramp = "classic"        # a ramp of that set; empty = the set's default_ramp
+color = "source"        # source | tint | raw | mono | palette
+palette = "phosphor"    # with color = "palette": a built-in or palettes/&lt;name&gt;.palette.toml
+ground = "dim"          # dim | black | inverse
+glow = 0.0              # halo around bright glyphs
+</code></pre>
+<pre><code class="language-bash">flint render demo/ascii_lantern.scene.toml --width 1280 --height 720   # authored for the style
+flint render demo/pbr_test.scene.toml --ascii --schemas schemas --width 1280 --height 720
+flint render demo/mesh_meadow.scene.toml --ascii --ascii-ramp blocks --ascii-tint 1,0.7,0.25
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Default</th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><code>cell</code></td><td><code>8</code></td><td>Cell width in points (4–32). Times the window’s scale factor, so cells look the same size on a high-DPI display; rounded to whole pixels</td></tr>
+<tr><td><code>font</code></td><td><code>builtin</code></td><td>The glyph set: <code>builtin</code>, a set name (<code>fonts/&lt;name&gt;.glyphs.toml</code> in the scene’s folder or its parent) or a <code>.glyphs.toml</code> path. One that fails to load falls back to the built-in set, with a warning</td></tr>
+<tr><td><code>ramp</code></td><td>the set’s default</td><td>A ramp of the set. The built-in set has <code>classic</code>, <code>blocks</code>, <code>minimal</code> and <code>detailed</code>. An unknown name warns once and uses the default</td></tr>
+<tr><td><code>color</code></td><td><code>source</code></td><td><code>source</code>: the cell’s hue at full value. <code>tint</code>: one colour (<code>tint</code>, default phosphor green). <code>raw</code>: the cell’s colour as it is, dark cells dark. <code>mono</code>: white glyphs on grey. <code>palette</code>: the inks of <code>palette</code> (see <a href="#colour-modes">Colour modes</a>)</td></tr>
+<tr><td><code>tint</code></td><td><code>[0.35, 1.0, 0.45]</code></td><td>With <code>color = "tint"</code>: the ink, a <a href="#colours">colour</a> (<code>[r, g, b]</code> 0–1 in display values, or <code>"#59ff73"</code>). <code>--ascii-tint r,g,b</code> sets it</td></tr>
+<tr><td><code>palette</code></td><td><code>phosphor</code></td><td>With <code>color = "palette"</code>: <code>cga</code>, <code>cga-warm</code>, <code>cga16</code>, <code>phosphor</code>, <code>amber</code>, <code>mono</code>, or a palette file. One that can’t be found warns once and uses <code>phosphor</code></td></tr>
+<tr><td><code>ground</code></td><td><code>dim</code></td><td>Behind the glyph: <code>dim</code> (the mode’s own: the cell’s colour times <code>background</code>, or the palette’s background), <code>black</code>, or <code>inverse</code> (the ink fills the cell and the glyph is cut out of it; the ramp runs backwards so bright cells stay bright)</td></tr>
+<tr><td><code>glow</code></td><td><code>0</code></td><td>A halo around each glyph, stronger on bright cells (0–2; 0.6 reads as a phosphor tube). It’s drawn in the pass, since a display-stage style runs after bloom</td></tr>
+<tr><td><code>background</code></td><td><code>0.15</code></td><td>How much of the cell’s colour fills behind its glyph: 0 is black, 1 the cell’s colour</td></tr>
+<tr><td><code>brightness</code>, <code>contrast</code></td><td><code>0</code>, <code>1</code></td><td>Luminance remap before the ramp: contrast about mid-grey, then an offset</td></tr>
+<tr><td><code>exposure</code></td><td><code>0</code></td><td>Stops of gain on each cell’s colour, in linear light, before its glyph and ink are picked (-4–4, <code>--ascii-exposure</code>). See <a href="#dark-props-exposure-and-normalize">dark props</a></td></tr>
+<tr><td><code>normalize</code></td><td><code>0</code></td><td>Stretch the style’s own luminance range over the ramp, measured from the same frame: the whole frame’s, or each styled entity’s (0–1, <code>--ascii-normalize</code>; #289)</td></tr>
+<tr><td><code>ink</code></td><td><code>1</code></td><td>Glyph brightness</td></tr>
+<tr><td><code>levels</code></td><td><code>0</code></td><td>Quantize the tone to this many bands (0 keeps every step of the ramp)</td></tr>
+<tr><td><code>footprint</code></td><td><code>1</code></td><td>Average each cell’s colour over this many cells (wider settles texture noise)</td></tr>
+<tr><td><code>edges</code></td><td><code>1</code></td><td>Line glyphs along <a href="#edges">edges</a>, mixed over the tone glyph: 0 turns the edge passes off, 1 draws the line alone</td></tr>
+<tr><td><code>edge_threshold</code></td><td><code>0.5</code></td><td>How much edge, in cell widths, a cell needs to draw a line glyph (a line straight across is 1)</td></tr>
+<tr><td><code>edge_max</code></td><td><code>3</code></td><td>More edge than this is texture-like geometry (grass, foliage) and keeps its tone glyph. A styled entity’s outline ignores it</td></tr>
+<tr><td><code>edge_depth</code></td><td><code>0.6</code></td><td>The relative view-distance step that counts as a silhouette (lower finds more)</td></tr>
+<tr><td><code>edge_normal</code></td><td><code>2.5</code></td><td>The normal change, as a Sobel over normals rebuilt from depth, that counts as a crease (lower finds more)</td></tr>
+<tr><td><code>outline</code></td><td><code>1</code></td><td>Per-entity only: ink a styled entity’s own pixels this many points from its silhouette (0–4, at least one pixel when on; 0 = off), so features thinner than a cell keep their shape (<a href="#silhouettes">Silhouettes</a>, #288)</td></tr>
+<tr><td><code>min_coverage</code></td><td><code>0.5</code></td><td>Per-entity only: the least ink of the pixels in a cell the entity only grazes (0–1)</td></tr>
+<tr><td><code>temporal</code></td><td><code>on</code></td><td>Temporal stability (#277), below. <code>off</code> draws every frame as if it were the first</td></tr>
+<tr><td><code>smoothing</code></td><td><code>0.6</code></td><td>How much of last frame’s colour a cell keeps (0–0.95). A cell whose colour jumps takes the new one at once, so nothing trails</td></tr>
+<tr><td><code>hysteresis</code></td><td><code>0.35</code></td><td>How far, in ramp steps, a cell’s tone may stray from its glyph’s band before the glyph changes (0–1)</td></tr>
+<tr><td><code>dither</code></td><td><code>0</code></td><td>Ordered (4x4 Bayer) dither before the ramp, fixed to the grid: gradients break into a still pattern instead of one hard edge (0–1, <code>--ascii-dither</code>)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="temporal-stability"><a class="header" href="#temporal-stability">Temporal stability</a></h3>
+<p>In motion, a cell whose tone sits on a ramp boundary tips to the neighbouring glyph and back at the slightest change, and the whole picture crawls. So the style draws in two passes: a cell pass writes each cell’s colour and glyph into a small state texture (one texel a cell), and the glyph pass draws from it. The state is kept for the next frame. A cell blends in part of last frame’s colour (<code>smoothing</code>) and keeps last frame’s glyph until its tone has clearly moved on (<code>hysteresis</code>).</p>
+<p>On <code>demo/ascii_motion.scene.toml</code>, a slow orbit of the meadow clearing captured at 1280x720 with <code>--frame-step 0.0166667</code> for 3 s (181 frames, 14,400 cells), <code>python tools/ascii_flips.py</code> counted:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th>glyph flips per frame</th><th>reversals per frame (A, B, A)</th></tr>
+</thead>
+<tbody>
+<tr><td><code>temporal = "off"</code></td><td>408.3 (2.84% of cells)</td><td>100.6 (0.70%)</td></tr>
+<tr><td><code>temporal = "on"</code></td><td>118.3 (0.82%)</td><td>0.1 (0.00%)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Reversals, where a glyph changes and changes back two frames later, are the shimmer itself, and they are gone. The flips that remain are the scene really moving.</p>
+<p>The state counts as history only when the last frame the renderer drew was the one before, and the grid, ramp and size are unchanged. A single <code>flint render</code> therefore draws exactly what the stateless style drew, and a <code>--frame-step</code> capture gives the style the same frames every run. The player’s captures can still differ from run to run by one level in a few pixels, with the history on or off (#341). The history absorbs those differences rather than carrying them forward. The player calls <code>SceneRenderer::reset_style_history()</code> when a new scene comes up. Call it on a camera cut too, so the new shot doesn’t start from the old one’s glyphs.</p>
+<p>It is a display-stage style: it reads the finished, tonemapped picture at output resolution, after the render-scale upscale, so glyphs stay sharp at <code>--render-scale 0.5</code>. The grid is centred on the frame, so the part cells at the borders match. At a whole-number scale (8 px glyphs in 8, 16 or 24 px cells) glyphs are drawn exactly; at a fractional one, such as 12 px cells on a 1.5x display, each glyph pixel keeps one width and only its borders blend. It costs about 0.04 ms at 1080p on an RTX 4070 (<code>--gpu-time 240</code>), down from about 0.15 ms before #277 split it in two: the cell pass averages each cell’s colour once, where the old single pass did it for every pixel. That is with <code>edges = 0</code>. The <a href="#edges">edge passes</a> add about 0.4 ms (measured on the tavern before #277, as 0.15 against 0.53–0.67 ms).</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Default</th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><code>scope</code></td><td><code>screen</code></td><td><code>screen</code>: the table glyphizes the whole frame. <code>entities</code>: only the entities that ask (below), the table being their preset</td></tr>
+<tr><td><code>grid</code></td><td><code>screen</code></td><td><code>screen</code>: one grid centred on the frame. <code>object</code>: each styled entity’s cells pinned to its projected origin (below)</td></tr>
+</tbody>
+</table>
+</div>
+<p><a href="#edges">Edges</a> (#267) draw line glyphs along silhouettes and creases, and <a href="#per-entity-ascii">per-entity ASCII</a> (#266) applies the style to chosen entities. Its goldens are in the <a href="#goldens">stylize goldens</a>.</p>
+<h3 id="colour-modes"><a class="header" href="#colour-modes">Colour modes</a></h3>
+<p>The glyph’s shape carries brightness; its colour sets the mood (#276). Every capture below is <code>demo/pbr_test.scene.toml</code> at 1280x720, cropped at 1:1 around the two boxes and the character. They were made before edges (#267) were on by default: add <code>--ascii-no-edges</code> to get them exactly, or leave it off and the boxes are outlined too.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><img src="../images/ascii-color-source-pbr-test.png" alt="source"> <code>--ascii</code> (source)</td><td><img src="../images/ascii-color-tint-pbr-test.png" alt="tint"> <code>--ascii-color tint</code></td></tr>
+<tr><td><img src="../images/ascii-color-raw-pbr-test.png" alt="raw"> <code>--ascii-color raw</code></td><td><img src="../images/ascii-color-mono-pbr-test.png" alt="mono"> <code>--ascii-color mono</code></td></tr>
+<tr><td><img src="../images/ascii-color-phosphor-pbr-test.png" alt="phosphor"> <code>--ascii-palette phosphor --ascii-glow 0.6</code></td><td><img src="../images/ascii-color-amber-pbr-test.png" alt="amber"> <code>--ascii-palette amber --ascii-ramp blocks</code></td></tr>
+<tr><td><img src="../images/ascii-color-cga-pbr-test.png" alt="cga"> <code>--ascii-palette cga</code></td><td><img src="../images/ascii-color-cga16-pbr-test.png" alt="cga16"> <code>--ascii-palette cga16</code></td></tr>
+<tr><td><img src="../images/ascii-color-inverse-pbr-test.png" alt="inverse"> <code>--ascii-palette cga-warm --ascii-ground inverse</code></td><td><img src="../images/ascii-color-black-pbr-test.png" alt="black"> <code>--ascii-ground black</code></td></tr>
+<tr><td><img src="../images/ascii-color-tidepool-pbr-test.png" alt="tidepool"> <code>--ascii-palette tidepool</code> (<code>demo/palettes/tidepool.palette.toml</code>)</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<p>And on <code>demo/mesh_meadow.scene.toml</code> (640x360 crops):</p>
+<p><img src="../images/ascii-color-phosphor-mesh-meadow.png" alt="The meadow in phosphor green">
+<img src="../images/ascii-color-amber-mesh-meadow.png" alt="The meadow in amber blocks">
+<img src="../images/ascii-color-inverse-mesh-meadow.png" alt="The meadow in CGA warm, inverse"></p>
+<p><strong>Palettes</strong> live in <code>flint_render::palette</code>, so any style can use them. A palette is a list of inks and a background, in display (sRGB) hex:</p>
+<pre><code class="language-toml"># palettes/tidepool.palette.toml, beside the scene or in its parent folder
+match = "nearest"          # nearest (default) | luminance
+background = "#0d1b2a"     # default black
+colors = ["#1b998b", "#3a86ff", "#ed217c", "#ff9b71", "#fffd82", "#e8f1f2"]
+</code></pre>
+<p><code>nearest</code> gives each cell the ink nearest its hue at full value (plain RGB distance), so a dark red still reads red and glyph density alone says it’s dark; desaturated cells land on the palette’s lightest neutral. <code>luminance</code> lists the inks darkest first and picks one by the cell’s tone, as a one-colour phosphor tube does. Up to 32 inks. A file wins over a built-in of the same name; <code>PaletteCache</code> resolves names the way <code>GlyphSetCache</code> resolves fonts, through the vfs.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Built-in</th><th>Match</th><th>Inks</th></tr>
+</thead>
+<tbody>
+<tr><td><code>cga</code></td><td>nearest</td><td>cyan, magenta, white on black (mode 4, palette 1, high intensity)</td></tr>
+<tr><td><code>cga-warm</code></td><td>nearest</td><td>green, red, yellow on black (palette 0, high intensity)</td></tr>
+<tr><td><code>cga16</code></td><td>nearest</td><td>the 15 text-mode colours on black</td></tr>
+<tr><td><code>phosphor</code></td><td>luminance</td><td>four greens on near-black</td></tr>
+<tr><td><code>amber</code></td><td>luminance</td><td>four ambers on near-black</td></tr>
+<tr><td><code>mono</code></td><td>luminance</td><td>four greys on black</td></tr>
+</tbody>
+</table>
+</div>
+<p>On an RTX 4070 at 1080p the pass costs 0.143 ms in <code>source</code>, 0.152 ms matching <code>cga16</code>’s 15 inks, 0.144 ms with <code>ground = "inverse"</code> and 0.220 ms with <code>glow</code> on (24 more glyph reads a pixel).</p>
+<h3 id="edges"><a class="header" href="#edges">Edges</a></h3>
+<p>Luminance alone loses a silhouette wherever an object is about as bright as what’s behind it. So cells along the scene’s edges draw the glyph set’s line glyphs, <code>─ │ ╱ ╲</code> in the built-in set, picked by the direction of the edge through the cell (#267). Away from edges cells keep their tone glyphs.</p>
+<p><img src="../images/ascii-edges-on.png" alt="A sphere, a box and a pillar in ASCII, each outlined in unbroken line glyphs"></p>
+<p><img src="../images/ascii-edges-off.png" alt="The same scene with –ascii-no-edges: the sphere’s top half melts into the ground behind it"></p>
+<p><em><code>demo/ascii_edges.scene.toml</code> at 1280x720, cropped at 1:1, with edges (top) and with <code>--ascii-no-edges</code>. The sphere and the box carry <code>style_mask { style = "ascii" }</code>; the pillar has none, so it is outlined by depth alone.</em></p>
+<p>Edges come from geometry, never from colour, so a wood texture makes none but a table’s outline and its creases do (the ASCII spike’s finding, #261). Three passes, before the glyph pass:</p>
+<ol>
+<li><strong>Edge pixels</strong>, at the depth’s resolution. A 3x3 Sobel over the relative view distance finds silhouettes; one over normals rebuilt from the depth finds creases, counted only where the 5x5 patch is one surface. Where an ASCII-styled entity (an <code>ascii_style</code>, or a <code>style_mask { style = "ascii" }</code>, <a href="#the-entity-style-mask">the entity style mask</a>) meets anything else, including another styled entity with different settings, the pixel is an <strong>outline</strong>. Silhouettes and outlines keep their near side only, so each is drawn once.</li>
+<li><strong>Cells</strong>, one fragment a glyph cell. It reads every edge pixel in its cell, not a sparse lattice, so a one-pixel outline can’t slip between samples, and sums their structure tensors: the dominant orientation picks the glyph. The cell draws a line when it holds at least <code>edge_threshold</code> cell widths of edge and at most <code>edge_max</code> (an outline needs only the threshold).</li>
+<li><strong>The glyph pass</strong> draws the cell’s line glyph. A cell holding under one cell width of line yields to a neighbour across the line holding more, so a line that runs along a cell border isn’t drawn twice.</li>
+</ol>
+<p>Under a render scale the edge pixels are the scene’s, so a line is still one cell wide. The editor grid of <code>flint render</code> (on unless <code>--no-grid</code>) writes depth, so its lines are traced too; renders of the look pass <code>--no-grid</code>.</p>
+<p>Edges come with the colour modes: line glyphs are inked as the cell’s tone glyph would be, cut out of the ink under <code>ground = "inverse"</code>, and glow around them. The edge cells lie on the screen grid, so per-entity variants on that grid get them, and a variant on <code>grid = "object"</code> keeps its tone glyphs. Edge cells keep no history: under #277’s temporal stability the tone glyphs hold still and the lines follow the geometry each frame. The <a href="#goldens">stylize goldens</a> pin pbr_test without edges (the #265 golden, unchanged), with edges, and the sphere and box above.</p>
+<h3 id="dark-props-exposure-and-normalize"><a class="header" href="#dark-props-exposure-and-normalize">Dark props: exposure and normalize</a></h3>
+<p>Glyph density follows luminance, so a dark prop maps to <code>.</code> and <code>-</code> and nearly disappears: a barrel in the meadow reads as a black shape with a few dots. Carrying hue in the ink helps, but the brightness is still gone. A <code>luminance</code> palette (<code>phosphor</code>, <code>amber</code>, <code>mono</code>) dims it twice, since it picks the ink rung by the same tone (#289).</p>
+<p>Two settings fix it, on the scene’s table or on one entity’s <code>ascii_style</code>:</p>
+<ul>
+<li><strong><code>exposure</code></strong>, in stops: the cell’s colour times 2^exposure in linear light, before the glyph and ink are picked. Simple, but a dark prop’s range stays narrow, only higher up.</li>
+<li><strong><code>normalize</code></strong>, 0 to 1: the style’s own tone range is stretched over the whole ramp. Each style id has its own range: the whole frame’s (slot 0), and each per-entity variant’s, so a dark barrel and a bright sign in one frame are stretched separately. 1 maps the range onto 0..1; between 0 and 1 mixes the stretched tone with the plain one.</li>
+</ul>
+<pre><code class="language-toml">[entities.barrel.ascii_style]
+normalize = 1.0     # its own tones over every glyph of the ramp
+exposure = 0.5      # optional: half a stop first
+</code></pre>
+<p><img src="../images/ascii-normalize-barrel.png" alt="The meadow barrel four ways: smooth; plain glyphs, mostly dots; brightness 0.35 and contrast 1.4, brighter but still narrow; normalize = 1, the full ramp from dots to @ with the hoops as rows of = and -"></p>
+<p><em>The barrel in <code>demo/ascii_entities.scene.toml</code> at 1280x720, cropped and doubled: smooth, plain, the <code>brightness = 0.35, contrast = 1.4</code> it needed before, and <code>normalize = 1</code> (its setting now). Its lower half averages 0.024 luminance in the smooth render, so it stays sparse even stretched: that is real darkness, not lost detail.</em></p>
+<p><img src="../images/ascii-dark-props.png" alt="Three barrels: plain, exposure 1.5, normalize 1"></p>
+<p><em><code>demo/ascii_dark_props.scene.toml</code>: plain, <code>exposure = 1.5</code> and <code>normalize = 1</code>, side by side.</em></p>
+<p>The range is measured from the same frame, so <code>flint render</code> stays deterministic and nothing lags a frame behind: two small passes before the cell pass walk a fixed 320x180 lattice over the picture, sum each slot’s samples (count, luminance, luminance squared) row by row, and resolve each slot’s range as its mean -/+ 2 standard deviations. The range maps linearly onto 0..1, then a gamma (0.35 to 2.5) puts the slot’s mean at mid-grey, since a lit top and a shadowed side are often both in range and the linear stretch alone leaves the shadow blank. That is a percentile without a histogram: a highlight or a crack moves it far less than it would a min and max. A range narrower than 0.08 is widened around its middle, so a flat wall’s noise doesn’t fill the ramp. The passes run only when some slot asks for <code>normalize</code>; brightness and contrast then apply to the stretched tone as before. On an RTX 4070 at 1080p, <code>demo/ascii_dark_props.scene.toml</code>’s ASCII pass took 0.37–0.43 ms without a normalised barrel and 0.45–0.54 ms with one (<code>--gpu-time 240</code>, two runs each): about 0.1 ms for the statistics.</p>
+<h2 id="per-entity-ascii"><a class="header" href="#per-entity-ascii">Per-entity ASCII</a></h2>
+<p>An entity with an <code>ascii_style</code> component is drawn in glyphs while the rest of the scene stays smooth (#266). No <code>[post_process.styles.ascii]</code> table is needed:</p>
+<p><img src="../images/ascii-entities.png" alt="demo/ascii_entities.scene.toml: the meadow and the ground stay smooth while the bench (amber blocks), the skinned YBot (its own colour), the barrel (on its own grid) and the crate with its lantern (phosphor green) are glyphs; the lantern’s glass box stays smooth"></p>
+<p><em><code>flint render demo/ascii_entities.scene.toml --no-grid --target 0.7,0.7,4.2 --distance 5.2 --yaw 29 --pitch 10</code>, 1280x720.</em></p>
+<pre><code class="language-toml">[post_process.styles.ascii]   # optional: the preset every styled entity starts from
+scope = "entities"            # without it, the table would glyphize the whole frame
+background = 0.3
+
+[entities.bench.ascii_style]  # only what differs from the preset
+ramp = "blocks"
+color = "tint"
+tint = [1.0, 0.70, 0.30]      # a colour, as in the scene's table (or "#ffb34d")
+levels = 4
+
+[entities.ybot.ascii_style]   # empty: the preset as it is (skinned meshes work too)
+
+[entities.lantern_glass.ascii_style]
+enabled = false               # stays smooth, even under a whole-frame ASCII
+</code></pre>
+<ul>
+<li><strong>Fields.</strong> Every key of the table above except <code>font</code> and <code>scope</code>, all optional. A field the entity leaves out comes from the scene’s table, then the style’s default. The schema gives no field a default on purpose, since the loader would fill it in and hide the scene’s setting. An archetype’s <code>[archetype.&lt;name&gt;.defaults.ascii_style]</code> is a preset too, and an entity’s own fields merge over it field by field.</li>
+<li><strong>Descendants</strong> inherit their ancestor’s style until one carries an <code>ascii_style</code> or <code>style_mask</code> of its own; the nearest wins. A plain <code>style_mask { style = "ascii" }</code> is the same as an empty <code>ascii_style</code>.</li>
+<li><strong>Ids.</strong> Entities with the same settings share one style mask id. Each distinct set of settings is a variant, and the pass looks up each pixel’s settings by its id. One frame holds 63 variants among mask ids below 256; more are drawn like the whole frame, with a warning.</li>
+<li><strong>Colour.</strong> A cell’s colour averages only the samples of the pixel’s own variant, so a styled prop’s glyphs carry its colour, not the meadow’s behind it. Its silhouette is the mask’s, to the pixel.</li>
+<li><strong>The whole frame.</strong> With the scene’s table on and <code>scope = "screen"</code> (or <code>--ascii</code>), everything is glyphs and entities still change their own settings; <code>enabled = false</code> keeps one smooth.</li>
+<li><strong>Grids.</strong> By default every styled entity shares the screen’s grid, which keeps glyphs aligned where props meet (the spike’s finding, #261). <code>grid = "object"</code> pins an entity’s cells to its projected origin: its glyphs hold still while it slides across the screen, but still swim when it turns or comes closer (#277). Each such entity gets a variant of its own.</li>
+<li><strong>Colour modes</strong> (<code>color</code>, <code>palette</code>, <code>ground</code>, <code>glow</code>) are per entity too: a frame packs up to 32 palette inks in all, and a palette that doesn’t fit beside the others uses the scene’s, with a warning.</li>
+<li><strong>Edges between entities</strong> come from <a href="#edges">edges</a> (#267). Without them a styled prop’s edge is only where its glyph field stops, so two styled props that overlap would run together. The edge passes draw line glyphs along depth steps and creases, and an outline wherever the style mask changes from one of the style’s ids to any other: the plain <code>ascii</code> id or any variant’s, so a change between two variants is an outline too. Ids are per variant, not per entity, so two props with the same settings that touch on one surface are told apart by the depth and crease edges, not the mask. Variants on <code>grid = "object"</code> don’t draw edges yet, because the edge cells are on the screen grid.</li>
+<li><strong>Temporal stability</strong> (#277’s <code>smoothing</code>, <code>hysteresis</code> and <code>dither</code>) applies to the whole frame’s cells. A per-entity variant is drawn per pixel on its own grid and keeps no history yet, so a styled prop can still shimmer in motion.</li>
+<li><strong>From scripts</strong> (#269): <code>set_entity_style(id, "ascii")</code>, <code>set_style_param(id, "cell", 12.0)</code> and <code>clear_entity_style(id)</code> edit the component at runtime, and changing a param every frame makes no GPU allocation. See <a href="scripting.html#style-api">Scripting → Style API</a> and <code>demo/ascii_story.scene.toml</code>.</li>
+<li><strong>Not yet:</strong> a per-entity <code>font</code> (one glyph set a frame; a different one warns and draws in the scene’s), and ramps beyond 128 steps in all across the frame’s variants (a ramp that doesn’t fit uses the scene’s, with a warning).</li>
+</ul>
+<pre><code class="language-bash">flint render demo/ascii_entities.scene.toml --output ascii.png              # as authored
+flint render demo/ascii_entities.scene.toml --ascii-scope screen            # the whole frame
+flint render demo/pbr_test.scene.toml --ascii --ascii-grid object           # flags set the preset
+</code></pre>
+<p>At 1080p on an RTX 4070 the demo’s ASCII pass costs about 0.045 ms and its mask 0.013–0.023 ms (DX12, Vulkan); with <code>--ascii-scope screen</code> the pass costs about 0.06 ms, and with no styled entities 0.04 ms. In Chrome it is about twice that, and a render scale leaves it unchanged, since the cells are output pixels. The numbers by backend, scale and browser are in <code>docs/design/web.md</code> (“Stylize passes”, #270). It works under <code>--msaa 4</code> and <code>--render-scale</code>, where the silhouette follows the scaled mask. F4 → Styles → ASCII offers <code>scope</code> and <code>grid</code> beside the other settings, and <code>flint edit --watch</code> hot-reloads <code>ascii_style</code> edits.</p>
+<h3 id="silhouettes"><a class="header" href="#silhouettes">Silhouettes</a></h3>
+<p>A styled entity’s silhouette is cut to the pixel, but it is filled with cells 8 points wide. A bench leg 3 px wide holds a sliver of one glyph, mostly ground, so under per-entity ASCII the meadow bench’s legs and rails were dark smudges, while the whole frame kept the bench readable as a shape cut out of the glyphs around it (#261, #288). Two ink floors keep thin features:</p>
+<ul>
+<li><strong><code>outline</code></strong> (points, default 1) inks the entity’s own pixels that lie within that distance of a pixel of another mask slot. The silhouette is drawn as a line inside the entity, in its own ink (the hue at full value, a tint, or a palette ink, as its glyphs are), and a feature two outlines wide comes out solid.</li>
+<li><strong><code>min_coverage</code></strong> (default 0.5) is the least ink of every pixel in a cell the entity only grazes: under a quarter of the cell’s colour samples, easing out by five eighths.</li>
+</ul>
+<p><img src="../images/ascii-silhouette-bench.png" alt="demo/ascii_silhouette.scene.toml, the bench at 14 m: before #288 its legs are black lumps; with the outline and minimum coverage the bench reads in its own wood-coloured ink"></p>
+<p>They apply to per-entity variants only: the whole frame’s cells have no silhouette, and <code>ground = "inverse"</code> already fills its cells with ink. <code>outline = 0, min_coverage = 0</code> draws what came before. The outline reads up to 4 rings of 8 mask texels for each styled pixel. On the demo at 1080p on an RTX 4070 (<code>--gpu-time 240</code>, edges on) the ASCII pass measured 0.38–1.0 ms with the floors on and 0.53–1.0 ms with them off: run-to-run noise hides the difference.</p>
+<pre><code class="language-bash">flint render demo/ascii_silhouette.scene.toml --no-grid -o bench.png
+flint render demo/ascii_silhouette.scene.toml --no-grid --style ascii:outline=0,min_coverage=0 -o before.png
+</code></pre>
+<h2 id="pencil"><a class="header" href="#pencil">Pencil</a></h2>
+<p>The <code>pencil</code> style (#273) draws the scene in graphite on paper. The picture’s tone becomes layers of cross-hatching. The scene’s silhouettes and creases become contour lines that wobble and double the way quick sketch lines do. Both sit on a paper with grain, whose tooth breaks the strokes up.</p>
+<pre><code class="language-toml">[post_process.styles.pencil]
+spacing = 6.0          # hatch line spacing, points
+thickness = 1.0        # stroke width, points
+layers = 3             # hatch layers, 0-4: each joins, crossing the last, as the tone darkens
+direction = "surface"  # surface | screen | tensor
+angle = 50.0           # the base angle, degrees
+contrast = 1.2         # tone contrast before it picks layers (brightness too)
+contour = 1.0          # outline strength; contour_width in points
+depth = 1.0            # outline sensitivity to depth steps; crease to creases
+detail = 0.35          # outlines from the picture's own luminance edges
+wobble = 1.5           # how far lines wander, points
+sketchy = 0.6          # a second, offset outline beside the first
+grain = 0.5            # paper grain, and how much it breaks strokes
+shade = 0.25           # soft rubbed graphite in the darks
+paper = [0.95, 0.93, 0.88]   # display RGB; fills paper_r/g/b (lead_r/g/b likewise)
+lead = [0.16, 0.16, 0.19]
+color = 0.0            # 1 draws over the scene's own colour: coloured pencil
+seed = 0               # another whole number is another hand
+boil = 0.0             # redraws a second, for boiling lines (0 = still)
+</code></pre>
+<pre><code class="language-bash">flint render demo/stylize_props.scene.toml --no-grid --style pencil -o page.png
+flint render demo/pencil_sketch.scene.toml --no-grid -o props.png        # per-entity variants
+flint render scene.toml --style pencil --sweep pencil.direction=surface,screen,tensor -o dirs.png
+</code></pre>
+<p><img src="../images/pencil-sketch-page.png" alt="The pencil sketch demo drawn as a whole page: the ground and sky in graphite, the props keeping their own pencil settings (coloured cask, blue YBot)"></p>
+<p>How it draws:</p>
+<ul>
+<li><strong>Hatching builds tone the way a hand does.</strong> Each layer switches on as the tone darkens past its threshold, and its strokes thicken from nothing rather than popping in. A layer crosses the one before it off the square (at 0°, +65°, −40° and +25°), so layers never make a grid. Each stroke is a dash of its own length that tapers at both ends, is jittered off its row and is bent by a slow wobble. A few dashes are left out.</li>
+<li><strong>Stroke direction.</strong> <code>surface</code> runs strokes along the surface’s iso-depth lines, taken from the gradient of 1/z. That gradient is constant over a plane, so a box face hatches straight, and it turns smoothly round a barrel and across a floor. <code>screen</code> hatches everything at <code>angle</code>. <code>tensor</code> follows the picture’s luminance edges (a blurred structure tensor), which gets busy around shadows. Where a surface or tensor direction is unsure (a face turned square to the camera, a flat colour), <code>angle</code> shows through. Directions are quantized to 15° bins with neighbouring bins blended, so strokes stay straight within a patch, as hand hatching does.</li>
+<li><strong>Contours</strong> come from depth steps (drawn on the near side), creases (the normal rebuilt from depth turns), the edge of a styled entity’s mask, and luminance edges by <code>detail</code>. They are read back through a noise offset (<code>wobble</code>), twice when <code>sketchy</code> is set.</li>
+<li><strong>Deterministic.</strong> Every random choice is an integer hash of the stroke’s row, dash, layer and <code>seed</code>, so the same seed draws byte-identical frames. <code>boil</code> moves the seed in whole steps of post time, which <code>--style-time</code> fixes.</li>
+</ul>
+<p><img src="../images/pencil-directions.png" alt="The three stroke directions on stylize_props"></p>
+<p><img src="../images/pencil-closeup.png" alt="Close up: the crate’s faces hatched straight, its outline doubled, the ground cross-hatched in three layers"></p>
+<p>It runs at the display stage, at output resolution, with sizes in points (times the pixels-per-point scale), in two passes. The first pass writes each pixel’s tone, contour strength and stroke direction into a scratch target. The second blurs the direction into a flow and draws the strokes. At 1080p on an RTX 4070 the whole frame costs about 0.49 ms. With only two props asking for it the cost is 0.19 ms, because both full-screen passes still run and only return early on unstyled pixels.</p>
+<p><strong>Per entity.</strong> Pencil works per entity in the same way as ASCII. A <code>pencil_style</code> component, or a plain <code>style_mask { style = "pencil" }</code>, draws that entity in pencil while the rest of the frame stays as it is, and each distinct set of settings becomes a variant with its own mask id. Every field of the table above except <code>scope</code> can be set on the component, and a field it leaves out comes from the scene’s table, then the default. <code>grid = "object"</code> pins an entity’s hatching to its projected origin, so its strokes travel with it. With <code>scope = "entities"</code> the scene’s table is only a preset. A pixel that another style owns (an ASCII prop in a pencil frame) is left to that style.</p>
+<pre><code class="language-toml">[post_process.styles.pencil]
+scope = "entities"     # a preset for the entities below
+spacing = 5.0
+
+[entities.cask.pencil_style]
+color = 0.6            # coloured pencil over the cask's own colour
+lead = [0.34, 0.17, 0.07]
+
+[entities.ybot.pencil_style]
+lead = [0.10, 0.18, 0.45]
+sketchy = 1.0
+
+[entities.tag.pencil_style]
+enabled = false        # stays painted
+</code></pre>
+<p><img src="../images/pencil-sketch-entities.png" alt="demo/pencil_sketch.scene.toml: six props, each its own hand; the world around them stays painted"></p>
+<h3 id="blending-in-and-out"><a class="header" href="#blending-in-and-out">Blending in and out</a></h3>
+<p><code>blend</code> draws an entity part-way into its style, from 0 (its own shading) to 1 (the style’s, and the default when it’s left out). A script ramps it to fade a prop into text and back (#278):</p>
+<pre><code class="language-toml">[entities.barrel.ascii_style]
+blend = 0.5
+transition = "dissolve"   # or "fade", the default
+</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn on_init() {
+    let barrel = get_entity("barrel");
+    set_entity_style(barrel, "ascii");
+    set_style_param(barrel, "blend", 0.0);          // styled, but nothing shows yet
+    set_style_param(barrel, "transition", "dissolve");
+}
+fn on_update() {
+    let k = (total_time() - 1.0) / 3.0;             // 0 -&gt; 1 from 1 s to 4 s
+    let k = if k &lt; 0.0 { 0.0 } else if k &gt; 1.0 { 1.0 } else { k };
+    set_style_param(get_entity("barrel"), "blend", k);
+}
+<span class="boring">}</span></code></pre>
+<p><img src="../images/ascii-blend-dissolve.png" alt="The barrel dissolving into green phosphor glyphs at blend 0, 0.25, 0.5, 0.75 and 1: its cells turn whole, in ragged patches that spread"></p>
+<p><img src="../images/ascii-blend-fade.png" alt="The bench cross-fading into amber blocks at blend 0, 0.25, 0.5, 0.75 and 1: every pixel a mix of its wood and its glyph"></p>
+<p><em>Frames from <code>flint-player demo/ascii_reveal.scene.toml --frame-step 0.05 --screenshot-every 0.05</code>, cropped and doubled.</em></p>
+<ul>
+<li><strong><code>fade</code></strong> mixes every pixel of the entity with its glyph pixel by <code>blend</code>, in display space.</li>
+<li><strong><code>dissolve</code></strong> turns whole cells: a cell is a glyph once <code>blend</code> passes its place in a dissolve order, half patch noise a few cells across and half per-cell hash, so glyphs arrive in ragged patches that spread. The order is fixed per cell, so a ramp never shimmers, and on <code>grid = "object"</code> it travels with the prop. On average the share of turned cells equals <code>blend</code>. A small prop holds few cells, so its share varies more: for a 6x5-cell prop at blend 0.5, the middle 80% of placings turn 30–73% of its cells; for 24x18 cells, 42–58%.</li>
+<li><strong>It rides in the mask, not the variant.</strong> The <a href="#the-entity-style-mask">style mask</a> carries each pixel’s blend in its <code>.g</code> channel beside the id in <code>.r</code>. Two props fading at different rates still share one id, and a ramp makes no new variant, row or GPU object (a GPU test in <code>tests/stylize.rs</code> ramps it and counts). Like the id, the blend is the styled root’s, inherited by its subtree.</li>
+<li><strong><code>style_mask { blend = ... }</code></strong> works too, for a style with no component of its own. A style component’s <code>blend</code> wins over the <code>style_mask</code>’s on the same entity.</li>
+<li><strong>Under a whole-frame style</strong>, a prop at blend 0 is a smooth hole in the glyph field: the blend says how much of the entity’s <em>own</em> variant shows, and below 1 the rest is the picture as it came.</li>
+<li>The <code>style</code> debug view draws each entity’s hue as strong as its blend.</li>
+<li><strong>Cost.</strong> The blend costs one more channel in the mask (<code>Rg16Uint</code>, 4 bytes a pixel) and no extra texture read. Pixels a blend leaves plain skip the glyph work: at 1080p <code>demo/stylize_blend.scene.toml</code>’s ASCII pass took 0.31 ms, against 0.39 ms for the same props fully styled.</li>
+</ul>
+<p><code>demo/ascii_reveal.scene.toml</code> is a 10-second loop: the barrel dissolves into phosphor glyphs, the bench fades into amber blocks, and both go back. The <code>ascii-blend</code> golden pins a half-way dissolve and a 40% fade.</p>
+<h3 id="style-blends-and-render-mode-tears"><a class="header" href="#style-blends-and-render-mode-tears">Style blends and render-mode tears</a></h3>
+<p><code>--render-mode</code> 1–4 (matrix, blood, drunk, tron) and a style blend can both look like reality tearing into text, but they work at different levels:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th>Render-mode tears</th><th>Style blend</th></tr>
+</thead>
+<tbody>
+<tr><td>Where</td><td>Composite pass, before display styles</td><td>Display-stage style, after the composite</td></tr>
+<tr><td>What it covers</td><td>The whole screen, through <code>tear_mask</code>: drifting fbm patches or an iris from the centre, in screen space</td><td>One entity and its subtree, through the style mask, on the entity’s own cells</td></tr>
+<tr><td>Driven by</td><td><code>mode_mix</code> and <code>mode_params</code> (a scene-wide value)</td><td><code>blend</code> on each entity’s component</td></tr>
+<tr><td>The look</td><td>Fixed per mode (mode 1’s glyphs are an 8x12 dot-matrix built into <code>composite_shader.wgsl</code>)</td><td>Any style’s settings: fonts, ramps, palettes, edges, grids</td></tr>
+</tbody>
+</table>
+</div>
+<p>Neither duplicates the other’s job. Tears change how the <em>world</em> is seen, and a blend changes how one <em>thing</em> is drawn. They compose: an ASCII prop inside a matrix tear is glyphized from the tear’s picture, since display styles read the composite’s output. Mode 1’s glyphs and the ASCII style do overlap as looks, and the <code>matrix</code> look (<code>--look matrix</code>) is the ASCII style’s take on it. Letting a style’s blend follow the tear mask, so props turn to text where reality tears, is left for later.</p>
+<h2 id="watercolor"><a class="header" href="#watercolor">Watercolor</a></h2>
+<p>The <code>watercolor</code> style (#272) paints the picture as transparent pigment on paper. Colour bleeds into soft washes, the washes are laid in a few glazes, their borders wander, pigment pools darker along edges and settles into the paper’s grain:</p>
+<pre><code class="language-toml">[post_process.styles.watercolor]
+wash = 4.0          # how far pigment diffuses, in points (the wash's blur radius)
+bleed = 0.55        # how much of the colour is the diffused wash
+layers = 4          # glazes: tone steps, each edged darker on its darker side (0 = smooth)
+wobble = 2.0        # how far borders and silhouettes wander, in points
+wobble_scale = 40   # the wander's wavelength, in points
+edge = 1.0          # pigment pooling at colour edges and glaze borders
+edge_depth = 0.8    # pooling on the near side of silhouettes, from depth
+edge_width = 1.5    # how wide that rim is, in points
+turbulence = 0.35   # low-frequency blotches of thicker and thinner pigment
+granulation = 0.5   # pigment settling into the paper's valleys, strongest in dark washes
+grain = 0.35        # the paper's relief, shading even bare paper
+grain_scale = 1.0   # the paper's tooth (bigger = coarser)
+pigment = 1.0       # overall density: below 1 dilutes, above 1 deepens
+paper_r = 0.97      # the paper's colour (paper_g 0.94, paper_b 0.87)
+scope = "screen"    # or "entities": a preset for watercolor_style entities
+</code></pre>
+<p><img src="../images/watercolor-meadow.png" alt="demo/mesh_meadow.scene.toml under –style watercolor: the grass laid in glazes with pooled dark rims, the path a granular wash, the sky bare cold-press paper"></p>
+<p><em><code>flint render demo/mesh_meadow.scene.toml --style watercolor</code>, 1280x720.</em></p>
+<p><img src="../images/watercolor-entities.png" alt="demo/watercolor.scene.toml: only the YBot, the two barrels and the crate are painted; the meadow and the ground stay as rendered, and the tag on the crate stays unpainted"></p>
+<p><em><code>flint render demo/watercolor.scene.toml --no-grid</code>, 1280x720: per entity, as authored.</em></p>
+<p><img src="../images/watercolor-kuwahara.png" alt="stylize_props with Kuwahara at radius 4 under watercolor at three glazes; the props’ style_mask “ascii” glyphs and “pencil” hatching draw over the paint"></p>
+<p><em><code>--style kuwahara:radius=4 --style watercolor:layers=3</code>: the two chain.</em></p>
+<p><img src="../images/watercolor-sweep-layers.png" alt="The watercolor look’s layers swept 0, 3, 5, 8 on stylize_props"></p>
+<p>It runs at the <strong>display stage</strong>, after tonemapping, because it paints <em>on</em> paper: the paper and its grain must not be fogged, bloomed or graded as if they were in the world. Three passes: a separable Gaussian makes the wash (two targets of the style’s own), then the paint pass wobbles where it reads the picture, the wash and the mask, mixes the wash in, steps it into glazes, works out the pigment’s density, and lays it on the paper.</p>
+<ul>
+<li><strong>Density.</strong> The colour is treated as the pigment layer’s transmittance over white paper, and a layer <code>d</code> times as thick transmits <code>C^d</code> (Beer–Lambert). White stays the paper and black stays black; a mid-tone moves most. Edges, glaze borders, depth rims, turbulence and granulation all add to <code>d</code>.</li>
+<li><strong>Paper</strong> lives in screen space, in points, so its grain holds still as the camera moves and is the same size to the eye at any <code>--pixels-per-point</code>. The noise is integer-hashed, so a frame is the same on every run.</li>
+<li><strong>Per entity.</strong> A <code>watercolor_style</code> component (its fields are the keys above, <code>paper = [r, g, b]</code> for the paper’s colour) or a <code>style_mask { style = "watercolor" }</code> paints an entity with no table, the rest of the frame passing through, exactly as <a href="#per-entity-ascii">per-entity ASCII</a> works: the scene’s table (with <code>scope = "entities"</code>) is the preset, entities with equal settings share an id, <code>enabled = false</code> opts out, descendants inherit. The mask is read at the wobbled position, so a painted prop’s silhouette wanders a little over its surroundings, as a real wash’s would. One frame holds 15 variants. <code>demo/watercolor.scene.toml</code> paints a static mesh, a skinned one, two props with settings of their own and an inherited one, and leaves one out.</li>
+<li><strong>One wash radius a frame.</strong> <code>wash</code> is the largest any variant (or the scene) asks for; every other key is per entity.</li>
+<li><strong>With Kuwahara</strong> they chain: Kuwahara (HDR stage) flattens the scene into brush pools, and watercolor then paints those pools on paper (<code>--style kuwahara:radius=4 --style watercolor:layers=3</code>). They share nothing, and neither needs the other.</li>
+<li><strong>With ASCII and pencil</strong>, watercolor runs first by default (registration order), so glyphs and hatching draw over the paint. Give it a higher <code>order</code> to paint over them instead (<a href="#order-within-a-stage">Order within a stage</a>).</li>
+<li>The <code>watercolor</code> look (<code>--look watercolor</code>) is the style with softened light (no bloom, lighter SSAO), <code>pigment = 0.85</code> and four glazes. <code>ink_wash</code> is still the Kuwahara-built monochrome look.</li>
+</ul>
+<pre><code class="language-bash">flint render demo/mesh_meadow.scene.toml --style watercolor -o meadow.png
+flint render demo/watercolor.scene.toml -o props.png                       # per entity, as authored
+flint render demo/stylize_props.scene.toml --look watercolor --sweep watercolor.layers=0,3,5,8 -o glazes.png
+</code></pre>
+<p>At 1080p on an RTX 4070 the whole-frame pass costs about 0.43 ms (<code>mesh_meadow</code>, <code>--gpu-time 240</code>). The per-entity demo costs 0.32 ms plus 0.03 ms for the mask: the wash is still blurred over the whole frame, and only the paint pass skips unpainted pixels. <code>--style watercolor:off</code> turns off the scene’s table, not entities that carry a <code>watercolor_style</code> of their own; set <code>enabled = false</code> on them, as with ASCII.</p>
+<h2 id="looks-and-sweeps"><a class="header" href="#looks-and-sweeps">Looks and sweeps</a></h2>
+<p>A <strong>look</strong> (#279) is a named preset you can put over any scene. It lives in <code>styles/&lt;name&gt;.look.toml</code>, next to the <code>*.style.toml</code> generation guides, and has two tables. <code>[look]</code> says what the look is and which sweeps to try first. <code>[post_process]</code> is a block in exactly the scene format. The look’s block is merged into the scene’s own <code>[post_process]</code> key by key: tables merge and everything else replaces, so a look changes only the keys it names. A field or style the engine doesn’t know is an error that names the closest real one, because otherwise a typo would quietly fall back to a default.</p>
+<pre><code class="language-toml">[look]
+name = "graphite"
+description = "Pencil sketch: cross-hatched tone, wobbling contours, paper grain"
+tune = ["pencil.spacing=4,6,9", "pencil.contrast=1,1.4,1.8"]
+notes = "Spacing is the pencil's sharpness..."
+
+[post_process]
+bloom_enabled = false
+
+[post_process.styles.pencil]
+spacing = 5.0
+contrast = 1.4
+wobble = 1.8
+</code></pre>
+<p>Five looks ship, compiled into the CLI so they work from a game repo as well. A <code>styles/&lt;name&gt;.look.toml</code> beside the scene, or in its parent folder, takes the place of a built-in with the same name.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Look</th><th>Built from</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ascii_noir</code></td><td>mono ASCII, black ground, hard contrast, heavy vignette</td></tr>
+<tr><td><code>matrix</code></td><td>phosphor-palette ASCII with glow, <code>detailed</code> ramp</td></tr>
+<tr><td><code>ink_wash</code></td><td>Kuwahara radius 6, desaturation, warm paper fog and grade, grain: monochrome brush pools</td></tr>
+<tr><td><code>watercolor</code></td><td>the watercolor style in four glazes, pigment 0.85, no bloom, light SSAO</td></tr>
+<tr><td><code>graphite</code></td><td>the pencil style at a 5-point spacing, contrast 1.4, doubled outlines (inverted mono ASCII before #273)</td></tr>
+</tbody>
+</table>
+</div>
+<pre><code class="language-bash">flint render --look help                                   # every look, its tune sweeps and notes
+flint render scene.toml --look ink_wash -o wash.png
+flint render scene.toml --look ink_wash --style kuwahara:radius=3 -o sharper.png   # flags apply over the look
+</code></pre>
+<p><strong><code>--sweep KEY=V1,V2,...</code></strong> renders the same frame once per value and lays the frames out as one labelled contact sheet, four across, in the ASCII style’s built-in glyphs. KEY can be:</p>
+<ul>
+<li>any <code>--style</code> key, written <code>&lt;style&gt;.&lt;key&gt;</code>: <code>ascii.cell=6,8,12</code>, <code>ascii.ramp=classic,blocks</code>, <code>kuwahara.radius=3,6,9</code>. Values are checked against the style’s range;</li>
+<li>any <code>[post_process]</code> field, written <code>post.&lt;field&gt;</code>: <code>post.exposure=0.8,1.2</code>. Use <code>|</code> between values to sweep a vector: <code>post.fog_color=0,0,0|0.7,0.75,0.82</code>;</li>
+<li><code>look=ascii_noir,matrix,ink_wash,graphite</code>, to compare whole looks.</li>
+</ul>
+<p>Each cell is 640x360 unless you pass <code>--width</code> and <code>--height</code>. The scene loads once and every column re-renders the same frame, so four columns of <code>stylize_props</code> take about 13 s in a debug build. A sweep goes over <code>--look</code> and every other flag.</p>
+<p>The ASCII looks set no <code>edges</code> key, so they draw the <a href="#edges">edge glyphs</a> by default; add <code>edges = 0</code> to a look’s <code>[post_process.styles.ascii]</code> for tone alone. The two sweeps below were captured before edges landed, so the props in them aren’t outlined.</p>
+<p><img src="../images/look-sweep-stylize-props.png" alt="The four looks on stylize_props, one sweep"></p>
+<p><img src="../images/look-sweep-noir-brightness.png" alt="ascii_noir’s brightness swept: at 0 the ground is black, at 0.15 it comes back, at 0.45 the props drown"></p>
+<h3 id="choosing-cell-size-and-ramp"><a class="header" href="#choosing-cell-size-and-ramp">Choosing cell size and ramp</a></h3>
+<ul>
+<li><strong>The cell is in points, not image pixels.</strong> A 640-wide sweep cell at <code>cell = 8</code> is 80 glyphs across, while the same look at 1920 is 240. Use a sweep to compare values against each other, then confirm the winner with one render at the final size. Glow and fine ramps in particular read differently at full size.</li>
+<li><strong>Size by columns.</strong> About 200–240 columns (cell 8–9 at 1080p) keeps props readable. Below about 120 columns (cell 16 and up at 1080p) the image becomes a poster: silhouettes only, no surface detail. Cells of 4–5 read as texture or hatching, not as letters.</li>
+<li><strong>Pick a ramp for the tones the scene has.</strong> <code>classic</code> (<code> .:-=+*#%@</code>, 10 steps) is the general-purpose ramp. <code>detailed</code> (70 glyphs sorted by coverage) gives the smoothest gradients and the most letter-like texture, so it suits small cells. <code>minimal</code> (<code> .oO@</code>) and <code>blocks</code> (<code> ░▒▓█</code>) have five steps each: they band hard, which suits big cells and posters.</li>
+<li><strong>Brightness first, then contrast.</strong> When a scene comes out mostly black or mostly blank, sweep <code>brightness</code> before <code>contrast</code>. On <code>stylize_props</code> with <code>ascii_noir</code> at brightness 0, contrast 1.6 and 2.2 left the ground black. Contrast 0.6 or 1 brought the ground back, but it also flattened the props into it. Brightness 0.15 at contrast 1.6 brought the ground back and kept the props dark against it.</li>
+</ul>
+<h2 id="where-styles-run"><a class="header" href="#where-styles-run">Where styles run</a></h2>
+<p>Each style belongs to one of two stages:</p>
+<pre><code class="language-text">scene (HDR, render scale)
+  -&gt; style mask (Rg16Uint: id + blend, only while a style reads it)
+  -&gt; HDR styles (Kuwahara)          linear Rgba16Float, scene resolution
+  -&gt; SSAO, volumetric, bloom
+  -&gt; composite: fog, DoF, tonemap, grade, vignette, grain, render modes
+  -&gt; Display styles (watercolor, ASCII, pencil, invert) surface format, output resolution
+  -&gt; FXAA -&gt; surface -&gt; HUD
+</code></pre>
+<ul>
+<li><strong>HDR stage.</strong> Linear light at the scene’s render scale. Everything after it shades the style: fog fades it, bloom haloes its bright strokes, the grade tints it. SSAO and bloom read the unstylized scene.</li>
+<li><strong>Display stage.</strong> The finished, tonemapped picture at output resolution, after the render-scale upscale and before FXAA and the HUD. This is where glyphs and lines stay crisp under <code>--render-scale</code> (the ASCII spike’s finding).</li>
+</ul>
+<p>Styles of one stage run one after another, each reading the one before it. The framework ping-pongs between two targets it owns, so any number of styles chain without a style knowing its neighbours.</p>
+<p>The display stage keeps its memory to two full-size textures (#302). At 1440p each one is about 15 MB, which matters on phones and the web. The composite draws into the stage’s input, and once the first style has read that input it is free to be a ping. With FXAA on, FXAA’s intermediate is the second texture: the composite draws into whichever of the two leaves the last style writing the intermediate. So one style needs one texture of its own (two with FXAA’s), and longer chains need two (still two with FXAA’s). The output is byte-identical to the old chain. A style’s own intermediates come on top of these; watercolor’s two washes are full size, for example. The player’s F3 stats show every target as <code>Style targets: N (MB, K full-size)</code>, where the full-size count includes FXAA’s intermediate. The count is everything asked for since the last resize, so switching a style off doesn’t lower it.</p>
+<h3 id="order-within-a-stage"><a class="header" href="#order-within-a-stage">Order within a stage</a></h3>
+<p>By default a stage runs its styles in registration order: kuwahara, watercolor, ascii, pencil, invert, mask_view, then user styles in the order they loaded. A style’s table can give it a place of its own with <code>order</code> (#299). Lower runs first; a style without one stands at its registration index (watercolor 1, ascii 2, pencil 3, invert 4), and equal orders keep registration order:</p>
+<pre><code class="language-toml"># ASCII first, then watercolor paints over the glyphs
+[post_process.styles.ascii]
+[post_process.styles.watercolor]
+order = 9
+</code></pre>
+<p><img src="../images/stylize-order.png" alt="The props scene in both orders: watercolor then ASCII (the default), and ASCII then watercolor"></p>
+<ul>
+<li>Any number works: an integer, a fraction to slip between two (<code>order = 2.5</code>), or a negative to go before everything.</li>
+<li>Only styles of the same stage compare. An HDR style always runs before a display style.</li>
+<li>A table switches its style on, so to place a style without turning it on write <code>enabled = false</code> beside <code>order</code>. Kuwahara takes <code>order</code> in a <code>[post_process.styles.kuwahara]</code> table, as it keeps its other settings in its <code>kuwahara_*</code> fields.</li>
+<li><code>--style ascii:order=0</code> sets it from the command line, and <code>--sweep watercolor.order=0,9</code> lays the orders side by side.</li>
+<li>The F4 Styles section opens with each stage’s chain, first to last; <strong>swap</strong> runs a style before the one ahead of it, and Copy TOML writes the <code>order</code> back out.</li>
+</ul>
+<p><code>order</code> is a key of every style’s own table, not a <code>style_order = [...]</code> list on <code>[post_process]</code>, because everything else about a style lives in its table: a <a href="#looks-and-sweeps">look</a> or a <code>--style</code> word that adds one style can place it without restating every other style, Copy TOML stays one block, and a list naming a style the scene doesn’t use would need its own warnings. The cost is that the whole order isn’t written in one place, which is what the F4 chain line shows instead. No style may name a parameter or option <code>order</code> or <code>enabled</code>.</p>
+<h2 id="writing-a-style"><a class="header" href="#writing-a-style">Writing a style</a></h2>
+<p>A style is one module in <code>crates/flint-render/src/stylize/</code> plus its name in the <code>register_styles!</code> list at the bottom of <code>stylize/mod.rs</code>. The module exports a <code>StyleDescriptor</code> called <code>STYLE</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub(super) static STYLE: StyleDescriptor = StyleDescriptor {
+    name: "invert",                // the [post_process.styles.&lt;name&gt;] key
+    label: "Invert",               // F4 and --gpu-time
+    stage: StyleStage::Display,
+    params: &amp;[StyleParam { name: "strength", default: 1.0, min: 0.0, max: 1.0 }],
+    options: &amp;[],                  // named strings: StyleOption { name, default, choices }
+    enabled: None,                 // None: read `enabled` from the style table
+    uses_mask: false,              // true: the renderer draws the entity style mask for it
+    needs: &amp;[],                    // &amp;[StyleNeed::Edges]: the shared geometry edges (#301)
+    hints: &amp;[StyleHint::new("strength", "Strength", "0 = none, 1 = the full negative")],
+    component: None,               // Some("ascii_style"): entities take the style per entity (#266)
+    create: |d| Box::new(Invert::new(d)),   // build pipelines in d.format
+};
+<span class="boring">}</span></code></pre>
+<p><code>hints</code> are optional, and F4 draws a style without them: a setting with no hint shows its own name (<code>edge_max</code> becomes “Edge max”) on a plain slider. A hint gives a setting (or a colour, by its key) a label, a hover line, and <code>.integer()</code> for a value that only makes sense whole (ASCII’s cell size).</p>
+<h3 id="colours"><a class="header" href="#colours">Colours</a></h3>
+<p>A colour is three parameters named <code>&lt;base&gt;_r</code>, <code>&lt;base&gt;_g</code> and <code>&lt;base&gt;_b</code>, each 0–1 in display values (what the eye sees, sRGB-encoded), and the framework makes them one setting (<code>StyleColor</code>, #315) everywhere a person or an agent meets it:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Where</th><th>What it looks like</th></tr>
+</thead>
+<tbody>
+<tr><td>Scene table, <code>ascii_style</code>-type components</td><td><code>tint = [1.0, 0.7, 0.25]</code> (integers allowed) or <code>tint = "#ffb340"</code>; a channel on its own (<code>tint_g = 0.5</code>) still works</td></tr>
+<tr><td><code>--style</code></td><td><code>ascii:tint=#ffb340</code> or <code>ascii:tint=1/0.7/0.25</code></td></tr>
+<tr><td>F4 → Styles</td><td>one colour picker</td></tr>
+<tr><td>Copy TOML (<code>stylize::style_toml</code>)</td><td><code>tint = [1.0, 0.7, 0.25]</code>, only when it differs from the default</td></tr>
+<tr><td><code>--list-styles</code></td><td>one row, <code>tint  [0.35, 1, 0.45]  colour</code>; <code>colors</code> in the JSON</td></tr>
+<tr><td>Scripts’ <code>set_style_param</code></td><td><code>set_style_param(id, "tint", [1.0, 0.7, 0.25])</code> or <code>"#ffb340"</code>, clamped to the channels’ ranges</td></tr>
+<tr><td>The style, in <code>encode</code></td><td><code>frame.color("tint")</code> → <code>[f32; 3]</code>; per entity, <code>frame.variant_color(v, "tint")</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Underneath they stay three parameters, so a per-entity variant row or a uniform reads three numbers as before and a style declares nothing new. A user-authored style gets the same by naming three <code>[params]</code> that way. <code>StyleDescriptor::colors()</code>, <code>color_setting(base)</code> and <code>color_of(param)</code> find them; <code>stylize::color_from_toml</code> / <code>color_from_text</code> parse the two spellings.</p>
+<p>and the <code>StylePass</code> that <code>create</code> returns records the style’s draws for one frame:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl StylePass for Invert {
+    fn encode(&amp;self, frame: &amp;StyleFrame&lt;'_&gt;, encoder: &amp;mut wgpu::CommandEncoder,
+              input: &amp;StyleInput&lt;'_&gt;, output: &amp;wgpu::TextureView) {
+        // write uniforms from frame.param("strength"), then draw one
+        // full-screen triangle that samples `input` into `output`
+    }
+}
+<span class="boring">}</span></code></pre>
+<p><code>stylize::kit</code> has the parts most styles are made of: <code>fullscreen_pipeline</code>, <code>uniform_layout</code>, <code>sampled_layout</code>, <code>uniform_buffer</code>, <code>shader</code> and <code>fullscreen_pass</code>. <code>stylize/invert.rs</code> and <code>invert.wgsl</code> together are about 140 lines.</p>
+<p>What a style gets from <code>StyleFrame</code>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><code>width</code>, <code>height</code>, <code>format</code>, <code>texel_size()</code>, <code>srgb()</code></td><td>the stage’s size and format</td></tr>
+<tr><td><code>param(name)</code></td><td>the style’s parameter from the config, or its default</td></tr>
+<tr><td><code>option(name)</code></td><td>the style’s option (a string) from the config, or its default</td></tr>
+<tr><td><code>color(name)</code></td><td>the style’s <a href="#colours">colour</a> <code>name</code> (<code>tint</code>) as <code>[r, g, b]</code> in display values, each channel from the config or its default (#315)</td></tr>
+<tr><td><code>pixels_per_point</code></td><td>the window’s scale factor (1 headless, or <code>flint render --pixels-per-point</code>), for styles sized in points</td></tr>
+<tr><td><code>scene_dir</code></td><td>the scene’s folder when the host knows it, for styles that load files (ASCII’s glyph sets)</td></tr>
+<tr><td><code>depth</code>, <code>camera</code></td><td>the scene’s depth (sample by UV) and the inverse view-projection, position, near and far</td></tr>
+<tr><td><code>mask</code>, <code>mask_bind(...)</code>, <code>style_id(name)</code></td><td>the <a href="#the-entity-style-mask">entity style mask</a>, while a <code>uses_mask</code> style is on</td></tr>
+<tr><td><code>edges</code>, <code>edges_bind(...)</code></td><td>the <a href="#shared-edges">shared geometry edges</a>, while a style that <code>needs</code> them is on</td></tr>
+<tr><td><code>target(name, format)</code></td><td>a texture of the style’s own at the stage’s size, kept until the next resize</td></tr>
+<tr><td><code>sampled(...)</code>, <code>sampled_input(...)</code>, <code>uniform(...)</code>, <code>bind(...)</code>, <code>depth_bind(...)</code></td><td>bind groups kept with the post chain</td></tr>
+<tr><td><code>first_write(name)</code></td><td>true once per chain, for uniforms that only change on resize</td></tr>
+<tr><td><code>time</code></td><td>game seconds, for animated styles</td></tr>
+</tbody>
+</table>
+</div>
+<p>What the framework does so a style doesn’t have to:</p>
+<ul>
+<li><strong>Lazy building.</strong> A style’s pipelines are built the first frame it is on, under <code>catch_unwind</code> (some drivers crash compiling shaders); one that fails stays off. Hosts can call <code>SceneRenderer::ensure_style_resources</code> after setting a config to move the compile off that frame.</li>
+<li><strong>Resize.</strong> Every target and cached bind group lives in the post chain’s resources, which <code>resize_postprocess()</code> rebuilds. There is no per-style resize hook to forget.</li>
+<li><strong>Formats.</strong> HDR-stage styles draw in <code>Rgba16Float</code>; display-stage styles in the surface format. On an sRGB surface a display style samples linear values and its writes are encoded, so a style that works in display values decodes and encodes itself (<code>frame.srgb()</code>; <code>invert.wgsl</code> shows how).</li>
+<li><strong>Samplers.</strong> Styles bind the chain’s one linear sampler, so their bind groups add nothing to DX12’s 2048-slot sampler heap.</li>
+<li><strong>The mask.</strong> A <code>uses_mask</code> style gets the entity style mask drawn for it each frame, and no style pays for it otherwise.</li>
+<li><strong>Shared inputs.</strong> A style that lists <code>StyleNeed::Edges</code> in <code>needs</code> gets the <a href="#shared-edges">geometry edge texture</a>, drawn once a frame however many styles read it.</li>
+<li><strong>Timing.</strong> Each style is a GPU-timer scope under its <code>label</code>, so <code>flint render --gpu-time</code> and the player’s <code>--perf</code> name it.</li>
+<li><strong>The command line.</strong> <code>flint render --style &lt;name&gt;</code> reaches a new style from its descriptor alone.</li>
+</ul>
+<h2 id="user-authored-styles"><a class="header" href="#user-authored-styles">User-authored styles</a></h2>
+<p><em>Experimental, format version 1 (<a href="../../../adr/0112-user-authored-styles.html">ADR 0112</a>; #274, #275). <code>flint render</code>, <code>flint edit</code>, <code>flint-player</code>, <code>flint bundle</code> and the web player all load them.</em></p>
+<p>A game can write a style without touching the engine: a <code>styles/&lt;name&gt;.shader.toml</code> and one WGSL function beside it. Flint finds them in the scene’s <code>styles/</code> folder, then in the folder above (as it finds models), so a game with <code>levels/</code> and <code>styles/</code> side by side needs nothing else. Start from the commented template, <code>demo/styles/template.shader.toml</code> and <code>template.wgsl</code>: copy both into your <code>styles/</code>, rename them and edit.</p>
+<pre><code class="language-toml"># styles/greyscale.shader.toml
+version = 1
+name = "greyscale"         # the file stem; lowercase, digits and _
+stage = "display"          # or "hdr"
+shader = "greyscale.wgsl"
+inputs = []                # any of "depth", "mask", "edges"; colour is always there
+
+[params.amount]
+default = 1.0
+min = 0.0
+max = 1.0
+label = "Amount"           # optional, with help = "..." and integer = true
+</code></pre>
+<pre><code class="language-wgsl">// styles/greyscale.wgsl
+fn style(p: StylePixel) -&gt; vec4&lt;f32&gt; {
+    let grey = vec3&lt;f32&gt;(flint_luma(p.color.rgb));
+    return vec4&lt;f32&gt;(mix(p.color.rgb, grey, params.amount), 1.0);
+}
+</code></pre>
+<p>It is then a style like the built-ins: <code>[post_process.styles.greyscale]</code> turns it on, <code>--style greyscale:amount=0.5</code> and <code>--sweep greyscale.amount=0,0.5,1</code> reach it, and the F4 menu draws its sliders (<code>&lt;base&gt;_r/_g/_b</code> params become one colour picker).</p>
+<p>Flint writes everything around the function: the bindings, a <code>params</code> struct with one <code>f32</code> per parameter, and the entry points. <code>p.uv</code> is 0..1 from the top left, <code>p.pos</code> the pixel, <code>p.color</code> the input there. At the display stage colours in and out are display values on any target, so a style never decodes sRGB itself. At the hdr stage they are linear HDR.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><code>flint.resolution</code>, <code>flint.texel</code>, <code>flint.time</code>, <code>flint.frame</code>, <code>flint.pixels_per_point</code></td><td>the frame</td></tr>
+<tr><td><code>flint.near</code>, <code>flint.far</code>, <code>flint.camera_pos</code>, <code>flint.inv_view_proj</code></td><td>the camera</td></tr>
+<tr><td><code>flint_sample(uv)</code></td><td>the input anywhere, in the same space as <code>p.color</code></td></tr>
+<tr><td><code>flint_luma(c)</code>, <code>flint_hash(v)</code>, <code>flint_to_display(c)</code>, <code>flint_to_linear(c)</code></td><td>small helpers</td></tr>
+<tr><td><code>flint_depth(uv)</code>, <code>flint_view_depth(uv)</code>, <code>flint_world_pos(uv)</code></td><td>with <code>inputs = ["depth"]</code>: raw depth, metres from the eye, the world position</td></tr>
+<tr><td><code>flint_mask_id(uv)</code>, <code>flint_style_blend(uv)</code></td><td>with <code>inputs = ["mask"]</code>: the <a href="#the-entity-style-mask">style mask</a> id, and 0..1 for entities whose <code>style_mask</code> names this style (their <code>blend</code>)</td></tr>
+<tr><td><code>flint_edges(uv)</code>, <code>flint_edge(uv)</code></td><td>with <code>inputs = ["edges"]</code>: the <a href="#shared-edges">shared edges</a> (silhouette, crease, direction), and the stronger of the two strengths; 1 is an edge</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>When it goes wrong.</strong> Flint checks the composed shader with naga before the GPU sees it. An error names your file, line and column, quotes the line, and gives a hint if you called a depth or mask helper without declaring the input. A style that doesn’t compile still loads and draws its input unchanged, so the scene keeps its other styles. Loops are allowed, but each one is warned about: a loop that never ends hangs the GPU until the driver resets it.</p>
+<p><strong>Hot reload.</strong> Natively, both files reload while the player or viewer runs, a few times a second:</p>
+<ul>
+<li>Save the <code>.wgsl</code> and the next frames draw it. If the edit doesn’t compile, the last good build keeps drawing.</li>
+<li>Save the <code>.shader.toml</code> and the style is replaced where it stands in the chain, with its new parameters, label, stage, inputs or shader. The scene’s <code>[post_process.styles.&lt;name&gt;]</code> is read again against them (other F4 edits stay). A description that no longer reads keeps the old style and reports.</li>
+<li>A new <code>*.shader.toml</code> dropped into a <code>styles/</code> folder is picked up too.</li>
+</ul>
+<p>Until a broken style compiles, a card in the bottom-left corner of the player and the viewer shows its error with the line it points at, and the style’s F4 header is tagged <code>error</code> (hover it for the message; the <code>user</code> tag beside it names both files). <code>flint render</code> prints the same message and renders the passthrough.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th><img src="../images/user-style-cyanotype.png" alt="a cyanotype from a game folder, drawn by flint-player"></th><th><img src="../images/user-style-error-card.png" alt="the same style mid-edit: a typo, the card, the last good build"></th></tr>
+</thead>
+<tbody>
+<tr><td>A game outside the engine (<code>levels/</code>, <code>styles/cyanotype.*</code>) in <code>flint-player</code>, after its <code>.wgsl</code> was edited live</td><td>The next save had a typo (<code>params.exposre</code>): the card names <code>cyanotype.wgsl:7:57</code> and quotes the line while the last good build keeps drawing</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>On the web.</strong> <code>flint bundle</code> packs <code>styles/</code> with the rest of the game. It loads every user style each scene sees from the packed files, the way the browser will, and refuses the bundle if a description doesn’t read, its shader isn’t packed or the shader doesn’t compile. In the browser the style is checked by the browser’s own compiler, and nothing reloads (#415 tracks showing those errors on the page).</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th><img src="../images/user-style-hologram.png" alt="hologram"> <code>hologram</code>: <code>inputs = ["mask"]</code>; the YBot and the barrel carry <code>style_mask { style = "hologram" }</code>, the barrel at <code>blend = 0.6</code></th><th><img src="../images/user-style-contour.png" alt="contour"> <code>--style contour</code>: <code>inputs = ["depth"]</code>; height lines from <code>flint_world_pos</code>, range rings round the eye</th></tr>
+</thead>
+<tbody>
+<tr><td><img src="../images/user-style-risograph.png" alt="risograph"> <code>--style risograph</code> (a crop at 1:1): two dot screens out of register, colour only</td><td>Each is one <code>.shader.toml</code> and under 50 lines of WGSL in <code>demo/styles/</code>; none needed a rebuild of the engine</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>What a user style can’t do yet:</strong> more than one pass, textures of its own, string options, per-entity settings (a component like <code>ascii_style</code>), frame history. The built-ins that need those stay in Rust. The demos in <code>demo/styles/</code> show what one pass reaches: <code>risograph</code> (two misregistered inks), <code>contour</code> (survey lines from depth) and <code>hologram</code> (a style mask on chosen props, <code>demo/user_styles.scene.toml</code>).</p>
+<h2 id="goldens"><a class="header" href="#goldens">Goldens</a></h2>
+<p>Every registered style is pinned by a golden image in <code>crates/flint-cli/tests/golden/</code>, listed in <code>stylize.goldens.toml</code> (#271). <code>flint render-suite</code> renders each case with <code>flint render</code> and fails when one moves past its tolerance; <code>cargo test -p flint-cli --test render_goldens</code> runs the same suite.</p>
+<pre><code class="language-bash">flint render-suite crates/flint-cli/tests/golden/stylize.goldens.toml            # gate
+flint render-suite crates/flint-cli/tests/golden/stylize.goldens.toml --case ascii-entity
+flint render-suite crates/flint-cli/tests/golden/stylize.goldens.toml --bless    # after a deliberate change
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Case</th><th>What it pins</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ascii-full</code></td><td><code>--style ascii:edges=0</code> on <code>pbr_test</code>: the #265 golden, unchanged with edges off</td></tr>
+<tr><td><code>ascii-full-detailed-tint</code></td><td>another ramp and the tint colour mode on <code>stylize_props</code>, with edges</td></tr>
+<tr><td><code>ascii-full-hidpi</code></td><td><code>--pixels-per-point 2</code>: cells in points (edges off: the editor grid would be traced)</td></tr>
+<tr><td><code>ascii-full-msaa4</code></td><td><code>--msaa 4</code> scene passes under the glyph grid (edges off)</td></tr>
+<tr><td><code>ascii-edges-pbr</code></td><td><a href="#edges">edges</a> on <code>pbr_test</code>, grid off</td></tr>
+<tr><td><code>ascii-edges</code>, <code>ascii-edges-msaa4</code>, <code>ascii-edges-scale05</code></td><td>the styled sphere and box of <code>demo/ascii_edges.scene.toml</code> outlined, at 1x, under MSAA 4 and at <code>--render-scale 0.5</code></td></tr>
+<tr><td><code>ascii-entity</code>, <code>ascii-entity-object</code></td><td>the spike’s per-entity modes (#261), screen and object grids</td></tr>
+<tr><td><code>style-mask</code></td><td>the entity style mask the per-entity styles read (<code>--debug-mode style</code>)</td></tr>
+<tr><td><code>edges-view</code>, <code>edges-inkline-scale05</code></td><td>the <a href="#shared-edges">shared edges</a> on the props scene, and a user style reading them beside <code>edges_view</code> at <code>--render-scale 0.5</code></td></tr>
+<tr><td><code>invert</code>, <code>kuwahara</code></td><td>the other styles, with a tighter tolerance</td></tr>
+</tbody>
+</table>
+</div>
+<p>Cases render single-sample with the post clock at 0 unless they say otherwise. The props cases use <code>demo/stylize_props.scene.toml</code>, which loads in a few seconds in a debug build, with the grid off. Glyph styles share #265’s tolerance (fail when more than 2% of pixels differ by more than 48 levels, or the mean passes 3), since a cell on a ramp step’s border can flip glyph on another GPU; smooth styles take <code>level = 8, share = 0.003, mean = 0.25</code>, because Kuwahara at radius 4 against a radius-5 golden is a 0.39 mean the glyph limits would pass. On one machine, every case is byte-identical run to run. <strong>A new style adds a case here.</strong> The manifest format is in <a href="../guides/headless-rendering.html#golden-suites">Headless Rendering</a>.</p>
+<h2 id="shared-edges"><a class="header" href="#shared-edges">Shared edges</a></h2>
+<p>Line styles are defined by their edges, and the edges that read best come from the geometry, not the picture’s colour: a wood texture makes none, while a table’s outline and the creases where its faces meet do (the ASCII spike’s round 2, #261). Finding them costs a 5x5 patch of positions unprojected from the depth for every pixel, so the framework does it once a frame (#301) and hands the result to every style that asks. A style asks in its descriptor, <code>needs: &amp;[StyleNeed::Edges]</code>, and reads <code>frame.edges</code> (bind it with <code>frame.edges_bind(...)</code> over a <code>kit::texture_layout</code>); a <a href="#user-authored-styles">user style</a> adds <code>"edges"</code> to its <code>inputs</code> and calls <code>flint_edges(uv)</code>.</p>
+<p>The texture is <code>Rgba16Float</code> at the depth’s size (the scene’s, so under <code>--render-scale</code> a display style reads it by UV, like the depth and the mask):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>channel</th><th>holds</th></tr>
+</thead>
+<tbody>
+<tr><td><code>r</code></td><td>silhouette strength: a 3x3 Sobel of the view distance relative to the centre pixel’s (so a far edge counts as much as a near one), kept on the near side only, over <code>edge_depth</code></td></tr>
+<tr><td><code>g</code></td><td>crease strength: the Sobel of normals rebuilt from the depth, counted only where the 5x5 patch is one surface (across a depth step rebuilt normals mark a band on both sides), over <code>edge_normal</code></td></tr>
+<tr><td><code>ba</code></td><td>the unit direction across the edge in screen space (x right, y down): the silhouette’s where <code>r &gt;= 1</code>, else the crease’s, picked from both axes of the normal Sobel</td></tr>
+</tbody>
+</table>
+</div>
+<p>A strength of 1 is an edge at the scene’s thresholds. The two pixels at each border are always 0, where the patch clamps and makes a degenerate normal.</p>
+<pre><code class="language-toml">[post_process]
+edge_depth = 0.6     # the relative view-distance step that is a silhouette
+edge_normal = 2.5    # the normal change that is a crease
+</code></pre>
+<p>The thresholds are shared because the pass is: every style reading the edges sees the same strengths. A style that wants more or fewer lines compares them against a level of its own (<code>demo/styles/inkline.wgsl</code> multiplies them by its <code>reach</code>). <code>flint render --edge-depth</code> / <code>--edge-normal</code> set them for one render, and F4’s Styles section has them under <strong>Shared edges</strong>.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th><img src="../images/shared-edges-view.png" alt="edges_view on the props scene: the scene in grey, every edge pixel a hue for its direction"></th><th><img src="../images/shared-edges-inkline.png" alt="inkline, a user style with inputs = [“edges”], over the same scene"></th></tr>
+</thead>
+<tbody>
+<tr><td><code>--style edges_view</code>: the texture itself. Hue is the direction (opposite sides of a line agree), silhouettes are solid, creases softer; <code>ghost</code> shows strengths just under the threshold while tuning</td><td><code>--style inkline</code> (<code>demo/styles/inkline.*</code>): flat paper tones under ink from <code>flint_edges</code>, about 40 lines of WGSL. Here it runs after the scene’s own ASCII and pencil props</td></tr>
+</tbody>
+</table>
+</div>
+<p>At 1920x1080 on an RTX 4070 the pass costs about 0.16 ms, once, with one or two styles reading it (<code>--gpu-time</code> names it <strong>Style edges</strong>); <code>edges_view</code> and <code>inkline</code> add 0.04 ms each. While no style that needs the edges is on, the pipeline isn’t built and nothing is drawn. The ASCII and pencil styles still find their own edges (ASCII’s also outlines its own mask ids, pencil’s adds luma edges); moving them onto the shared texture is still to do.</p>
+<h2 id="the-entity-style-mask"><a class="header" href="#the-entity-style-mask">The entity style mask</a></h2>
+<p>A style that should change only some entities (per-entity ASCII, watercolor or pencil) needs to know, per pixel, which entity drew it. The entity style mask is that answer: an <code>Rg16Uint</code> texture at the scene’s resolution, with one id a pixel in <code>.r</code> (0 where no style asked) and the entity’s <a href="#blending-in-and-out">blend</a> in <code>.g</code> (65535 for 1, #278).</p>
+<p>An entity asks with the <code>style_mask</code> component:</p>
+<pre><code class="language-toml">[entities.barrel.style_mask]
+style = "pencil"        # entities sharing a name share an id
+
+[entities.lantern_glass.style_mask]
+enabled = false         # out of any style, including an inherited one
+</code></pre>
+<p>Descendants inherit their ancestor’s style until one of them carries a <code>style_mask</code> of its own. Ids are numbered from 1 in name order, so the same scene gets the same ids on every run; a style finds its own with <code>frame.style_id("pencil")</code>.</p>
+<p><img src="../images/style-mask-debug.png" alt="The style mask debug view over demo/style_mask.scene.toml: the bench and the skinned YBot in one hue (“ascii”), the barrel, the crate and the lantern it carries in another (“pencil”), the opted-out box on the crate grey, and the legend in the lower left naming each hue"></p>
+<p>See it with the <code>style</code> debug view, which switches the <code>mask_view</code> style on:</p>
+<pre><code class="language-bash">flint render demo/style_mask.scene.toml --debug-mode style --output mask.png
+</code></pre>
+<p>Each style is a hue over the scene’s shading, unstyled pixels are grey, and a white line marks where two ids meet. A legend in the image’s lower left gives each id’s swatch and name, and the command prints the same table (#309):</p>
+<pre><code class="language-text">style mask: 1 ascii (blue), 2 pencil (lime)
+</code></pre>
+<p>Ids follow name order, so they shift when a scene adds a style: read the legend rather than remembering a hue. A variant is its own row (<code>ascii{ramp=blocks}</code>, <code>ascii@barrel</code>). In the player and viewer the view is <strong>Style Mask</strong> in F4’s debug shading list, and choosing it shows the same legend under the list; <code>flint_render::style_mask::legend</code> / <code>legend_line</code> build it from <code>SceneRenderer::style_ids()</code> for any other host.</p>
+<p>How it’s drawn:</p>
+<ul>
+<li><strong>A redraw, not a new attachment.</strong> After the scene pass, each visible opaque draw of a styled entity is drawn again into the mask with its cached transform bind group (and bone bind group for skinned meshes). The scene pipelines don’t change and the per-entity loop makes no buffers or bind groups; the ids go up in one write a frame.</li>
+<li><strong>Depth without a depth buffer.</strong> A mask fragment tests itself against the scene’s single-sample depth with a tolerance of twice its own depth slope, so grass or a wall in front of a styled prop cuts its mask. Under <code>--render-scale</code> the mask is at the scaled size, and a display-stage style reads it by UV.</li>
+<li><strong>MSAA: drawn 4x, resolved “any sample wins”</strong> (#306). Under <code>--msaa 4</code> the mask is drawn into a 4x target of its own, and each sample the triangle covers is tested against that sample of the scene’s multisampled depth. A resolve then folds the four samples into the single-sample mask the styles read: a pixel takes the id that covers the most samples, and is empty only if no sample was styled. Drawn single-sample at pixel centres, a feature about a pixel thin (the bench’s seat edge at a grazing angle) lost the pixels the scene’s samples gave it, and an outline style drew the gaps as white dashes. The 4x target costs 33 MB at 1080p, and only while MSAA and a mask-reading style are both on.</li>
+<li><strong>Only when wanted.</strong> The mask target and its pipelines exist only once a style with <code>uses_mask</code> (or the debug view) is on. At 1080p on an RTX 4070 the pass (with the veil) costs about 0.022 ms for <code>demo/style_mask.scene.toml</code>’s styled entities, or about 0.05 ms under MSAA 4 with the 4x draw and its resolve, some 0.025 ms more than the single-sample mask cost there before #306.</li>
+<li><strong>What’s masked.</strong> Static glTF meshes, procedural boxes, skinned meshes, terrain (#310) and styled transparents (#310, below). Particles, sprites, grass and water never are: grass is instanced, and the rest write no depth to test against.</li>
+</ul>
+<h3 id="terrain-and-transparents"><a class="header" href="#terrain-and-transparents">Terrain and transparents</a></h3>
+<p>A heightmap terrain is masked like any mesh when its entity carries a <code>style_mask</code> or a style’s component (<code>ascii_style</code>, <code>pencil_style</code>), or inherits one. Each visible chunk is redrawn into the mask with the terrain’s own transform, so an ASCII or pencil ground runs under smooth props, and every unstyled prop on it cuts its own hole, pixel by pixel, from the depth test:</p>
+<pre><code class="language-toml">[entities.ground]
+archetype = "terrain"
+[entities.ground.ascii_style]
+color = "tint"
+tint = [1.0, 0.72, 0.32]
+</code></pre>
+<p>The host names the terrain’s entity (<code>SceneRenderer::set_terrain_entity</code>) beside <code>load_terrain</code>; <code>flint render</code> and the player do.</p>
+<p><strong>A styled transparent is a lens.</strong> Glass, a ghost or a hologram with a style of its own is drawn into the mask after every opaque, back to front as the scene drew it. It writes no depth, but it is tested against the depth the opaques wrote, so an opaque in front still hides it. Where it shows, its id (and its blend) replaces whatever was behind it, and the style draws that whole pixel: what you see through a green-glyph pane comes out in green glyphs. The decision, and the alternatives it was chosen over:</p>
+<ul>
+<li><em>Skip styled transparents</em> (the mask before #310). A pane that asks for a style would draw as plain glass, which surprises whoever asked.</li>
+<li><em>Mask by coverage.</em> A half-covered pixel would be a share of the glass’s style and a share of what’s behind. One id per pixel can’t carry two styles, and the coverage would need the material’s alpha (texture and all) in the mask pass itself; the veil below samples it only for unstyled transparents. The blend channel already gives a lens a softer edge: set <code>blend</code> below 1 on the pane to mix the style with the plain view through it.</li>
+</ul>
+<p>What the lens costs: the pixel the style redraws is the composite (glass and all behind it), and a transparent cut-out (an alpha-textured leaf card drawn blended) masks its whole quad, since the mask pass doesn’t sample the material. Unstyled transparents in front of a styled entity, the lens included, are the veil’s (below), the other side of the same question. The veil is depth-tested only against opaques, so an unstyled transparent <em>behind</em> a styled pane also thins the pane’s blend where they overlap.</p>
+<p><img src="../images/style-terrain.png" alt="demo/style_terrain.scene.toml: amber ASCII hills under a smooth barrel and table, and a green glyph pane that draws the half of the table behind it, and the hill, in its own style"></p>
+<h3 id="whats-in-front-the-veil"><a class="header" href="#whats-in-front-the-veil">What’s in front: the veil</a></h3>
+<p>Transparents and particles write no depth, so the depth test alone can’t see them: where fire or glass sits in front of a styled stone, the stone’s id would stay in the mask and the style would draw the fire as if it were stone. The rule (#290) is that <strong>what’s in front unmasks by its coverage.</strong> Just before the mask, a veil pass draws every visible transparent mesh (static and skinned) and every particle into an <code>R8Unorm</code> target, depth-tested against the scene and never writing it, with the alpha it is drawn with (an additive particle covers by its alpha times its brightest channel). Layers blend “over” each other, so two faces of 50% glass cover 75%. The mask then writes each styled pixel’s blend times what the veil leaves uncovered.</p>
+<p><img src="../images/style-veil-before.png" alt="Before #290: the campfire in front of the glyph stone is turned into stone glyphs, and the glass in front of the crate disappears into the crate’s"></p>
+<p><img src="../images/style-veil-after.png" alt="After: the fire draws as fire over the stone, and behind the 45% glass the crate’s glyphs show through at the share the glass leaves"></p>
+<pre><code class="language-bash">flint render demo/style_veil.scene.toml --particle-time 2 --output veil.png
+</code></pre>
+<ul>
+<li>A style that honours the blend (ASCII, and user styles through <code>flint_style_blend</code>) shows the fire as fire and the stone through any uncovered share. A fully covered pixel keeps its id at blend 0, so under a whole-frame ASCII the stone behind thick smoke is a smooth hole, as a blend-0 entity is. Pencil and watercolor ignore <code>.g</code> and still draw what’s in front in their style until the framework cross-fade (#396).</li>
+<li>A transparent that is itself styled stays out of the veil: it is in the mask as a lens (<a href="#terrain-and-transparents">above</a>).</li>
+<li>The pass costs about 0.02 ms at 1080p on an RTX 4070 for <code>demo/style_veil.scene.toml</code> (69 particles and a pane), and is skipped in a frame with no styled draws.</li>
+</ul>
+<p>To read it in a style, set <code>uses_mask: true</code>, make a layout with <code>kit::mask_layout</code> and bind it with <code>frame.mask_bind(...)</code>; in WGSL it is a <code>texture_2d&lt;u32&gt;</code> read with <code>textureLoad</code>, the id in <code>.r</code> and the blend in <code>.g</code> (<code>stylize/mask_view.rs</code> and <code>mask_view.wgsl</code> show the whole thing). A per-entity style honours a blend by mixing its pixel with its input by <code>f32(m.g) / 65535.0</code>; one that ignores <code>.g</code> draws every entity at blend 1.</p>
+<h3 id="per-entity-settings"><a class="header" href="#per-entity-settings">Per-entity settings</a></h3>
+<p>A style that takes settings per entity names its component in its descriptor: <code>component: Some("ascii_style")</code>, with a schema in <code>schemas/components/</code>. The framework then does the rest:</p>
+<ul>
+<li>an entity carrying the component (or a <code>style_mask</code> naming the style) switches the style on for the frame, and the mask is drawn, with no <code>[post_process.styles]</code> table;</li>
+<li>the component’s fields are read as the descriptor’s params and options (a 3-array <code>x</code> fills <code>x_r</code>, <code>x_g</code>, <code>x_b</code>), and each distinct set is a <code>StyleVariant</code> with its own mask id, named for its settings (<code>ascii{cell=12,ramp=blocks}</code>, <code>ascii@barrel</code>, <code>ascii{off}</code> for <code>enabled = false</code>);</li>
+<li>a style whose <code>grid</code> option is <code>object</code> gets one variant per styled root, with <code>anchor</code> set to the root’s world origin each frame (<code>frame.project(anchor)</code> puts it on screen).</li>
+</ul>
+<p>In <code>encode</code>, <code>frame.variants()</code> lists this style’s <code>(id, variant)</code> pairs, <code>frame.variant_param(v, "cell")</code>, <code>frame.variant_option(v, "ramp")</code> and <code>frame.variant_color(v, "tint")</code> read a variant’s settings with the scene’s as fallback, and <code>frame.whole_frame()</code> says whether the scene’s table covers everything. <code>stylize/ascii.rs</code> and <code>stylize/pencil.rs</code> pack them into a table indexed by mask id; watercolor (#272) can do the same.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../concepts/quality-settings.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../concepts/glyph-atlas.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../concepts/quality-settings.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../concepts/glyph-atlas.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

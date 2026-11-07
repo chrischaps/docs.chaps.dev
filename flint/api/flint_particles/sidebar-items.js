@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["curves","emitter","particle","rand","sync"],"struct":["ParticleSystem"]};
+window.SIDEBAR_ITEMS = {"constant":["DEFAULT_SEED"],"mod":["curves","effect","emitter","loader","noise","particle","rand","sim","sync"],"struct":["ParticleSystem"]};

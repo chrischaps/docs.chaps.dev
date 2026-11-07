@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EDGE_FORMAT","EDGE_LABEL"]};

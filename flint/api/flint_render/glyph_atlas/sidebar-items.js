@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ATLAS_COLUMNS","CELL_PADDING"],"enum":["GlyphError"],"fn":["printable_ascii"],"mod":["set"],"struct":["GlyphAtlas","GpuGlyphAtlas"]};

@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\flint-core\src\world_line.rs`."><title>world_line.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="flint_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">flint_core/</div>world_line.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! World-space lines drawn in the 3D frame with a depth test (ADR 0083).
+<a href=#2 id=2 data-nosnippet>2</a>//!
+<a href=#3 id=3 data-nosnippet>3</a>//! A `WorldLine` is a segment between two world points with a colour and a
+<a href=#4 id=4 data-nosnippet>4</a>//! width in logical points. Scripts queue them with `draw_world_line`; the
+<a href=#5 id=5 data-nosnippet>5</a>//! renderer projects them with the camera the frame renders with and draws
+<a href=#6 id=6 data-nosnippet>6</a>//! them over the finished image, hidden wherever the scene's depth is nearer.
+<a href=#7 id=7 data-nosnippet>7</a>//! Unlike `draw_line_3d`, which projects onto the HUD, a ring drawn round a
+<a href=#8 id=8 data-nosnippet>8</a>//! model passes behind it.
+<a href=#9 id=9 data-nosnippet>9</a>
+<a href=#10 id=10 data-nosnippet>10</a>/// One depth-tested world-space segment.
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
+<a href=#12 id=12 data-nosnippet>12</a></span><span class="kw">pub struct </span>WorldLine {
+<a href=#13 id=13 data-nosnippet>13</a>    <span class="doccomment">/// Start, in world units.
+<a href=#14 id=14 data-nosnippet>14</a>    </span><span class="kw">pub </span>a: [f32; <span class="number">3</span>],
+<a href=#15 id=15 data-nosnippet>15</a>    <span class="doccomment">/// End, in world units.
+<a href=#16 id=16 data-nosnippet>16</a>    </span><span class="kw">pub </span>b: [f32; <span class="number">3</span>],
+<a href=#17 id=17 data-nosnippet>17</a>    <span class="doccomment">/// Display-space (sRGB) RGBA, the same space as the HUD's colours.
+<a href=#18 id=18 data-nosnippet>18</a>    </span><span class="kw">pub </span>color: [f32; <span class="number">4</span>],
+<a href=#19 id=19 data-nosnippet>19</a>    <span class="doccomment">/// Width in logical points, the HUD's unit. Below one pixel the line
+<a href=#20 id=20 data-nosnippet>20</a>    /// fades instead of thinning.
+<a href=#21 id=21 data-nosnippet>21</a>    </span><span class="kw">pub </span>thickness: f32,
+<a href=#22 id=22 data-nosnippet>22</a>}
+</code></pre></div></section></main></body></html>

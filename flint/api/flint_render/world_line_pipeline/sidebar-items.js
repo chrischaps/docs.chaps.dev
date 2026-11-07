@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DEPTH_SLACK"],"fn":["build_vertices"],"struct":["LineView","WorldLinePipeline","WorldLineVertex"]};

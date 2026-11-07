@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["linear_sample","sample_gradient"],"struct":["CurveEditor","CurveResponse","GradientEditor"],"type":["Sampler"]};

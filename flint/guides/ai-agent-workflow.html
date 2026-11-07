@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -284,6 +284,14 @@ flint validate levels/dungeon.scene.toml --fix
 <pre><code class="language-bash">flint render levels/dungeon.scene.toml --output preview.png \
     --width 1920 --height 1080 --distance 25 --yaw 45
 </code></pre>
+<h3 id="step-7-tune-a-look"><a class="header" href="#step-7-tune-a-look">Step 7: Tune a Look</a></h3>
+<p>To give a scene a stylized look, start from a preset and change one setting at a time, judging each change from a contact sheet:</p>
+<pre><code class="language-bash">flint render --look help                        # the presets, what each tunes first, and notes
+flint render levels/dungeon.scene.toml --look ascii_noir --no-grid -o noir.png
+flint render levels/dungeon.scene.toml --look ascii_noir --no-grid \
+    --sweep ascii.brightness=0,0.15,0.3,0.45 -o noir-brightness.png
+</code></pre>
+<p>Read the sheet, pick a value, and write it into the scene’s <code>[post_process.styles.&lt;name&gt;]</code> table, or into a <code>styles/&lt;name&gt;.look.toml</code> of the game’s own. Then sweep the next key. To compare whole looks, use <code>--sweep look=a,b,c</code>. Each look’s <code>tune</code> list names the sweeps worth running first. <a href="../concepts/stylize-passes.html#looks-and-sweeps">Looks and sweeps</a> covers the format and how to choose a cell size and ramp.</p>
 <h2 id="ai-asset-generation"><a class="header" href="#ai-asset-generation">AI Asset Generation</a></h2>
 <p>Agents can generate assets alongside scene construction:</p>
 <pre><code class="language-bash"># Generate textures for the scene
@@ -386,7 +394,7 @@ echo "Scene built successfully. Preview: preview.png"
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../guides/headless-rendering.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../guides/stylized-rendering.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -400,7 +408,7 @@ echo "Scene built successfully. Preview: preview.png"
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../guides/headless-rendering.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../guides/stylized-rendering.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

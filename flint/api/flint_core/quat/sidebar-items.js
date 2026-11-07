@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["euler_deg_to_quat","mat4_scale","mat4_to_quat","mat4_to_rigid","quat_conjugate","quat_from_axis_angle","quat_from_two_vectors","quat_mul","quat_nlerp","quat_normalize","quat_rotate_vec3","rigid_inverse_apply"]};

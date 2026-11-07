@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["IssueKind"],"fn":["check_params","default_of","json_to_toml","prop_type","repair_params","round3"],"struct":["NumBounds","ParamIssue"]};

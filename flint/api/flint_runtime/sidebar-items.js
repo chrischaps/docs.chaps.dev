@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ActionKind","AxisDirection","Binding","GameEvent","GamepadSelector","RebindMode"],"mod":["persist","state"],"struct":["ActionConfig","EventBus","GameClock","InputConfig","InputState"],"trait":["RuntimeSystem"]};
+window.SIDEBAR_ITEMS = {"constant":["DEVICE_AXIS_DEADZONE"],"enum":["ActionKind","AxisDirection","Binding","GameEvent","GamepadSelector","InputDevice","RebindMode"],"fn":["parse_key_code"],"mod":["persist","state","touch_controls"],"struct":["ActionConfig","EventBus","GameClock","InputConfig","InputState"],"trait":["RuntimeSystem"]};

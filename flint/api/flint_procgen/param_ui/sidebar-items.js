@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ParamFieldType"],"fn":["parse_param_schema"],"struct":["ParamFieldSpec"]};
+window.SIDEBAR_ITEMS = {"enum":["ParamFieldType","ParamIssue"],"fn":["lint_params","param_reference_markdown","parse_param_schema"],"struct":["ParamCondition","ParamFieldSpec"]};

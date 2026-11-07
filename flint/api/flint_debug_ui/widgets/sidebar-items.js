@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["check","color_rgba","combo_str","drag_f32","drag_range_f32","drag_u32","drag_vec2","drag_vec3","drag_xyz"],"mod":["curve"]};

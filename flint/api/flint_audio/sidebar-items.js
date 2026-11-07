@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["engine","sync","trigger"],"struct":["AudioSystem"]};
+window.SIDEBAR_ITEMS = {"mod":["decode","engine","handle","meter","page","pan","remote","sync","trigger"],"struct":["AudioSystem"]};

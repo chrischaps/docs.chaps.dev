@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["clear_entity_style","entity_style","per_entity_styles","set_entity_style","set_style_param"]};

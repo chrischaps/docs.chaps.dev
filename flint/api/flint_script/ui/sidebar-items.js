@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["element","layout","loader","style"],"struct":["UiDocument","UiSystem"]};
+window.SIDEBAR_ITEMS = {"mod":["element","layout","loader","style","tokens"],"struct":["UiDocument","UiSystem"]};

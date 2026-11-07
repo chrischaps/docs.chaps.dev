@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["BUILTIN_PALETTES","MAX_COLORS","PALETTE_SUFFIX"],"enum":["PaletteError","PaletteMatch"],"fn":["parse_hex"],"struct":["Palette","PaletteCache"]};

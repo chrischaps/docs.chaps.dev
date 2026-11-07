@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["LayoutFlow","TextAlign"],"struct":["ResolvedStyle","StyleClass"]};
+window.SIDEBAR_ITEMS = {"constant":["KNOWN_PROPERTIES"],"enum":["LayoutFlow","TextAlign"],"fn":["apply_property","is_known_property"],"struct":["ResolvedStyle","StyleClass"]};

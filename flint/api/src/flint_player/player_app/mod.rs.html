@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\flint-player\src\player_app\mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint_player" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\flint-player\src\player_app\mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint_player" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
     /* Flint rustdoc theme overrides - match the mdBook dark theme */
     :root {
         --flint-ember: #E8913A;
@@ -74,223 +74,436 @@
     <span style="color: #999;">API Reference</span>
 </div>
 
-</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">flint_player\player_app/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Player application implementing winit ApplicationHandler
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">flint_player\player_app/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Player application implementing winit ApplicationHandler
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! Runs the game loop with physics, input, and first-person camera.
 <a href=#4 id=4 data-nosnippet>4</a>
 <a href=#5 id=5 data-nosnippet>5</a></span><span class="kw">mod </span>debug_panels;
-<a href=#6 id=6 data-nosnippet>6</a><span class="kw">mod </span>events;
-<a href=#7 id=7 data-nosnippet>7</a><span class="kw">mod </span>frame;
-<a href=#8 id=8 data-nosnippet>8</a><span class="kw">mod </span>hud_render;
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">mod </span>init;
-<a href=#10 id=10 data-nosnippet>10</a><span class="kw">mod </span>input_config;
-<a href=#11 id=11 data-nosnippet>11</a><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
-<a href=#12 id=12 data-nosnippet>12</a></span><span class="kw">mod </span>music_guide_panel;
-<a href=#13 id=13 data-nosnippet>13</a><span class="kw">mod </span>music_session;
-<a href=#14 id=14 data-nosnippet>14</a><span class="kw">mod </span>transition;
-<a href=#15 id=15 data-nosnippet>15</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>scene_loading;
-<a href=#16 id=16 data-nosnippet>16</a><span class="kw">mod </span>script_commands;
-<a href=#17 id=17 data-nosnippet>17</a><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
-<a href=#18 id=18 data-nosnippet>18</a></span><span class="kw">mod </span>timeline_panel;
-<a href=#19 id=19 data-nosnippet>19</a>
-<a href=#20 id=20 data-nosnippet>20</a><span class="attr">#[cfg(target_os = <span class="string">"android"</span>)]
-<a href=#21 id=21 data-nosnippet>21</a></span><span class="kw">use </span>events::AndroidGamepadTracker;
-<a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>flint_animation::AnimationSystem;
-<a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span>flint_asset::{AssetCatalog, ContentStore};
-<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>flint_audio::AudioSystem;
-<a href=#25 id=25 data-nosnippet>25</a><span class="kw">use </span>transition::TransitionPhase;
-<a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span>flint_ecs::FlintWorld;
-<a href=#27 id=27 data-nosnippet>27</a><span class="kw">use </span>flint_particles::ParticleSystem;
-<a href=#28 id=28 data-nosnippet>28</a><span class="kw">use </span>flint_physics::PhysicsSystem;
-<a href=#29 id=29 data-nosnippet>29</a><span class="kw">use </span>flint_render::{Camera, RenderContext, SceneRenderer};
-<a href=#30 id=30 data-nosnippet>30</a><span class="kw">use </span>flint_runtime::{GameClock, GameStateMachine, InputConfig, InputState, PersistentStore};
-<a href=#31 id=31 data-nosnippet>31</a><span class="kw">use </span>flint_script::context::DrawCommand;
-<a href=#32 id=32 data-nosnippet>32</a><span class="kw">use </span>flint_script::ScriptSystem;
-<a href=#33 id=33 data-nosnippet>33</a><span class="kw">use </span>gilrs::Gilrs;
-<a href=#34 id=34 data-nosnippet>34</a><span class="kw">use </span>std::collections::HashMap;
-<a href=#35 id=35 data-nosnippet>35</a><span class="kw">use </span>std::sync::Arc;
-<a href=#36 id=36 data-nosnippet>36</a><span class="kw">use </span>winit::window::Window;
-<a href=#37 id=37 data-nosnippet>37</a>
-<a href=#38 id=38 data-nosnippet>38</a><span class="comment">// Component-name conventions shared by the debug panels (debug_panels.rs)
-<a href=#39 id=39 data-nosnippet>39</a>// and the frame loop's panel-drain blocks. Kept here, the defining module,
-<a href=#40 id=40 data-nosnippet>40</a>// so both siblings reach them via `super::`.
-<a href=#41 id=41 data-nosnippet>41</a>
-<a href=#42 id=42 data-nosnippet>42</a></span><span class="doccomment">/// Game-side day/night component driven by a script; the player only knows
-<a href=#43 id=43 data-nosnippet>43</a>/// it to offer the F3 time scrubber (see flint-debug-ui tod_panel).
-<a href=#44 id=44 data-nosnippet>44</a></span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
-<a href=#45 id=45 data-nosnippet>45</a></span><span class="kw">const </span>TIME_OF_DAY_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"time_of_day"</span>;
-<a href=#46 id=46 data-nosnippet>46</a><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
-<a href=#47 id=47 data-nosnippet>47</a></span><span class="kw">const </span>WEATHER_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"weather"</span>;
-<a href=#48 id=48 data-nosnippet>48</a><span class="doccomment">/// Reality-tear controller (rare render-mode world events) driven by a
-<a href=#49 id=49 data-nosnippet>49</a>/// game-side script; the F3 Reality panel forces/ends tears for tuning.
-<a href=#50 id=50 data-nosnippet>50</a></span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
-<a href=#51 id=51 data-nosnippet>51</a></span><span class="kw">const </span>REALITY_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"reality"</span>;
-<a href=#52 id=52 data-nosnippet>52</a><span class="doccomment">/// Second-raft visitor event controller driven by a game-side script; the
-<a href=#53 id=53 data-nosnippet>53</a>/// F3 Visitor panel shows its phase/day and can force a visit for tuning.
-<a href=#54 id=54 data-nosnippet>54</a></span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
-<a href=#55 id=55 data-nosnippet>55</a></span><span class="kw">const </span>RAFT_VISITOR_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"raft_visitor"</span>;
-<a href=#56 id=56 data-nosnippet>56</a><span class="doccomment">/// Dead-calm ocean-stillness event controller driven by a game-side script;
-<a href=#57 id=57 data-nosnippet>57</a>/// the F3 Dead Calm panel shows its phase/envelope and can force/end one.
-<a href=#58 id=58 data-nosnippet>58</a></span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
-<a href=#59 id=59 data-nosnippet>59</a></span><span class="kw">const </span>DEAD_CALM_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"dead_calm"</span>;
-<a href=#60 id=60 data-nosnippet>60</a><span class="doccomment">/// Live-tunable camera settings applied to the render camera at scene load
-<a href=#61 id=61 data-nosnippet>61</a>/// and edited through the F3 Camera panel (see flint-debug-ui camera_panel).
-<a href=#62 id=62 data-nosnippet>62</a></span><span class="kw">const </span>CAMERA_TUNING_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"camera_tuning"</span>;
-<a href=#63 id=63 data-nosnippet>63</a>
-<a href=#64 id=64 data-nosnippet>64</a><span class="doccomment">/// Panel name for the terrain grass debug overlay (F3) — the engine-side
-<a href=#65 id=65 data-nosnippet>65</a>/// sibling of `music_guide_panel::MUSIC_GUIDE_PANEL` /
-<a href=#66 id=66 data-nosnippet>66</a>/// `timeline_panel::MANIFEST_MAP_PANEL`.
-<a href=#67 id=67 data-nosnippet>67</a></span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
-<a href=#68 id=68 data-nosnippet>68</a></span><span class="kw">const </span>GRASS_DEBUG_PANEL: <span class="kw-2">&amp;</span>str = <span class="string">"Grass Debug"</span>;
-<a href=#69 id=69 data-nosnippet>69</a>
-<a href=#70 id=70 data-nosnippet>70</a><span class="kw">pub struct </span>PlayerApp {
-<a href=#71 id=71 data-nosnippet>71</a>    <span class="comment">// Core state
-<a href=#72 id=72 data-nosnippet>72</a>    </span><span class="kw">pub </span>world: FlintWorld,
-<a href=#73 id=73 data-nosnippet>73</a>    <span class="kw">pub </span>scene_path: String,
-<a href=#74 id=74 data-nosnippet>74</a>
-<a href=#75 id=75 data-nosnippet>75</a>    <span class="comment">// Systems
-<a href=#76 id=76 data-nosnippet>76</a>    </span><span class="kw">pub </span>clock: GameClock,
-<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">pub </span>input: InputState,
-<a href=#78 id=78 data-nosnippet>78</a>    <span class="kw">pub </span>physics: PhysicsSystem,
-<a href=#79 id=79 data-nosnippet>79</a>    <span class="comment">// Scene-declared music session (F3, ADR 0019): declared before `audio`
-<a href=#80 id=80 data-nosnippet>80</a>    // so the suite's kira handles drop before the shared AudioManager
-<a href=#81 id=81 data-nosnippet>81</a>    // (ADR 0017 drop-order rule).
-<a href=#82 id=82 data-nosnippet>82</a>    </span>music_session: <span class="prelude-ty">Option</span>&lt;music_session::MusicSession&gt;,
-<a href=#83 id=83 data-nosnippet>83</a>    <span class="doccomment">/// Set when a session with `quit_on_finish` ends on its own; the event
-<a href=#84 id=84 data-nosnippet>84</a>    /// loop exits at the end of that frame (checked in RedrawRequested,
-<a href=#85 id=85 data-nosnippet>85</a>    /// where the ActiveEventLoop is in scope).
-<a href=#86 id=86 data-nosnippet>86</a>    </span>music_exit_requested: bool,
-<a href=#87 id=87 data-nosnippet>87</a>    <span class="kw">pub </span>audio: AudioSystem,
-<a href=#88 id=88 data-nosnippet>88</a>    <span class="kw">pub </span>animation: AnimationSystem,
-<a href=#89 id=89 data-nosnippet>89</a>    <span class="kw">pub </span>particles: ParticleSystem,
-<a href=#90 id=90 data-nosnippet>90</a>    <span class="kw">pub </span>script: ScriptSystem,
-<a href=#91 id=91 data-nosnippet>91</a>
-<a href=#92 id=92 data-nosnippet>92</a>    <span class="comment">// Rendering
-<a href=#93 id=93 data-nosnippet>93</a>    </span>window: <span class="prelude-ty">Option</span>&lt;Arc&lt;Window&gt;&gt;,
-<a href=#94 id=94 data-nosnippet>94</a>    render_context: <span class="prelude-ty">Option</span>&lt;RenderContext&gt;,
-<a href=#95 id=95 data-nosnippet>95</a>    scene_renderer: <span class="prelude-ty">Option</span>&lt;SceneRenderer&gt;,
-<a href=#96 id=96 data-nosnippet>96</a>    camera: Camera,
-<a href=#97 id=97 data-nosnippet>97</a>
-<a href=#98 id=98 data-nosnippet>98</a>    <span class="comment">// Skeletal animation: entity_id → asset name for bone matrix updates
-<a href=#99 id=99 data-nosnippet>99</a>    </span>skeletal_entity_assets: HashMap&lt;flint_core::EntityId, String&gt;,
-<a href=#100 id=100 data-nosnippet>100</a>
-<a href=#101 id=101 data-nosnippet>101</a>    <span class="comment">// HUD + egui overlay
-<a href=#102 id=102 data-nosnippet>102</a>    </span>egui_ctx: egui::Context,
-<a href=#103 id=103 data-nosnippet>103</a>    egui_winit: <span class="prelude-ty">Option</span>&lt;egui_winit::State&gt;,
-<a href=#104 id=104 data-nosnippet>104</a>    egui_renderer: <span class="prelude-ty">Option</span>&lt;egui_wgpu::Renderer&gt;,
-<a href=#105 id=105 data-nosnippet>105</a>
-<a href=#106 id=106 data-nosnippet>106</a>    <span class="comment">// Script-driven 2D draw commands
-<a href=#107 id=107 data-nosnippet>107</a>    </span>draw_commands: Vec&lt;DrawCommand&gt;,
-<a href=#108 id=108 data-nosnippet>108</a>    ui_textures: HashMap&lt;String, egui::TextureHandle&gt;,
-<a href=#109 id=109 data-nosnippet>109</a>
-<a href=#110 id=110 data-nosnippet>110</a>    <span class="comment">// Asset catalog (optional, for content-addressed asset resolution)
-<a href=#111 id=111 data-nosnippet>111</a>    </span>catalog: <span class="prelude-ty">Option</span>&lt;AssetCatalog&gt;,
-<a href=#112 id=112 data-nosnippet>112</a>    content_store: <span class="prelude-ty">Option</span>&lt;ContentStore&gt;,
-<a href=#113 id=113 data-nosnippet>113</a>
-<a href=#114 id=114 data-nosnippet>114</a>    <span class="comment">// Window options
-<a href=#115 id=115 data-nosnippet>115</a>    </span><span class="kw">pub </span>fullscreen: bool,
-<a href=#116 id=116 data-nosnippet>116</a>    cursor_captured: bool,
-<a href=#117 id=117 data-nosnippet>117</a>
-<a href=#118 id=118 data-nosnippet>118</a>    <span class="comment">// Environment
-<a href=#119 id=119 data-nosnippet>119</a>    </span><span class="kw">pub </span>skybox_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#120 id=120 data-nosnippet>120</a>    <span class="doccomment">/// Scene-authored hemisphere ambient (sky, ground); None = renderer default
-<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="kw">pub </span>scene_ambient: <span class="prelude-ty">Option</span>&lt;([f32; <span class="number">3</span>], [f32; <span class="number">3</span>])&gt;,
-<a href=#122 id=122 data-nosnippet>122</a>    <span class="doccomment">/// MSAA sample count for the scene renderer (1 = off, 4 = on; ADR 0058).
-<a href=#123 id=123 data-nosnippet>123</a>    /// Set from the --msaa CLI flag before the window/renderer exist.
-<a href=#124 id=124 data-nosnippet>124</a>    </span><span class="kw">pub </span>msaa_sample_count: u32,
-<a href=#125 id=125 data-nosnippet>125</a>    <span class="doccomment">/// Scene-authored diffuse terminator wrap; None = 0 = legacy shading
-<a href=#126 id=126 data-nosnippet>126</a>    </span><span class="kw">pub </span>scene_diffuse_wrap: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#127 id=127 data-nosnippet>127</a>    <span class="kw">pub </span>scene_oren_nayar: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#128 id=128 data-nosnippet>128</a>    <span class="kw">pub </span>scene_sheen: <span class="prelude-ty">Option</span>&lt;([f32; <span class="number">3</span>], f32)&gt;,
-<a href=#129 id=129 data-nosnippet>129</a>
-<a href=#130 id=130 data-nosnippet>130</a>    <span class="comment">// Scene-level camera configuration
-<a href=#131 id=131 data-nosnippet>131</a>    </span><span class="kw">pub </span>scene_camera: <span class="prelude-ty">Option</span>&lt;flint_scene::CameraDef&gt;,
-<a href=#132 id=132 data-nosnippet>132</a>
-<a href=#133 id=133 data-nosnippet>133</a>    <span class="comment">// Scene-level post-processing overrides
-<a href=#134 id=134 data-nosnippet>134</a>    </span><span class="kw">pub </span>scene_post_process: <span class="prelude-ty">Option</span>&lt;flint_scene::PostProcessDef&gt;,
-<a href=#135 id=135 data-nosnippet>135</a>
-<a href=#136 id=136 data-nosnippet>136</a>    <span class="comment">// Script-driven post-processing overrides (applied per-frame before render)
-<a href=#137 id=137 data-nosnippet>137</a>    </span>pp_vignette_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#138 id=138 data-nosnippet>138</a>    pp_bloom_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#139 id=139 data-nosnippet>139</a>    pp_exposure_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#140 id=140 data-nosnippet>140</a>    pp_chromatic_aberration_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#141 id=141 data-nosnippet>141</a>    pp_radial_blur_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#142 id=142 data-nosnippet>142</a>    pp_ssao_intensity_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#143 id=143 data-nosnippet>143</a>    pp_fog_density_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#144 id=144 data-nosnippet>144</a>    pp_desaturation_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#145 id=145 data-nosnippet>145</a>    pp_dof_strength_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#146 id=146 data-nosnippet>146</a>    pp_dof_focus_distance_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#147 id=147 data-nosnippet>147</a>    pp_dof_focus_range_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-<a href=#148 id=148 data-nosnippet>148</a>    pp_fog_color_override: <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">3</span>]&gt;,
-<a href=#149 id=149 data-nosnippet>149</a>    pp_render_mode_override: <span class="prelude-ty">Option</span>&lt;(u32, f32)&gt;,
-<a href=#150 id=150 data-nosnippet>150</a>    pp_mode_params_override: <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">4</span>]&gt;,
-<a href=#151 id=151 data-nosnippet>151</a>    <span class="doccomment">/// True while a script-driven reality tear is on screen. Unlike the
-<a href=#152 id=152 data-nosnippet>152</a>    /// other (sticky) overrides, the mode is zeroed the frame the script
-<a href=#153 id=153 data-nosnippet>153</a>    /// stops calling set_render_mode — a dead or hot-reloaded script must
-<a href=#154 id=154 data-nosnippet>154</a>    /// never freeze a tear over the world.
-<a href=#155 id=155 data-nosnippet>155</a>    </span>pp_mode_was_active: bool,
+<a href=#6 id=6 data-nosnippet>6</a><span class="kw">mod </span>egui_input;
+<a href=#7 id=7 data-nosnippet>7</a><span class="kw">mod </span>events;
+<a href=#8 id=8 data-nosnippet>8</a><span class="attr">#[cfg(test)]
+<a href=#9 id=9 data-nosnippet>9</a></span><span class="kw">mod </span>capture_gate_tests;
+<a href=#10 id=10 data-nosnippet>10</a><span class="attr">#[cfg(test)]
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">mod </span>touch_controls_tests;
+<a href=#12 id=12 data-nosnippet>12</a><span class="attr">#[cfg(test)]
+<a href=#13 id=13 data-nosnippet>13</a></span><span class="kw">mod </span>debug_key_tests;
+<a href=#14 id=14 data-nosnippet>14</a><span class="attr">#[cfg(test)]
+<a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">mod </span>extension_tests;
+<a href=#16 id=16 data-nosnippet>16</a><span class="attr">#[cfg(test)]
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">mod </span>hold_tests;
+<a href=#18 id=18 data-nosnippet>18</a><span class="attr">#[cfg(test)]
+<a href=#19 id=19 data-nosnippet>19</a></span><span class="kw">mod </span>vfs_tests;
+<a href=#20 id=20 data-nosnippet>20</a><span class="kw">pub mod </span>fonts;
+<a href=#21 id=21 data-nosnippet>21</a><span class="kw">mod </span>frame;
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">pub mod </span>frame_rate;
+<a href=#23 id=23 data-nosnippet>23</a><span class="kw">mod </span>hud_render;
+<a href=#24 id=24 data-nosnippet>24</a><span class="kw">mod </span>init;
+<a href=#25 id=25 data-nosnippet>25</a><span class="kw">mod </span>input_config;
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">pub mod </span>input_script;
+<a href=#27 id=27 data-nosnippet>27</a><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
+<a href=#28 id=28 data-nosnippet>28</a></span><span class="kw">mod </span>music_guide_panel;
+<a href=#29 id=29 data-nosnippet>29</a><span class="kw">mod </span>music_session;
+<a href=#30 id=30 data-nosnippet>30</a><span class="kw">mod </span>pacing;
+<a href=#31 id=31 data-nosnippet>31</a><span class="kw">mod </span>perf;
+<a href=#32 id=32 data-nosnippet>32</a><span class="kw">mod </span>persist;
+<a href=#33 id=33 data-nosnippet>33</a><span class="kw">mod </span>quality;
+<a href=#34 id=34 data-nosnippet>34</a><span class="kw">pub mod </span>render_scale;
+<a href=#35 id=35 data-nosnippet>35</a><span class="kw">mod </span>touch_overlay;
+<a href=#36 id=36 data-nosnippet>36</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>scene_loading;
+<a href=#37 id=37 data-nosnippet>37</a><span class="kw">pub mod </span>procgen_assets;
+<a href=#38 id=38 data-nosnippet>38</a><span class="kw">mod </span>script_commands;
+<a href=#39 id=39 data-nosnippet>39</a><span class="kw">pub mod </span>style_commands;
+<a href=#40 id=40 data-nosnippet>40</a><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
+<a href=#41 id=41 data-nosnippet>41</a></span><span class="kw">mod </span>timeline_panel;
+<a href=#42 id=42 data-nosnippet>42</a><span class="kw">mod </span>transition;
+<a href=#43 id=43 data-nosnippet>43</a><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
+<a href=#44 id=44 data-nosnippet>44</a></span><span class="kw">pub mod </span>web_page;
+<a href=#45 id=45 data-nosnippet>45</a><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
+<a href=#46 id=46 data-nosnippet>46</a></span><span class="kw">pub mod </span>web_pacing;
+<a href=#47 id=47 data-nosnippet>47</a><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
+<a href=#48 id=48 data-nosnippet>48</a></span><span class="kw">mod </span>web_perf;
+<a href=#49 id=49 data-nosnippet>49</a><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
+<a href=#50 id=50 data-nosnippet>50</a></span><span class="kw">pub mod </span>web_startup;
+<a href=#51 id=51 data-nosnippet>51</a><span class="kw">mod </span>world_text;
+<a href=#52 id=52 data-nosnippet>52</a>
+<a href=#53 id=53 data-nosnippet>53</a><span class="attr">#[cfg(target_os = <span class="string">"android"</span>)]
+<a href=#54 id=54 data-nosnippet>54</a></span><span class="kw">use </span>events::AndroidGamepadTracker;
+<a href=#55 id=55 data-nosnippet>55</a><span class="kw">use </span>flint_animation::AnimationSystem;
+<a href=#56 id=56 data-nosnippet>56</a><span class="kw">use </span>flint_asset::{AssetCatalog, ContentStore};
+<a href=#57 id=57 data-nosnippet>57</a><span class="kw">use </span>flint_audio::AudioSystem;
+<a href=#58 id=58 data-nosnippet>58</a><span class="kw">use </span>flint_ecs::FlintWorld;
+<a href=#59 id=59 data-nosnippet>59</a><span class="kw">use </span>flint_particles::ParticleSystem;
+<a href=#60 id=60 data-nosnippet>60</a><span class="kw">use </span>flint_physics::PhysicsSystem;
+<a href=#61 id=61 data-nosnippet>61</a><span class="kw">use </span>flint_render::{Camera, RenderContext, SceneRenderer};
+<a href=#62 id=62 data-nosnippet>62</a><span class="kw">use </span>flint_runtime::{
+<a href=#63 id=63 data-nosnippet>63</a>    GameClock, GameStateMachine, InputConfig, InputState, PersistentStore, SaveDebounce,
+<a href=#64 id=64 data-nosnippet>64</a>};
+<a href=#65 id=65 data-nosnippet>65</a><span class="kw">use </span>flint_script::context::DrawItem;
+<a href=#66 id=66 data-nosnippet>66</a><span class="kw">use </span>flint_script::ScriptSystem;
+<a href=#67 id=67 data-nosnippet>67</a><span class="kw">use </span>gilrs::Gilrs;
+<a href=#68 id=68 data-nosnippet>68</a><span class="kw">use </span>std::collections::{HashMap, HashSet};
+<a href=#69 id=69 data-nosnippet>69</a><span class="kw">use </span>std::sync::Arc;
+<a href=#70 id=70 data-nosnippet>70</a><span class="kw">use </span>transition::TransitionPhase;
+<a href=#71 id=71 data-nosnippet>71</a><span class="kw">use </span>winit::window::Window;
+<a href=#72 id=72 data-nosnippet>72</a>
+<a href=#73 id=73 data-nosnippet>73</a><span class="comment">// Component-name conventions shared by the debug panels (debug_panels.rs)
+<a href=#74 id=74 data-nosnippet>74</a>// and the frame loop's panel-drain blocks. Kept here, the defining module,
+<a href=#75 id=75 data-nosnippet>75</a>// so both siblings reach them via `super::`.
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a></span><span class="doccomment">/// Game-side day/night component driven by a script; the player only knows
+<a href=#78 id=78 data-nosnippet>78</a>/// it to offer the F3 time scrubber (see flint-debug-ui tod_panel).
+<a href=#79 id=79 data-nosnippet>79</a></span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
+<a href=#80 id=80 data-nosnippet>80</a></span><span class="kw">const </span>TIME_OF_DAY_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"time_of_day"</span>;
+<a href=#81 id=81 data-nosnippet>81</a><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
+<a href=#82 id=82 data-nosnippet>82</a></span><span class="kw">const </span>WEATHER_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"weather"</span>;
+<a href=#83 id=83 data-nosnippet>83</a><span class="doccomment">/// Reality-tear controller (rare render-mode world events) driven by a
+<a href=#84 id=84 data-nosnippet>84</a>/// game-side script; the F3 Reality panel forces/ends tears for tuning.
+<a href=#85 id=85 data-nosnippet>85</a></span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
+<a href=#86 id=86 data-nosnippet>86</a></span><span class="kw">const </span>REALITY_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"reality"</span>;
+<a href=#87 id=87 data-nosnippet>87</a><span class="doccomment">/// Second-raft visitor event controller driven by a game-side script; the
+<a href=#88 id=88 data-nosnippet>88</a>/// F3 Visitor panel shows its phase/day and can force a visit for tuning.
+<a href=#89 id=89 data-nosnippet>89</a></span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
+<a href=#90 id=90 data-nosnippet>90</a></span><span class="kw">const </span>RAFT_VISITOR_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"raft_visitor"</span>;
+<a href=#91 id=91 data-nosnippet>91</a><span class="doccomment">/// Dead-calm ocean-stillness event controller driven by a game-side script;
+<a href=#92 id=92 data-nosnippet>92</a>/// the F3 Dead Calm panel shows its phase/envelope and can force/end one.
+<a href=#93 id=93 data-nosnippet>93</a></span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
+<a href=#94 id=94 data-nosnippet>94</a></span><span class="kw">const </span>DEAD_CALM_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"dead_calm"</span>;
+<a href=#95 id=95 data-nosnippet>95</a><span class="doccomment">/// Live-tunable camera settings applied to the render camera at scene load
+<a href=#96 id=96 data-nosnippet>96</a>/// and edited through the F3 Camera panel (see flint-debug-ui camera_panel).
+<a href=#97 id=97 data-nosnippet>97</a></span><span class="kw">const </span>CAMERA_TUNING_COMPONENT: <span class="kw-2">&amp;</span>str = <span class="string">"camera_tuning"</span>;
+<a href=#98 id=98 data-nosnippet>98</a>
+<a href=#99 id=99 data-nosnippet>99</a><span class="doccomment">/// Panel name for the terrain grass debug overlay (F3) — the engine-side
+<a href=#100 id=100 data-nosnippet>100</a>/// sibling of `music_guide_panel::MUSIC_GUIDE_PANEL` /
+<a href=#101 id=101 data-nosnippet>101</a>/// `timeline_panel::MANIFEST_MAP_PANEL`.
+<a href=#102 id=102 data-nosnippet>102</a></span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
+<a href=#103 id=103 data-nosnippet>103</a></span><span class="kw">const </span>GRASS_DEBUG_PANEL: <span class="kw-2">&amp;</span>str = <span class="string">"Grass Debug"</span>;
+<a href=#104 id=104 data-nosnippet>104</a>
+<a href=#105 id=105 data-nosnippet>105</a><span class="doccomment">/// Frame-capture settings for the player (`--screenshot` family of flags).
+<a href=#106 id=106 data-nosnippet>106</a>///
+<a href=#107 id=107 data-nosnippet>107</a>/// Times are compared against `GameClock::total_time`, so they are game
+<a href=#108 id=108 data-nosnippet>108</a>/// seconds since the first tick, not wall-clock seconds since launch.
+<a href=#109 id=109 data-nosnippet>109</a></span><span class="attr">#[derive(Debug, Clone, Default)]
+<a href=#110 id=110 data-nosnippet>110</a></span><span class="kw">pub struct </span>CaptureConfig {
+<a href=#111 id=111 data-nosnippet>111</a>    <span class="doccomment">/// Output path. Base name for numbered files when `every` is set
+<a href=#112 id=112 data-nosnippet>112</a>    /// (`hud.png` -&gt; `hud_0001.png`, `hud_0002.png`, ...).
+<a href=#113 id=113 data-nosnippet>113</a>    </span><span class="kw">pub </span>path: <span class="prelude-ty">Option</span>&lt;std::path::PathBuf&gt;,
+<a href=#114 id=114 data-nosnippet>114</a>    <span class="doccomment">/// Game time (s) at which to take the single screenshot. Default 0 =
+<a href=#115 id=115 data-nosnippet>115</a>    /// first frame.
+<a href=#116 id=116 data-nosnippet>116</a>    </span><span class="kw">pub </span>at: f64,
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="doccomment">/// Interval (s) between repeated screenshots; None = single shot.
+<a href=#118 id=118 data-nosnippet>118</a>    </span><span class="kw">pub </span>every: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+<a href=#119 id=119 data-nosnippet>119</a>    <span class="doccomment">/// Game time (s) at which the player exits on its own.
+<a href=#120 id=120 data-nosnippet>120</a>    </span><span class="kw">pub </span>exit_after: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+<a href=#121 id=121 data-nosnippet>121</a>    <span class="doccomment">/// Timed input played into `InputState` (`--input-script`).
+<a href=#122 id=122 data-nosnippet>122</a>    </span><span class="kw">pub </span>input_script: <span class="prelude-ty">Option</span>&lt;input_script::InputScript&gt;,
+<a href=#123 id=123 data-nosnippet>123</a>    <span class="doccomment">/// Open the F2 stats overlay on the first frame (`--stats`). F2 still
+<a href=#124 id=124 data-nosnippet>124</a>    /// closes it.
+<a href=#125 id=125 data-nosnippet>125</a>    </span><span class="kw">pub </span>show_stats: bool,
+<a href=#126 id=126 data-nosnippet>126</a>    <span class="doccomment">/// Internal: the first capture has been written.
+<a href=#127 id=127 data-nosnippet>127</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) taken: bool,
+<a href=#128 id=128 data-nosnippet>128</a>    <span class="doccomment">/// Internal: number of numbered frames written so far.
+<a href=#129 id=129 data-nosnippet>129</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) sequence: u32,
+<a href=#130 id=130 data-nosnippet>130</a>    <span class="doccomment">/// Internal: game time of the next scheduled interval capture.
+<a href=#131 id=131 data-nosnippet>131</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) next_due: f64,
+<a href=#132 id=132 data-nosnippet>132</a>    <span class="doccomment">/// Internal: frames presented and game time accumulated after the first
+<a href=#133 id=133 data-nosnippet>133</a>    /// `PERF_SKIP_SECS`, reported on `--exit-after` as an average frame time.
+<a href=#134 id=134 data-nosnippet>134</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) perf_frames: u32,
+<a href=#135 id=135 data-nosnippet>135</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) perf_time: f64,
+<a href=#136 id=136 data-nosnippet>136</a>    <span class="doccomment">/// Internal: render stats summed over the same frames, reported beside
+<a href=#137 id=137 data-nosnippet>137</a>    /// the frame time.
+<a href=#138 id=138 data-nosnippet>138</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) perf_draws: u64,
+<a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) perf_entity_draws: u64,
+<a href=#140 id=140 data-nosnippet>140</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) perf_culled: u64,
+<a href=#141 id=141 data-nosnippet>141</a>    <span class="doccomment">/// Of those, set aside by level of detail / draw distance (#56)
+<a href=#142 id=142 data-nosnippet>142</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) perf_lod_culled: u64,
+<a href=#143 id=143 data-nosnippet>143</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) perf_triangles: u64,
+<a href=#144 id=144 data-nosnippet>144</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) perf_shadow_triangles: u64,
+<a href=#145 id=145 data-nosnippet>145</a>    <span class="doccomment">/// GPU frame times summed over frames that had one (ADR 0108)
+<a href=#146 id=146 data-nosnippet>146</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) perf_gpu_ms: f64,
+<a href=#147 id=147 data-nosnippet>147</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) perf_gpu_frames: u64,
+<a href=#148 id=148 data-nosnippet>148</a>    <span class="doccomment">/// The same frames' dt and present-to-present times, reported as a
+<a href=#149 id=149 data-nosnippet>149</a>    /// spread so uneven pacing shows at an even mean.
+<a href=#150 id=150 data-nosnippet>150</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) perf_pacing: pacing::Pacing,
+<a href=#151 id=151 data-nosnippet>151</a>}
+<a href=#152 id=152 data-nosnippet>152</a>
+<a href=#153 id=153 data-nosnippet>153</a><span class="doccomment">/// Game seconds ignored by the `--exit-after` frame-time report (loading,
+<a href=#154 id=154 data-nosnippet>154</a>/// shader warm-up, first-frame texture uploads).
+<a href=#155 id=155 data-nosnippet>155</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>PERF_SKIP_SECS: f64 = <span class="number">2.0</span>;
 <a href=#156 id=156 data-nosnippet>156</a>
-<a href=#157 id=157 data-nosnippet>157</a>    <span class="doccomment">/// Rendering &amp; Effects panel's "freeze script post overrides" switch
-<a href=#158 id=158 data-nosnippet>158</a>    /// (ADR 0053): while true the per-frame script/ladder override stamp is
-<a href=#159 id=159 data-nosnippet>159</a>    /// skipped so panel edits to contended post fields stick. Cached from
-<a href=#160 id=160 data-nosnippet>160</a>    /// the panel each frame (one-frame toggle lag, imperceptible).
-<a href=#161 id=161 data-nosnippet>161</a>    </span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
-<a href=#162 id=162 data-nosnippet>162</a>    </span>pp_debug_freeze: bool,
-<a href=#163 id=163 data-nosnippet>163</a>
-<a href=#164 id=164 data-nosnippet>164</a>    <span class="comment">// Ladder-driven post params: the scene's authored base, captured at
-<a href=#165 id=165 data-nosnippet>165</a>    // session start and written back after teardown (ADR 0021).
-<a href=#166 id=166 data-nosnippet>166</a>    </span>music_pp_base: <span class="prelude-ty">Option</span>&lt;music_session::LadderPostBase&gt;,
-<a href=#167 id=167 data-nosnippet>167</a>    music_pp_restore: <span class="prelude-ty">Option</span>&lt;music_session::LadderPostBase&gt;,
-<a href=#168 id=168 data-nosnippet>168</a>
-<a href=#169 id=169 data-nosnippet>169</a>    <span class="doccomment">/// `[scene] preload_audio` — false skips the blanket audio/ preload
-<a href=#170 id=170 data-nosnippet>170</a>    /// (silent scenes start instantly); audio_source + session stems
-<a href=#171 id=171 data-nosnippet>171</a>    /// unaffected. Set from the scene file before startup, like msaa.
-<a href=#172 id=172 data-nosnippet>172</a>    </span><span class="kw">pub </span>scene_preload_audio: bool,
-<a href=#173 id=173 data-nosnippet>173</a>
-<a href=#174 id=174 data-nosnippet>174</a>    <span class="comment">// Input config layering + remap persistence
-<a href=#175 id=175 data-nosnippet>175</a>    </span>input_config_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#176 id=176 data-nosnippet>176</a>    scene_input_config: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#177 id=177 data-nosnippet>177</a>    input_config_paths: <span class="prelude-ty">Option</span>&lt;InputConfigPaths&gt;,
-<a href=#178 id=178 data-nosnippet>178</a>    user_override_config: InputConfig,
-<a href=#179 id=179 data-nosnippet>179</a>    pending_rebind: <span class="prelude-ty">Option</span>&lt;PendingRebind&gt;,
-<a href=#180 id=180 data-nosnippet>180</a>
-<a href=#181 id=181 data-nosnippet>181</a>    <span class="comment">// Optional gamepad backend
-<a href=#182 id=182 data-nosnippet>182</a>    </span>gilrs: <span class="prelude-ty">Option</span>&lt;Gilrs&gt;,
+<a href=#157 id=157 data-nosnippet>157</a><span class="kw">impl </span>CaptureConfig {
+<a href=#158 id=158 data-nosnippet>158</a>    <span class="doccomment">/// Whether this run is a capture: it shoots, stops on its own or plays
+<a href=#159 id=159 data-nosnippet>159</a>    /// an input script. A capture hears its script alone: real keys, the
+<a href=#160 id=160 data-nosnippet>160</a>    /// mouse, the wheel and real pads are dropped before egui or the game
+<a href=#161 id=161 data-nosnippet>161</a>    /// sees them, so a stray scroll over its window can't move its shot
+<a href=#162 id=162 data-nosnippet>162</a>    /// (ADR 0110's amendment).
+<a href=#163 id=163 data-nosnippet>163</a>    </span><span class="kw">pub fn </span>is_capture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#164 id=164 data-nosnippet>164</a>        <span class="self">self</span>.path.is_some() || <span class="self">self</span>.exit_after.is_some() || <span class="self">self</span>.input_script.is_some()
+<a href=#165 id=165 data-nosnippet>165</a>    }
+<a href=#166 id=166 data-nosnippet>166</a>
+<a href=#167 id=167 data-nosnippet>167</a>    <span class="doccomment">/// Build a capture schedule. `every &lt;= 0` means single-shot.
+<a href=#168 id=168 data-nosnippet>168</a>    </span><span class="kw">pub fn </span>new(
+<a href=#169 id=169 data-nosnippet>169</a>        path: <span class="prelude-ty">Option</span>&lt;std::path::PathBuf&gt;,
+<a href=#170 id=170 data-nosnippet>170</a>        at: f64,
+<a href=#171 id=171 data-nosnippet>171</a>        every: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+<a href=#172 id=172 data-nosnippet>172</a>        exit_after: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+<a href=#173 id=173 data-nosnippet>173</a>    ) -&gt; <span class="self">Self </span>{
+<a href=#174 id=174 data-nosnippet>174</a>        <span class="self">Self </span>{
+<a href=#175 id=175 data-nosnippet>175</a>            path,
+<a href=#176 id=176 data-nosnippet>176</a>            at,
+<a href=#177 id=177 data-nosnippet>177</a>            every: every.filter(|s| <span class="kw-2">*</span>s &gt; <span class="number">0.0</span>),
+<a href=#178 id=178 data-nosnippet>178</a>            exit_after,
+<a href=#179 id=179 data-nosnippet>179</a>            ..Default::default()
+<a href=#180 id=180 data-nosnippet>180</a>        }
+<a href=#181 id=181 data-nosnippet>181</a>    }
+<a href=#182 id=182 data-nosnippet>182</a>}
 <a href=#183 id=183 data-nosnippet>183</a>
-<a href=#184 id=184 data-nosnippet>184</a>    <span class="comment">// State machine + persistence (survive scene transitions)
-<a href=#185 id=185 data-nosnippet>185</a>    </span>state_machine: GameStateMachine,
-<a href=#186 id=186 data-nosnippet>186</a>    persistent_store: PersistentStore,
-<a href=#187 id=187 data-nosnippet>187</a>
-<a href=#188 id=188 data-nosnippet>188</a>    <span class="comment">// Scene transition lifecycle
-<a href=#189 id=189 data-nosnippet>189</a>    </span>transition_phase: TransitionPhase,
-<a href=#190 id=190 data-nosnippet>190</a>
-<a href=#191 id=191 data-nosnippet>191</a>    <span class="comment">// Schema paths preserved across transitions
-<a href=#192 id=192 data-nosnippet>192</a>    </span>schema_paths: Vec&lt;String&gt;,
-<a href=#193 id=193 data-nosnippet>193</a>
-<a href=#194 id=194 data-nosnippet>194</a>    <span class="comment">// Terrain data for height queries
-<a href=#195 id=195 data-nosnippet>195</a>    </span>terrain: <span class="prelude-ty">Option</span>&lt;(flint_terrain::Terrain, flint_terrain::TerrainConfig)&gt;,
-<a href=#196 id=196 data-nosnippet>196</a>
-<a href=#197 id=197 data-nosnippet>197</a>    <span class="comment">// Debug overlay panels (F3 toggle)
-<a href=#198 id=198 data-nosnippet>198</a>    </span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
-<a href=#199 id=199 data-nosnippet>199</a>    </span>debug_panels: Vec&lt;Box&lt;<span class="kw">dyn </span>flint_debug_ui::DebugPanel&gt;&gt;,
-<a href=#200 id=200 data-nosnippet>200</a>
-<a href=#201 id=201 data-nosnippet>201</a>    <span class="comment">// Rendering stats overlay (F2 toggle)
-<a href=#202 id=202 data-nosnippet>202</a>    </span>show_stats: bool,
-<a href=#203 id=203 data-nosnippet>203</a>    stats_frame_times: std::collections::VecDeque&lt;f64&gt;,
-<a href=#204 id=204 data-nosnippet>204</a>
-<a href=#205 id=205 data-nosnippet>205</a>    <span class="comment">// Procedural generation resolver for runtime asset resolution
-<a href=#206 id=206 data-nosnippet>206</a>    </span>procgen_resolver: flint_procgen::ProcGenResolver,
-<a href=#207 id=207 data-nosnippet>207</a>
-<a href=#208 id=208 data-nosnippet>208</a>    <span class="comment">// Chunk streaming: chunk_id → spawned entity IDs
-<a href=#209 id=209 data-nosnippet>209</a>    </span>loaded_chunks: HashMap&lt;String, Vec&lt;flint_core::EntityId&gt;&gt;,
-<a href=#210 id=210 data-nosnippet>210</a>
-<a href=#211 id=211 data-nosnippet>211</a>    <span class="comment">// Android gamepad tracking (maps winit DeviceId to InputState gamepad slots)
-<a href=#212 id=212 data-nosnippet>212</a>    </span><span class="attr">#[cfg(target_os = <span class="string">"android"</span>)]
-<a href=#213 id=213 data-nosnippet>213</a>    </span>android_gamepad: AndroidGamepadTracker,
+<a href=#184 id=184 data-nosnippet>184</a><span class="kw">pub struct </span>PlayerApp {
+<a href=#185 id=185 data-nosnippet>185</a>    <span class="comment">// Core state
+<a href=#186 id=186 data-nosnippet>186</a>    </span><span class="kw">pub </span>world: FlintWorld,
+<a href=#187 id=187 data-nosnippet>187</a>    <span class="kw">pub </span>scene_path: String,
+<a href=#188 id=188 data-nosnippet>188</a>
+<a href=#189 id=189 data-nosnippet>189</a>    <span class="comment">// Systems
+<a href=#190 id=190 data-nosnippet>190</a>    </span><span class="kw">pub </span>clock: GameClock,
+<a href=#191 id=191 data-nosnippet>191</a>    <span class="kw">pub </span>input: InputState,
+<a href=#192 id=192 data-nosnippet>192</a>    <span class="kw">pub </span>physics: PhysicsSystem,
+<a href=#193 id=193 data-nosnippet>193</a>    <span class="comment">// Scene-declared music session (F3, ADR 0019): declared before `audio`
+<a href=#194 id=194 data-nosnippet>194</a>    // so the suite's kira handles drop before the shared AudioManager
+<a href=#195 id=195 data-nosnippet>195</a>    // (ADR 0017 drop-order rule).
+<a href=#196 id=196 data-nosnippet>196</a>    </span>music_session: <span class="prelude-ty">Option</span>&lt;music_session::MusicSession&gt;,
+<a href=#197 id=197 data-nosnippet>197</a>    <span class="doccomment">/// Set when a session with `quit_on_finish` ends on its own; the event
+<a href=#198 id=198 data-nosnippet>198</a>    /// loop exits at the end of that frame (checked in RedrawRequested,
+<a href=#199 id=199 data-nosnippet>199</a>    /// where the ActiveEventLoop is in scope).
+<a href=#200 id=200 data-nosnippet>200</a>    </span>music_exit_requested: bool,
+<a href=#201 id=201 data-nosnippet>201</a>    <span class="kw">pub </span>audio: AudioSystem,
+<a href=#202 id=202 data-nosnippet>202</a>    <span class="kw">pub </span>animation: AnimationSystem,
+<a href=#203 id=203 data-nosnippet>203</a>    <span class="kw">pub </span>particles: ParticleSystem,
+<a href=#204 id=204 data-nosnippet>204</a>    <span class="kw">pub </span>script: ScriptSystem,
+<a href=#205 id=205 data-nosnippet>205</a>
+<a href=#206 id=206 data-nosnippet>206</a>    <span class="comment">// Rendering
+<a href=#207 id=207 data-nosnippet>207</a>    </span>window: <span class="prelude-ty">Option</span>&lt;Arc&lt;Window&gt;&gt;,
+<a href=#208 id=208 data-nosnippet>208</a>    render_context: <span class="prelude-ty">Option</span>&lt;RenderContext&gt;,
+<a href=#209 id=209 data-nosnippet>209</a>    scene_renderer: <span class="prelude-ty">Option</span>&lt;SceneRenderer&gt;,
+<a href=#210 id=210 data-nosnippet>210</a>    camera: Camera,
+<a href=#211 id=211 data-nosnippet>211</a>
+<a href=#212 id=212 data-nosnippet>212</a>    <span class="comment">// Skeletal animation: entity_id → asset name for bone matrix updates
+<a href=#213 id=213 data-nosnippet>213</a>    </span>skeletal_entity_assets: HashMap&lt;flint_core::EntityId, String&gt;,
 <a href=#214 id=214 data-nosnippet>214</a>
-<a href=#215 id=215 data-nosnippet>215</a>    <span class="comment">// Android JNI axis reader for trigger/right-stick values from GameActivity
-<a href=#216 id=216 data-nosnippet>216</a>    </span><span class="attr">#[cfg(target_os = <span class="string">"android"</span>)]
-<a href=#217 id=217 data-nosnippet>217</a>    </span>android_axis_reader: <span class="prelude-ty">Option</span>&lt;<span class="kw">fn</span>() -&gt; [f32; <span class="number">4</span>]&gt;,
-<a href=#218 id=218 data-nosnippet>218</a>}
+<a href=#215 id=215 data-nosnippet>215</a>    <span class="comment">// HUD + egui overlay
+<a href=#216 id=216 data-nosnippet>216</a>    </span>egui_ctx: egui::Context,
+<a href=#217 id=217 data-nosnippet>217</a>    egui_winit: <span class="prelude-ty">Option</span>&lt;egui_winit::State&gt;,
+<a href=#218 id=218 data-nosnippet>218</a>    egui_renderer: <span class="prelude-ty">Option</span>&lt;egui_wgpu::Renderer&gt;,
 <a href=#219 id=219 data-nosnippet>219</a>
-<a href=#220 id=220 data-nosnippet>220</a><span class="kw">use </span>input_config::{InputConfigPaths, PendingRebind};</code></pre></div></section></main></body></html>
+<a href=#220 id=220 data-nosnippet>220</a>    <span class="comment">// Script-driven 2D draw commands
+<a href=#221 id=221 data-nosnippet>221</a>    </span>draw_commands: Vec&lt;DrawItem&gt;,
+<a href=#222 id=222 data-nosnippet>222</a>    <span class="doccomment">/// Depth-tested world text queued this frame (ADR 0104), laid out in
+<a href=#223 id=223 data-nosnippet>223</a>    /// the egui pass and drawn before the HUD.
+<a href=#224 id=224 data-nosnippet>224</a>    </span>world_texts: Vec&lt;flint_core::world_text::WorldText&gt;,
+<a href=#225 id=225 data-nosnippet>225</a>    world_text_pipeline: <span class="prelude-ty">Option</span>&lt;world_text::WorldTextPipeline&gt;,
+<a href=#226 id=226 data-nosnippet>226</a>    ui_textures: HashMap&lt;String, egui::TextureHandle&gt;,
+<a href=#227 id=227 data-nosnippet>227</a>    <span class="doccomment">/// Family names registered from `&lt;project&gt;/fonts/` (file stems + manifest
+<a href=#228 id=228 data-nosnippet>228</a>    /// aliases). The HUD renderer falls back to the default font for names
+<a href=#229 id=229 data-nosnippet>229</a>    /// outside this set.
+<a href=#230 id=230 data-nosnippet>230</a>    </span>ui_fonts: HashSet&lt;String&gt;,
+<a href=#231 id=231 data-nosnippet>231</a>    <span class="doccomment">/// Unknown font names already warned about (one warn per name).
+<a href=#232 id=232 data-nosnippet>232</a>    </span>ui_fonts_warned: HashSet&lt;String&gt;,
+<a href=#233 id=233 data-nosnippet>233</a>    <span class="doccomment">/// The `fonts/` root the current font set was scanned from; rescan on
+<a href=#234 id=234 data-nosnippet>234</a>    /// scene change only when this differs.
+<a href=#235 id=235 data-nosnippet>235</a>    </span>ui_fonts_root: <span class="prelude-ty">Option</span>&lt;std::path::PathBuf&gt;,
+<a href=#236 id=236 data-nosnippet>236</a>    <span class="doccomment">/// Whether egui has been given the fonts at least once. Until then
+<a href=#237 id=237 data-nosnippet>237</a>    /// `refresh_project_fonts` always installs them.
+<a href=#238 id=238 data-nosnippet>238</a>    </span>ui_fonts_installed: bool,
+<a href=#239 id=239 data-nosnippet>239</a>    <span class="doccomment">/// Set after the first egui pass: `Context::fonts()` panics before then,
+<a href=#240 id=240 data-nosnippet>240</a>    /// so the script `measure_text` closure falls back to an estimate until
+<a href=#241 id=241 data-nosnippet>241</a>    /// this flips.
+<a href=#242 id=242 data-nosnippet>242</a>    </span>egui_fonts_ready: Arc&lt;std::sync::atomic::AtomicBool&gt;,
+<a href=#243 id=243 data-nosnippet>243</a>
+<a href=#244 id=244 data-nosnippet>244</a>    <span class="comment">// Asset catalog (optional, for content-addressed asset resolution)
+<a href=#245 id=245 data-nosnippet>245</a>    </span>catalog: <span class="prelude-ty">Option</span>&lt;AssetCatalog&gt;,
+<a href=#246 id=246 data-nosnippet>246</a>    content_store: <span class="prelude-ty">Option</span>&lt;ContentStore&gt;,
+<a href=#247 id=247 data-nosnippet>247</a>
+<a href=#248 id=248 data-nosnippet>248</a>    <span class="comment">// Window options
+<a href=#249 id=249 data-nosnippet>249</a>    </span><span class="kw">pub </span>fullscreen: bool,
+<a href=#250 id=250 data-nosnippet>250</a>    cursor_captured: bool,
+<a href=#251 id=251 data-nosnippet>251</a>    <span class="doccomment">/// Whether the window has the keyboard focus; real pads are dropped
+<a href=#252 id=252 data-nosnippet>252</a>    /// and released while it doesn't (ADR 0110).
+<a href=#253 id=253 data-nosnippet>253</a>    </span>window_focused: bool,
+<a href=#254 id=254 data-nosnippet>254</a>    <span class="doccomment">/// The `InputState` slots real pads (gilrs) have written, released when
+<a href=#255 id=255 data-nosnippet>255</a>    /// the window loses focus.
+<a href=#256 id=256 data-nosnippet>256</a>    </span>real_pad_slots: std::collections::HashSet&lt;u32&gt;,
+<a href=#257 id=257 data-nosnippet>257</a>    <span class="doccomment">/// The modifiers held now, real or scripted, for `PlayerExtension::on_key`.
+<a href=#258 id=258 data-nosnippet>258</a>    </span>key_modifiers: winit::keyboard::ModifiersState,
+<a href=#259 id=259 data-nosnippet>259</a>
+<a href=#260 id=260 data-nosnippet>260</a>    <span class="comment">// Environment
+<a href=#261 id=261 data-nosnippet>261</a>    </span><span class="kw">pub </span>skybox_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#262 id=262 data-nosnippet>262</a>    <span class="doccomment">/// Scene-authored hemisphere ambient (sky, ground); None = renderer default
+<a href=#263 id=263 data-nosnippet>263</a>    </span><span class="kw">pub </span>scene_ambient: <span class="prelude-ty">Option</span>&lt;([f32; <span class="number">3</span>], [f32; <span class="number">3</span>])&gt;,
+<a href=#264 id=264 data-nosnippet>264</a>    <span class="doccomment">/// MSAA sample count for the scene renderer (1 = off, 4 = on; ADR 0058).
+<a href=#265 id=265 data-nosnippet>265</a>    /// Set from the --msaa CLI flag before the window/renderer exist.
+<a href=#266 id=266 data-nosnippet>266</a>    </span><span class="kw">pub </span>msaa_sample_count: u32,
+<a href=#267 id=267 data-nosnippet>267</a>    <span class="doccomment">/// When scene procgen assets are made (#32): during load, or behind
+<a href=#268 id=268 data-nosnippet>268</a>    /// placeholders on the frame-budgeted queue (`--procgen-defer`).
+<a href=#269 id=269 data-nosnippet>269</a>    </span><span class="kw">pub </span>procgen_mode: procgen_assets::ProcGenMode,
+<a href=#270 id=270 data-nosnippet>270</a>    <span class="doccomment">/// The scene's render scale: a ceiling (fixed, and capped by pixel
+<a href=#271 id=271 data-nosnippet>271</a>    /// ratio) and whether to step under it to hold the frame rate (#122).
+<a href=#272 id=272 data-nosnippet>272</a>    /// The desktop's default draws at the surface; a page's caps DPR 1.5.
+<a href=#273 id=273 data-nosnippet>273</a>    </span><span class="kw">pub </span>render_scale: render_scale::RenderScaleSetting,
+<a href=#274 id=274 data-nosnippet>274</a>    <span class="doccomment">/// Keep procgen outputs on disk between runs (#181), in the project's
+<a href=#275 id=275 data-nosnippet>275</a>    /// `.flint/procgen-cache/` (or `FLINT_PROCGEN_CACHE=&lt;dir&gt;`; `=0` turns
+<a href=#276 id=276 data-nosnippet>276</a>    /// it off). On by default natively; off for a bundle, whose files are
+<a href=#277 id=277 data-nosnippet>277</a>    /// not on the disk, and always off on the web.
+<a href=#278 id=278 data-nosnippet>278</a>    </span><span class="kw">pub </span>procgen_disk_cache: bool,
+<a href=#279 id=279 data-nosnippet>279</a>    dynamic_scale: render_scale::DynamicScale,
+<a href=#280 id=280 data-nosnippet>280</a>    <span class="doccomment">/// `key=value,...` quality settings applied over `msaa_sample_count`,
+<a href=#281 id=281 data-nosnippet>281</a>    /// `render_scale` and the `FLINT_SHADOW*` switches at startup
+<a href=#282 id=282 data-nosnippet>282</a>    /// (FlintKart#55): `--quality`, the page's `?quality=`, an Android dev
+<a href=#283 id=283 data-nosnippet>283</a>    /// profile's `[quality]`. Scripts change them later with `set_quality`.
+<a href=#284 id=284 data-nosnippet>284</a>    </span><span class="kw">pub </span>quality_overrides: String,
+<a href=#285 id=285 data-nosnippet>285</a>    <span class="doccomment">/// The quality settings in force (see `quality.rs`).
+<a href=#286 id=286 data-nosnippet>286</a>    </span>quality: flint_render::QualitySettings,
+<a href=#287 id=287 data-nosnippet>287</a>    <span class="doccomment">/// Which refreshes the web player draws (#140, `?fps=`); `None` draws
+<a href=#288 id=288 data-nosnippet>288</a>    /// every one, as the desktop always does. See `set_frame_rate`.
+<a href=#289 id=289 data-nosnippet>289</a>    </span>frame_pacer: <span class="prelude-ty">Option</span>&lt;frame_rate::FramePacer&gt;,
+<a href=#290 id=290 data-nosnippet>290</a>    <span class="doccomment">/// Game time, in seconds, at which the clock stops (it steps by zero
+<a href=#291 id=291 data-nosnippet>291</a>    /// from then on, and scripts keep running on a still world). With
+<a href=#292 id=292 data-nosnippet>292</a>    /// `clock.frame_step` it holds a page on an exact moment for a
+<a href=#293 id=293 data-nosnippet>293</a>    /// screenshot (#102, the web's `?hold_at=`); `--screenshot-at` is the
+<a href=#294 id=294 data-nosnippet>294</a>    /// desktop's way.
+<a href=#295 id=295 data-nosnippet>295</a>    </span><span class="kw">pub </span>hold_at: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+<a href=#296 id=296 data-nosnippet>296</a>    <span class="doccomment">/// Scene-authored diffuse terminator wrap; None = 0 = legacy shading
+<a href=#297 id=297 data-nosnippet>297</a>    </span><span class="kw">pub </span>scene_diffuse_wrap: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#298 id=298 data-nosnippet>298</a>    <span class="kw">pub </span>scene_oren_nayar: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#299 id=299 data-nosnippet>299</a>    <span class="kw">pub </span>scene_sheen: <span class="prelude-ty">Option</span>&lt;([f32; <span class="number">3</span>], f32)&gt;,
+<a href=#300 id=300 data-nosnippet>300</a>
+<a href=#301 id=301 data-nosnippet>301</a>    <span class="comment">// Scene-level camera configuration
+<a href=#302 id=302 data-nosnippet>302</a>    </span><span class="kw">pub </span>scene_camera: <span class="prelude-ty">Option</span>&lt;flint_scene::CameraDef&gt;,
+<a href=#303 id=303 data-nosnippet>303</a>
+<a href=#304 id=304 data-nosnippet>304</a>    <span class="comment">// Scene-level post-processing overrides
+<a href=#305 id=305 data-nosnippet>305</a>    </span><span class="kw">pub </span>scene_post_process: <span class="prelude-ty">Option</span>&lt;flint_scene::PostProcessDef&gt;,
+<a href=#306 id=306 data-nosnippet>306</a>
+<a href=#307 id=307 data-nosnippet>307</a>    <span class="comment">// Script-driven post-processing overrides (applied per-frame before render)
+<a href=#308 id=308 data-nosnippet>308</a>    </span>pp_vignette_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#309 id=309 data-nosnippet>309</a>    pp_bloom_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#310 id=310 data-nosnippet>310</a>    pp_exposure_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#311 id=311 data-nosnippet>311</a>    pp_chromatic_aberration_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#312 id=312 data-nosnippet>312</a>    pp_radial_blur_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#313 id=313 data-nosnippet>313</a>    pp_ssao_intensity_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#314 id=314 data-nosnippet>314</a>    pp_fog_density_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#315 id=315 data-nosnippet>315</a>    pp_desaturation_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#316 id=316 data-nosnippet>316</a>    pp_dof_strength_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#317 id=317 data-nosnippet>317</a>    pp_dof_focus_distance_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#318 id=318 data-nosnippet>318</a>    pp_dof_focus_range_override: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+<a href=#319 id=319 data-nosnippet>319</a>    pp_fog_color_override: <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">3</span>]&gt;,
+<a href=#320 id=320 data-nosnippet>320</a>    pp_render_mode_override: <span class="prelude-ty">Option</span>&lt;(u32, f32)&gt;,
+<a href=#321 id=321 data-nosnippet>321</a>    pp_mode_params_override: <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">4</span>]&gt;,
+<a href=#322 id=322 data-nosnippet>322</a>    <span class="doccomment">/// True while a script-driven reality tear is on screen. Unlike the
+<a href=#323 id=323 data-nosnippet>323</a>    /// other (sticky) overrides, the mode is zeroed the frame the script
+<a href=#324 id=324 data-nosnippet>324</a>    /// stops calling set_render_mode — a dead or hot-reloaded script must
+<a href=#325 id=325 data-nosnippet>325</a>    /// never freeze a tear over the world.
+<a href=#326 id=326 data-nosnippet>326</a>    </span>pp_mode_was_active: bool,
+<a href=#327 id=327 data-nosnippet>327</a>
+<a href=#328 id=328 data-nosnippet>328</a>    <span class="doccomment">/// Rendering &amp; Effects panel's "freeze script post overrides" switch
+<a href=#329 id=329 data-nosnippet>329</a>    /// (ADR 0053): while true the per-frame script/ladder override stamp is
+<a href=#330 id=330 data-nosnippet>330</a>    /// skipped so panel edits to contended post fields stick. Cached from
+<a href=#331 id=331 data-nosnippet>331</a>    /// the panel each frame (one-frame toggle lag, imperceptible).
+<a href=#332 id=332 data-nosnippet>332</a>    </span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
+<a href=#333 id=333 data-nosnippet>333</a>    </span>pp_debug_freeze: bool,
+<a href=#334 id=334 data-nosnippet>334</a>
+<a href=#335 id=335 data-nosnippet>335</a>    <span class="comment">// Ladder-driven post params: the scene's authored base, captured at
+<a href=#336 id=336 data-nosnippet>336</a>    // session start and written back after teardown (ADR 0021).
+<a href=#337 id=337 data-nosnippet>337</a>    </span>music_pp_base: <span class="prelude-ty">Option</span>&lt;music_session::LadderPostBase&gt;,
+<a href=#338 id=338 data-nosnippet>338</a>    music_pp_restore: <span class="prelude-ty">Option</span>&lt;music_session::LadderPostBase&gt;,
+<a href=#339 id=339 data-nosnippet>339</a>
+<a href=#340 id=340 data-nosnippet>340</a>    <span class="doccomment">/// `[scene] preload_audio` — false skips the blanket audio/ preload
+<a href=#341 id=341 data-nosnippet>341</a>    /// (silent scenes start instantly); audio_source + session stems
+<a href=#342 id=342 data-nosnippet>342</a>    /// unaffected. Set from the scene file before startup, like msaa.
+<a href=#343 id=343 data-nosnippet>343</a>    </span><span class="kw">pub </span>scene_preload_audio: bool,
+<a href=#344 id=344 data-nosnippet>344</a>    <span class="doccomment">/// `vfs::generation()` when the scene's audio was last loaded. A late
+<a href=#345 id=345 data-nosnippet>345</a>    /// bundle (#98) installs a grown file source mid-game; when the count
+<a href=#346 id=346 data-nosnippet>346</a>    /// moves, the audio that couldn't be found before is loaded.
+<a href=#347 id=347 data-nosnippet>347</a>    </span><span class="kw">pub</span>(<span class="kw">super</span>) audio_vfs_generation: u64,
+<a href=#348 id=348 data-nosnippet>348</a>
+<a href=#349 id=349 data-nosnippet>349</a>    <span class="doccomment">/// Initial window size in physical pixels (`--width`/`--height`).
+<a href=#350 id=350 data-nosnippet>350</a>    /// Ignored on Android, where the surface is the screen.
+<a href=#351 id=351 data-nosnippet>351</a>    </span><span class="kw">pub </span>window_size: (u32, u32),
+<a href=#352 id=352 data-nosnippet>352</a>    <span class="doccomment">/// Screenshot capture driven by `--screenshot` / `--screenshot-at` /
+<a href=#353 id=353 data-nosnippet>353</a>    /// `--screenshot-every` / `--exit-after`. Captures the presented frame
+<a href=#354 id=354 data-nosnippet>354</a>    /// (scene + egui HUD) right before `present()`.
+<a href=#355 id=355 data-nosnippet>355</a>    </span><span class="kw">pub </span>capture: CaptureConfig,
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="doccomment">/// Set once `--exit-after` elapses; the redraw handler exits the loop.
+<a href=#357 id=357 data-nosnippet>357</a>    </span>exit_requested: bool,
+<a href=#358 id=358 data-nosnippet>358</a>
+<a href=#359 id=359 data-nosnippet>359</a>    <span class="comment">// Input config layering + remap persistence
+<a href=#360 id=360 data-nosnippet>360</a>    </span>input_config_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#361 id=361 data-nosnippet>361</a>    scene_input_config: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#362 id=362 data-nosnippet>362</a>    input_config_paths: <span class="prelude-ty">Option</span>&lt;InputConfigPaths&gt;,
+<a href=#363 id=363 data-nosnippet>363</a>    user_override_config: InputConfig,
+<a href=#364 id=364 data-nosnippet>364</a>    pending_rebind: <span class="prelude-ty">Option</span>&lt;PendingRebind&gt;,
+<a href=#365 id=365 data-nosnippet>365</a>
+<a href=#366 id=366 data-nosnippet>366</a>    <span class="comment">// Optional gamepad backend
+<a href=#367 id=367 data-nosnippet>367</a>    </span>gilrs: <span class="prelude-ty">Option</span>&lt;Gilrs&gt;,
+<a href=#368 id=368 data-nosnippet>368</a>
+<a href=#369 id=369 data-nosnippet>369</a>    <span class="comment">// State machine + persistence (survive scene transitions)
+<a href=#370 id=370 data-nosnippet>370</a>    </span>state_machine: GameStateMachine,
+<a href=#371 id=371 data-nosnippet>371</a>    persistent_store: PersistentStore,
+<a href=#372 id=372 data-nosnippet>372</a>    <span class="doccomment">/// When to write `save/persist.toml` after a change (see `persist.rs`).
+<a href=#373 id=373 data-nosnippet>373</a>    </span>persist_debounce: SaveDebounce,
+<a href=#374 id=374 data-nosnippet>374</a>
+<a href=#375 id=375 data-nosnippet>375</a>    <span class="comment">// Scene transition lifecycle
+<a href=#376 id=376 data-nosnippet>376</a>    </span>transition_phase: TransitionPhase,
+<a href=#377 id=377 data-nosnippet>377</a>
+<a href=#378 id=378 data-nosnippet>378</a>    <span class="comment">// Schema paths preserved across transitions
+<a href=#379 id=379 data-nosnippet>379</a>    </span>schema_paths: Vec&lt;String&gt;,
+<a href=#380 id=380 data-nosnippet>380</a>
+<a href=#381 id=381 data-nosnippet>381</a>    <span class="comment">// Terrain data for height queries
+<a href=#382 id=382 data-nosnippet>382</a>    </span>terrain: <span class="prelude-ty">Option</span>&lt;(flint_terrain::Terrain, flint_terrain::TerrainConfig)&gt;,
+<a href=#383 id=383 data-nosnippet>383</a>
+<a href=#384 id=384 data-nosnippet>384</a>    <span class="comment">// Debug overlay panels (F3 toggle)
+<a href=#385 id=385 data-nosnippet>385</a>    </span><span class="attr">#[cfg(feature = <span class="string">"debug-hud"</span>)]
+<a href=#386 id=386 data-nosnippet>386</a>    </span>debug_panels: Vec&lt;Box&lt;<span class="kw">dyn </span>flint_debug_ui::DebugPanel&gt;&gt;,
+<a href=#387 id=387 data-nosnippet>387</a>    <span class="doccomment">/// F3 Particles panel toggle: when false the sim still runs but nothing
+<a href=#388 id=388 data-nosnippet>388</a>    /// is uploaded to the renderer (ADR 0068).
+<a href=#389 id=389 data-nosnippet>389</a>    </span>particles_render_enabled: bool,
+<a href=#390 id=390 data-nosnippet>390</a>
+<a href=#391 id=391 data-nosnippet>391</a>    <span class="comment">// Rendering stats overlay (F2 toggle)
+<a href=#392 id=392 data-nosnippet>392</a>    </span>show_stats: bool,
+<a href=#393 id=393 data-nosnippet>393</a>    stats_frame_times: std::collections::VecDeque&lt;f64&gt;,
+<a href=#394 id=394 data-nosnippet>394</a>    <span class="doccomment">/// The player turned the renderer's GPU timing on for the overlay
+<a href=#395 id=395 data-nosnippet>395</a>    /// (ADR 0108), so it turns it off again when the overlay closes
+<a href=#396 id=396 data-nosnippet>396</a>    </span>stats_gpu_timing: bool,
+<a href=#397 id=397 data-nosnippet>397</a>    <span class="doccomment">/// The perf readout's recorder (`?perf=1` on the web, #120): frame and
+<a href=#398 id=398 data-nosnippet>398</a>    /// phase times for the last ten seconds. `None` costs nothing.
+<a href=#399 id=399 data-nosnippet>399</a>    </span>perf: <span class="prelude-ty">Option</span>&lt;perf::PerfRecorder&gt;,
+<a href=#400 id=400 data-nosnippet>400</a>
+<a href=#401 id=401 data-nosnippet>401</a>    <span class="comment">// Procedural generation resolver for runtime asset resolution
+<a href=#402 id=402 data-nosnippet>402</a>    </span>procgen_resolver: flint_procgen::ProcGenResolver,
+<a href=#403 id=403 data-nosnippet>403</a>
+<a href=#404 id=404 data-nosnippet>404</a>    <span class="comment">// Chunk streaming: chunk_id → spawned entity IDs
+<a href=#405 id=405 data-nosnippet>405</a>    </span>loaded_chunks: HashMap&lt;String, Vec&lt;flint_core::EntityId&gt;&gt;,
+<a href=#406 id=406 data-nosnippet>406</a>
+<a href=#407 id=407 data-nosnippet>407</a>    <span class="comment">// Android gamepad tracking (maps winit DeviceId to InputState gamepad slots)
+<a href=#408 id=408 data-nosnippet>408</a>    </span><span class="attr">#[cfg(target_os = <span class="string">"android"</span>)]
+<a href=#409 id=409 data-nosnippet>409</a>    </span>android_gamepad: AndroidGamepadTracker,
+<a href=#410 id=410 data-nosnippet>410</a>
+<a href=#411 id=411 data-nosnippet>411</a>    <span class="comment">// Android JNI axis reader for trigger/right-stick values from GameActivity
+<a href=#412 id=412 data-nosnippet>412</a>    </span><span class="attr">#[cfg(target_os = <span class="string">"android"</span>)]
+<a href=#413 id=413 data-nosnippet>413</a>    </span>android_axis_reader: <span class="prelude-ty">Option</span>&lt;<span class="kw">fn</span>() -&gt; [f32; <span class="number">4</span>]&gt;,
+<a href=#414 id=414 data-nosnippet>414</a>
+<a href=#415 id=415 data-nosnippet>415</a>    <span class="doccomment">/// Game-installed hooks (`add_extension`), in the order they were added.
+<a href=#416 id=416 data-nosnippet>416</a>    </span>extensions: Vec&lt;Box&lt;<span class="kw">dyn </span><span class="kw">crate</span>::extension::PlayerExtension&gt;&gt;,
+<a href=#417 id=417 data-nosnippet>417</a>    <span class="doccomment">/// Which held keys and buttons belong to egui (game egui layer, ADR 0073).
+<a href=#418 id=418 data-nosnippet>418</a>    </span>egui_input: egui_input::EguiInputGate,
+<a href=#419 id=419 data-nosnippet>419</a>
+<a href=#420 id=420 data-nosnippet>420</a>    <span class="doccomment">/// The device request in flight on the web (#99): `RenderContext::new`
+<a href=#421 id=421 data-nosnippet>421</a>    /// resolves into it, and startup finishes on the loop.
+<a href=#422 id=422 data-nosnippet>422</a>    </span><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
+<a href=#423 id=423 data-nosnippet>423</a>    </span>pending_render: web_startup::RenderSlot,
+<a href=#424 id=424 data-nosnippet>424</a>    <span class="doccomment">/// Wakes the event loop when the device arrives (`set_event_proxy`).
+<a href=#425 id=425 data-nosnippet>425</a>    </span><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
+<a href=#426 id=426 data-nosnippet>426</a>    </span>event_proxy: <span class="prelude-ty">Option</span>&lt;winit::event_loop::EventLoopProxy&lt;()&gt;&gt;,
+<a href=#427 id=427 data-nosnippet>427</a>    <span class="doccomment">/// The browser's pointer lock, followed each frame (#102).
+<a href=#428 id=428 data-nosnippet>428</a>    </span><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
+<a href=#429 id=429 data-nosnippet>429</a>    </span>pointer_lock: web_page::PointerLock,
+<a href=#430 id=430 data-nosnippet>430</a>}
+<a href=#431 id=431 data-nosnippet>431</a>
+<a href=#432 id=432 data-nosnippet>432</a><span class="kw">use </span>input_config::{InputConfigPaths, PendingRebind};
+</code></pre></div></section></main></body></html>

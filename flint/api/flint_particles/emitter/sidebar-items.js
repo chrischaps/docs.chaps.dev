@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["EmissionShape","ParticleBlendMode"],"struct":["EmitterConfig","EmitterState"]};
+window.SIDEBAR_ITEMS = {"enum":["EmissionShape","Force","ParticleBlendMode","SortMode"],"struct":["Burst","BurstRuntime","EmitterConfig","EmitterState","SubEmitter"]};

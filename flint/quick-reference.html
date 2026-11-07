@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-c3ee08a0.js"></script>
+        <script src="toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -209,6 +209,8 @@
 <tr><td><code>flint play-chart &lt;manifest&gt; --chart &lt;chart&gt;</code></td><td>Play a chart with live gamepad capture (<code>--record</code>, <code>--window</code>)</td></tr>
 <tr><td><code>flint replay-chart &lt;manifest&gt; --chart &lt;chart&gt;</code></td><td>Replay a recorded or synthetic session headless</td></tr>
 <tr><td><code>flint render-suite &lt;manifest&gt; -o out.wav</code></td><td>Render a scripted suite session to WAV</td></tr>
+<tr><td><code>flint render-suite &lt;file&gt;.goldens.toml</code></td><td>Render scenes and gate them against golden PNGs (<code>--bless</code> rewrites)</td></tr>
+<tr><td><code>flint render &lt;scene&gt; --style ascii:cell=12</code></td><td>Preview any registered style over a scene</td></tr>
 <tr><td><code>flint spike-rumble</code></td><td>Time the gamepad rumble paths</td></tr>
 </tbody>
 </table>
@@ -230,8 +232,8 @@
 <tr><td>Left Click</td><td>Fire</td></tr>
 <tr><td>R</td><td>Reload</td></tr>
 <tr><td>1 / 2</td><td>Weapon slots</td></tr>
-<tr><td>F2</td><td>Toggle render stats overlay</td></tr>
-<tr><td>F3</td><td>Toggle scene debug panels (ocean, day/time, camera, grass, weather… — only those the scene uses; never the F4 menu)</td></tr>
+<tr><td>F2</td><td>Toggle render stats overlay (with the GPU’s time per phase, where the device can time)</td></tr>
+<tr><td>F3</td><td>Toggle scene debug panels (ocean, day/time, camera, grass, weather… — only those the scene uses; never the F4 menu) and the game’s own (ADR 0107)</td></tr>
 <tr><td>F4</td><td>Toggle the <strong>Rendering &amp; Effects</strong> menu (all render/post toggles and parameters, debug shading mode, shadows, lighting levers)</td></tr>
 <tr><td>F9</td><td>Force a music-session full-fail (debug builds, session running)</td></tr>
 <tr><td><code>`</code> / <code>\</code></td><td>Music Guide overlay / Manifest Map strip (debug builds, session running)</td></tr>
@@ -286,7 +288,7 @@
 </table>
 </div>
 <h3 id="rendering--effects-menu-f4-player-and-viewer"><a class="header" href="#rendering--effects-menu-f4-player-and-viewer">Rendering &amp; Effects Menu (F4, player and viewer)</a></h3>
-<p>One panel for everything the old F-keys flipped. Sections: <strong>Post chain</strong> (enable, exposure, vignette, chromatic aberration, radial blur, desaturate; player-only “freeze script post overrides”), <strong>SSAO</strong> (radius, intensity, bias, samples), <strong>Depth of field</strong> (strength, focus distance, range; viewer adds DoF-follow-selection), <strong>Fog</strong> and height fog, <strong>Bloom</strong> with film grain and FXAA, <strong>Kuwahara</strong>, <strong>Render mode</strong> (none / Matrix / blood / drunk / Tron / underwater, mix, params), <strong>Dither / Volumetric</strong>, <strong>Shadows</strong> (enable, resolution — rebuilds the shadow pass), <strong>Lighting</strong> (ambient sky/ground, diffuse wrap, Oren-Nayar, sheen, reset), <strong>Camera</strong> (vertical FOV), <strong>Shading</strong> (debug mode combo). The viewer also has an authored-vs-viewer-default post switch.</p>
+<p>One panel for everything the old F-keys flipped. Sections: <strong>Post chain</strong> (enable, exposure, vignette, chromatic aberration, radial blur, desaturate; player-only “freeze script post overrides”), <strong>SSAO</strong> (radius, intensity, bias, samples), <strong>Depth of field</strong> (strength, focus distance, range; viewer adds DoF-follow-selection), <strong>Fog</strong> with height fog, the aerial tint and ground fog, <strong>Bloom</strong> with film grain and FXAA, <strong>Kuwahara</strong>, <strong>Render mode</strong> (none / Matrix / blood / drunk / Tron / underwater, mix, params), <strong>Dither / Volumetric</strong>, <strong>Shadows</strong> (enable, resolution — rebuilds the shadow pass), <strong>Lighting</strong> (ambient sky/ground, diffuse wrap, Oren-Nayar, sheen, reset), <strong>Camera</strong> (vertical FOV), <strong>Shading</strong> (debug mode combo). The viewer also has an authored-vs-viewer-default post switch.</p>
 <h3 id="file-type-auto-detection-flint-edit"><a class="header" href="#file-type-auto-detection-flint-edit">File Type Auto-Detection (<code>flint edit</code>)</a></h3>
 <div class="table-wrapper">
 <table>
@@ -400,21 +402,28 @@ text = "0"
 </code></pre>
 <h3 id="ui-style"><a class="header" href="#ui-style">UI Style</a></h3>
 <pre><code class="language-toml"># ui/hud.style.toml
+tokens = "ui/theme.toml"           # shared theme: [color] / [font] / [type] / [shape] / [space] sections
+                                   # (tokens_file = "..." or [tokens] import = "..." alongside a local [tokens] table)
+
 [styles.hud-panel]
 width = 160
 height = 50
-bg_color = [0.0, 0.0, 0.0, 0.6]
-rounding = 6
+bg_color = "$ink"                  # "$name" searches local [tokens] then every theme section
+rounding = "$shape.radius"         # "$section.name" pins one section
 padding = [10, 8, 10, 8]
 x = -10
 y = 10
 
 [styles.score-value]
 font_size = 28
+font = "BarlowCondensed-Bold"      # fonts/BarlowCondensed-Bold.ttf, or a fonts.toml alias
+letter_spacing = 1.0
+shadow = [2, 2, 0.0, 0.0, 0.0, 0.6]  # dx, dy, r, g, b, a
 color = [1.0, 1.0, 1.0, 1.0]
 text_align = "center"
 width_pct = 100
 </code></pre>
+<p>Edits to <code>.ui.toml</code>, <code>.style.toml</code> and the token file hot-reload in the player; script overrides survive for ids that still exist.</p>
 <h3 id="script-attachment"><a class="header" href="#script-attachment">Script Attachment</a></h3>
 <pre><code class="language-toml">[entities.npc.script]
 source = "npc_behavior.rhai"
@@ -458,6 +467,12 @@ position = [0, 0, 0]
 <tr><td><code>distance(a, b)</code></td><td><code>f64</code></td><td>Distance between two entities</td></tr>
 <tr><td><code>is_action_pressed(action)</code></td><td><code>bool</code></td><td>Check if action is held</td></tr>
 <tr><td><code>is_action_just_pressed(action)</code></td><td><code>bool</code></td><td>Check if action pressed this frame</td></tr>
+<tr><td><code>last_input_device()</code> / <code>gamepad_connected()</code></td><td><code>String</code> / <code>bool</code></td><td><code>"keyboard"</code> | <code>"mouse"</code> | <code>"gamepad"</code> | <code>"touch"</code> latch for prompt glyphs; whether a pad is attached</td></tr>
+<tr><td><code>mouse_x()</code> / <code>mouse_y()</code></td><td><code>f64</code></td><td>Cursor in logical points; <code>is_mouse_pressed(b)</code> / <code>is_mouse_just_pressed(b)</code> (0 left, 1 right, 2 middle)</td></tr>
+<tr><td><code>screen_to_ground(x, y, plane_y)</code></td><td><code>[x, z]</code>/<code>()</code></td><td>Ground point under a screen point (e.g. the cursor); <code>world_to_screen(x, y, z)</code> is the inverse</td></tr>
+<tr><td><code>screen_to_heightfield(x, y)</code> / <code>ground_height(x, z)</code></td><td><code>[x, y, z]</code>/<code>()</code>, <code>f64</code>/<code>()</code></td><td>The host’s registered ground field under a screen point, and its height (ADR 0095)</td></tr>
+<tr><td><code>draw_world_line(x1, y1, z1, x2, y2, z2, r, g, b, a, thickness)</code></td><td><code>()</code></td><td>World-space line in the 3D frame, hidden behind nearer geometry (unlike <code>draw_line_3d</code>, which is HUD)</td></tr>
+<tr><td><code>draw_world_text(x, y, z, text, size, opts)</code></td><td><code>()</code></td><td>Text at a world point, hidden behind nearer geometry: a billboard in points, or painted on a plane (<code>facing</code>) in world units</td></tr>
 <tr><td><code>delta_time()</code></td><td><code>f64</code></td><td>Seconds since last frame</td></tr>
 <tr><td><code>play_sound(name)</code></td><td>—</td><td>Play a sound effect</td></tr>
 <tr><td><code>set_dof(strength)</code> / <code>set_dof_focus(dist, range)</code></td><td>—</td><td>Drive depth of field from a script</td></tr>
@@ -470,16 +485,31 @@ position = [0, 0, 0]
 <tr><td><code>fade_anim_layer(id, idx, w, secs)</code></td><td>—</td><td>Ramp a layer’s weight over <code>secs</code></td></tr>
 <tr><td><code>play_sequence(id, name)</code> / <code>stop_sequence(id)</code></td><td>—</td><td>Drive the animator from <code>animations/*.sequence.toml</code> (cues → <code>on_sequence_cue</code>)</td></tr>
 <tr><td><code>raycast(ox,oy,oz, dx,dy,dz, dist)</code></td><td><code>Map</code>/<code>()</code></td><td>Cast a ray, get hit info</td></tr>
+<tr><td><code>raycast_meshes(ox,oy,oz, dx,dy,dz, dist)</code> / <code>screen_to_mesh(x, y)</code></td><td><code>Map</code>/<code>()</code></td><td>The same against the meshes drawn as ray targets, no physics needed: a wall in the camera’s way, the roof under the cursor (ADR 0105)</td></tr>
 <tr><td><code>move_character(id, dx, dy, dz)</code></td><td><code>#{x,y,z,grounded}</code></td><td>Collision-corrected movement</td></tr>
 <tr><td><code>spawn_entity(name)</code></td><td><code>i64</code></td><td>Create a new entity</td></tr>
 <tr><td><code>load_scene(path)</code></td><td>—</td><td>Transition to a new scene</td></tr>
 <tr><td><code>push_state("paused")</code></td><td>—</td><td>Push a game state (e.g., pause)</td></tr>
 <tr><td><code>pop_state()</code></td><td>—</td><td>Pop to previous game state</td></tr>
-<tr><td><code>persist_set(key, val)</code></td><td>—</td><td>Store data across scene transitions</td></tr>
+<tr><td><code>persist_set(key, val)</code></td><td>—</td><td>Store data across scene transitions; auto-saved to <code>save/persist.toml</code> 1 s later, on transitions and on exit</td></tr>
+<tr><td><code>persist_save()</code></td><td>—</td><td>Write <code>save/persist.toml</code> now</td></tr>
+<tr><td><code>load_data(path)</code></td><td><code>Map</code>/<code>()</code></td><td>Read a TOML data file relative to the project root (cached; <code>load_data(path, true)</code> re-reads)</td></tr>
 <tr><td><code>load_ui(path)</code></td><td><code>i64</code></td><td>Load a <code>.ui.toml</code> document (returns handle)</td></tr>
 <tr><td><code>ui_set_text(id, text)</code></td><td>—</td><td>Set element text content</td></tr>
 <tr><td><code>ui_show(id)</code> / <code>ui_hide(id)</code></td><td>—</td><td>Toggle element visibility</td></tr>
-<tr><td><code>ui_set_style(id, prop, val)</code></td><td>—</td><td>Override a style property at runtime</td></tr>
+<tr><td><code>ui_set_style(id, prop, val)</code></td><td>—</td><td>Override any style property at runtime (number, string, bool, array, or <code>"$token"</code>)</td></tr>
+<tr><td><code>ui_set_style_array(id, prop, [..])</code></td><td>—</td><td>Override <code>color</code> / <code>bg_color</code> / <code>stroke_color</code> / <code>padding</code> / <code>uv</code> / <code>shadow</code></td></tr>
+<tr><td><code>ui_token(name)</code></td><td>value or <code>()</code></td><td>Read a style token (<code>"accent"</code>, <code>"$accent"</code>, <code>"color.accent"</code>) as float / float array / string</td></tr>
+<tr><td><code>ui_hit(id, x, y)</code></td><td><code>bool</code></td><td>Point-in-rect against the element’s resolved layout (logical points)</td></tr>
+<tr><td><code>draw_text_opts(x, y, text, size, #{font, color, align, stroke, spacing, layer, shadow})</code></td><td>—</td><td>HUD text in a project font (<code>fonts/*.ttf</code>, family = file stem)</td></tr>
+<tr><td><code>measure_text_ex(text, size, font, spacing)</code></td><td><code>#{width,height}</code></td><td>Real laid-out text size (also <code>measure_text(text, size)</code>)</td></tr>
+<tr><td><code>draw_ring(cx, cy, r_in, r_out, start_deg, end_deg, r, g, b, a, layer)</code></td><td>—</td><td>Annular sector; degrees from 12 o’clock, clockwise (<code>draw_arc(cx, cy, radius, a0, a1, r, g, b, a, thickness, layer)</code> for a stroke)</td></tr>
+<tr><td><code>draw_polygon(points, r, g, b, a, layer)</code></td><td>—</td><td>Convex fill from <code>[[x,y],...]</code> or flat <code>[x0,y0,...]</code>; <code>draw_polygon_outline(points, r, g, b, a, thickness, closed, layer)</code></td></tr>
+<tr><td><code>draw_rect_gradient(x, y, w, h, r1,g1,b1,a1, r2,g2,b2,a2, vertical, layer)</code></td><td>—</td><td>Two-colour linear gradient fill</td></tr>
+<tr><td><code>draw_rect_ex4(x, y, w, h, r, g, b, a, tl, tr, br, bl, layer)</code></td><td>—</td><td>Filled rect with per-corner rounding; <code>draw_rect_outline_ex(..., thickness, rounding, layer)</code></td></tr>
+<tr><td><code>push_clip(x, y, w, h)</code> / <code>pop_clip()</code></td><td>—</td><td>Clip following draw calls to a rect (nests by intersection; reset each frame)</td></tr>
+<tr><td><code>push_over_ui()</code> / <code>pop_over_ui()</code></td><td>—</td><td>Draw following calls above the game’s egui panels and windows (nests; reset each frame)</td></tr>
+<tr><td><code>import "ui_kit" as ui;</code></td><td>—</td><td>Load <code>scripts/lib/ui_kit.rhai</code>; call <code>ui::fn_name(...)</code>. Edits under <code>scripts/lib/</code> hot-reload every script</td></tr>
 </tbody>
 </table>
 </div>

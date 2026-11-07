@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ExtensionAudio","ExtensionCtx","ExtensionGpu","KeyInput","MeshOptions","SoundOptions"],"trait":["PlayerExtension"]};

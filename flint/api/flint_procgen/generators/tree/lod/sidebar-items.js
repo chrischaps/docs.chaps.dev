@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["generate_lods"]};
+window.SIDEBAR_ITEMS = {"fn":["generate_lods","join_bark_and_leaves","thin_cards","tree_lod"]};

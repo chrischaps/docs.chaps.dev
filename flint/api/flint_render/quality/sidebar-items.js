@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["QualityError","QualityValue"],"fn":["gpu_class","gpu_info","mask_post_process","platform"],"struct":["GpuInfo","QualitySettings"]};

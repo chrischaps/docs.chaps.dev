@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -199,8 +199,7 @@ value = 42
 trunk_height = 4.5
 trunk_radius_base = 0.35
 branch_method = "lsystem"
-branch_levels = 3
-crown_shape = "sphere"
+lsystem_iterations = 5
 crown_radius = 3.5
 leaf_style = "billboard"
 leaf_color_base = "#2D8C0D"
@@ -225,35 +224,71 @@ target_triangles = 2000
 <tr><td></td><td><code>description</code>, <code>version</code>, <code>tags</code></td><td>Search and provenance metadata</td></tr>
 <tr><td><code>[seed]</code></td><td><code>mode</code></td><td><code>fixed</code> (use <code>value</code>), <code>random</code> (fresh seed every run), <code>derived</code> (hash <code>derive_from</code>)</td></tr>
 <tr><td><code>[params]</code></td><td></td><td>Opaque table; each generator defines and validates its own keys</td></tr>
-<tr><td><code>[[lod]]</code></td><td><code>level</code>, <code>target_triangles</code></td><td>Optional decimation targets, level 0 is full detail</td></tr>
+<tr><td><code>[[lod]]</code></td><td><code>level</code>, <code>target_triangles</code></td><td>Optional decimation targets; <code>level</code> is the LOD’s index, 0 the most detailed</td></tr>
 </tbody>
 </table>
 </div>
-<p>Every generator publishes a JSON Schema for its <code>params</code> table, which is what the previewer uses to build its parameter editor and what <code>flint gen --dry-run</code> validates against.</p>
-<h2 id="generators"><a class="header" href="#generators">Generators</a></h2>
-<h3 id="tree_v1"><a class="header" href="#tree_v1"><code>tree_v1</code></a></h3>
-<p>Trunk, branches, leaves and bark in one pass. The trunk is a noise-displaced tapered tube (<code>trunk_height</code>, <code>trunk_radius_base</code>, <code>trunk_radius_top</code>, <code>trunk_segments</code>, <code>radial_segments</code>, <code>trunk_curve_noise</code>). Branches come from one of two methods: <code>branch_method = "lsystem"</code> with <code>lsystem_iterations</code> and <code>lsystem_angle_variation</code>, or <code>"space_colonization"</code>, which grows toward attractor points filling a crown of <code>crown_shape</code> (<code>sphere</code>, <code>ellipsoid</code>, <code>hemisphere</code>), <code>crown_radius</code> and <code>crown_height_ratio</code>. <code>branch_levels</code>, <code>branch_angle_min/max</code>, <code>branch_length_falloff</code>, <code>branch_radius_falloff</code> and <code>branch_radial_segments</code> shape the hierarchy. Leaves are <code>leaf_style = "billboard"</code> quads placed <code>leaves_per_tip</code> at each branch tip plus <code>leaf_along_branch_density</code> along branches deeper than <code>leaf_along_branch_min_depth</code>, with <code>leaf_size</code>, <code>leaf_size_variation</code>, <code>leaf_spread_radius</code>, <code>leaf_color_base</code> and <code>leaf_color_variation</code>. Bark gets a generated normal map (<code>bark_color_base</code>, <code>bark_roughness</code>, <code>bark_normal_strength</code>, <code>bark_normal_resolution</code>). With <code>[[lod]]</code> levels the output is a mesh chain, exported to one GLB.</p>
-<h3 id="texture_v1"><a class="header" href="#texture_v1"><code>texture_v1</code></a></h3>
-<p>Produces an image set, by default albedo, normal and roughness (<code>output_maps</code>), at <code>width</code> by <code>height</code>, optionally <code>seamless</code>. Two routes:</p>
-<p><strong>Patterns.</strong> <code>pattern</code> selects a base-shape producer whose per-pixel field (cell ids, heights, edge distances) is turned into PBR maps by shared derivation parameters: <code>base_color</code>, <code>color_variation</code>, <code>mortar_color</code>, <code>mortar_threshold</code>, <code>roughness_base</code>, <code>roughness_variation</code>, <code>roughness_mortar</code>, <code>normal_strength</code>, <code>detail_scale</code>, <code>detail_strength</code>.</p>
+<p>Every generator publishes a JSON Schema for its <code>params</code> table, which is what the previewer uses to build its parameter editor and what <code>flint gen</code> checks a spec against before it runs (<code>flint_procgen::lint_params</code>). A key the generator would silently ignore is a warning: one that isn’t in the schema (usually a typo, so the nearest key is suggested), or one that only applies in another mode. A schema marks those with <code>"x-when": { "pattern": ["voronoi_brick"] }</code> (the texture’s patterns) or <code>"x-when": { "branch_method": ["space_colonization"] }</code> (the tree’s growth methods); the previewer hides such fields and leaves them out when it saves. A key marked <code>"deprecated": true</code> is warned about with its reason. <code>--strict</code> turns these warnings into an error. Every key carries a one-line <code>description</code>, which the previewer shows when you hover the field.</p>
+<p>The check reaches inside nested tables too. Each <code>[[params.ops]]</code> entry of a texture pipeline is held to its op type’s own schema (<code>flint_procgen::op_schema</code>: the op’s knobs plus <code>type</code>, <code>id</code> and <code>inputs</code>), and so are a <code>color_ramp</code>’s stops and a creature’s <code>[params.materials.&lt;name&gt;]</code> tables. The warning names the key by its path:</p>
+<pre><code>warning: stone_wall.procgen.toml: `mortar_treshold` is not a parameter of this generator (did you mean `mortar_threshold`?)
+warning: stone_wall.procgen.toml: `cell_count` is ignored: it only applies when pattern is "voronoi_brick", and this spec has pattern = "perlin_organic"
+warning: tavern_brick.procgen.toml: `ops[0].colums` is not a parameter of the brick_grid op (did you mean `columns`?)
+</code></pre>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<p>Four commented specs in <code>specs/examples/</code> are the place to start: each opens by saying how its generator thinks, and notes every key that isn’t obvious.</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Pattern</th><th>Good for</th></tr>
+<tr><th>Spec</th><th>Makes</th><th>Shows</th></tr>
 </thead>
 <tbody>
-<tr><td><code>voronoi_brick</code></td><td>Stone walls, cobbles, cracked earth</td></tr>
-<tr><td><code>perlin_organic</code></td><td>Layered rock, dirt, bark, natural surfaces</td></tr>
-<tr><td><code>tiling_grid</code></td><td>Manufactured tiles, bricks, panels</td></tr>
+<tr><td><code>oak_tree</code></td><td>A broad oak, three LODs</td><td><code>tree_v1</code> with the built-in L-system</td></tr>
+<tr><td><code>pine_tree</code></td><td>A Scots pine, three LODs</td><td><code>tree_v1</code> with space colonization in a <code>cone</code> crown</td></tr>
+<tr><td><code>stone_wall</code></td><td>Fieldstone in mortar, three tiling maps</td><td><code>texture_v1</code>, the <code>voronoi_brick</code> pattern</td></tr>
+<tr><td><code>wood_plank</code></td><td>Oak floorboards, three maps</td><td><code>texture_v1</code>, a pipeline of ops</td></tr>
 </tbody>
 </table>
 </div>
-<p><strong>Pipeline.</strong> <code>pattern = "pipeline"</code> switches to a composable node graph: an ordered <code>[[params.ops]]</code> list where each op reads named fields and writes named outputs.</p>
+<p><img src="../images/procgen-examples.png" alt="The four example specs in one scene: the oak and the pine, the stone wall behind, a deck of the wood planks"></p>
+<p><em>The four examples together, from <code>flint gen</code> and <code>flint render</code>. The trees were generated without their <code>[[lod]]</code> tables, because a GLB’s LOD levels currently all draw at once (<a href="https://github.com/chrischaps/Flint/issues/193">#193</a>).</em></p>
+<p>The crate’s <a href="https://github.com/chrischaps/Flint/blob/main/crates/flint-procgen/README.md">README</a> holds the full parameter catalog, generated from the schemas, and its <a href="https://github.com/chrischaps/Flint/blob/main/crates/flint-procgen/CONTRIBUTING.md">CONTRIBUTING guide</a> builds a new generator from scratch.</p>
+<h2 id="generators"><a class="header" href="#generators">Generators</a></h2>
+<h3 id="tree_v1"><a class="header" href="#tree_v1"><code>tree_v1</code></a></h3>
+<p>Trunk, branches, leaves and bark in one pass. The trunk is a noise-displaced tapered tube (<code>trunk_height</code>, <code>trunk_radius_base</code>, <code>trunk_radius_top</code>, <code>trunk_segments</code>, <code>radial_segments</code>, <code>trunk_curve_noise</code>): it leaves the ground vertically at the origin and sways with a wavelength of about 0.6 of its height, <code>trunk_curve_noise</code> metres at most; a sway that would bend the tube tighter than its radius is scaled down until it fits. Branches come from one of two methods: <code>branch_method = "lsystem"</code> with <code>lsystem_iterations</code> and <code>lsystem_angle_variation</code>, its limbs reaching <code>crown_radius</code> from where they leave the trunk, or <code>"space_colonization"</code>, which grows toward attractor points filling a crown of <code>crown_shape</code> (<code>sphere</code>, <code>ellipsoid</code>, <code>hemisphere</code>, <code>box</code>, or <code>cone</code> for conifers: <code>crown_radius</code> wide at its floor, narrowing to a point <code>crown_radius * crown_height_ratio</code> above it), <code>crown_radius</code> and <code>crown_height_ratio</code>. Either way limbs leave the trunk all the way from <code>branch_start</code> (a fraction of its height, default 0.6) up to the tip: the L-system spreads its scaffold limbs over that stretch, biggest lowest, and space colonization may sprout from any of it, its crown resting on that height. A side limb is at most 0.7 of the trunk’s thickness where it leaves; only the limb carrying on from the tip may match it. Its growth is set by <code>num_attraction_points</code>, <code>influence_distance</code> (how far a point pulls), <code>kill_distance</code> (how close a branch must come to consume it) and <code>step_size</code>. Branch radii follow the pipe model, <code>r_parent^n = sum(r_child^n)</code>, with <code>n = branch_pipe_exponent</code> (2 is da Vinci’s rule; around 3 keeps twigs sturdier). <code>cargo run -p flint-procgen --example colonization_gallery</code> grows one tree per crown shape. With the L-system, <code>lsystem_iterations</code> (the branching depth), <code>branch_angle_min/max</code>, <code>lsystem_angle_variation</code>, <code>branch_length_falloff</code> and <code>branch_radius_falloff</code> shape the hierarchy; with either method <code>branch_radial_segments</code> sets the sides of the thickest limbs. <code>branch_levels</code> is deprecated: nothing ever read it. Segments that carry on from one another are swept as one tube per limb, so bends share a ring and the bark runs unbroken through them; each tip tapers and is capped, thinner limbs get fewer sides (down to three), and the bark map wraps once around a limb’s base with square texels along it, as on the trunk. Leaves are <code>leaf_style = "billboard"</code> quads facing along their branch, or <code>"mesh"</code> diamonds tilted off it, placed <code>leaves_per_tip</code> at a <code>leaf_density</code> fraction of the branch tips plus <code>leaf_along_branch_density</code> along branches deeper than <code>leaf_along_branch_min_depth</code>, with <code>leaf_size</code>, <code>leaf_size_variation</code> and <code>leaf_spread_radius</code>. Each leaf is a two-sided card (a back face with its own normal), so it shows from both sides under back-face culling. Leaves come in <code>leaf_shades</code> shades (default 4, at most 8), each its own material: <code>leaf_color_base</code> tinted by <code>leaf_season</code> (0 the base colour, 0.4 yellow, 0.7 orange, 1.0 red), with the shades spread <code>leaf_season_variation</code> either side of it so a tree turns unevenly, and <code>leaf_color_variation</code> apart in lightness. Every leaf wears one shade. Bark gets a generated normal map (<code>bark_color_base</code>, <code>bark_roughness</code>, <code>bark_normal_strength</code>, <code>bark_normal_resolution</code>): vertical furrows crossed by short horizontal cracks, tiling around the trunk once at the base and repeating up it with square texels. The GLB embeds it as the bark material’s <code>normalTexture</code> (<code>bark_normal</code>). With <code>[[lod]]</code> levels the output is a mesh chain, exported to one GLB: LOD <em>n</em> is the <code>[[lod]]</code> with <code>level = n</code>, reduced from the full tree to its <code>target_triangles</code> (LOD 0 too, when it has an entry; without one it is the full tree). Bark and leaves are reduced apart, each keeping its share of the budget: the bark through quadric edge collapse, the leaves by dropping whole cards evenly through every cluster and growing the survivors to cover the same area. Every level keeps the bark material and the leaf shades.</p>
+<h4 id="l-system-grammars"><a class="header" href="#l-system-grammars">L-system grammars</a></h4>
+<p>With <code>branch_method = "lsystem"</code>, the crown can also be written as a grammar in the notation of <em>The Algorithmic Beauty of Plants</em>. Name a built-in one with <code>lsystem_preset</code> (<code>fractal_plant</code>, <code>weed</code>, <code>stochastic_plant</code>, <code>bush</code>), or write your own with <code>lsystem_axiom</code> and <code>lsystem_rules</code>:</p>
+<pre><code class="language-toml">branch_method = "lsystem"
+lsystem_axiom = "X"
+lsystem_rules = ["X -&gt; F[+X][-X]FX", "F (0.7) -&gt; FF", "F (0.3) -&gt; F"]
+lsystem_iterations = 5
+lsystem_angle = 25.0
+lsystem_size = 4.0      # crown reach from the trunk tip, metres
+lsystem_tropism = 0.2   # bend toward the ground per step; negative bends up
+</code></pre>
+<p>Rules sharing a predecessor are picked per occurrence by weight, from the spec’s seed. The turtle reads <code>F</code>/<code>G</code> (draw), <code>f</code> (move), <code>+ -</code> (yaw), <code>^ &amp;</code> (pitch), <code>/ \</code> (roll), <code>|</code> (turn around), <code>[ ]</code> (branch) and <code>!</code> (thin); any other symbol only steers rewriting. Symbols take arguments, as in <code>F(2, 0.1)</code> or <code>+(137.5)</code>. Each <code>[</code> scales the step by <code>branch_length_falloff</code> and the radius by <code>branch_radius_falloff</code>, starting from <code>trunk_radius_top</code>. <code>lsystem_step</code> fixes the step length instead of scaling the crown to <code>lsystem_size</code>. <code>specs/weeping_willow.procgen.toml</code> is a worked example, and <code>cargo run -p flint-procgen --example lsystem_gallery</code> grows the presets.</p>
+<h3 id="texture_v1"><a class="header" href="#texture_v1"><code>texture_v1</code></a></h3>
+<p>Produces an image set, by default albedo, normal and roughness (<code>output_maps</code>), at <code>width</code> by <code>height</code>. Two routes:</p>
+<p><strong>Patterns.</strong> <code>pattern</code> (default <code>voronoi_brick</code>) selects a base-shape producer whose per-pixel field (cell ids, heights, edge distances) is turned into PBR maps by shared derivation parameters: <code>base_color</code>, <code>color_variation</code>, <code>mortar_color</code>, <code>mortar_threshold</code>, <code>roughness_base</code>, <code>roughness_variation</code>, <code>roughness_mortar</code>, <code>normal_strength</code>, <code>detail_scale</code>, <code>detail_strength</code>.</p>
+<p>The three maps agree with each other. Each cell gets its own shade of <code>base_color</code>: lightness moves by up to <code>color_variation</code> and saturation by half that, in sRGB, while the hue stays the same, so a grey-brown wall stays grey-brown. Mortar colour and roughness blend in where <code>distance_to_edge</code> falls below <code>mortar_threshold</code>. The default threshold fills the bottom half of a Voronoi or grid groove, or draws thin strata lines on organic bands. One detail field serves all three maps: a tiling FBM with <code>detail_scale</code> lattice cells across the texture, <code>detail_octaves</code> octaves (any finer than 4 px are dropped), scaled to unit RMS. It makes the albedo brighter or darker by about <code>detail_strength</code> (0.1 means ±10%), adds relief to the normal map, and makes low spots rougher, so a dent is dark, rough and shaded in the same place. Normals come from a 3×3 Sobel kernel taken per UV unit, so the relief at 1024² matches 512².</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Pattern</th><th>Good for</th><th>Its parameters</th></tr>
+</thead>
+<tbody>
+<tr><td><code>voronoi_brick</code></td><td>Stone walls, cobbles, cracked earth</td><td><code>cell_count</code>, or <code>cell_size</code> in pixels (overrides it); <code>mortar_width</code> (the groove’s full width, as a fraction of the texture); <code>regularity</code> or <code>irregularity</code>; <code>height_variation</code></td></tr>
+<tr><td><code>perlin_organic</code></td><td>Layered rock, dirt, bark, natural surfaces</td><td><code>noise_type</code> (<code>perlin</code>, <code>simplex</code>), <code>frequency</code>, <code>octaves</code>, <code>lacunarity</code>, <code>persistence</code>, <code>height_bands</code></td></tr>
+<tr><td><code>tiling_grid</code></td><td>Manufactured tiles, bricks, panels</td><td><code>columns</code>, <code>rows</code>, <code>gap_width</code>, <code>jitter</code>, <code>height_variation</code>, <code>noise_strength</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>With <code>seamless = true</code> (the default) every pattern tiles: Voronoi distances wrap round the tile, the grid’s jittered tiles spill over one edge and return on the other, and organic noise repeats exactly. Seamless Perlin gives each octave a whole number of lattice cells per tile, so a fractional <code>frequency</code> is rounded (at least 1); seamless simplex cross-fades the noise with copies of itself shifted one tile across.</p>
+<p><strong>Pipeline.</strong> <code>pattern = "pipeline"</code> switches to a composable node graph: an ordered <code>[[params.ops]]</code> list where each op reads named fields and writes named outputs. The ops replace the derivation, so a pipeline reads only <code>width</code>, <code>height</code>, <code>output_maps</code>, <code>seamless</code> and <code>ops</code>; colours and roughness are set on the ops themselves.</p>
+<p>A pipeline tiles too, with <code>seamless = true</code> (the default). Every op that samples noise or repeats a pattern rounds its frequencies to a whole number of cycles per tile, on each axis and for each octave: <code>noise_layer</code>, <code>musgrave_texture</code>, <code>voronoi_texture</code>, <code>wave_texture</code> (an even count along <code>diagonal</code>), <code>checker_texture</code> (an even count of squares), the distortion inside <code>wave_texture</code> and the displacement and mask noise of <code>edge_erode</code>. Perlin, value and Worley noise wrap their lattice, so a fractional <code>frequency</code> or a <code>scale_x</code> that differs from <code>scale_y</code> is rounded rather than refused; simplex cross-fades with copies of itself shifted one tile across. The grid ops already wrap, and <code>blur</code>, <code>sharpen</code>, <code>edge_detect</code> and <code>derive_normal</code> read across the edge. <code>gradient_texture</code> is a ramp and never tiles. <code>seamless = false</code> keeps the unwrapped fields.</p>
 <pre><code class="language-toml">[params]
 pattern = "pipeline"
 width = 512
 height = 512
-seamless = true
 
 [[params.ops]]
 type = "voronoi_texture"
@@ -289,7 +324,7 @@ flint gen specs/stone_wall.procgen.toml -o wall.png
 flint gen specs/oak_tree.procgen.toml --dry-run          # cost estimate, no output
 flint gen specs/oak_tree.procgen.toml --seed 7 --register
 flint gen specs/beetle.procgen.toml --batch 5 --seed-start 100
-flint gen specs/oak_tree.procgen.toml --validate --style-guide styles/lowpoly.toml --strict
+flint gen specs/oak_tree.procgen.toml --validate --style-guide styles/medieval_tavern.style.toml --strict
 </code></pre>
 <div class="table-wrapper">
 <table>
@@ -300,15 +335,65 @@ flint gen specs/oak_tree.procgen.toml --validate --style-guide styles/lowpoly.to
 <tr><td><code>-o, --output</code></td><td>File or directory. Derived from <code>meta.name</code> and the output kind when omitted</td></tr>
 <tr><td><code>--seed</code></td><td>Override the spec’s seed</td></tr>
 <tr><td><code>--dry-run</code></td><td>Print the generator’s cost estimate without generating</td></tr>
-<tr><td><code>--format</code></td><td>Force <code>glb</code> or <code>png</code> instead of inferring from the extension</td></tr>
-<tr><td><code>--batch N</code>, <code>--seed-start S</code></td><td>Sequential-seed variants</td></tr>
-<tr><td><code>--register</code></td><td>Store the output in <code>.flint/assets</code> and write a <code>.asset.toml</code> sidecar recording spec hash, seed and content hash</td></tr>
-<tr><td><code>--force</code></td><td>Regenerate even when a registered output with the same spec hash and seed exists</td></tr>
-<tr><td><code>--validate</code>, <code>--strict</code>, <code>--style-guide</code></td><td>Run the output validator (geometry, materials, style constraints); <code>--strict</code> turns warnings into exit code 1</td></tr>
+<tr><td><code>--format</code></td><td><code>glb</code>, <code>png</code> or <code>wav</code>; must be the generator’s own format (mesh: GLB, images: PNG, sound: WAV). Names the file when <code>-o</code> is omitted or has another extension</td></tr>
+<tr><td><code>--batch N</code>, <code>--seed-start S</code></td><td>N variants with seeds S..S+N-1 (S defaults to 0), made one after another and written as <code>&lt;stem&gt;_&lt;seed&gt;.&lt;ext&gt;</code> (or filling a <code>{seed}</code> in <code>-o</code>). <code>--seed-start</code> needs <code>--batch</code>, and <code>--seed</code> can’t be combined with it</td></tr>
+<tr><td><code>--register</code></td><td>Store each output file in the <a href="assets.html#the-project-root">project root</a>’s <code>.flint/assets</code> (found from the working directory, or named by <code>--project &lt;dir&gt;</code>), write a <code>&lt;file&gt;.asset.toml</code> sidecar beside it, and reuse an earlier registered result for the same spec + seed</td></tr>
+<tr><td><code>--force</code></td><td>With <code>--register</code>, generate even when this spec + seed is already stored</td></tr>
+<tr><td><code>--validate</code>, <code>--strict</code>, <code>--style-guide</code></td><td>Run the output validator (see <a href="#validation">Validation</a>); <code>--strict</code> turns warnings, including ignored spec keys, into exit code 1. <code>--style-guide</code> needs <code>--validate</code></td></tr>
+<tr><td><code>--report human|json</code></td><td>How <code>--validate</code> reports (see <a href="#the-json-report">The JSON report</a>); <code>human</code> is the default. Needs <code>--validate</code></td></tr>
 </tbody>
 </table>
 </div>
 <p>Image sets write one PNG per map with the map name suffixed.</p>
+<h3 id="refining-toward-a-reference"><a class="header" href="#refining-toward-a-reference">Refining toward a reference</a></h3>
+<pre><code class="language-bash">flint gen specs/oak_tree.procgen.toml --ai-refine --reference refs/autumn_oak.png \
+  --refine-rounds 3 --save-spec specs/oak_autumn.procgen.toml -o oak.glb
+</code></pre>
+<p>This is the refine step of <a href="#ai-assistance-and-cost">AI assistance</a> (<code>--ai-refine</code> or <code>--ai-assist</code>) given a <code>--reference</code>, so it needs <code>ANTHROPIC_API_KEY</code> and every call goes through the cost meter. Claude sees the reference beside a picture of what the spec builds now: a texture’s own pixels, or for a mesh a 512x512 render from the headless model renderer (<code>flint edit model.glb --render</code>, auto-framed, no grid). It also gets a measured distance between the two (<code>flint_procgen_ai::measure</code>: mean colour, a 16-bin luminance histogram and a 16x16 luminance layout, as a score out of 100). Each round’s reply is rendered and measured again. While the distance falls, the new render and numbers go back for another round; the first round that gets no closer ends the loop, and the closest spec is kept, which is the spec unchanged if no round improved on it. <code>--refine-rounds N</code> (1-8) caps the rounds; it defaults to <code>--ai-iterations</code>. The distances print to stderr, and <code>--save-spec</code> keeps the spec the loop kept.</p>
+<p><img src="../images/procgen-refine-oak.png" alt="A green oak refined toward an orange reference: the reference, the start, and the round the loop kept"></p>
+<pre><code class="language-text">  start    distance   2.9  (colour  18.1, histogram 0.03, layout 0.02)
+  round 1  distance   2.0  (colour   2.5, histogram 0.04, layout 0.02)  &lt;- kept
+  round 2  distance   2.4  (colour   1.9, histogram 0.05, layout 0.02)
+</code></pre>
+<p>The score measures whole images, backdrop included, so for a mesh it moves most with colour and only a little with shape. It is a ruler for “closer or further” between rounds, not a judge of likeness.</p>
+<h3 id="registering-outputs"><a class="header" href="#registering-outputs">Registering outputs</a></h3>
+<p><code>--register</code> gives every file a provenance sidecar (<code>tree_42.glb.asset.toml</code>) whose <code>[asset.properties]</code> record <code>generator</code>, <code>generator_revision</code> (the revision of the generator that made the file), <code>spec_hash</code> (the spec file’s content hash), <code>seed</code> (the seed actually used, so a <code>random</code> spec’s variant can be made again with <code>--seed</code>), <code>timestamp</code> (ISO 8601 UTC), <code>flint_version</code>, and for an image set the <code>map</code>. The bytes go into the content store at <code>.flint/assets/&lt;2 hex&gt;/&lt;hash&gt;.&lt;ext&gt;</code>, and <code>.flint/procgen/&lt;spec hash&gt;/&lt;seed&gt;.toml</code> lists the hashes that spec + seed produced. Both paths are under the project root, so a run from <code>specs/</code>, from the root or from the game’s <code>engine/</code> subtree shares one store and one cache.</p>
+<p>That entry is the cache. A later <code>--register</code> run with the same spec and seed checks the files on disk against it and does not generate: <code>Cached:</code> when they match, and when one was deleted or has changed since, it is copied back from the store. Only when the store has lost a file does the run generate again.</p>
+<p>The spec hash covers the spec file, not the generator code, so every generator carries a revision (<code>Generator::revision</code>, which it bumps whenever the same spec and seed would come out different) and the entry records it. An entry made by another revision, or by a Flint from before revisions were recorded, is stale: the run says so (<code>Stale: tree.glb (seed 42, tree_v1 rev 3 -&gt; 4), regenerating</code>) and registers the new output. <code>--force</code> is still there to regenerate regardless.</p>
+<p>Before anything is generated, <code>flint gen</code> checks that the spec’s generator is registered (an unknown one is refused with the list of known generators) and that the output can hold what it makes: <code>-o tree.png</code> for a mesh, or <code>--format png</code> on one, fails with a suggested path instead of writing GLB bytes under a <code>.png</code> name. <code>--dry-run</code> shows the seed it would use, including a <code>--seed</code> override.</p>
+<h3 id="validation"><a class="header" href="#validation">Validation</a></h3>
+<p><code>--validate</code> checks what was written, not the spec: each GLB is imported again through <code>import_gltf()</code> (the importer the player uses) and each PNG decoded again, so an exporter bug fails the checks the way a generator bug would. It prints <code>Validating &lt;file&gt; (as written)</code>, one line per check and a summary (<code>Validation: 23 passed, 4 warnings, 0 failed</code>). Failures exit 1; warnings exit 0 unless <code>--strict</code>. A cached <code>--register</code> result is not validated (<code>--force</code> regenerates it).</p>
+<p><code>flint asset validate model.glb --style &lt;name&gt;</code> runs the same checks under the same names on any model, generated, imported or AI-made; only the spec triangle target needs a spec. A mesh file is one mesh (its nodes merged) unless its mesh nodes are <code>LOD_0</code>, <code>LOD_1</code>, …, which are checked one level each, as <code>flint gen</code> writes them.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Check</th><th>Fails when</th><th>Warns when</th><th>JSON <code>actual</code> / <code>limit</code></th></tr>
+</thead>
+<tbody>
+<tr><td>mesh integrity</td><td>indices aren’t whole triangles, point past the vertices, or a position isn’t finite</td><td></td><td></td></tr>
+<tr><td>spec triangle target</td><td>over 2x the spec’s <code>[[lod]] target_triangles</code> for that level</td><td>over the target</td><td>triangles / target</td></tr>
+<tr><td>style triangle budget</td><td>over 2x the style’s <code>geometry.max_triangles</code> (every mesh, every LOD)</td><td>over the budget</td><td>triangles / budget</td></tr>
+<tr><td>triangle budget (neither set)</td><td></td><td></td><td>triangles / none</td></tr>
+<tr><td>UV range</td><td>a UV is outside [0,1] (UVs on a textured submesh may tile) or not finite; with <code>require_uvs</code>, every vertex shares one UV or the file has no UVs</td><td>the file has no UVs</td><td>vertices outside, or without UVs / 0 (none when every vertex shares one UV)</td></tr>
+<tr><td>normals</td><td>a normal is zero or not finite; with <code>require_normals</code>, the file has no normals</td><td>a normal isn’t unit length; the file has no normals (renderers derive flat ones)</td><td>bad normals, or vertices without normals / 0</td></tr>
+<tr><td>PBR roughness / metallic</td><td>a material factor is outside [0,1]</td><td>outside the style’s <code>roughness_range</code> / <code>metallic_range</code></td><td>worst distance outside the range / 0</td></tr>
+<tr><td>palette</td><td>a style palette entry isn’t a hex colour</td><td>a material’s base colour is more than ΔE 20 (CIELAB) from every palette entry, or under half of a colour map’s texels are within ΔE 20</td><td>materials: worst ΔE / 20; colour maps: share of texels off palette / 0.5</td></tr>
+<tr><td>style range (roughness / metallic maps)</td><td></td><td>under 90% of the map’s texels are inside the style’s range</td><td>share of texels outside / 0.1</td></tr>
+<tr><td>degenerate triangles</td><td>a triangle’s area is at most 1e-6 x its longest edge squared</td><td></td><td>degenerate triangles / 0</td></tr>
+<tr><td>texture dimensions</td><td>the image isn’t the spec’s <code>width</code> x <code>height</code></td><td>not a power of two</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="the-json-report"><a class="header" href="#the-json-report">The JSON report</a></h4>
+<p><code>--report json</code> is for agents: stdout carries one JSON object per variant (a batch writes one line each, JSON Lines) and every human line, the check lines included, moves to stderr. The exit code is unchanged.</p>
+<pre><code class="language-bash">flint gen specs/oak_tree.procgen.toml --validate --style-guide styles/medieval_tavern.style.toml --report json
+</code></pre>
+<pre><code class="language-json">{"spec":"oak_tree_01","seed":42,"output":"tree.glb","verdict":"pass","passed":23,"warnings":4,"failed":0,
+ "checks":[{"name":"LOD0 style triangle budget","status":"warn",
+            "detail":"7998 triangles &gt; 5000 (within 2x tolerance)","actual":7998,"limit":5000}, ...]}
+</code></pre>
+<p><code>verdict</code> is what the exit code sees: <code>pass</code>, <code>fail</code> (with <code>--strict</code>, a warning is a fail) or <code>skipped</code> (a <code>--register</code> cache hit, which isn’t validated; it carries a <code>reason</code> and no checks). Each check has <code>name</code>, <code>status</code> (<code>pass</code>/<code>warn</code>/<code>fail</code>) and <code>detail</code>, plus <code>actual</code> and <code>limit</code> when it measured a number (table above). <code>limit</code> is always a ceiling: the check passes while <code>actual &lt;= limit</code>, and a triangle budget warns up to twice it. A line deserialises straight into <code>flint_procgen::ValidationReport</code> (the extra keys are ignored).</p>
+<p>A style guide is the <code>[style]</code> TOML that <code>flint asset</code> uses, e.g. <code>styles/medieval_tavern.style.toml</code>.</p>
 <h2 id="previewing"><a class="header" href="#previewing">Previewing</a></h2>
 <p><code>flint edit</code> opens the right tool by inspecting the spec:</p>
 <ul>
@@ -319,14 +404,20 @@ flint gen specs/oak_tree.procgen.toml --validate --style-guide styles/lowpoly.to
 flint edit specs/alien_organic.procgen.toml     # pipeline pattern, opens the node editor
 </code></pre>
 <h2 id="specs-in-scenes"><a class="header" href="#specs-in-scenes">Specs in Scenes</a></h2>
-<p>The player indexes every <code>*.procgen.toml</code> in <code>specs/</code> beside the scene, <code>../specs/</code> (the game root when scenes live in <code>levels/</code>), and <code>models/</code> by <code>meta.name</code>, later directories overriding earlier ones. When an entity’s <code>model.asset</code>, <code>material.texture</code> or <code>sprite.texture</code> names something that is neither a file on disk nor already in the mesh cache but <em>is</em> an indexed spec, the resolver generates it and uploads the result straight to the GPU:</p>
+<p>The player indexes every <code>*.procgen.toml</code> by <code>meta.name</code>, from <code>../specs/</code> (the game root when scenes live in <code>levels/</code>), then <code>specs/</code> beside the scene, then <code>models/</code>; a later directory’s spec overrides an earlier one of the same name, so a scene’s own spec beats the game’s. Each name an entity’s <code>model.asset</code>, <code>material.texture</code> or <code>sprite.texture</code> asks for resolves in one order: <strong>catalog &gt; procgen &gt; file</strong>. An asset catalog entry wins outright. A name with an indexed spec is generated and uploaded straight to the GPU under that name before any file is looked at, so a baked <code>models/&lt;name&gt;.glb</code> beside the spec is not drawn while the spec works. Anything else loads from its file, as before:</p>
 <pre><code class="language-toml">[entities.old_oak.model]
 asset = "garden_tree"            # specs/garden_tree.procgen.toml
 
 [entities.floor.material]
 texture = "crypt_floor"          # specs/crypt_floor.procgen.toml, an image set
 </code></pre>
-<p>Outputs are cached in memory keyed by spec hash and seed under a 256 MB budget, and queued generation is limited to a few milliseconds per frame so a scene full of specs streams in without a hitch. A <code>random</code> seed makes every instance unique; a <code>fixed</code> seed makes them identical, which is the difference between a cave full of beetles and one boss.</p>
+<p>A mesh’s sub-meshes (a tree’s bark and each leaf shade) upload as parts of the one model, each with its own material, and a material’s generated normal map comes along. An image set uploads its first map under the spec’s name and the rest as <code>&lt;name&gt;_normal</code>, <code>&lt;name&gt;_roughness</code> and so on, the companion names the material path looks for.</p>
+<p>When procgen can’t make an asset (its generator isn’t registered, the generator fails, or the output can’t be drawn that way: a skinned creature as a model, a mesh as a texture) the player logs a warning saying why and falls through to the file. With no file either, a placeholder stays under the name: a magenta box standing on the entity’s origin for a model, a 1x1 magenta texture for a texture.</p>
+<p>Outputs are cached in memory keyed by spec hash and seed under a 256 MB budget; the resolver lives as long as the player, so a scene loaded again (or another scene naming the same spec) is served from the cache. A <code>random</code> seed makes every instance unique; a <code>fixed</code> seed makes them identical, which is the difference between a cave full of beetles and one boss.</p>
+<p>By default the player generates during scene load, so the first frame shows every asset. <code>flint-player --procgen-defer</code> instead shows the placeholders at once and queues the generation, a few milliseconds of it per frame (<code>runtime_max_generation_ms_per_frame</code>), swapping each asset in under its name as it finishes; a queued asset that fails gives way to its file if there is one and keeps its placeholder if not. An asset is generated whole, so one expensive spec still costs the frame it lands in.</p>
+<p>Under the memory there is a disk tier, so the next launch doesn’t pay for generation again. The native player keeps each output in <code>.flint/procgen-cache/</code> at the game root (the scene folder’s parent when it holds <code>schemas/</code> or <code>specs/</code>, otherwise the scene folder), and reads it back on the next run: <code>tavern_hub</code>’s three texture sets take about 2.9 s to generate and about 45 ms to read back. The key also covers the generator’s name and its <code>revision()</code>, so bumping a generator’s revision makes every spec it builds regenerate on the next launch. <code>random</code> specs never reach the disk. The folder is capped at 1 GB, and files are evicted least recently used first, judged by modification time. <code>FLINT_PROCGEN_CACHE=&lt;dir&gt;</code> moves the folder and <code>FLINT_PROCGEN_CACHE=0</code> turns the tier off. Bundles (<code>--bundle</code>) and the web player don’t use it. Each load prints one line saying where its assets came from:</p>
+<pre><code>[procgen] 3 asset(s) in 45 ms: 0 generated, 3 from disk, 0 from memory
+</code></pre>
 <p>Headless <code>flint render</code> does not run the resolver. For snapshots of procgen-backed scenes, generate the assets first with <code>flint gen -o models/&lt;name&gt;.glb</code> so they resolve as files.</p>
 <h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
 <ul>
@@ -338,6 +429,16 @@ texture = "crypt_floor"          # specs/crypt_floor.procgen.toml, an image set
 <li><strong>Validation</strong>: <code>validate_output</code> with style-guide constraints.</li>
 </ul>
 <p><code>flint-procgen-ai</code> sits on top for tool-time spec creation and refinement from prompts; it is not linked into the player.</p>
+<h2 id="ai-assistance-and-cost"><a class="header" href="#ai-assistance-and-cost">AI assistance and cost</a></h2>
+<p><code>flint gen</code> can ask an agent to write or improve a spec before it generates:</p>
+<pre><code class="language-bash">flint gen --ai-create "twisted dead tree" -o tree.glb             # description -&gt; spec -&gt; GLB
+flint gen specs/oak_tree.procgen.toml --ai-assist -o tree.glb     # interpret + refine, then generate
+flint gen specs/stone_wall.procgen.toml --ai-refine --reference photo.png -o wall.png
+flint gen --ai-create "old brick wall" --ai-provider mock --print-spec --save-spec wall.procgen.toml
+</code></pre>
+<p>The default provider is <code>anthropic</code> (<code>ANTHROPIC_API_KEY</code>, model <code>claude-opus-5-5</code>); <code>mock</code> is the offline, deterministic agent. Every spec the Anthropic agent returns has been checked against the generator’s schema and built before it is accepted. <code>--ai-create</code> guesses the generator from the description (a tree word, a creature word, a surface word, or a <code>.png</code> output), and <code>--ai-generator</code> names it. Project defaults live in <code>.flint/procgen_ai.toml</code> (<code>provider</code>, <code>model</code>, <code>max_iterations</code>, <code>effort</code>; never the key), and the flags override them. The agent’s suggestions, rationale and round count go to stderr; <code>--print-spec</code> puts the final spec alone on stdout. A <code>--dry-run</code> with an AI flag prints the plan and the most a call could cost, and sends nothing.</p>
+<p>Every API call goes through a cost meter, which appends one JSON object per line to <code>.flint/procgen_costs.json</code>: <code>timestamp</code>, <code>provider</code>, <code>model</code>, <code>input_tokens</code>, <code>output_tokens</code>, the cache token counts, <code>estimated_usd</code>, <code>spec_name</code> and <code>operation</code>. A reply that came back unusable (cut off, declined) is recorded too, since it was billed. Prices are the published per-model rates; an unknown model is priced as the dearest one and marked <code>priced_as</code>.</p>
+<p><code>--max-cost &lt;USD&gt;</code> is checked before every call, retries included: the meter prices the call’s worst case (its estimated input plus a full reply) against what’s left. When only a shorter reply fits, it lowers <code>max_tokens</code> for that call; when not even 2,048 output tokens fit, it refuses with <code>cost ceiling reached</code> and sends nothing. It warns once past 80%. <code>flint gen --cost-report</code> sums the ledger by provider, model and spec, and <code>--since YYYY-MM-DD</code> limits it to recent calls.</p>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
 <li><a href="ai-generation.html">AI Asset Generation</a>: the provider-driven half of the pipeline</li>
@@ -350,7 +451,7 @@ texture = "crypt_floor"          # specs/crypt_floor.procgen.toml, an image set
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../concepts/touch-input.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../concepts/input-gates.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -364,7 +465,7 @@ texture = "crypt_floor"          # specs/crypt_floor.procgen.toml, an image set
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../concepts/touch-input.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../concepts/input-gates.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -343,15 +343,17 @@ fn on_draw_ui() {
 }
 <span class="boring">}</span></code></pre>
 <h2 id="design-philosophy"><a class="header" href="#design-philosophy">Design Philosophy</a></h2>
-<p>The touch system is intentionally minimal. Rather than providing virtual joysticks, gesture recognizers, or complex multi-touch state machines, it gives you:</p>
+<p>The touch system gives you:</p>
 <ol>
 <li><strong>Zone-based action bindings</strong> — works with the existing input config system</li>
 <li><strong>Raw touch state</strong> — positions, phases, and tap detection exposed to scripts</li>
 <li><strong>Mouse emulation</strong> — desktop testing without hardware</li>
+<li><strong>On-screen controls</strong> — a virtual stick, buttons, a menu button and look drag, declared in the input config and drawn by the engine (<a href="touch-controls.html">On-Screen Touch Controls</a>)</li>
 </ol>
-<p>Game-specific touch UI (virtual D-pads, on-screen buttons, swipe gestures) belongs in scripts, not the engine. The engine provides the primitives; scripts compose them into the interaction model that fits each game.</p>
+<p>The on-screen controls are the one piece of touch UI the engine draws, because they are input devices: they must take a finger before egui does and drive key-bound actions within the frame. Anything game-specific beyond them (gesture menus, drag-to-aim, a custom D-pad) still belongs in scripts, built from the primitives above.</p>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
+<li><a href="touch-controls.html">On-Screen Touch Controls</a> — virtual sticks and buttons for key-bound actions</li>
 <li><a href="sprites-2d.html">2D Sprites</a> — the rendering system for 2D games</li>
 <li><a href="scripting.html">Scripting</a> — full scripting API reference</li>
 <li><a href="physics-and-runtime.html">Physics and Runtime</a> — the input system and game loop</li>
@@ -366,7 +368,7 @@ fn on_draw_ui() {
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../concepts/procgen.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../concepts/touch-controls.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -380,7 +382,7 @@ fn on_draw_ui() {
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../concepts/procgen.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../concepts/touch-controls.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

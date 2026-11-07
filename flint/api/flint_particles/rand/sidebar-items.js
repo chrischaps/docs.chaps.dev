@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["ParticleRng"]};
+window.SIDEBAR_ITEMS = {"fn":["cross","normalize","perpendicular_basis","rotate_to_basis"],"struct":["ParticleRng"]};

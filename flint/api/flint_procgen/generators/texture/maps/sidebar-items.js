@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["derive_albedo","derive_maps","derive_normal","derive_roughness"],"struct":["TextureMapParams"]};
+window.SIDEBAR_ITEMS = {"constant":["MIN_DETAIL_PERIOD_PX","NORMAL_REFERENCE_SIZE"],"fn":["derive_albedo","derive_maps","derive_normal","derive_roughness"],"struct":["TextureMapParams"]};

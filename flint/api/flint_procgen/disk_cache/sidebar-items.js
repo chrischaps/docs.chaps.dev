@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DISK_FORMAT"],"struct":["DiskCache","DiskCacheConfig","DiskStats"]};

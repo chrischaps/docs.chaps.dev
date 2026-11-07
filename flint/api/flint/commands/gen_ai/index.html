@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The AI half of `flint gen`: build an agent, let it create, interpret or refine a spec before generation, and keep account of what it costs."><title>flint::commands::gen_ai - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module gen_ai</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../flint/index.html">flint</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module gen_ai</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In flint::<wbr>commands</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">flint</a>::<wbr><a href="../index.html">commands</a></div><h1>Module <span>gen_ai</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/flint/commands/gen_ai.rs.html#1-690">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The AI half of <code>flint gen</code>: build an agent, let it create, interpret or
+refine a spec before generation, and keep account of what it costs.</p>
+<p>Everything the agent says goes to stderr, so stdout stays free for the
+generation summary or, with <code>--print-spec</code>, for the spec alone.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.ProjectConfig.html" title="struct flint::commands::gen_ai::ProjectConfig">Project<wbr>Config</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd><code>.flint/procgen_ai.toml</code>. The key never lives here: it comes from
+<code>ANTHROPIC_API_KEY</code>.</dd><dt><a class="struct" href="struct.Steps.html" title="struct flint::commands::gen_ai::Steps">Steps</a></dt><dd>Which AI steps a run asked for.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.CONFIG_PATH.html" title="constant flint::commands::gen_ai::CONFIG_PATH">CONFIG_<wbr>PATH</a></dt><dd>Project defaults for the agent, read from this file when it exists.
+Every key is optional; flags override them.</dd><dt><a class="constant" href="constant.DEFAULT_PROVIDER.html" title="constant flint::commands::gen_ai::DEFAULT_PROVIDER">DEFAULT_<wbr>PROVIDER</a></dt><dd>The provider used when neither a flag nor the config names one.</dd><dt><a class="constant" href="constant.GENERATOR_WORDS.html" title="constant flint::commands::gen_ai::GENERATOR_WORDS">GENERATOR_<wbr>WORDS</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Words that point a description at a generator, for <code>--ai-create</code> without
+<code>--ai-generator</code>. The first generator with a hit wins.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.build_agent.html" title="fn flint::commands::gen_ai::build_agent">build_<wbr>agent</a></dt><dd>The agent for <code>config</code>, its calls going through <code>meter</code>. A Claude agent
+gets the mesh render previewer, so a refine against a reference sees
+what the spec builds and loops for up to <code>refine_rounds</code> measured rounds
+(default: the config’s <code>max_iterations</code>) while it gets closer (#183).</dd><dt><a class="fn" href="fn.build_meter.html" title="fn flint::commands::gen_ai::build_meter">build_<wbr>meter</a></dt><dd>The meter every call of this run goes through: the project ledger, and
+the <code>--max-cost</code> ceiling if one was given.</dd><dt><a class="fn" href="fn.cost_line.html" title="fn flint::commands::gen_ai::cost_line">cost_<wbr>line</a></dt><dd><code>ai: 3 calls, $0.0421 (ceiling $0.50) -&gt; .flint/procgen_costs.json</code>.</dd><dt><a class="fn" href="fn.cost_report.html" title="fn flint::commands::gen_ai::cost_report">cost_<wbr>report</a></dt><dd><code>flint gen --cost-report [--since DATE]</code>.</dd><dt><a class="fn" href="fn.describe_distance.html" title="fn flint::commands::gen_ai::describe_distance">describe_<wbr>distance</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd><code>distance   2.0  (colour   2.5, histogram 0.04, layout 0.02)</code>.</dd><dt><a class="fn" href="fn.infer_generator.html" title="fn flint::commands::gen_ai::infer_generator">infer_<wbr>generator</a></dt><dd>The generator a description most likely wants: a keyword in it, else
+what the output’s extension can hold (a PNG is a texture).</dd><dt><a class="fn" href="fn.plan_lines.html" title="fn flint::commands::gen_ai::plan_lines">plan_<wbr>lines</a></dt><dd><code>--dry-run</code> with AI steps: what would be asked, and the most each call
+could cost, without sending anything. Lines, so the caller picks the stream
+(<code>--report json</code> keeps stdout for the report).</dd><dt><a class="fn" href="fn.print_report.html" title="fn flint::commands::gen_ai::print_report">print_<wbr>report</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>What a step’s conversation said and how it went.</dd><dt><a class="fn" href="fn.resolve_config.html" title="fn flint::commands::gen_ai::resolve_config">resolve_<wbr>config</a></dt><dd>The agent config this run uses: built-in defaults, then the project
+config, then the flags.</dd><dt><a class="fn" href="fn.run_steps.html" title="fn flint::commands::gen_ai::run_steps">run_<wbr>steps</a></dt><dd>Run the AI steps: create a spec (or start from <code>start</code>), interpret it,
+refine it. Prints what the agent says to stderr and returns the spec to
+generate.</dd></dl></section></div></main></body></html>

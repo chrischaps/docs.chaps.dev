@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CrownVolume"],"fn":["canopy_tree","columnar_tree","deciduous_tree"],"struct":["SpaceColonization","SpaceColonizationParams"]};
+window.SIDEBAR_ITEMS = {"enum":["CrownVolume"],"fn":["branch_graph_to_segments","canopy_tree","columnar_tree","deciduous_tree","scatter_attraction_points"],"struct":["BranchNode","Colonization","SpaceColonization","SpaceColonizationParams"]};

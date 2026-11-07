@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["load_layout","load_styles"]};
+window.SIDEBAR_ITEMS = {"fn":["load_layout","load_styles"],"struct":["StyleSheet"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EntryKind"],"fn":["current","exists","generation","install","is_dir","is_file","normalize","read","read_dir","read_to_string","scoped"],"struct":["DiskSource","MemorySource"],"trait":["FileSource"]};

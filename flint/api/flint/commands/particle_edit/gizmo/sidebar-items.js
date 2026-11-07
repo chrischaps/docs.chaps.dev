@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ACCENT","DIM","SEGMENTS"],"fn":["add","build_overlay","circle","emitter_lines","hash_f32s","line","normalize","scale","shape_hash","sub"]};

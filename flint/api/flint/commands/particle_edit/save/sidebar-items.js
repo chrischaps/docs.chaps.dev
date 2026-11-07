@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["SaveMode"],"fn":["emitter_table","patch_document","same_structure","save_effect","to_item","to_value"]};

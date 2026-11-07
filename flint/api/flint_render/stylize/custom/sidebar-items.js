@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["MAX_PARAMS","PASSTHROUGH","SUFFIX","TEXTURE_READ_WARN","VERSION"],"fn":["check","compose","errors","load_dir","load_file","params_size","prelude","refresh_settings","reload_changed","report_build_panic","source","style_dirs"],"struct":["Composed","Inputs","ParamDef","Reload","Report","ShaderStyleDef","StyleSource"]};

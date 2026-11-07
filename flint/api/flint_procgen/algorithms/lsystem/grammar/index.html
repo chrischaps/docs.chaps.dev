@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Text L-systems: grammars written as strings, the way they are printed in The Algorithmic Beauty of Plants (Prusinkiewicz &#38; Lindenmayer)."><title>flint_procgen::algorithms::lsystem::grammar - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="flint_procgen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module grammar</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../flint_procgen/index.html">flint_<wbr>procgen</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module grammar</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#rules" title="Rules">Rules</a></li><li><a href="#turtle-symbols" title="Turtle symbols">Turtle symbols</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In flint_<wbr>procgen::<wbr>algorithms::<wbr>lsystem</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">flint_procgen</a>::<wbr><a href="../../index.html">algorithms</a>::<wbr><a href="../index.html">lsystem</a></div><h1>Module <span>grammar</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/flint_procgen/algorithms\lsystem/grammar.rs.html#1-828">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Text L-systems: grammars written as strings, the way they are printed in
+<em>The Algorithmic Beauty of Plants</em> (Prusinkiewicz &amp; Lindenmayer).</p>
+<div class="example-wrap"><pre class="language-text"><code>axiom:  X
+rules:  X -&gt; F+[[X]-X]-F[-FX]+X
+        F -&gt; FF</code></pre></div>
+<p><a href="struct.Grammar.html#method.expand" title="method flint_procgen::algorithms::lsystem::grammar::Grammar::expand"><code>Grammar::expand</code></a> rewrites the axiom; <a href="fn.interpret.html" title="fn flint_procgen::algorithms::lsystem::grammar::interpret"><code>interpret</code></a> walks the result with
+a 3D turtle and returns <a href="../../../struct.BranchSegment.html" title="struct flint_procgen::BranchSegment"><code>BranchSegment</code></a>s.</p>
+<h2 id="rules"><a class="doc-anchor" href="#rules">§</a>Rules</h2>
+<p>A rule is <code>"&lt;symbol&gt; -&gt; &lt;successor&gt;"</code>. Several rules may share a
+predecessor, each with a weight: <code>"F (0.33) -&gt; F[+F]F"</code>. When a symbol has
+more than one rule, one is drawn per occurrence with probability
+proportional to its weight; a symbol with a single rule never touches the
+RNG, so deterministic grammars ignore the seed. <code>→</code> works as the arrow too,
+and whitespace is ignored everywhere.</p>
+<p>A symbol written with arguments, <code>F(2,0.5)</code>, is still the symbol <code>F</code> to the
+rewriter: a rule for <code>F</code> replaces it, arguments and all, and a symbol with
+no rule is copied as written.</p>
+<h2 id="turtle-symbols"><a class="doc-anchor" href="#turtle-symbols">§</a>Turtle symbols</h2><div><table><thead><tr><th>Symbol</th><th>Meaning</th><th>Argument</th></tr></thead><tbody>
+<tr><td><code>F</code>, <code>G</code></td><td>draw forward</td><td><code>F(length)</code> or <code>F(length, radius)</code></td></tr>
+<tr><td><code>f</code></td><td>move forward without drawing</td><td><code>f(length)</code></td></tr>
+<tr><td><code>+</code> / <code>-</code></td><td>yaw left / right</td><td>angle in degrees</td></tr>
+<tr><td><code>^</code> / <code>&amp;</code></td><td>pitch up / down</td><td>angle</td></tr>
+<tr><td><code>/</code> / <code>\</code></td><td>roll clockwise / counter-clockwise</td><td>angle</td></tr>
+<tr><td><code>|</code></td><td>turn around (yaw 180°)</td><td></td></tr>
+<tr><td><code>[</code> / <code>]</code></td><td>push / pop the turtle</td><td></td></tr>
+<tr><td><code>!</code></td><td>thin the branch by <code>radius_decay</code></td><td><code>!(radius)</code> sets it</td></tr>
+</tbody></table>
+</div>
+<p>Any other symbol (<code>X</code>, <code>A</code>, <code>L</code>…) only drives rewriting; the turtle skips
+it. Without arguments, a step is <code>step_length</code> long and the rotations use
+the configured angles.</p>
+<p>Length and radius decay by <strong>nesting level</strong>: every <code>[</code> multiplies the
+default step and the current radius by <code>length_decay</code> and <code>radius_decay</code>,
+and <code>]</code> restores them. A branch’s children are shorter and thinner than it
+is however many rewriting passes produced them. Explicit arguments are
+used as written.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Grammar.html" title="struct flint_procgen::algorithms::lsystem::grammar::Grammar">Grammar</a></dt><dd>A text L-system: an axiom and the rules that rewrite it.</dd><dt><a class="struct" href="struct.Preset.html" title="struct flint_procgen::algorithms::lsystem::grammar::Preset">Preset</a></dt><dd>A named grammar from the literature, with the settings it was drawn with.</dd><dt><a class="struct" href="struct.ProductionRule.html" title="struct flint_procgen::algorithms::lsystem::grammar::ProductionRule">Production<wbr>Rule</a></dt><dd>A production: every occurrence of <code>predecessor</code> is replaced by <code>successor</code>.</dd><dt><a class="struct" href="struct.TurtleConfig.html" title="struct flint_procgen::algorithms::lsystem::grammar::TurtleConfig">Turtle<wbr>Config</a></dt><dd>How the turtle reads an expanded string.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.PRESETS.html" title="constant flint_procgen::algorithms::lsystem::grammar::PRESETS">PRESETS</a></dt><dd>Classic plants, most from <em>The Algorithmic Beauty of Plants</em> ch. 1.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.interpret.html" title="fn flint_procgen::algorithms::lsystem::grammar::interpret">interpret</a></dt><dd>Walk an expanded L-system string with a 3D turtle.</dd><dt><a class="fn" href="fn.preset.html" title="fn flint_procgen::algorithms::lsystem::grammar::preset">preset</a></dt><dd>Look up a preset by name.</dd></dl></section></div></main></body></html>

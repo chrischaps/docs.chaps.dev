@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["SpecFeedback"],"trait":["ProcGenAgent"]};
+window.SIDEBAR_ITEMS = {"struct":["Report","Round","SpecFeedback"],"trait":["ProcGenAgent"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["lerp_color","lerp_f32"]};
+window.SIDEBAR_ITEMS = {"enum":["Interp"],"fn":["lerp_color","lerp_f32"],"struct":["Curve"],"trait":["Lerp"]};

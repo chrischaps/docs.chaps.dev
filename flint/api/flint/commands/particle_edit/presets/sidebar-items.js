@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["PRESETS"],"fn":["bootstrap","names","preset"]};

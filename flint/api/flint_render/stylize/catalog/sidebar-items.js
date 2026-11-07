@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["KUWAHARA_PARAMS"],"fn":["catalog","catalog_text","listing"],"struct":["ColorListing","OptionListing","ParamListing","StyleListing"]};

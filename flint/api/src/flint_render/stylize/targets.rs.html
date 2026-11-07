@@ -1,0 +1,190 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\flint-render\src\stylize\targets.rs`."><title>targets.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint_render" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">flint_render\stylize/</div>targets.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Textures the stylize chain draws into: each stage's ping-pong pair and
+<a href=#2 id=2 data-nosnippet>2</a>//! the styles' own intermediates. They live in the post chain's resources,
+<a href=#3 id=3 data-nosnippet>3</a>//! which a resize rebuilds, so every one of them (and every bind group
+<a href=#4 id=4 data-nosnippet>4</a>//! cached over one) goes with the old size. A render-scale step keeps the
+<a href=#5 id=5 data-nosnippet>5</a>//! surface's size, so it keeps the set (#270): display-stage targets, and
+<a href=#6 id=6 data-nosnippet>6</a>//! the history in them, carry on, and HDR-stage ones are remade at the
+<a href=#7 id=7 data-nosnippet>7</a>//! scene's new size the next time they're asked for.
+<a href=#8 id=8 data-nosnippet>8</a>
+<a href=#9 id=9 data-nosnippet>9</a></span><span class="kw">use </span>std::collections::HashMap;
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span>std::sync::{Arc, Mutex};
+<a href=#11 id=11 data-nosnippet>11</a>
+<a href=#12 id=12 data-nosnippet>12</a><span class="doccomment">/// A texture and its default view.
+<a href=#13 id=13 data-nosnippet>13</a></span><span class="kw">pub struct </span>StyleTexture {
+<a href=#14 id=14 data-nosnippet>14</a>    <span class="kw">pub </span>texture: wgpu::Texture,
+<a href=#15 id=15 data-nosnippet>15</a>    <span class="kw">pub </span>view: wgpu::TextureView,
+<a href=#16 id=16 data-nosnippet>16</a>    <span class="kw">pub </span>width: u32,
+<a href=#17 id=17 data-nosnippet>17</a>    <span class="kw">pub </span>height: u32,
+<a href=#18 id=18 data-nosnippet>18</a>}
+<a href=#19 id=19 data-nosnippet>19</a>
+<a href=#20 id=20 data-nosnippet>20</a><span class="doccomment">/// Textures by name and format, made on first use.
+<a href=#21 id=21 data-nosnippet>21</a></span><span class="attr">#[derive(Default)]
+<a href=#22 id=22 data-nosnippet>22</a></span><span class="kw">pub struct </span>StyleTargets {
+<a href=#23 id=23 data-nosnippet>23</a>    textures: Mutex&lt;HashMap&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, wgpu::TextureFormat), Arc&lt;StyleTexture&gt;&gt;&gt;,
+<a href=#24 id=24 data-nosnippet>24</a>}
+<a href=#25 id=25 data-nosnippet>25</a>
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">impl </span>StyleTargets {
+<a href=#27 id=27 data-nosnippet>27</a>    <span class="doccomment">/// The texture `name` in `format`, `width` x `height`. A name asked
+<a href=#28 id=28 data-nosnippet>28</a>    /// for at a second size is made again: an HDR-stage target after a
+<a href=#29 id=29 data-nosnippet>29</a>    /// render-scale step (the bind groups over the old one went with the
+<a href=#30 id=30 data-nosnippet>30</a>    /// resources it was kept from), or a caller drawing one chain at two
+<a href=#31 id=31 data-nosnippet>31</a>    /// sizes, which nothing does (so it's logged).
+<a href=#32 id=32 data-nosnippet>32</a>    </span><span class="kw">pub fn </span>get(
+<a href=#33 id=33 data-nosnippet>33</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
+<a href=#34 id=34 data-nosnippet>34</a>        device: <span class="kw-2">&amp;</span>wgpu::Device,
+<a href=#35 id=35 data-nosnippet>35</a>        name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+<a href=#36 id=36 data-nosnippet>36</a>        format: wgpu::TextureFormat,
+<a href=#37 id=37 data-nosnippet>37</a>        width: u32,
+<a href=#38 id=38 data-nosnippet>38</a>        height: u32,
+<a href=#39 id=39 data-nosnippet>39</a>    ) -&gt; Arc&lt;StyleTexture&gt; {
+<a href=#40 id=40 data-nosnippet>40</a>        <span class="kw">let </span>(width, height) = (width.max(<span class="number">1</span>), height.max(<span class="number">1</span>));
+<a href=#41 id=41 data-nosnippet>41</a>        <span class="kw">let </span><span class="kw-2">mut </span>textures = <span class="self">self</span>.textures.lock().unwrap_or_else(|e| e.into_inner());
+<a href=#42 id=42 data-nosnippet>42</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = textures.get(<span class="kw-2">&amp;</span>(name, format)) {
+<a href=#43 id=43 data-nosnippet>43</a>            <span class="kw">if </span>(t.width, t.height) == (width, height) {
+<a href=#44 id=44 data-nosnippet>44</a>                <span class="kw">return </span>t.clone();
+<a href=#45 id=45 data-nosnippet>45</a>            }
+<a href=#46 id=46 data-nosnippet>46</a>            <span class="macro">tracing::debug!</span>(
+<a href=#47 id=47 data-nosnippet>47</a>                <span class="string">"style target {name} asked for at {width}x{height}, made at {}x{}"</span>,
+<a href=#48 id=48 data-nosnippet>48</a>                t.width,
+<a href=#49 id=49 data-nosnippet>49</a>                t.height
+<a href=#50 id=50 data-nosnippet>50</a>            );
+<a href=#51 id=51 data-nosnippet>51</a>        }
+<a href=#52 id=52 data-nosnippet>52</a>        <span class="kw">let </span>texture = device.create_texture(<span class="kw-2">&amp;</span>wgpu::TextureDescriptor {
+<a href=#53 id=53 data-nosnippet>53</a>            label: <span class="prelude-val">Some</span>(name),
+<a href=#54 id=54 data-nosnippet>54</a>            size: wgpu::Extent3d {
+<a href=#55 id=55 data-nosnippet>55</a>                width,
+<a href=#56 id=56 data-nosnippet>56</a>                height,
+<a href=#57 id=57 data-nosnippet>57</a>                depth_or_array_layers: <span class="number">1</span>,
+<a href=#58 id=58 data-nosnippet>58</a>            },
+<a href=#59 id=59 data-nosnippet>59</a>            mip_level_count: <span class="number">1</span>,
+<a href=#60 id=60 data-nosnippet>60</a>            sample_count: <span class="number">1</span>,
+<a href=#61 id=61 data-nosnippet>61</a>            dimension: wgpu::TextureDimension::D2,
+<a href=#62 id=62 data-nosnippet>62</a>            format,
+<a href=#63 id=63 data-nosnippet>63</a>            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+<a href=#64 id=64 data-nosnippet>64</a>            view_formats: <span class="kw-2">&amp;</span>[],
+<a href=#65 id=65 data-nosnippet>65</a>        });
+<a href=#66 id=66 data-nosnippet>66</a>        <span class="kw">let </span>view = texture.create_view(<span class="kw-2">&amp;</span>wgpu::TextureViewDescriptor::default());
+<a href=#67 id=67 data-nosnippet>67</a>        <span class="kw">let </span>made = Arc::new(StyleTexture {
+<a href=#68 id=68 data-nosnippet>68</a>            texture,
+<a href=#69 id=69 data-nosnippet>69</a>            view,
+<a href=#70 id=70 data-nosnippet>70</a>            width,
+<a href=#71 id=71 data-nosnippet>71</a>            height,
+<a href=#72 id=72 data-nosnippet>72</a>        });
+<a href=#73 id=73 data-nosnippet>73</a>        textures.insert((name, format), made.clone());
+<a href=#74 id=74 data-nosnippet>74</a>        made
+<a href=#75 id=75 data-nosnippet>75</a>    }
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="doccomment">/// How many textures it holds.
+<a href=#78 id=78 data-nosnippet>78</a>    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+<a href=#79 id=79 data-nosnippet>79</a>        <span class="self">self</span>.textures.lock().map_or(<span class="number">0</span>, |t| t.len())
+<a href=#80 id=80 data-nosnippet>80</a>    }
+<a href=#81 id=81 data-nosnippet>81</a>
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#83 id=83 data-nosnippet>83</a>        <span class="self">self</span>.len() == <span class="number">0
+<a href=#84 id=84 data-nosnippet>84</a>    </span>}
+<a href=#85 id=85 data-nosnippet>85</a>
+<a href=#86 id=86 data-nosnippet>86</a>    <span class="doccomment">/// What it holds: how many textures, their bytes, and how many of them
+<a href=#87 id=87 data-nosnippet>87</a>    /// are `width` x `height` in `format` (the display stage's full-size
+<a href=#88 id=88 data-nosnippet>88</a>    /// textures, #302). Textures stay until a resize, so this is everything
+<a href=#89 id=89 data-nosnippet>89</a>    /// any configuration since then has asked for.
+<a href=#90 id=90 data-nosnippet>90</a>    </span><span class="kw">pub fn </span>summary(<span class="kw-2">&amp;</span><span class="self">self</span>, format: wgpu::TextureFormat, width: u32, height: u32) -&gt; TargetSummary {
+<a href=#91 id=91 data-nosnippet>91</a>        <span class="kw">let </span><span class="prelude-val">Ok</span>(textures) = <span class="self">self</span>.textures.lock() <span class="kw">else </span>{
+<a href=#92 id=92 data-nosnippet>92</a>            <span class="kw">return </span>TargetSummary::default();
+<a href=#93 id=93 data-nosnippet>93</a>        };
+<a href=#94 id=94 data-nosnippet>94</a>        <span class="kw">let </span><span class="kw-2">mut </span>summary = TargetSummary::default();
+<a href=#95 id=95 data-nosnippet>95</a>        <span class="kw">for </span>((<span class="kw">_</span>, f), t) <span class="kw">in </span>textures.iter() {
+<a href=#96 id=96 data-nosnippet>96</a>            summary.count += <span class="number">1</span>;
+<a href=#97 id=97 data-nosnippet>97</a>            <span class="kw">let </span>texel = f.block_copy_size(<span class="prelude-val">None</span>).unwrap_or(<span class="number">4</span>);
+<a href=#98 id=98 data-nosnippet>98</a>            summary.bytes += u64::from(t.width) * u64::from(t.height) * u64::from(texel);
+<a href=#99 id=99 data-nosnippet>99</a>            <span class="kw">if </span>(<span class="kw-2">*</span>f, t.width, t.height) == (format, width, height) {
+<a href=#100 id=100 data-nosnippet>100</a>                summary.full_size += <span class="number">1</span>;
+<a href=#101 id=101 data-nosnippet>101</a>            }
+<a href=#102 id=102 data-nosnippet>102</a>        }
+<a href=#103 id=103 data-nosnippet>103</a>        summary
+<a href=#104 id=104 data-nosnippet>104</a>    }
+<a href=#105 id=105 data-nosnippet>105</a>}
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a><span class="doccomment">/// [`StyleTargets::summary`].
+<a href=#108 id=108 data-nosnippet>108</a></span><span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+<a href=#109 id=109 data-nosnippet>109</a></span><span class="kw">pub struct </span>TargetSummary {
+<a href=#110 id=110 data-nosnippet>110</a>    <span class="kw">pub </span>count: u32,
+<a href=#111 id=111 data-nosnippet>111</a>    <span class="kw">pub </span>bytes: u64,
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">pub </span>full_size: u32,
+<a href=#113 id=113 data-nosnippet>113</a>}
+</code></pre></div></section></main></body></html>

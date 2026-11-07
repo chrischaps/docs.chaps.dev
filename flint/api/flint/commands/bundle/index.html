@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`flint bundle`: pack a game folder into `.flintpack` files for the web player (#98; format in `flint_core::bundle`, docs/design/web.md)."><title>flint::commands::bundle - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module bundle</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../flint/index.html">flint</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module bundle</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In flint::<wbr>commands</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">flint</a>::<wbr><a href="../index.html">commands</a></div><h1>Module <span>bundle</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/flint/commands/bundle.rs.html#1-917">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><code>flint bundle</code>: pack a game folder into <code>.flintpack</code> files for the web
+player (#98; format in <code>flint_core::bundle</code>, docs/design/web.md).</p>
+<div class="example-wrap"><pre class="language-bash"><code>flint bundle ../Float                  # dist/float.flintpack + dist/float.audio.flintpack
+flint bundle ../Float --list           # every file, its size and its bundle
+flint bundle . --out-dir web --scene scenes/title.scene.toml</code></pre></div>
+<p>The packer walks the game root, drops what a player never reads (the
+default excludes below, plus <code>bundle.toml</code>’s), and puts audio in a late
+bundle the web player fetches once the game is running: a browser can’t
+play sound before the first click anyway. Then it checks the bundle
+against itself before writing anything: every scene must load with its
+prefabs, every archetype must be in the bundled schemas, and every file a
+scene, prefab, particle effect, glyph set or script names must be packed. A missing
+file fails here rather than as a pink texture deep in play.</p>
+<p><code>bundle.toml</code> in the game root (every key optional):</p>
+<div class="example-wrap"><pre class="language-toml"><code>name = &quot;float&quot;
+scene = &quot;scenes/float.scene.toml&quot;
+schemas = [&quot;engine/schemas&quot;, &quot;schemas&quot;]
+exclude = [&quot;scenes/snap_*.scene.toml&quot;]   # added to the defaults
+include = []                             # wins over any exclude
+[late]                                   # replaces the default { audio = [...] }
+ambience = [&quot;audio/ocean_loop.ogg&quot;]     # fetched first: the sea at Begin
+audio = [&quot;audio/**&quot;]</code></pre></div>
+<p>Late parts are fetched one after another in the order <code>[late]</code> lists
+them, and a file goes to the first part whose patterns match it. Put
+what is heard first in a small part of its own (#124).</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.BundleArgs.html" title="struct flint::commands::bundle::BundleArgs">Bundle<wbr>Args</a></dt><dt><a class="struct" href="struct.BundleConfig.html" title="struct flint::commands::bundle::BundleConfig">Bundle<wbr>Config</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="struct" href="struct.Missing.html" title="struct flint::commands::bundle::Missing">Missing</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>One unresolved reference: who names what.</dd><dt><a class="struct" href="struct.Rules.html" title="struct flint::commands::bundle::Rules">Rules</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Which files go where.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.ASSET_DIRS.html" title="constant flint::commands::bundle::ASSET_DIRS">ASSET_<wbr>DIRS</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>The folders the runtime looks a bare name up in, beside a scene and one
+level above it (<code>scene_loading.rs</code>, <code>model_loader.rs</code>, <code>sync.rs</code>).</dd><dt><a class="constant" href="constant.ASSET_EXTENSIONS.html" title="constant flint::commands::bundle::ASSET_EXTENSIONS">ASSET_<wbr>EXTENSIONS</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Extensions that mark a string in a scene or script as a file to pack.</dd><dt><a class="constant" href="constant.DEFAULT_EXCLUDE.html" title="constant flint::commands::bundle::DEFAULT_EXCLUDE">DEFAULT_<wbr>EXCLUDE</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>What nobody plays: tooling, docs, captures, source art, the engine’s own
+tree. <code>engine/schemas</code> comes back through <a href="constant.DEFAULT_INCLUDE.html" title="constant flint::commands::bundle::DEFAULT_INCLUDE"><code>DEFAULT_INCLUDE</code></a>.</dd><dt><a class="constant" href="constant.DEFAULT_INCLUDE.html" title="constant flint::commands::bundle::DEFAULT_INCLUDE">DEFAULT_<wbr>INCLUDE</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Files a game reads from the engine subtree.</dd><dt><a class="constant" href="constant.DEFAULT_LATE_AUDIO.html" title="constant flint::commands::bundle::DEFAULT_LATE_AUDIO">DEFAULT_<wbr>LATE_<wbr>AUDIO</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Audio: fetched after the first frame.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.candidates.html" title="fn flint::commands::bundle::candidates">candidates</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Where the runtime would look for <code>name</code> named from a file in <code>from_dir</code>.</dd><dt><a class="fn" href="fn.check_references.html" title="fn flint::commands::bundle::check_references">check_<wbr>references</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Every reference in the packed files that names nothing packed.</dd><dt><a class="fn" href="fn.check_scenes.html" title="fn flint::commands::bundle::check_scenes">check_<wbr>scenes</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Load each scene from the packed files the way the player would: schemas
+from the bundle, prefabs expanded through the vfs, every archetype known.</dd><dt><a class="fn" href="fn.check_user_styles.html" title="fn flint::commands::bundle::check_user_styles">check_<wbr>user_<wbr>styles</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Load the user styles (ADR 0112) each scene sees from the packed files,
+as the web player will: a description that doesn’t read, a shader that
+isn’t packed or doesn’t compile (naga, natively) is a problem now
+rather than a passthrough in the browser (#275). Runs inside the
+bundle’s vfs scope.</dd><dt><a class="fn" href="fn.collect.html" title="fn flint::commands::bundle::collect">collect</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Every file under <code>root</code>, as normalized paths relative to it, that the
+rules keep. Excluded directories are not descended into unless an
+include could reach inside them.</dd><dt><a class="fn" href="fn.glob_match.html" title="fn flint::commands::bundle::glob_match">glob_<wbr>match</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Match a <code>/</code>-separated path against a glob: <code>*</code> and <code>?</code> stay inside one
+segment, <code>**</code> spans any number of them (none included).</dd><dt><a class="fn" href="fn.looks_like_file.html" title="fn flint::commands::bundle::looks_like_file">looks_<wbr>like_<wbr>file</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Whether a string names a file: a known extension after a non-empty stem,
+and nothing that can’t be in a path. <code>".ogg"</code> (a suffix a script appends
+to) and URLs don’t count.</dd><dt><a class="fn" href="fn.mb.html" title="fn flint::commands::bundle::mb">mb</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="fn" href="fn.parent_of.html" title="fn flint::commands::bundle::parent_of">parent_<wbr>of</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="fn" href="fn.rhai_refs.html" title="fn flint::commands::bundle::rhai_refs">rhai_<wbr>refs</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>String literals in a Rhai script that name files.</dd><dt><a class="fn" href="fn.run.html" title="fn flint::commands::bundle::run">run</a></dt><dt><a class="fn" href="fn.toml_refs.html" title="fn flint::commands::bundle::toml_refs">toml_<wbr>refs</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Collect every string in a TOML value that names a file, plus each
+<code>model.asset</code> (a bare model name).</dd></dl></section></div></main></body></html>

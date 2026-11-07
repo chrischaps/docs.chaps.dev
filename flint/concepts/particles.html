@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,21 +179,25 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="particles"><a class="header" href="#particles">Particles</a></h1>
-<p>Flint’s particle system provides GPU-instanced visual effects through the <code>flint-particles</code> crate. Fire, smoke, sparks, dust motes, magic effects — any volumetric visual that needs hundreds or thousands of small, short-lived elements.</p>
-<blockquote>
-<p><strong>Note:</strong> Particle effects are dynamic simulations that accumulate over time. Use <code>flint play</code> to see them in action — headless <code>flint render</code> captures a single frame and won’t show accumulated particles.</p>
-</blockquote>
-<h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
-<p>Each entity with a <code>particle_emitter</code> component owns a <strong>pool</strong> of particles simulated on the CPU and rendered as camera-facing quads via GPU instancing. The pipeline is:</p>
-<pre><code>TOML component                CPU simulation              GPU rendering
-particle_emitter   ──►  ParticleSync reads config  ──►  ParticlePipeline
-  emission_rate         spawn/integrate/kill             instanced draw
-  gravity               pack into instance buffer        storage buffer
-  color_start/end       (swap-remove pool)               alpha or additive
-</code></pre>
-<p>Unlike billboard sprites (which are individual ECS entities), particles are <strong>pooled per-emitter</strong> — a single entity can own thousands of particles without overwhelming the ECS.</p>
-<h2 id="adding-particles-to-a-scene"><a class="header" href="#adding-particles-to-a-scene">Adding Particles to a Scene</a></h2>
-<p>Add a <code>particle_emitter</code> component to any entity:</p>
+<p>Flint’s particle system (<code>flint-particles</code>) provides GPU-instanced visual effects: fire, smoke, sparks, rain, dust, magic — any effect made of hundreds or thousands of small, short-lived elements. Since ADR 0068 it has two authoring paths, a deterministic simulation that headless renders can step, and its own editor.</p>
+<p><img src="../images/particles-campfire-scene.png" alt="Campfire effect: flames, embers, puffs and smoke from one asset"></p>
+<h2 id="two-ways-to-author"><a class="header" href="#two-ways-to-author">Two Ways to Author</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th>Inline <code>particle_emitter</code></th><th>Effect asset + <code>particle_effect</code></th></tr>
+</thead>
+<tbody>
+<tr><td>Where it lives</td><td>On a scene entity</td><td><code>particles/&lt;name&gt;.particles.toml</code> next to the scene (or one level up)</td></tr>
+<tr><td>Emitters</td><td>One</td><td>Any number, simulated together</td></tr>
+<tr><td>Curves, forces, bursts timeline, sub-emitters</td><td>No (start/end values only)</td><td>Yes</td></tr>
+<tr><td>Reuse</td><td>Copy the block</td><td>Reference by name from any scene; <code>play_effect</code> from scripts</td></tr>
+<tr><td>Editor</td><td>Scene inspector</td><td><code>flint edit fx.particles.toml</code> — see the <a href="../guides/particle-editor.html">Particle Editor guide</a></td></tr>
+</tbody>
+</table>
+</div>
+<p>Both paths share one parser and one set of defaults, so anything an inline emitter accepts, an asset emitter accepts too.</p>
+<h3 id="inline-emitter"><a class="header" href="#inline-emitter">Inline emitter</a></h3>
 <pre><code class="language-toml">[entities.campfire]
 [entities.campfire.transform]
 position = [0, 0.2, 0]
@@ -215,77 +219,156 @@ color_end = [1.0, 0.1, 0.0, 0.0]
 blend_mode = "additive"
 shape = "sphere"
 shape_radius = 0.15
-autoplay = true
 </code></pre>
+<h3 id="effect-asset"><a class="header" href="#effect-asset">Effect asset</a></h3>
+<p><code>demo/particles/campfire.particles.toml</code>, trimmed:</p>
+<pre><code class="language-toml">name = "campfire"
+seed = 7
+
+[[emitters]]
+name = "flames"
+emission_rate = 40.0
+lifetime = [0.3, 0.8]             # scalar or [min, max]
+speed = [1.5, 3.0]
+gravity = [0, 2.0, 0]
+blend_mode = "additive"
+size = { keys = [ { t = 0.0, v = [0.12, 0.12] }, { t = 0.3, v = [0.16, 0.2] }, { t = 1.0, v = [0.02, 0.02] } ], interp = "smooth" }
+color = { keys = [ { t = 0.0, v = [1.0, 0.7, 0.1, 0.9] }, { t = 0.6, v = [1.0, 0.25, 0.0, 0.7] }, { t = 1.0, v = [0.4, 0.0, 0.0, 0.0] } ] }
+angular_velocity = [-90, 90]
+
+[emitters.shape]
+kind = "cone"
+radius = 0.15
+angle = 10.0
+
+[[emitters.forces]]
+kind = "noise"
+strength = 1.2
+
+[[emitters]]
+name = "embers"
+emission_rate = 0.0
+lifetime = [1.0, 2.5]
+on_death = { emitter = "puff", count = 1, inherit_velocity = 0.2 }
+
+[[emitters.bursts]]
+time = 0.0
+count = [3, 6]
+cycles = 0          # 0 = repeat forever
+interval = 1.5
+
+[[emitters]]
+name = "puff"       # rate 0: only ever fed by dying embers
+emission_rate = 0.0
+lifetime = 0.4
+</code></pre>
+<p>Place it in a scene:</p>
+<pre><code class="language-toml">[entities.fire]
+[entities.fire.transform]
+position = [0, 0.15, 0]
+[entities.fire.particle_effect]
+effect = "campfire"
+</code></pre>
+<p>Unknown keys in an asset are a load error (typos fail loudly); inline components stay lenient. A missing <code>name</code> falls back to the file stem.</p>
+<h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
+<pre><code>authoring                  simulation (CPU)                     rendering (GPU)
+particle_emitter  ─┐                                          ParticlePipeline
+particle_effect   ─┼─► EffectInstance ─► EmitterState pool ─► one shared 64-byte
+*.particles.toml  ─┘   (transform,      spawn / forces /      instance buffer,
+                        seed, budget)    curves / kill         sorted draw calls
+</code></pre>
+<p>Each effect instance owns one pool per emitter. Particles are integrated on the CPU (gravity, exponential damping, forces, curves) and packed into a single shared storage buffer; the renderer issues one instanced draw per emitter, order-dependent blends far-to-near, additive last. Nothing is an ECS entity, so an emitter can own thousands of particles cheaply.</p>
+<p>The simulation is <strong>deterministic</strong>: every emitter has its own RNG seeded from the effect seed, the owning entity’s name and the emitter index, instances step in a fixed order, and <code>flint render --particle-time</code> advances in fixed 1/60 s steps. Two renders at the same time are byte-identical, which is what makes particle work reviewable by agents.</p>
+<h2 id="ranges-and-curves"><a class="header" href="#ranges-and-curves">Ranges and Curves</a></h2>
+<p>Asset fields that vary over a particle’s life or per particle accept several spellings:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Spelling</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>lifetime = 1.0</code></td><td>Constant</td></tr>
+<tr><td><code>lifetime = [0.5, 1.5]</code></td><td>Random in the range at birth</td></tr>
+<tr><td><code>size = 0.2</code></td><td>Constant over life (per-axis values use <code>[w, h]</code>)</td></tr>
+<tr><td><code>size = { start = [0.1, 0.1], end = [0, 0] }</code></td><td>Linear ramp</td></tr>
+<tr><td><code>size = { keys = [ { t = 0.0, v = ... }, { t = 0.3, v = ... } ], interp = "smooth" }</code></td><td>Multi-key curve; <code>interp</code> is <code>linear</code>, <code>smooth</code> or <code>step</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Over-lifetime curves: <code>size</code> (<code>[w, h]</code>), <code>color</code> (RGBA), <code>alpha</code> (multiplies colour alpha), <code>speed_curve</code> (multiplies velocity). Per-particle random ranges: <code>size_scale</code>, <code>brightness</code>, <code>rotation</code> (degrees), <code>angular_velocity</code> (degrees per second). Legacy inline keys (<code>lifetime_min</code>/<code>max</code>, <code>speed_min</code>/<code>max</code>, scalar <code>size_start</code>/<code>size_end</code>, <code>color_start</code>/<code>color_end</code>, <code>burst_count</code>) still work and fold into these.</p>
 <h2 id="emission-shapes"><a class="header" href="#emission-shapes">Emission Shapes</a></h2>
-<p>The <code>shape</code> field controls where new particles spawn relative to the emitter:</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Shape</th><th>Fields</th><th>Description</th></tr>
+<tr><th>Shape</th><th>Asset form</th><th>Inline form</th></tr>
 </thead>
 <tbody>
-<tr><td><code>point</code></td><td>(none)</td><td>All particles spawn at the emitter origin</td></tr>
-<tr><td><code>sphere</code></td><td><code>shape_radius</code></td><td>Random position within a sphere</td></tr>
-<tr><td><code>cone</code></td><td><code>shape_angle</code>, <code>shape_radius</code></td><td>Particles emit in a cone around <code>direction</code></td></tr>
-<tr><td><code>box</code></td><td><code>shape_extents</code>, <code>shape_axis_u</code>, <code>shape_axis_v</code></td><td>Random position within a box. Axis-aligned by default; give <code>shape_axis_u</code> and <code>shape_axis_v</code> world directions to orient it (see below)</td></tr>
+<tr><td><code>point</code></td><td><code>shape = { kind = "point" }</code></td><td><code>shape = "point"</code></td></tr>
+<tr><td><code>sphere</code></td><td><code>{ kind = "sphere", radius = 0.5 }</code></td><td><code>shape = "sphere"</code>, <code>shape_radius</code></td></tr>
+<tr><td><code>cone</code></td><td><code>{ kind = "cone", radius = 0.15, angle = 10 }</code> — spawns on a disc of <code>radius</code> perpendicular to <code>direction</code>, moving within <code>angle</code> degrees</td><td><code>shape = "cone"</code>, <code>shape_angle</code>, <code>shape_radius</code> (cones spawn from a point unless set)</td></tr>
+<tr><td><code>box</code></td><td><code>{ kind = "box", extents = [x, y, z] }</code></td><td><code>shape = "box"</code>, <code>shape_extents</code></td></tr>
 </tbody>
 </table>
 </div>
-<p>Every shape is translated by <code>shape_offset</code> before the emitter position is applied, so a trail can spawn a little behind the entity that owns it.</p>
-<h3 id="oriented-boxes"><a class="header" href="#oriented-boxes">Oriented Boxes</a></h3>
-<p>A box emitter can be rotated without rotating the entity (ADR 0061, prologue flight trails). <code>shape_extents.x</code> runs along <code>shape_axis_u</code>, <code>shape_extents.y</code> along <code>shape_axis_v</code>, and <code>shape_extents.z</code> along their cross product. The two axes are normalised and orthogonalised for you; if either is zero, or they are parallel, the box falls back to axis-aligned. Because both axes are live fields, a script can point the spawn slab along an entity’s lateral motion every frame:</p>
-<pre><code class="language-rhai">fn on_update() {
-    let me = self_entity();
-    let p = get_position(me);
-    let last = get_field(me, "trail_state", "last_pos");   // your own component
-    let dx = p.x - last.x;
-    let dz = p.z - last.z;
-    if dx * dx + dz * dz &gt; 0.0001 {
-        set_field(me, "particle_emitter", "shape_axis_u", [dx, 0.0, dz]);
-    }
-    set_field(me, "trail_state", "last_pos", #{ x: p.x, y: p.y, z: p.z });
-}
-</code></pre>
-<h2 id="blend-modes"><a class="header" href="#blend-modes">Blend Modes</a></h2>
+<p><code>shape_offset</code> translates the spawn region relative to the emitter. <code>shape_axis_u</code> / <code>shape_axis_v</code> orient a box (ADR 0061): <code>extents.x</code> runs along <code>u</code>, <code>extents.y</code> along <code>v</code>, <code>extents.z</code> along their cross product; zero or parallel axes fall back to axis-aligned.</p>
+<p><code>local_axes</code> decides whether <code>direction</code>, <code>shape_offset</code> and the shape axes rotate with the entity’s world rotation (and scale with its scale). Assets default to <code>true</code>; inline components default to <code>false</code> so existing scripts that drive <code>shape_axis_u</code> in world space (the prologue flight trails) keep working.</p>
+<h2 id="motion-and-forces"><a class="header" href="#motion-and-forces">Motion and Forces</a></h2>
+<p>Every particle feels <code>gravity</code> and exponential <code>damping</code> (frame-rate independent). <code>inherit_velocity</code> adds a fraction of the emitter’s own velocity at birth; <code>emission_per_meter</code> spawns particles along the emitter’s path as it moves (trails), and rate emission interpolates spawn positions across the frame so a fast emitter leaves a continuous stream rather than clumps.</p>
+<p>Asset emitters can add <code>[[emitters.forces]]</code>:</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Mode</th><th>Use Case</th><th>Description</th></tr>
+<tr><th><code>kind</code></th><th>Fields</th><th>Effect</th></tr>
 </thead>
 <tbody>
-<tr><td><code>alpha</code></td><td>Smoke, dust, fog</td><td>Standard alpha blending — particles fade naturally</td></tr>
-<tr><td><code>additive</code></td><td>Fire, sparks, magic</td><td>Colors add together — bright, glowing effects</td></tr>
+<tr><td><code>wind</code></td><td><code>velocity</code>, <code>strength</code></td><td>Pulls velocity toward <code>velocity</code> at <code>strength</code> per second</td></tr>
+<tr><td><code>drag</code></td><td><code>coefficient</code></td><td>Quadratic drag</td></tr>
+<tr><td><code>noise</code></td><td><code>strength</code>, <code>frequency</code>, <code>speed</code>, <code>octaves</code></td><td>Deterministic turbulence field</td></tr>
+<tr><td><code>vortex</code></td><td><code>center</code>, <code>axis</code>, <code>strength</code>, <code>falloff</code></td><td>Swirl around an axis through <code>center</code> (relative to the emitter)</td></tr>
+<tr><td><code>attractor</code></td><td><code>position</code>, <code>strength</code>, <code>radius</code></td><td>Accelerate toward (or, with negative strength, away from) a point</td></tr>
 </tbody>
 </table>
 </div>
-<p>Additive blending is order-independent, making it ideal for dense effects. Alpha blending looks best for soft, diffuse effects.</p>
-<h2 id="value-over-lifetime"><a class="header" href="#value-over-lifetime">Value Over Lifetime</a></h2>
-<p>Particles interpolate linearly between start and end values over their lifetime:</p>
-<ul>
-<li><strong><code>size_start</code> / <code>size_end</code></strong> — particles can grow (smoke expanding) or shrink (sparks dying)</li>
-<li><strong><code>color_start</code> / <code>color_end</code></strong> — RGBA transition. Set <code>color_end</code> alpha to 0 for fade-out</li>
-</ul>
-<h2 id="sprite-sheet-animation"><a class="header" href="#sprite-sheet-animation">Sprite Sheet Animation</a></h2>
-<p>For textured particles (flame sprites, explosion frames), use sprite sheets:</p>
-<pre><code class="language-toml">[entities.explosion.particle_emitter]
-texture = "explosion_sheet.png"
-frames_x = 4
-frames_y = 4
-animate_frames = true   # Auto-advance frames over particle lifetime
-</code></pre>
-<p>With <code>animate_frames = true</code>, each particle plays through the sprite sheet from birth to death.</p>
-<h2 id="bursts-and-duration"><a class="header" href="#bursts-and-duration">Bursts and Duration</a></h2>
-<p>For one-shot effects (explosions, impacts), combine bursts with limited duration:</p>
-<pre><code class="language-toml">[entities.explosion.particle_emitter]
-emission_rate = 0.0      # No continuous emission
-burst_count = 50         # 50 particles on each burst
-duration = 0.5           # Emitter runs for 0.5 seconds
-looping = false          # Don't repeat
-autoplay = true          # Fire immediately
-</code></pre>
-<p>For periodic bursts (fountain, heartbeat), set <code>looping = true</code> with a <code>duration</code>.</p>
+<h2 id="bursts"><a class="header" href="#bursts">Bursts</a></h2>
+<p><code>[[emitters.bursts]]</code> entries fire <code>count</code> particles (scalar or <code>[min, max]</code>) at <code>time</code> seconds into the emitter’s timeline, then every <code>interval</code> for <code>cycles</code> repeats (<code>0</code> = forever, with <code>probability</code> per firing). The timeline restarts when a looping <code>duration</code> wraps, so a burst at <code>time = 0</code> with <code>duration = 1.5</code> is a metronome. <code>start_delay</code> holds emission after play begins. The legacy inline <code>burst_count</code> is a single burst at <code>t = 0</code>.</p>
+<h2 id="sub-emitters"><a class="header" href="#sub-emitters">Sub-emitters</a></h2>
+<p><code>on_death = { emitter = "puff", count = 1, inherit_velocity = 0.2 }</code> spawns into a sibling emitter where each particle dies; <code>on_birth</code> does the same at spawn. Targets are resolved by name inside the effect, self-targeting is rejected, and chains are bounded to one hop per frame with the global budget applied, so an effect cannot run away.</p>
+<h2 id="rendering"><a class="header" href="#rendering">Rendering</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>blend_mode</code></td><td><code>alpha</code>, <code>additive</code>, <code>premultiplied</code>, <code>multiply</code></td></tr>
+<tr><td><code>sort</code></td><td><code>none</code>, <code>back_to_front</code> (correct alpha), <code>youngest_first</code>, <code>oldest_first</code> — per emitter, using the camera position</td></tr>
+<tr><td><code>texture</code></td><td>Sprite image, searched in <code>particles/</code>, the scene dir, then its parent. Empty draws a procedural soft disc</td></tr>
+<tr><td><code>frames_x</code>, <code>frames_y</code>, <code>animate_frames</code>, <code>frame_rate</code>, <code>random_start_frame</code></td><td>Sprite sheets: frames follow lifetime, or run at <code>frame_rate</code> fps, optionally from a random start frame</td></tr>
+<tr><td><code>stretch</code></td><td>Velocity-aligned billboard stretch in seconds (rain streaks ~0.03)</td></tr>
+<tr><td><code>soft_distance</code>, <code>fade_near</code>, <code>fade_far</code>, <code>lighting</code>, <code>fog</code></td><td>Parsed and saved now; the soft-particle / fade pass is scheduled with the depth-grab work</td></tr>
+</tbody>
+</table>
+</div>
+<p>Particles are unlit and draw after transparents, before the wireframe overlay. Emitters whose blend mode is order-dependent are drawn far-to-near by emitter distance; additive emitters last.</p>
+<h2 id="budget-and-performance"><a class="header" href="#budget-and-performance">Budget and Performance</a></h2>
+<p>The system keeps a global alive cap (default 100 000; the F3 Particles panel exposes it) and an optional per-effect <code>budget</code>. Each emitter’s <code>max_particles</code> is capped at 10 000. Instance data is uploaded with one <code>write_buffer</code> per frame into a buffer that grows on demand, and component TOML is re-parsed only when it changes.</p>
 <h2 id="component-schema"><a class="header" href="#component-schema">Component Schema</a></h2>
+<h3 id="particle_effect"><a class="header" href="#particle_effect"><code>particle_effect</code></a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>effect</code></td><td>string</td><td>“”</td><td>Effect name (<code>name</code> field or file stem of a <code>particles/*.particles.toml</code>)</td></tr>
+<tr><td><code>playing</code> / <code>autoplay</code></td><td>bool</td><td>false / true</td><td>Playback state; <code>start_emitter</code> / <code>stop_emitter</code> toggle <code>playing</code></td></tr>
+<tr><td><code>scale</code></td><td>f32</td><td>1.0</td><td>Multiplies size, speed and shape distances</td></tr>
+<tr><td><code>emission_scale</code></td><td>f32</td><td>1.0</td><td>Multiplies every emitter’s rate</td></tr>
+<tr><td><code>seed</code></td><td>i32</td><td>0</td><td>RNG seed override (0 = derive from the effect seed and this entity)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="particle_emitter"><a class="header" href="#particle_emitter"><code>particle_emitter</code></a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -293,88 +376,97 @@ autoplay = true          # Fire immediately
 </thead>
 <tbody>
 <tr><td><code>emission_rate</code></td><td>f32</td><td>10.0</td><td>Particles per second (0 = burst-only)</td></tr>
-<tr><td><code>burst_count</code></td><td>i32</td><td>0</td><td>Particles fired on each burst/loop start</td></tr>
+<tr><td><code>emission_per_meter</code></td><td>f32</td><td>0.0</td><td>Particles per metre of emitter travel</td></tr>
+<tr><td><code>burst_count</code></td><td>i32</td><td>0</td><td>Particles fired on play/loop start</td></tr>
 <tr><td><code>max_particles</code></td><td>i32</td><td>256</td><td>Pool capacity (max 10,000)</td></tr>
-<tr><td><code>lifetime_min</code></td><td>f32</td><td>1.0</td><td>Minimum particle lifetime in seconds</td></tr>
-<tr><td><code>lifetime_max</code></td><td>f32</td><td>2.0</td><td>Maximum particle lifetime in seconds</td></tr>
-<tr><td><code>speed_min</code></td><td>f32</td><td>1.0</td><td>Minimum initial speed</td></tr>
-<tr><td><code>speed_max</code></td><td>f32</td><td>3.0</td><td>Maximum initial speed</td></tr>
-<tr><td><code>direction</code></td><td>vec3</td><td>[0,1,0]</td><td>Base emission direction (local space)</td></tr>
+<tr><td><code>lifetime_min</code> / <code>lifetime_max</code></td><td>f32</td><td>1.0 / 2.0</td><td>Particle lifetime range in seconds</td></tr>
+<tr><td><code>speed_min</code> / <code>speed_max</code></td><td>f32</td><td>1.0 / 3.0</td><td>Initial speed range</td></tr>
+<tr><td><code>direction</code></td><td>vec3</td><td>[0,1,0]</td><td>Base emission direction</td></tr>
 <tr><td><code>spread</code></td><td>f32</td><td>15.0</td><td>Random deviation angle in degrees</td></tr>
-<tr><td><code>gravity</code></td><td>vec3</td><td>[0,-9.81,0]</td><td>Acceleration applied per frame (world space)</td></tr>
-<tr><td><code>damping</code></td><td>f32</td><td>0.0</td><td>Velocity decay per second</td></tr>
-<tr><td><code>size_start</code></td><td>f32</td><td>0.1</td><td>Particle size at birth</td></tr>
-<tr><td><code>size_end</code></td><td>f32</td><td>0.0</td><td>Particle size at death</td></tr>
-<tr><td><code>color_start</code></td><td>vec4</td><td>[1,1,1,1]</td><td>RGBA color at birth</td></tr>
-<tr><td><code>color_end</code></td><td>vec4</td><td>[1,1,1,0]</td><td>RGBA color at death</td></tr>
-<tr><td><code>texture</code></td><td>string</td><td>“”</td><td>Sprite texture (empty = white dot)</td></tr>
-<tr><td><code>stretch</code></td><td>f32</td><td>0.0</td><td>Velocity-aligned billboard stretch, in seconds</td></tr>
-<tr><td><code>frames_x</code></td><td>i32</td><td>1</td><td>Sprite sheet columns</td></tr>
-<tr><td><code>frames_y</code></td><td>i32</td><td>1</td><td>Sprite sheet rows</td></tr>
-<tr><td><code>animate_frames</code></td><td>bool</td><td>false</td><td>Auto-advance frames over lifetime</td></tr>
-<tr><td><code>blend_mode</code></td><td>string</td><td>“alpha”</td><td><code>"alpha"</code> or <code>"additive"</code></td></tr>
-<tr><td><code>shape</code></td><td>string</td><td>“point”</td><td><code>"point"</code>, <code>"sphere"</code>, <code>"cone"</code>, <code>"box"</code></td></tr>
-<tr><td><code>shape_radius</code></td><td>f32</td><td>0.5</td><td>Radius for sphere/cone shapes</td></tr>
-<tr><td><code>shape_angle</code></td><td>f32</td><td>30.0</td><td>Half-angle for cone shape (degrees)</td></tr>
-<tr><td><code>shape_extents</code></td><td>vec3</td><td>[0.5,0.5,0.5]</td><td>Half-extents for box shape</td></tr>
-<tr><td><code>shape_offset</code></td><td>vec3</td><td>[0,0,0]</td><td>Spawn-region translation relative to the emitter position</td></tr>
-<tr><td><code>shape_axis_u</code></td><td>vec3</td><td>[0,0,0]</td><td>Box orientation: <code>extents.x</code> runs along this world direction (zero = axis-aligned)</td></tr>
-<tr><td><code>shape_axis_v</code></td><td>vec3</td><td>[0,0,0]</td><td>Box orientation: <code>extents.y</code> along this direction, <code>extents.z</code> along <code>u x v</code> (zero = axis-aligned)</td></tr>
-<tr><td><code>world_space</code></td><td>bool</td><td>true</td><td><code>true</code>: particles detach and stay where they were born. <code>false</code>: particles are simulated relative to the emitter and ride with it (resolved to world space when the instance buffer is packed)</td></tr>
+<tr><td><code>gravity</code></td><td>vec3</td><td>[0,-9.81,0]</td><td>Acceleration</td></tr>
+<tr><td><code>damping</code></td><td>f32</td><td>0.0</td><td>Exponential velocity decay per second</td></tr>
+<tr><td><code>inherit_velocity</code></td><td>f32</td><td>0.0</td><td>Fraction of emitter velocity added at birth</td></tr>
+<tr><td><code>size_start</code> / <code>size_end</code></td><td>f32</td><td>0.1 / 0.0</td><td>Size at birth / death</td></tr>
+<tr><td><code>color_start</code> / <code>color_end</code></td><td>vec4</td><td>[1,1,1,1] / [1,1,1,0]</td><td>RGBA at birth / death</td></tr>
+<tr><td><code>rotation_min</code> / <code>rotation_max</code></td><td>f32</td><td>0 / 360</td><td>Initial rotation range, degrees</td></tr>
+<tr><td><code>angular_velocity_min</code> / <code>angular_velocity_max</code></td><td>f32</td><td>0 / 0</td><td>Spin range, degrees per second</td></tr>
+<tr><td><code>texture</code></td><td>string</td><td>“”</td><td>Sprite texture (empty = soft disc)</td></tr>
+<tr><td><code>stretch</code></td><td>f32</td><td>0.0</td><td>Velocity-aligned billboard stretch, seconds</td></tr>
+<tr><td><code>frames_x</code> / <code>frames_y</code></td><td>i32</td><td>1 / 1</td><td>Sprite sheet columns / rows</td></tr>
+<tr><td><code>animate_frames</code></td><td>bool</td><td>false</td><td>Advance frames over lifetime</td></tr>
+<tr><td><code>frame_rate</code></td><td>f32</td><td>0.0</td><td>Frames per second (0 = follow <code>animate_frames</code>)</td></tr>
+<tr><td><code>random_start_frame</code></td><td>bool</td><td>false</td><td>Random starting frame per particle</td></tr>
+<tr><td><code>blend_mode</code></td><td>string</td><td>“alpha”</td><td><code>alpha</code>, <code>additive</code>, <code>premultiplied</code>, <code>multiply</code></td></tr>
+<tr><td><code>sort</code></td><td>string</td><td>“none”</td><td><code>none</code>, <code>back_to_front</code>, <code>youngest_first</code>, <code>oldest_first</code></td></tr>
+<tr><td><code>shape</code></td><td>string</td><td>“point”</td><td><code>point</code>, <code>sphere</code>, <code>cone</code>, <code>box</code></td></tr>
+<tr><td><code>shape_radius</code></td><td>f32</td><td>0.5</td><td>Sphere radius; cone spawn-disc radius</td></tr>
+<tr><td><code>shape_angle</code></td><td>f32</td><td>30.0</td><td>Cone half-angle, degrees</td></tr>
+<tr><td><code>shape_extents</code></td><td>vec3</td><td>[0.5,0.5,0.5]</td><td>Box half-extents</td></tr>
+<tr><td><code>shape_offset</code></td><td>vec3</td><td>[0,0,0]</td><td>Spawn-region translation relative to the emitter</td></tr>
+<tr><td><code>shape_axis_u</code> / <code>shape_axis_v</code></td><td>vec3</td><td>[0,0,0]</td><td>Box orientation (zero = axis-aligned)</td></tr>
+<tr><td><code>local_axes</code></td><td>bool</td><td>false</td><td>Rotate direction and shape axes with the entity</td></tr>
+<tr><td><code>world_space</code></td><td>bool</td><td>true</td><td><code>true</code>: particles stay where born. <code>false</code>: they ride with the emitter</td></tr>
 <tr><td><code>duration</code></td><td>f32</td><td>0.0</td><td>Emitter duration (0 = infinite)</td></tr>
 <tr><td><code>looping</code></td><td>bool</td><td>true</td><td>Loop when duration expires</td></tr>
-<tr><td><code>playing</code></td><td>bool</td><td>false</td><td>Current playback state</td></tr>
-<tr><td><code>autoplay</code></td><td>bool</td><td>true</td><td>Start emitting on scene load</td></tr>
+<tr><td><code>start_delay</code></td><td>f32</td><td>0.0</td><td>Seconds before emission begins</td></tr>
+<tr><td><code>playing</code> / <code>autoplay</code></td><td>bool</td><td>false / true</td><td>Playback state</td></tr>
+<tr><td><code>soft_distance</code>, <code>fade_near</code>, <code>fade_far</code></td><td>f32</td><td>0</td><td>Reserved for the soft-particle pass</td></tr>
 </tbody>
 </table>
 </div>
 <h3 id="live-fields"><a class="header" href="#live-fields">Live Fields</a></h3>
-<p>The particle system re-reads the component every frame, so a script can retune a running emitter with <code>set_field</code>. These fields take effect on the next frame without restarting the emitter:</p>
-<p><code>emission_rate</code>, <code>gravity</code>, <code>damping</code>, <code>size_start</code>, <code>size_end</code>, <code>color_start</code>, <code>color_end</code>, <code>blend_mode</code>, <code>texture</code>, <code>direction</code>, <code>spread</code>, <code>speed_min</code>, <code>speed_max</code>, <code>lifetime_min</code>, <code>lifetime_max</code>, <code>stretch</code>, <code>shape</code>, <code>shape_offset</code>, <code>shape_axis_u</code>, <code>shape_axis_v</code>.</p>
-<p>Everything else (<code>max_particles</code>, the sprite-sheet layout, <code>duration</code>, <code>looping</code>, <code>world_space</code>) is read when the emitter is created. Changing <code>playing</code> or <code>autoplay</code> starts or stops it, and a start resets the emitter clock.</p>
+<p>The particle system fingerprints each component and re-resolves it only when the TOML actually changes, so a script can retune a running emitter with <code>set_field</code> on any field. Changes to <code>max_particles</code> rebuild the pool; everything else applies without restarting. Changing <code>playing</code> or <code>autoplay</code> starts (resetting the emitter clock and burst timeline) or stops the emitter.</p>
 <h2 id="scripting-integration"><a class="header" href="#scripting-integration">Scripting Integration</a></h2>
-<p>Particles can be controlled from <a href="scripting.html">Rhai scripts</a>:</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Function</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>emit_burst(entity_id, count)</code></td><td>Fire N particles immediately</td></tr>
-<tr><td><code>start_emitter(entity_id)</code></td><td>Start continuous emission</td></tr>
-<tr><td><code>stop_emitter(entity_id)</code></td><td>Stop emission (existing particles finish)</td></tr>
-<tr><td><code>set_emission_rate(entity_id, rate)</code></td><td>Change emission rate dynamically</td></tr>
+<tr><td><code>emit_burst(entity_id, count)</code></td><td>Fire N particles now on every emitter of the entity’s effect</td></tr>
+<tr><td><code>start_emitter(entity_id)</code> / <code>stop_emitter(entity_id)</code></td><td>Set <code>playing</code> on the component (works for both component kinds)</td></tr>
+<tr><td><code>set_emission_rate(entity_id, rate)</code></td><td>Change an inline emitter’s rate</td></tr>
+<tr><td><code>play_effect(name, x, y, z)</code></td><td>Spawn a detached one-shot instance of a registered effect; returns a handle</td></tr>
+<tr><td><code>stop_effect(handle)</code></td><td>Stop emission; particles in flight finish and the instance is removed when empty</td></tr>
+<tr><td><code>set_effect_param(handle, param, value)</code></td><td><code>emission_scale</code>, <code>scale</code>, <code>playing</code> (&gt; 0.5), or <code>x</code> / <code>y</code> / <code>z</code> to move it</td></tr>
 </tbody>
 </table>
 </div>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>// Rhai script: burst of sparks on impact
+</span>// Rhai: sparks where the hammer lands, a puff of dust that follows the cart
 fn on_collision() {
     let me = self_entity();
-    emit_burst(me, 30);
+    let p = get_position(me);
+    play_effect("impact_sparks", p.x, p.y, p.z);
 }
 
-// Rhai script: toggle emitter with interaction
-fn on_interact() {
-    let me = self_entity();
-    let playing = get_field(me, "particle_emitter", "playing");
-    if playing {
-        stop_emitter(me);
-    } else {
-        start_emitter(me);
-    }
+fn on_init() {
+    let p = get_position(self_entity());
+    let dust = play_effect("cart_dust", p.x, p.y, p.z);
+    set_field(self_entity(), "cart_state", "dust", dust);
+}
+
+fn on_update() {
+    let dust = get_field(self_entity(), "cart_state", "dust");
+    let p = get_position(self_entity());
+    set_effect_param(dust, "x", p.x);
+    set_effect_param(dust, "z", p.z);
 }
 <span class="boring">}</span></code></pre>
+<h2 id="headless-verification"><a class="header" href="#headless-verification">Headless Verification</a></h2>
+<p><code>flint render scene.scene.toml --particle-time 2.0</code> steps every emitter and effect for two seconds at 1/60 s before capturing, so the frame shows an established effect rather than an empty emitter. Without the flag no particles are simulated and existing snapshots are unchanged. The editor’s <code>flint edit fx.particles.toml --render out.png --anim-time 1.5</code> does the same for one asset in isolation.</p>
 <h2 id="architecture"><a class="header" href="#architecture">Architecture</a></h2>
 <ul>
-<li><strong>ParticlePool</strong> — swap-remove array for O(1) particle death, contiguous alive iteration</li>
-<li><strong>ParticleSync</strong> — bridges ECS <code>particle_emitter</code> components to the simulation, auto-discovers new emitters each frame</li>
-<li><strong>ParticleSystem</strong> — top-level <code>RuntimeSystem</code> that ticks simulation in <code>update()</code> (variable-rate, not fixed-step)</li>
-<li><strong>ParticlePipeline</strong> — wgpu render pipeline with alpha and additive variants, storage buffer for instances</li>
+<li><strong><code>effect.rs</code></strong> — the authored <code>ParticleEffect</code> / <code>EmitterDef</code> (serde), lenient scalar-or-range spellings, <code>resolve()</code> into the runtime <code>EmitterConfig</code></li>
+<li><strong><code>sim.rs</code></strong> — spawning, forces, curves, bursts, sub-emitter requests; operates on one emitter and a read-only frame, which is the seam a future GPU compute path would replace</li>
+<li><strong><code>sync.rs</code></strong> — <code>EffectInstance</code> per entity (or detached handle), world sync with fingerprints, deterministic packing and per-emitter sorting</li>
+<li><strong><code>ParticleSystem</code></strong> — the <code>RuntimeSystem</code>; <code>step</code>, <code>simulate_to</code>, <code>pack</code></li>
+<li><strong><code>flint-render</code> <code>scene_renderer/particles.rs</code></strong> — the single upload bridge used by the player, viewer, editor and <code>flint render</code>; four blend pipelines over one shared instance buffer</li>
 </ul>
-<p>The particle system runs after animation (emitter transforms may be animated) and before the renderer refresh. Instance data is packed contiguously and uploaded to a GPU storage buffer for efficient instanced drawing.</p>
+<p>Deferred by ADR 0068: GPU compute simulation, ribbons/trails (the <code>trail</code> key is reserved), mesh particles, soft particles and distance fade, collision.</p>
 <h2 id="recipes"><a class="header" href="#recipes">Recipes</a></h2>
+<p>The four editor presets are the maintained recipes: <code>flint edit new.particles.toml --preset fire|smoke|sparks|rain</code> writes one to disk and opens it. The inline equivalents below still work.</p>
 <h3 id="fire"><a class="header" href="#fire">Fire</a></h3>
 <pre><code class="language-toml">emission_rate = 40.0
 gravity = [0, 2.0, 0]
@@ -393,38 +485,13 @@ size_end = 0.6
 color_start = [0.4, 0.4, 0.4, 0.3]
 color_end = [0.6, 0.6, 0.6, 0.0]
 blend_mode = "alpha"
-</code></pre>
-<h3 id="sparks"><a class="header" href="#sparks">Sparks</a></h3>
-<pre><code class="language-toml">emission_rate = 15.0
-speed_min = 3.0
-speed_max = 6.0
-spread = 45.0
-gravity = [0, -9.81, 0]
-size_start = 0.03
-size_end = 0.01
-color_start = [1.0, 0.9, 0.3, 1.0]
-color_end = [1.0, 0.3, 0.0, 0.0]
-blend_mode = "additive"
-</code></pre>
-<h3 id="dust-motes"><a class="header" href="#dust-motes">Dust Motes</a></h3>
-<pre><code class="language-toml">emission_rate = 5.0
-speed_min = 0.05
-speed_max = 0.2
-spread = 180.0
-gravity = [0, 0.02, 0]
-damping = 0.5
-size_start = 0.02
-size_end = 0.02
-color_start = [1.0, 1.0, 0.9, 0.5]
-color_end = [1.0, 1.0, 0.9, 0.0]
-shape = "box"
-shape_extents = [2.0, 1.0, 2.0]
+sort = "back_to_front"
 </code></pre>
 <h3 id="rain"><a class="header" href="#rain">Rain</a></h3>
-<p>Rain is the case <code>stretch</code> exists for. A camera-facing quad makes rain look
-like falling confetti; a velocity-aligned one makes it look like rain.</p>
+<p>Rain is the case <code>stretch</code> exists for. A camera-facing quad makes rain look like falling confetti; a velocity-aligned one makes it look like rain.</p>
 <pre><code class="language-toml">emission_rate = 4000.0
-lifetime = 1.2
+lifetime_min = 1.2
+lifetime_max = 1.2
 gravity = [0.6, -14.0, 0.0]      # tilt X/Z to slant with the wind
 speed_min = 0.0
 speed_max = 0.5
@@ -432,33 +499,16 @@ size_start = 0.012
 size_end = 0.012
 color_start = [0.72, 0.78, 0.86, 0.5]
 color_end = [0.72, 0.78, 0.86, 0.0]
-texture = "textures/rain_drop.png"
 stretch = 0.03                   # elongate along on-screen motion
 shape = "box"
 shape_extents = [14.0, 0.5, 14.0]
-world_space = true
 </code></pre>
-<p><code>stretch</code> is in seconds: the quad elongates along its on-screen motion by
-<code>|velocity| * stretch</code>, so faster drops draw longer streaks with no extra
-authoring. Keep it small — 0.03 already reads as heavy rain, and large values
-smear particles into ribbons.</p>
-<p>Practical notes:</p>
-<ul>
-<li>Attach the emitter to something that follows the camera and reposition it
-each frame. Rain only needs to exist where it can be seen.</li>
-<li>Budget properly: <code>emission_rate × lifetime</code> is roughly how many are alive.
-The example is ~4800, under the 6000 cap.</li>
-<li>Slant the fall by tilting the <code>gravity</code> vector rather than by giving
-particles horizontal velocity — it stays coherent as gusts change.</li>
-<li>Particles are <strong>unlit</strong>. Dim <code>color_start</code>/<code>color_end</code> to match your scene’s
-light, or night rain will glow.</li>
-</ul>
-<p>Particle textures are resolved against the scene directory first, then its
-parent, and are loaded at scene load.</p>
+<p>Keep <code>stretch</code> small — 0.03 already reads as heavy rain. Attach the emitter to something that follows the camera; budget with <code>emission_rate × lifetime</code>; slant by tilting <code>gravity</code>; dim the colours to the scene’s light, since particles are unlit.</p>
 <h2 id="further-reading"><a class="header" href="#further-reading">Further Reading</a></h2>
 <ul>
+<li><a href="../guides/particle-editor.html">Particle Editor</a> — authoring effects interactively</li>
 <li><a href="scripting.html">Scripting</a> — full scripting API including particle functions</li>
-<li><a href="animation.html">Animation</a> — animate emitter transforms with property tweens</li>
+<li><a href="../guides/debug-panels.html">Debug Panels</a> — the F3 Particles panel</li>
 <li><a href="rendering.html">Rendering</a> — the GPU pipeline that draws particles</li>
 <li><a href="physics-and-runtime.html">Physics and Runtime</a> — the game loop that drives particle simulation</li>
 </ul>
@@ -467,7 +517,7 @@ parent, and are loaded at scene load.</p>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../concepts/terrain.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../concepts/grass-ground.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -481,7 +531,7 @@ parent, and are loaded at scene load.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../concepts/terrain.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../concepts/grass-ground.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

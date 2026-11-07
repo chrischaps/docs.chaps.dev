@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["BUILTIN_SET","DEFAULT_FONT_SIZE","GLYPHS_SUFFIX"],"enum":["RampOrder"],"struct":["EdgeGlyphs","GlyphRamp","GlyphSet","GlyphSetCache"]};

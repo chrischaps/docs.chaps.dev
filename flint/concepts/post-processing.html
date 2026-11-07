@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -192,7 +192,7 @@
  Rgba16Float       depth       filtered     AO         vol          bloom          sRGB surface or       sRGB
  HDR buffer        texture     HDR          texture    texture      texture        FXAA intermediate     surface
 </code></pre>
-<p>All scene pipelines — PBR, skinned mesh, billboard sprite, particle, skybox, sky, ocean, terrain and grass — render to the HDR buffer when post-processing is active. The PBR shader’s built-in tonemapping is automatically disabled so it outputs linear HDR values for the composite pass to process. Kuwahara and FXAA resources are only allocated when their effect is enabled.</p>
+<p>All scene pipelines — PBR, skinned mesh, billboard sprite, particle, skybox, sky, ocean, terrain and grass — render to the HDR buffer when post-processing is active. The PBR shader’s built-in tonemapping is automatically disabled so it outputs linear HDR values for the composite pass to process. Kuwahara and FXAA resources are only allocated when their effect is enabled. Kuwahara is a <a href="stylize-passes.html">stylize pass</a>; stylize passes of the display stage (such as <code>invert</code>) run after the composite and before FXAA.</p>
 <h2 id="bloom"><a class="header" href="#bloom">Bloom</a></h2>
 <p>Bloom creates the soft glow around bright light sources — emissive materials, fire particles, bright specular highlights. The implementation uses the technique from Call of Duty: Advanced Warfare:</p>
 <ol>
@@ -256,24 +256,49 @@
 <p>Distances are plain view-space meters. Earlier builds linearized depth with the OpenGL <code>[-1, 1]</code> convention, which made focus values drift with the far plane; ADR 0055 moved every depth consumer to wgpu’s <code>[0, 1]</code> convention, so <code>dof_focus_distance = 10</code> now means ten meters from the camera.</p>
 <p>In the scene viewer, the Rendering &amp; Effects menu offers <strong>DoF follow</strong>: the focus plane tracks the last selected entity, which is a fast way to find a focus distance by eye.</p>
 <h2 id="fog"><a class="header" href="#fog">Fog</a></h2>
-<p>Distance-based fog blends a configurable fog color into the scene based on pixel depth. Height-based falloff can be layered on top so fog is thicker near the ground and thins out at higher elevations. Fog is applied in linear HDR space, before tonemapping.</p>
+<p>Distance-based fog blends a configurable fog color into the scene based on pixel depth. A layer of height fog can be added to it, thick low down and thinning with altitude, and an aerial tint can turn far things toward a second colour. Fog is applied in linear HDR space, before tonemapping.</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>fog_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable distance fog</td></tr>
+<tr><td><code>fog_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable distance fog (and the height fog and tint below)</td></tr>
 <tr><td><code>fog_color</code></td><td>[f32; 3]</td><td><code>[0.7, 0.75, 0.82]</code></td><td>Fog color (linear RGB)</td></tr>
 <tr><td><code>fog_density</code></td><td>f32</td><td><code>0.02</code></td><td>Exponential density factor</td></tr>
 <tr><td><code>fog_start</code></td><td>f32</td><td><code>5.0</code></td><td>Distance where fog begins</td></tr>
 <tr><td><code>fog_end</code></td><td>f32</td><td><code>100.0</code></td><td>Distance where fog reaches full opacity</td></tr>
-<tr><td><code>fog_height_enabled</code></td><td>bool</td><td><code>false</code></td><td>Enable height-based falloff</td></tr>
-<tr><td><code>fog_height_falloff</code></td><td>f32</td><td><code>0.1</code></td><td>How quickly fog thins with altitude</td></tr>
-<tr><td><code>fog_height_origin</code></td><td>f32</td><td><code>0.0</code></td><td>World Y where fog is thickest</td></tr>
+<tr><td><code>fog_height_enabled</code></td><td>bool</td><td><code>false</code></td><td>Add the height fog layer</td></tr>
+<tr><td><code>fog_height_density</code></td><td>f32</td><td><code>0.0</code></td><td>Height fog’s density at <code>fog_height_origin</code>; 0 adds none</td></tr>
+<tr><td><code>fog_height_falloff</code></td><td>f32</td><td><code>0.1</code></td><td>How quickly height fog thins with altitude (density falls by e every <code>1/falloff</code> m)</td></tr>
+<tr><td><code>fog_height_origin</code></td><td>f32</td><td><code>0.0</code></td><td>World Y where height fog has <code>fog_height_density</code></td></tr>
+<tr><td><code>fog_tint_color</code></td><td>[f32; 3]</td><td><code>[0.42, 0.50, 0.65]</code></td><td>Aerial tint colour (linear RGB)</td></tr>
+<tr><td><code>fog_tint_strength</code></td><td>f32</td><td><code>0.0</code></td><td>How much of the tint the farthest things take; 0 is off</td></tr>
+<tr><td><code>fog_tint_start</code></td><td>f32</td><td><code>100.0</code></td><td>Distance where the tint starts to come in</td></tr>
+<tr><td><code>fog_tint_end</code></td><td>f32</td><td><code>1000.0</code></td><td>Distance where it reaches <code>fog_tint_strength</code></td></tr>
 </tbody>
 </table>
 </div>
+<p><strong>Height fog</strong> (ADR 0101) is a layer of air whose density is <code>fog_height_density</code> at <code>fog_height_origin</code> and falls exponentially above it (and rises below it). The composite integrates that density exactly along each view ray, from the camera to the pixel, and adds it to the distance fog’s optical depth: <code>fog = 1 - exp(-(fog_density * max(d - fog_start, 0) + height_depth))</code>. So a view low in the layer goes milky at a short distance, a view across it from above sees only the hollows fill, and the layer lies round the camera too (it isn’t held off by <code>fog_start</code>). The layer is one horizontal slab across the whole scene: for mist that keeps to valleys at different heights, use the ground fog below. Before ADR 0101, height fog took <code>max(distance fog, exp(-falloff × h) × distance fog)</code>, which is never more than the distance fog, so it did nothing on screen. <code>fog_height_density</code> defaults to 0, so a scene that turned height fog on then looks as it did.</p>
+<p><strong>The aerial tint</strong> (ADR 0101) mixes <code>fog_tint_color</code> over each drawn pixel by <code>fog_tint_strength × smoothstep(fog_tint_start, fog_tint_end, d)</code>, before the fog is mixed in. Far land turns blue (aerial perspective), while the farthest of it still runs into <code>fog_color</code> and, with a fog the colour of the sky’s horizon, into the sky with no line. Like the fog, the tint is light in the air, not a surface colour: keep it with the hour, darker at night, as you would <code>fog_color</code>. It leaves the sky alone.</p>
+<h3 id="ground-fog"><a class="header" href="#ground-fog">Ground fog</a></h3>
+<p><strong>Ground fog</strong> (ADR 0106) is fog that lies on floors of its own, so a mist can fill hollows at many heights where the height fog is one level layer. The game gives it a map over a world rectangle, <code>GroundFog { origin, size, width, depth, texels }</code>, each texel a <code>[floor, amount]</code>: the floor a world Y (the ground’s, usually) and the amount 0 to 1. Over a texel the density is <code>amount × ground_fog_density</code> at the floor, falling by e every <code>1 / ground_fog_falloff</code> metres above it and holding at the floor’s under it. Set the map with <code>SceneRenderer::set_ground_fog(device, queue, &amp;fog)</code> (<code>ExtensionGpu::set_ground_fog</code> from an extension), once and again when the ground changes; <code>clear_ground_fog</code> removes it, and so does a map with no fog on it. The look is on the post-process config and can change every frame:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ground_fog_density</code></td><td>f32</td><td><code>0.0</code></td><td>Density per metre at a floor where the amount is 1; 0 is off</td></tr>
+<tr><td><code>ground_fog_color</code></td><td>[f32; 3]</td><td><code>[0.8, 0.82, 0.86]</code></td><td>Its colour (linear RGB). It isn’t lit: give it the hour’s</td></tr>
+<tr><td><code>ground_fog_falloff</code></td><td>f32</td><td><code>0.5</code></td><td>It falls by e every <code>1/falloff</code> m over the floor</td></tr>
+<tr><td><code>ground_fog_steps</code></td><td>u32</td><td><code>24</code></td><td>Steps each view ray marches, 1 to 64</td></tr>
+</tbody>
+</table>
+</div>
+<p>The composite marches each view ray through the box the fog can lie in: the map’s rectangle, from the lowest floor up to where the fog over the highest has thinned to e⁻⁷. The march ends at what the depth buffer says the ray meets, or runs on through the sky. Its steps lengthen with distance from the eye, in proportion, so they’re fine near it wherever the march begins. The map is read at the ends of each step, so each read serves two, at the mip level the step spans, so a long step sees the fog averaged over what it crosses. Along a step the height over the floor runs straight from one end’s to the other’s, so on a slope the floor follows the ground, and the falloff is integrated along it exactly: a ray that dips into a thin layer between two reads still meets it. The ends are moved along the ray by a hash of the pixel, so what’s left of the steps reads as fine grain, not bands. The mist is mixed over the scene before the aerial tint and the fog, which take it with what lies behind it. It rides <code>enabled</code>, not <code>fog_enabled</code>. The map is stored as half floats, each floor over the lowest, so keep its range of floors to a few hundred metres for centimetre steps.</p>
+<p>A texel’s value is at the middle of its cell, and the fog blends the four round a point, so give a texel with no fog the ground’s height too: its floor still shapes the fog at its edges. Its cost is the march over every pixel whose ray crosses the box, <code>ground_fog_steps + 2</code> reads each; at 1080p with 24 steps it was within the noise of a frame without it in The Capitol’s wilds.</p>
+<p>Fog reaches <strong>everything drawn, at any distance</strong> (ADR 0078). The sky and skybox never write depth and the scene clears it to exactly 1.0, so the composite treats a pixel as sky only when its depth is 1.0; any geometry inside the camera’s far plane is fogged. Set <code>far</code> to what the scene draws, not larger. SSAO, volumetric lighting and depth of field use the same sky test. Before ADR 0078 the cut was depth ≥ 0.9999, which with a 1 m near plane is about 2.9 km at <code>far</code> = 4 km and never more than 10 km, so a ground running to the horizon ended in an unfogged band.</p>
 <h2 id="volumetric-lighting-god-rays"><a class="header" href="#volumetric-lighting-god-rays">Volumetric Lighting (God Rays)</a></h2>
 <p>Volumetric lighting simulates light scattering through participating media (dust, fog, haze), producing visible shafts of light (god rays). The effect ray-marches from each pixel toward the camera, sampling the shadow map at each step to determine whether that point in space is lit or in shadow.</p>
 <h3 id="how-it-works-1"><a class="header" href="#how-it-works-1">How it works</a></h3>
@@ -360,7 +385,7 @@ volumetric_color = [1.0, 0.88, 0.6]
 </tbody>
 </table>
 </div>
-<p>The filter’s textures and pipelines are allocated the first time it is enabled, so scenes that never use it pay nothing.</p>
+<p>The filter’s textures and pipelines are allocated the first time it is enabled, so scenes that never use it pay nothing. Kuwahara is the first <a href="stylize-passes.html">stylize pass</a>: it runs through the same framework as every later style, in its HDR stage.</p>
 <h2 id="color-grade-film-grain-and-fxaa"><a class="header" href="#color-grade-film-grain-and-fxaa">Color Grade, Film Grain and FXAA</a></h2>
 <p>Three finishing controls from ADR 0050 sit at the end of the composite pass.</p>
 <p><strong>Color grade</strong> is an ASC-CDL-shaped lift/gamma/gain applied right after ACES tonemapping, so it grades the display-referred image: <code>pow(max(color * gain + lift, 0), 1 / gamma)</code>. The grade is skipped entirely while all three are neutral.</p>
@@ -529,7 +554,7 @@ flint play scene.toml --bloom-intensity 0.1 --exposure 1.2 --volumetric-density 
 <tr><td>Post chain</td><td>Post-processing on/off, exposure, vignette + intensity + smoothness, chromatic aberration, radial blur, desaturate. Player only: <strong>Freeze script post overrides</strong>, so a running script cannot fight your edits</td></tr>
 <tr><td>SSAO</td><td>Enabled, radius, intensity, bias, samples</td></tr>
 <tr><td>Depth of field</td><td>Strength, focus distance, focus range</td></tr>
-<tr><td>Fog</td><td>Enabled, color, density, start, end, height fog + falloff + origin</td></tr>
+<tr><td>Fog</td><td>Enabled, color, density, start, end, height fog + falloff + origin + density, tint color + strength + start + end</td></tr>
 <tr><td>Bloom</td><td>Enabled, intensity, threshold, soft threshold</td></tr>
 <tr><td>Grade / Grain / FXAA</td><td>Lift, gamma, gain, Neutral grade button, film grain, FXAA</td></tr>
 <tr><td>Kuwahara</td><td>Enabled, radius, sharpness, hardness, anisotropy</td></tr>
@@ -675,7 +700,7 @@ the Matrix mode nearly black.</p>
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../concepts/audio.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../concepts/quality-settings.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -689,7 +714,7 @@ the Matrix mode nearly black.</p>
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../concepts/audio.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../concepts/quality-settings.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

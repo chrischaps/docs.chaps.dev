@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["IDENTITY"],"enum":["SpawnOrigin"],"fn":["apply_spawn_requests","oriented_basis","spawn_particle","step_emitter"],"struct":["EmitterFrame","SpawnRequest"]};

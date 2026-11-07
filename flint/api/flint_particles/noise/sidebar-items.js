@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["fbm3","noise3","noise3_vec"]};

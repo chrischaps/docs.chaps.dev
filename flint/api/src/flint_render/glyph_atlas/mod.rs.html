@@ -1,0 +1,493 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\flint-render\src\glyph_atlas\mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint_render" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">flint_render\glyph_atlas/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Glyph atlas: monospaced glyphs rasterized into one coverage texture, for
+<a href=#2 id=2 data-nosnippet>2</a>//! the ASCII styles and any later text-based look (#264, epic #260).
+<a href=#3 id=3 data-nosnippet>3</a>//!
+<a href=#4 id=4 data-nosnippet>4</a>//! A [`GlyphAtlas`] is a grid of equal cells, one glyph each, in an 8-bit
+<a href=#5 id=5 data-nosnippet>5</a>//! coverage image (0 paper, 255 ink) with a one-pixel gutter round every cell
+<a href=#6 id=6 data-nosnippet>6</a>//! so a filtered sample never bleeds into a neighbour. It comes from one of
+<a href=#7 id=7 data-nosnippet>7</a>//! three sources:
+<a href=#8 id=8 data-nosnippet>8</a>//!
+<a href=#9 id=9 data-nosnippet>9</a>//! - the built-in 8x8 set ([`GlyphAtlas::builtin`]), drawn by hand for the
+<a href=#10 id=10 data-nosnippet>10</a>//!   engine in `builtin_8x8.txt` and free of any font licence;
+<a href=#11 id=11 data-nosnippet>11</a>//! - a TTF/OTF rasterized at a pixel height ([`GlyphAtlas::from_ttf`]);
+<a href=#12 id=12 data-nosnippet>12</a>//! - a bitmap grid image, one glyph per cell ([`GlyphAtlas::from_grid_image`]).
+<a href=#13 id=13 data-nosnippet>13</a>//!
+<a href=#14 id=14 data-nosnippet>14</a>//! A [`GlyphSet`] adds what a style needs on top: named luminance ramps and
+<a href=#15 id=15 data-nosnippet>15</a>//! the edge glyphs, read from a `*.glyphs.toml` (see [`set`]). Everything is
+<a href=#16 id=16 data-nosnippet>16</a>//! read through [`flint_core::vfs`], so a game bundle on the web serves it the
+<a href=#17 id=17 data-nosnippet>17</a>//! same as the disk. [`GpuGlyphAtlas`] uploads an atlas as an `R8Unorm`
+<a href=#18 id=18 data-nosnippet>18</a>//! texture.
+<a href=#19 id=19 data-nosnippet>19</a>
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="kw">mod </span>gpu;
+<a href=#21 id=21 data-nosnippet>21</a><span class="kw">pub mod </span>set;
+<a href=#22 id=22 data-nosnippet>22</a>
+<a href=#23 id=23 data-nosnippet>23</a><span class="kw">pub use </span>gpu::GpuGlyphAtlas;
+<a href=#24 id=24 data-nosnippet>24</a><span class="kw">pub use </span>set::{EdgeGlyphs, GlyphRamp, GlyphSet, GlyphSetCache, RampOrder};
+<a href=#25 id=25 data-nosnippet>25</a>
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span>ab_glyph::{Font, FontRef, PxScale, ScaleFont};
+<a href=#27 id=27 data-nosnippet>27</a><span class="kw">use </span>std::collections::{BTreeSet, HashMap};
+<a href=#28 id=28 data-nosnippet>28</a><span class="kw">use </span>std::fmt;
+<a href=#29 id=29 data-nosnippet>29</a>
+<a href=#30 id=30 data-nosnippet>30</a><span class="doccomment">/// Cells per atlas row.
+<a href=#31 id=31 data-nosnippet>31</a></span><span class="kw">pub const </span>ATLAS_COLUMNS: u32 = <span class="number">16</span>;
+<a href=#32 id=32 data-nosnippet>32</a><span class="doccomment">/// Paper round every cell, in pixels.
+<a href=#33 id=33 data-nosnippet>33</a></span><span class="kw">pub const </span>CELL_PADDING: u32 = <span class="number">1</span>;
+<a href=#34 id=34 data-nosnippet>34</a>
+<a href=#35 id=35 data-nosnippet>35</a><span class="doccomment">/// Why a glyph atlas or set could not be built.
+<a href=#36 id=36 data-nosnippet>36</a></span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
+<a href=#37 id=37 data-nosnippet>37</a></span><span class="kw">pub enum </span>GlyphError {
+<a href=#38 id=38 data-nosnippet>38</a>    <span class="doccomment">/// A file could not be read through the vfs.
+<a href=#39 id=39 data-nosnippet>39</a>    </span>Read(String),
+<a href=#40 id=40 data-nosnippet>40</a>    <span class="doccomment">/// A `*.glyphs.toml` (or the built-in font text) did not parse.
+<a href=#41 id=41 data-nosnippet>41</a>    </span>Parse(String),
+<a href=#42 id=42 data-nosnippet>42</a>    <span class="doccomment">/// The font bytes are not a font ab_glyph can read.
+<a href=#43 id=43 data-nosnippet>43</a>    </span>Font(String),
+<a href=#44 id=44 data-nosnippet>44</a>    <span class="doccomment">/// Glyphs a ramp or edge set names that the font does not have.
+<a href=#45 id=45 data-nosnippet>45</a>    </span>Missing(Vec&lt;char&gt;),
+<a href=#46 id=46 data-nosnippet>46</a>}
+<a href=#47 id=47 data-nosnippet>47</a>
+<a href=#48 id=48 data-nosnippet>48</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>GlyphError {
+<a href=#49 id=49 data-nosnippet>49</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+<a href=#50 id=50 data-nosnippet>50</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#51 id=51 data-nosnippet>51</a>            GlyphError::Read(m) =&gt; <span class="macro">write!</span>(f, <span class="string">"glyphs: {m}"</span>),
+<a href=#52 id=52 data-nosnippet>52</a>            GlyphError::Parse(m) =&gt; <span class="macro">write!</span>(f, <span class="string">"glyphs: {m}"</span>),
+<a href=#53 id=53 data-nosnippet>53</a>            GlyphError::Font(m) =&gt; <span class="macro">write!</span>(f, <span class="string">"glyphs: font: {m}"</span>),
+<a href=#54 id=54 data-nosnippet>54</a>            GlyphError::Missing(chars) =&gt; {
+<a href=#55 id=55 data-nosnippet>55</a>                <span class="kw">let </span>list: Vec&lt;String&gt; = chars.iter().map(|c| <span class="macro">format!</span>(<span class="string">"{c:?}"</span>)).collect();
+<a href=#56 id=56 data-nosnippet>56</a>                <span class="macro">write!</span>(f, <span class="string">"glyphs: the font has no glyph for {}"</span>, list.join(<span class="string">", "</span>))
+<a href=#57 id=57 data-nosnippet>57</a>            }
+<a href=#58 id=58 data-nosnippet>58</a>        }
+<a href=#59 id=59 data-nosnippet>59</a>    }
+<a href=#60 id=60 data-nosnippet>60</a>}
+<a href=#61 id=61 data-nosnippet>61</a>
+<a href=#62 id=62 data-nosnippet>62</a><span class="kw">impl </span>std::error::Error <span class="kw">for </span>GlyphError {}
+<a href=#63 id=63 data-nosnippet>63</a>
+<a href=#64 id=64 data-nosnippet>64</a><span class="doccomment">/// Every printable ASCII character, `' '` to `'~'`.
+<a href=#65 id=65 data-nosnippet>65</a></span><span class="kw">pub fn </span>printable_ascii() -&gt; <span class="kw">impl </span>Iterator&lt;Item = char&gt; {
+<a href=#66 id=66 data-nosnippet>66</a>    (<span class="number">0x20u8</span>..=<span class="number">0x7e</span>).map(char::from)
+<a href=#67 id=67 data-nosnippet>67</a>}
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a><span class="doccomment">/// Monospaced glyphs packed into one coverage image.
+<a href=#70 id=70 data-nosnippet>70</a></span><span class="attr">#[derive(Clone)]
+<a href=#71 id=71 data-nosnippet>71</a></span><span class="kw">pub struct </span>GlyphAtlas {
+<a href=#72 id=72 data-nosnippet>72</a>    cell: [u32; <span class="number">2</span>],
+<a href=#73 id=73 data-nosnippet>73</a>    columns: u32,
+<a href=#74 id=74 data-nosnippet>74</a>    width: u32,
+<a href=#75 id=75 data-nosnippet>75</a>    height: u32,
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="doccomment">/// Coverage, row-major, `width * height` bytes.
+<a href=#77 id=77 data-nosnippet>77</a>    </span>pixels: Vec&lt;u8&gt;,
+<a href=#78 id=78 data-nosnippet>78</a>    glyphs: Vec&lt;char&gt;,
+<a href=#79 id=79 data-nosnippet>79</a>    index: HashMap&lt;char, u32&gt;,
+<a href=#80 id=80 data-nosnippet>80</a>    <span class="doccomment">/// Mean ink per glyph, 0..1, in `glyphs` order.
+<a href=#81 id=81 data-nosnippet>81</a>    </span>coverage: Vec&lt;f32&gt;,
+<a href=#82 id=82 data-nosnippet>82</a>}
+<a href=#83 id=83 data-nosnippet>83</a>
+<a href=#84 id=84 data-nosnippet>84</a><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>GlyphAtlas {
+<a href=#85 id=85 data-nosnippet>85</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+<a href=#86 id=86 data-nosnippet>86</a>        f.debug_struct(<span class="string">"GlyphAtlas"</span>)
+<a href=#87 id=87 data-nosnippet>87</a>            .field(<span class="string">"cell"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.cell)
+<a href=#88 id=88 data-nosnippet>88</a>            .field(<span class="string">"size"</span>, <span class="kw-2">&amp;</span>[<span class="self">self</span>.width, <span class="self">self</span>.height])
+<a href=#89 id=89 data-nosnippet>89</a>            .field(<span class="string">"glyphs"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.glyphs.len())
+<a href=#90 id=90 data-nosnippet>90</a>            .finish()
+<a href=#91 id=91 data-nosnippet>91</a>    }
+<a href=#92 id=92 data-nosnippet>92</a>}
+<a href=#93 id=93 data-nosnippet>93</a>
+<a href=#94 id=94 data-nosnippet>94</a><span class="kw">impl </span>GlyphAtlas {
+<a href=#95 id=95 data-nosnippet>95</a>    <span class="doccomment">/// An empty atlas of `glyphs` (deduplicated, in the order given) with
+<a href=#96 id=96 data-nosnippet>96</a>    /// cells of `cell` pixels; [`Self::paint`] fills them.
+<a href=#97 id=97 data-nosnippet>97</a>    </span><span class="kw">fn </span>blank(cell: [u32; <span class="number">2</span>], glyphs: Vec&lt;char&gt;) -&gt; <span class="self">Self </span>{
+<a href=#98 id=98 data-nosnippet>98</a>        <span class="kw">let </span><span class="kw-2">mut </span>seen = BTreeSet::new();
+<a href=#99 id=99 data-nosnippet>99</a>        <span class="kw">let </span>glyphs: Vec&lt;char&gt; = glyphs.into_iter().filter(|c| seen.insert(<span class="kw-2">*</span>c)).collect();
+<a href=#100 id=100 data-nosnippet>100</a>        <span class="kw">let </span>columns = ATLAS_COLUMNS.min(glyphs.len().max(<span class="number">1</span>) <span class="kw">as </span>u32);
+<a href=#101 id=101 data-nosnippet>101</a>        <span class="kw">let </span>rows = (glyphs.len() <span class="kw">as </span>u32).div_ceil(columns).max(<span class="number">1</span>);
+<a href=#102 id=102 data-nosnippet>102</a>        <span class="kw">let </span>width = CELL_PADDING + columns * (cell[<span class="number">0</span>] + CELL_PADDING);
+<a href=#103 id=103 data-nosnippet>103</a>        <span class="kw">let </span>height = CELL_PADDING + rows * (cell[<span class="number">1</span>] + CELL_PADDING);
+<a href=#104 id=104 data-nosnippet>104</a>        <span class="kw">let </span>index = glyphs
+<a href=#105 id=105 data-nosnippet>105</a>            .iter()
+<a href=#106 id=106 data-nosnippet>106</a>            .enumerate()
+<a href=#107 id=107 data-nosnippet>107</a>            .map(|(i, c)| (<span class="kw-2">*</span>c, i <span class="kw">as </span>u32))
+<a href=#108 id=108 data-nosnippet>108</a>            .collect();
+<a href=#109 id=109 data-nosnippet>109</a>        <span class="self">Self </span>{
+<a href=#110 id=110 data-nosnippet>110</a>            cell,
+<a href=#111 id=111 data-nosnippet>111</a>            columns,
+<a href=#112 id=112 data-nosnippet>112</a>            width,
+<a href=#113 id=113 data-nosnippet>113</a>            height,
+<a href=#114 id=114 data-nosnippet>114</a>            pixels: <span class="macro">vec!</span>[<span class="number">0</span>; (width * height) <span class="kw">as </span>usize],
+<a href=#115 id=115 data-nosnippet>115</a>            coverage: <span class="macro">vec!</span>[<span class="number">0.0</span>; glyphs.len()],
+<a href=#116 id=116 data-nosnippet>116</a>            glyphs,
+<a href=#117 id=117 data-nosnippet>117</a>            index,
+<a href=#118 id=118 data-nosnippet>118</a>        }
+<a href=#119 id=119 data-nosnippet>119</a>    }
+<a href=#120 id=120 data-nosnippet>120</a>
+<a href=#121 id=121 data-nosnippet>121</a>    <span class="doccomment">/// Write one pixel of glyph `i`'s cell, clipped to the cell.
+<a href=#122 id=122 data-nosnippet>122</a>    </span><span class="kw">fn </span>paint(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: u32, x: i32, y: i32, value: u8) {
+<a href=#123 id=123 data-nosnippet>123</a>        <span class="kw">if </span>x &lt; <span class="number">0 </span>|| y &lt; <span class="number">0 </span>|| x <span class="kw">as </span>u32 &gt;= <span class="self">self</span>.cell[<span class="number">0</span>] || y <span class="kw">as </span>u32 &gt;= <span class="self">self</span>.cell[<span class="number">1</span>] {
+<a href=#124 id=124 data-nosnippet>124</a>            <span class="kw">return</span>;
+<a href=#125 id=125 data-nosnippet>125</a>        }
+<a href=#126 id=126 data-nosnippet>126</a>        <span class="kw">let </span>[ox, oy] = <span class="self">self</span>.cell_origin(i);
+<a href=#127 id=127 data-nosnippet>127</a>        <span class="kw">let </span>at = ((oy + y <span class="kw">as </span>u32) * <span class="self">self</span>.width + ox + x <span class="kw">as </span>u32) <span class="kw">as </span>usize;
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="self">self</span>.pixels[at] = <span class="self">self</span>.pixels[at].max(value);
+<a href=#129 id=129 data-nosnippet>129</a>    }
+<a href=#130 id=130 data-nosnippet>130</a>
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="doccomment">/// Measure every glyph's ink once the cells are painted.
+<a href=#132 id=132 data-nosnippet>132</a>    </span><span class="kw">fn </span>measure(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+<a href=#133 id=133 data-nosnippet>133</a>        <span class="kw">let </span>area = (<span class="self">self</span>.cell[<span class="number">0</span>] * <span class="self">self</span>.cell[<span class="number">1</span>]) <span class="kw">as </span>f32;
+<a href=#134 id=134 data-nosnippet>134</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.glyphs.len() <span class="kw">as </span>u32 {
+<a href=#135 id=135 data-nosnippet>135</a>            <span class="kw">let </span>[ox, oy] = <span class="self">self</span>.cell_origin(i);
+<a href=#136 id=136 data-nosnippet>136</a>            <span class="kw">let </span><span class="kw-2">mut </span>sum = <span class="number">0u32</span>;
+<a href=#137 id=137 data-nosnippet>137</a>            <span class="kw">for </span>y <span class="kw">in </span>oy..oy + <span class="self">self</span>.cell[<span class="number">1</span>] {
+<a href=#138 id=138 data-nosnippet>138</a>                <span class="kw">let </span>row = (y * <span class="self">self</span>.width) <span class="kw">as </span>usize;
+<a href=#139 id=139 data-nosnippet>139</a>                <span class="kw">for </span>x <span class="kw">in </span>ox..ox + <span class="self">self</span>.cell[<span class="number">0</span>] {
+<a href=#140 id=140 data-nosnippet>140</a>                    sum += <span class="self">self</span>.pixels[row + x <span class="kw">as </span>usize] <span class="kw">as </span>u32;
+<a href=#141 id=141 data-nosnippet>141</a>                }
+<a href=#142 id=142 data-nosnippet>142</a>            }
+<a href=#143 id=143 data-nosnippet>143</a>            <span class="self">self</span>.coverage[i <span class="kw">as </span>usize] = sum <span class="kw">as </span>f32 / (<span class="number">255.0 </span>* area);
+<a href=#144 id=144 data-nosnippet>144</a>        }
+<a href=#145 id=145 data-nosnippet>145</a>        <span class="self">self
+<a href=#146 id=146 data-nosnippet>146</a>    </span>}
+<a href=#147 id=147 data-nosnippet>147</a>
+<a href=#148 id=148 data-nosnippet>148</a>    <span class="doccomment">/// The built-in 8x8 set: printable ASCII, the box-drawing edge glyphs
+<a href=#149 id=149 data-nosnippet>149</a>    /// `─│╱╲` and the shade blocks `░▒▓█`.
+<a href=#150 id=150 data-nosnippet>150</a>    /// Built once per process.
+<a href=#151 id=151 data-nosnippet>151</a>    </span><span class="kw">pub fn </span>builtin() -&gt; std::sync::Arc&lt;GlyphAtlas&gt; {
+<a href=#152 id=152 data-nosnippet>152</a>        <span class="kw">static </span>BUILTIN: std::sync::OnceLock&lt;std::sync::Arc&lt;GlyphAtlas&gt;&gt; =
+<a href=#153 id=153 data-nosnippet>153</a>            std::sync::OnceLock::new();
+<a href=#154 id=154 data-nosnippet>154</a>        BUILTIN
+<a href=#155 id=155 data-nosnippet>155</a>            .get_or_init(|| {
+<a href=#156 id=156 data-nosnippet>156</a>                std::sync::Arc::new(
+<a href=#157 id=157 data-nosnippet>157</a>                    <span class="self">Self</span>::from_pixel_text(<span class="macro">include_str!</span>(<span class="string">"builtin_8x8.txt"</span>), [<span class="number">8</span>, <span class="number">8</span>])
+<a href=#158 id=158 data-nosnippet>158</a>                        .expect(<span class="string">"the built-in glyph text parses"</span>),
+<a href=#159 id=159 data-nosnippet>159</a>                )
+<a href=#160 id=160 data-nosnippet>160</a>            })
+<a href=#161 id=161 data-nosnippet>161</a>            .clone()
+<a href=#162 id=162 data-nosnippet>162</a>    }
+<a href=#163 id=163 data-nosnippet>163</a>
+<a href=#164 id=164 data-nosnippet>164</a>    <span class="doccomment">/// Parse the hand-drawn format of `builtin_8x8.txt`: `== c` starts a
+<a href=#165 id=165 data-nosnippet>165</a>    /// glyph (`== space` for `' '`), then one line per pixel row of `#` and
+<a href=#166 id=166 data-nosnippet>166</a>    /// `.`. Rows narrower than the cell are centred in it.
+<a href=#167 id=167 data-nosnippet>167</a>    </span><span class="kw">pub fn </span>from_pixel_text(text: <span class="kw-2">&amp;</span>str, cell: [u32; <span class="number">2</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, GlyphError&gt; {
+<a href=#168 id=168 data-nosnippet>168</a>        <span class="kw">let </span><span class="kw-2">mut </span>drawn: Vec&lt;(char, Vec&lt;<span class="kw-2">&amp;</span>str&gt;)&gt; = Vec::new();
+<a href=#169 id=169 data-nosnippet>169</a>        <span class="kw">for </span>(n, line) <span class="kw">in </span>text.lines().enumerate() {
+<a href=#170 id=170 data-nosnippet>170</a>            <span class="kw">let </span>line = line.trim_end();
+<a href=#171 id=171 data-nosnippet>171</a>            <span class="kw">if </span>line.is_empty() || line.starts_with(<span class="string">";;"</span>) {
+<a href=#172 id=172 data-nosnippet>172</a>                <span class="kw">continue</span>;
+<a href=#173 id=173 data-nosnippet>173</a>            }
+<a href=#174 id=174 data-nosnippet>174</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = line.strip_prefix(<span class="string">"== "</span>) {
+<a href=#175 id=175 data-nosnippet>175</a>                <span class="kw">let </span>ch = <span class="kw">match </span>name {
+<a href=#176 id=176 data-nosnippet>176</a>                    <span class="string">"space" </span>=&gt; <span class="string">' '</span>,
+<a href=#177 id=177 data-nosnippet>177</a>                    <span class="kw">_ </span>=&gt; {
+<a href=#178 id=178 data-nosnippet>178</a>                        <span class="kw">let </span><span class="kw-2">mut </span>chars = name.chars();
+<a href=#179 id=179 data-nosnippet>179</a>                        <span class="kw">match </span>(chars.next(), chars.next()) {
+<a href=#180 id=180 data-nosnippet>180</a>                            (<span class="prelude-val">Some</span>(c), <span class="prelude-val">None</span>) =&gt; c,
+<a href=#181 id=181 data-nosnippet>181</a>                            <span class="kw">_ </span>=&gt; {
+<a href=#182 id=182 data-nosnippet>182</a>                                <span class="kw">return </span><span class="prelude-val">Err</span>(GlyphError::Parse(<span class="macro">format!</span>(
+<a href=#183 id=183 data-nosnippet>183</a>                                    <span class="string">"line {}: `== {name}` names more than one character"</span>,
+<a href=#184 id=184 data-nosnippet>184</a>                                    n + <span class="number">1
+<a href=#185 id=185 data-nosnippet>185</a>                                </span>)))
+<a href=#186 id=186 data-nosnippet>186</a>                            }
+<a href=#187 id=187 data-nosnippet>187</a>                        }
+<a href=#188 id=188 data-nosnippet>188</a>                    }
+<a href=#189 id=189 data-nosnippet>189</a>                };
+<a href=#190 id=190 data-nosnippet>190</a>                drawn.push((ch, Vec::new()));
+<a href=#191 id=191 data-nosnippet>191</a>            } <span class="kw">else if let </span><span class="prelude-val">Some</span>((ch, rows)) = drawn.last_mut() {
+<a href=#192 id=192 data-nosnippet>192</a>                <span class="kw">if </span>line.chars().any(|c| c != <span class="string">'#' </span>&amp;&amp; c != <span class="string">'.'</span>) {
+<a href=#193 id=193 data-nosnippet>193</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(GlyphError::Parse(<span class="macro">format!</span>(
+<a href=#194 id=194 data-nosnippet>194</a>                        <span class="string">"line {}: glyph {ch:?} row {line:?} is not `#` and `.`"</span>,
+<a href=#195 id=195 data-nosnippet>195</a>                        n + <span class="number">1
+<a href=#196 id=196 data-nosnippet>196</a>                    </span>)));
+<a href=#197 id=197 data-nosnippet>197</a>                }
+<a href=#198 id=198 data-nosnippet>198</a>                rows.push(line);
+<a href=#199 id=199 data-nosnippet>199</a>            } <span class="kw">else </span>{
+<a href=#200 id=200 data-nosnippet>200</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(GlyphError::Parse(<span class="macro">format!</span>(
+<a href=#201 id=201 data-nosnippet>201</a>                    <span class="string">"line {}: pixels before any `== c` header"</span>,
+<a href=#202 id=202 data-nosnippet>202</a>                    n + <span class="number">1
+<a href=#203 id=203 data-nosnippet>203</a>                </span>)));
+<a href=#204 id=204 data-nosnippet>204</a>            }
+<a href=#205 id=205 data-nosnippet>205</a>        }
+<a href=#206 id=206 data-nosnippet>206</a>
+<a href=#207 id=207 data-nosnippet>207</a>        <span class="kw">let </span><span class="kw-2">mut </span>atlas = <span class="self">Self</span>::blank(cell, drawn.iter().map(|(c, <span class="kw">_</span>)| <span class="kw-2">*</span>c).collect());
+<a href=#208 id=208 data-nosnippet>208</a>        <span class="kw">for </span>(ch, rows) <span class="kw">in </span><span class="kw-2">&amp;</span>drawn {
+<a href=#209 id=209 data-nosnippet>209</a>            <span class="kw">if </span>rows.len() <span class="kw">as </span>u32 != cell[<span class="number">1</span>] {
+<a href=#210 id=210 data-nosnippet>210</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(GlyphError::Parse(<span class="macro">format!</span>(
+<a href=#211 id=211 data-nosnippet>211</a>                    <span class="string">"glyph {ch:?} has {} rows, the cell {}"</span>,
+<a href=#212 id=212 data-nosnippet>212</a>                    rows.len(),
+<a href=#213 id=213 data-nosnippet>213</a>                    cell[<span class="number">1</span>]
+<a href=#214 id=214 data-nosnippet>214</a>                )));
+<a href=#215 id=215 data-nosnippet>215</a>            }
+<a href=#216 id=216 data-nosnippet>216</a>            <span class="kw">let </span>i = atlas.index[ch];
+<a href=#217 id=217 data-nosnippet>217</a>            <span class="kw">for </span>(y, row) <span class="kw">in </span>rows.iter().enumerate() {
+<a href=#218 id=218 data-nosnippet>218</a>                <span class="kw">let </span>w = row.len() <span class="kw">as </span>u32;
+<a href=#219 id=219 data-nosnippet>219</a>                <span class="kw">if </span>w &gt; cell[<span class="number">0</span>] {
+<a href=#220 id=220 data-nosnippet>220</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(GlyphError::Parse(<span class="macro">format!</span>(
+<a href=#221 id=221 data-nosnippet>221</a>                        <span class="string">"glyph {ch:?} row {row:?} is wider than the cell ({})"</span>,
+<a href=#222 id=222 data-nosnippet>222</a>                        cell[<span class="number">0</span>]
+<a href=#223 id=223 data-nosnippet>223</a>                    )));
+<a href=#224 id=224 data-nosnippet>224</a>                }
+<a href=#225 id=225 data-nosnippet>225</a>                <span class="kw">let </span>offset = ((cell[<span class="number">0</span>] - w) / <span class="number">2</span>) <span class="kw">as </span>i32;
+<a href=#226 id=226 data-nosnippet>226</a>                <span class="kw">for </span>(x, px) <span class="kw">in </span>row.bytes().enumerate() {
+<a href=#227 id=227 data-nosnippet>227</a>                    <span class="kw">if </span>px == <span class="string">b'#' </span>{
+<a href=#228 id=228 data-nosnippet>228</a>                        atlas.paint(i, offset + x <span class="kw">as </span>i32, y <span class="kw">as </span>i32, <span class="number">255</span>);
+<a href=#229 id=229 data-nosnippet>229</a>                    }
+<a href=#230 id=230 data-nosnippet>230</a>                }
+<a href=#231 id=231 data-nosnippet>231</a>            }
+<a href=#232 id=232 data-nosnippet>232</a>        }
+<a href=#233 id=233 data-nosnippet>233</a>        <span class="prelude-val">Ok</span>(atlas.measure())
+<a href=#234 id=234 data-nosnippet>234</a>    }
+<a href=#235 id=235 data-nosnippet>235</a>
+<a href=#236 id=236 data-nosnippet>236</a>    <span class="doccomment">/// Rasterize `chars` (plus `' '`) from a TTF/OTF whose line is `px_height`
+<a href=#237 id=237 data-nosnippet>237</a>    /// pixels tall. The cell is the line height by the widest advance; each
+<a href=#238 id=238 data-nosnippet>238</a>    /// glyph sits on the font's baseline, centred in its cell, so a
+<a href=#239 id=239 data-nosnippet>239</a>    /// proportional font still packs (a monospaced one fills its cells).
+<a href=#240 id=240 data-nosnippet>240</a>    /// Characters the font lacks are an error listing them.
+<a href=#241 id=241 data-nosnippet>241</a>    </span><span class="kw">pub fn </span>from_ttf(
+<a href=#242 id=242 data-nosnippet>242</a>        bytes: <span class="kw-2">&amp;</span>[u8],
+<a href=#243 id=243 data-nosnippet>243</a>        px_height: f32,
+<a href=#244 id=244 data-nosnippet>244</a>        chars: <span class="kw">impl </span>IntoIterator&lt;Item = char&gt;,
+<a href=#245 id=245 data-nosnippet>245</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, GlyphError&gt; {
+<a href=#246 id=246 data-nosnippet>246</a>        <span class="kw">if </span>!(px_height.is_finite() &amp;&amp; px_height &gt;= <span class="number">4.0</span>) {
+<a href=#247 id=247 data-nosnippet>247</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(GlyphError::Parse(<span class="macro">format!</span>(
+<a href=#248 id=248 data-nosnippet>248</a>                <span class="string">"font size {px_height} is under the 4 px minimum"
+<a href=#249 id=249 data-nosnippet>249</a>            </span>)));
+<a href=#250 id=250 data-nosnippet>250</a>        }
+<a href=#251 id=251 data-nosnippet>251</a>        <span class="kw">let </span>font = FontRef::try_from_slice(bytes).map_err(|e| GlyphError::Font(e.to_string()))<span class="question-mark">?</span>;
+<a href=#252 id=252 data-nosnippet>252</a>        <span class="kw">let </span>scaled = font.as_scaled(PxScale::from(px_height));
+<a href=#253 id=253 data-nosnippet>253</a>
+<a href=#254 id=254 data-nosnippet>254</a>        <span class="kw">let </span><span class="kw-2">mut </span>wanted: Vec&lt;char&gt; = <span class="macro">vec!</span>[<span class="string">' '</span>];
+<a href=#255 id=255 data-nosnippet>255</a>        wanted.extend(chars);
+<a href=#256 id=256 data-nosnippet>256</a>        <span class="kw">let </span>missing: BTreeSet&lt;char&gt; = wanted
+<a href=#257 id=257 data-nosnippet>257</a>            .iter()
+<a href=#258 id=258 data-nosnippet>258</a>            .copied()
+<a href=#259 id=259 data-nosnippet>259</a>            .filter(|c| <span class="kw-2">*</span>c != <span class="string">' ' </span>&amp;&amp; font.glyph_id(<span class="kw-2">*</span>c).<span class="number">0 </span>== <span class="number">0</span>)
+<a href=#260 id=260 data-nosnippet>260</a>            .collect();
+<a href=#261 id=261 data-nosnippet>261</a>        <span class="kw">if </span>!missing.is_empty() {
+<a href=#262 id=262 data-nosnippet>262</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(GlyphError::Missing(missing.into_iter().collect()));
+<a href=#263 id=263 data-nosnippet>263</a>        }
+<a href=#264 id=264 data-nosnippet>264</a>
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="kw">let </span>ascent = scaled.ascent();
+<a href=#266 id=266 data-nosnippet>266</a>        <span class="kw">let </span>line = ascent - scaled.descent();
+<a href=#267 id=267 data-nosnippet>267</a>        <span class="kw">let </span>advance = wanted
+<a href=#268 id=268 data-nosnippet>268</a>            .iter()
+<a href=#269 id=269 data-nosnippet>269</a>            .map(|c| scaled.h_advance(font.glyph_id(<span class="kw-2">*</span>c)))
+<a href=#270 id=270 data-nosnippet>270</a>            .fold(<span class="number">0.0f32</span>, f32::max);
+<a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">let </span>cell = [advance.ceil().max(<span class="number">1.0</span>) <span class="kw">as </span>u32, line.ceil().max(<span class="number">1.0</span>) <span class="kw">as </span>u32];
+<a href=#272 id=272 data-nosnippet>272</a>
+<a href=#273 id=273 data-nosnippet>273</a>        <span class="kw">let </span><span class="kw-2">mut </span>atlas = <span class="self">Self</span>::blank(cell, wanted);
+<a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..atlas.glyphs.len() <span class="kw">as </span>u32 {
+<a href=#275 id=275 data-nosnippet>275</a>            <span class="kw">let </span>ch = atlas.glyphs[i <span class="kw">as </span>usize];
+<a href=#276 id=276 data-nosnippet>276</a>            <span class="kw">let </span>id = font.glyph_id(ch);
+<a href=#277 id=277 data-nosnippet>277</a>            <span class="kw">let </span>x = (cell[<span class="number">0</span>] <span class="kw">as </span>f32 - scaled.h_advance(id)) * <span class="number">0.5</span>;
+<a href=#278 id=278 data-nosnippet>278</a>            <span class="kw">let </span>glyph = id.with_scale_and_position(
+<a href=#279 id=279 data-nosnippet>279</a>                PxScale::from(px_height),
+<a href=#280 id=280 data-nosnippet>280</a>                ab_glyph::point(x.round(), ascent.round()),
+<a href=#281 id=281 data-nosnippet>281</a>            );
+<a href=#282 id=282 data-nosnippet>282</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(outline) = font.outline_glyph(glyph) {
+<a href=#283 id=283 data-nosnippet>283</a>                <span class="kw">let </span>bounds = outline.px_bounds();
+<a href=#284 id=284 data-nosnippet>284</a>                <span class="kw">let </span>(bx, by) = (bounds.min.x <span class="kw">as </span>i32, bounds.min.y <span class="kw">as </span>i32);
+<a href=#285 id=285 data-nosnippet>285</a>                <span class="kw">let </span><span class="kw-2">mut </span>ink = Vec::new();
+<a href=#286 id=286 data-nosnippet>286</a>                outline.draw(|gx, gy, c| {
+<a href=#287 id=287 data-nosnippet>287</a>                    ink.push((bx + gx <span class="kw">as </span>i32, by + gy <span class="kw">as </span>i32, (c * <span class="number">255.0</span>).round() <span class="kw">as </span>u8));
+<a href=#288 id=288 data-nosnippet>288</a>                });
+<a href=#289 id=289 data-nosnippet>289</a>                <span class="kw">for </span>(px, py, v) <span class="kw">in </span>ink {
+<a href=#290 id=290 data-nosnippet>290</a>                    atlas.paint(i, px, py, v);
+<a href=#291 id=291 data-nosnippet>291</a>                }
+<a href=#292 id=292 data-nosnippet>292</a>            }
+<a href=#293 id=293 data-nosnippet>293</a>        }
+<a href=#294 id=294 data-nosnippet>294</a>        <span class="prelude-val">Ok</span>(atlas.measure())
+<a href=#295 id=295 data-nosnippet>295</a>    }
+<a href=#296 id=296 data-nosnippet>296</a>
+<a href=#297 id=297 data-nosnippet>297</a>    <span class="doccomment">/// Cut glyphs from a grid image whose cells are `cell` pixels, read left to
+<a href=#298 id=298 data-nosnippet>298</a>    /// right, top to bottom: cell `n` holds `chars[n]`. Ink is luminance times
+<a href=#299 id=299 data-nosnippet>299</a>    /// alpha (white on transparent or white on black), or `invert` for dark
+<a href=#300 id=300 data-nosnippet>300</a>    /// ink on light paper.
+<a href=#301 id=301 data-nosnippet>301</a>    </span><span class="kw">pub fn </span>from_grid_image(
+<a href=#302 id=302 data-nosnippet>302</a>        image: <span class="kw-2">&amp;</span>image::DynamicImage,
+<a href=#303 id=303 data-nosnippet>303</a>        cell: [u32; <span class="number">2</span>],
+<a href=#304 id=304 data-nosnippet>304</a>        chars: <span class="kw">impl </span>IntoIterator&lt;Item = char&gt;,
+<a href=#305 id=305 data-nosnippet>305</a>        invert: bool,
+<a href=#306 id=306 data-nosnippet>306</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, GlyphError&gt; {
+<a href=#307 id=307 data-nosnippet>307</a>        <span class="kw">if </span>cell[<span class="number">0</span>] == <span class="number">0 </span>|| cell[<span class="number">1</span>] == <span class="number">0 </span>{
+<a href=#308 id=308 data-nosnippet>308</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(GlyphError::Parse(<span class="string">"a grid cell needs a size"</span>.into()));
+<a href=#309 id=309 data-nosnippet>309</a>        }
+<a href=#310 id=310 data-nosnippet>310</a>        <span class="kw">let </span>rgba = image.to_rgba8();
+<a href=#311 id=311 data-nosnippet>311</a>        <span class="kw">let </span>grid_columns = rgba.width() / cell[<span class="number">0</span>];
+<a href=#312 id=312 data-nosnippet>312</a>        <span class="kw">let </span>grid_rows = rgba.height() / cell[<span class="number">1</span>];
+<a href=#313 id=313 data-nosnippet>313</a>        <span class="kw">let </span>chars: Vec&lt;char&gt; = chars.into_iter().collect();
+<a href=#314 id=314 data-nosnippet>314</a>        <span class="kw">let </span>capacity = (grid_columns * grid_rows) <span class="kw">as </span>usize;
+<a href=#315 id=315 data-nosnippet>315</a>        <span class="kw">if </span>chars.len() &gt; capacity {
+<a href=#316 id=316 data-nosnippet>316</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(GlyphError::Missing(chars[capacity..].to_vec()));
+<a href=#317 id=317 data-nosnippet>317</a>        }
+<a href=#318 id=318 data-nosnippet>318</a>        <span class="kw">let </span><span class="kw-2">mut </span>atlas = <span class="self">Self</span>::blank(cell, chars.clone());
+<a href=#319 id=319 data-nosnippet>319</a>        <span class="kw">for </span>(n, ch) <span class="kw">in </span>chars.iter().enumerate() {
+<a href=#320 id=320 data-nosnippet>320</a>            <span class="kw">let </span>i = atlas.index[ch];
+<a href=#321 id=321 data-nosnippet>321</a>            <span class="kw">let </span>(gx, gy) = (
+<a href=#322 id=322 data-nosnippet>322</a>                (n <span class="kw">as </span>u32 % grid_columns) * cell[<span class="number">0</span>],
+<a href=#323 id=323 data-nosnippet>323</a>                (n <span class="kw">as </span>u32 / grid_columns) * cell[<span class="number">1</span>],
+<a href=#324 id=324 data-nosnippet>324</a>            );
+<a href=#325 id=325 data-nosnippet>325</a>            <span class="kw">for </span>y <span class="kw">in </span><span class="number">0</span>..cell[<span class="number">1</span>] {
+<a href=#326 id=326 data-nosnippet>326</a>                <span class="kw">for </span>x <span class="kw">in </span><span class="number">0</span>..cell[<span class="number">0</span>] {
+<a href=#327 id=327 data-nosnippet>327</a>                    <span class="kw">let </span>p = rgba.get_pixel(gx + x, gy + y).<span class="number">0</span>;
+<a href=#328 id=328 data-nosnippet>328</a>                    <span class="kw">let </span>luma = (p[<span class="number">0</span>] <span class="kw">as </span>u32 * <span class="number">54 </span>+ p[<span class="number">1</span>] <span class="kw">as </span>u32 * <span class="number">183 </span>+ p[<span class="number">2</span>] <span class="kw">as </span>u32 * <span class="number">19</span>) / <span class="number">256</span>;
+<a href=#329 id=329 data-nosnippet>329</a>                    <span class="kw">let </span>luma = <span class="kw">if </span>invert { <span class="number">255 </span>- luma } <span class="kw">else </span>{ luma };
+<a href=#330 id=330 data-nosnippet>330</a>                    <span class="kw">let </span>v = (luma * p[<span class="number">3</span>] <span class="kw">as </span>u32 / <span class="number">255</span>) <span class="kw">as </span>u8;
+<a href=#331 id=331 data-nosnippet>331</a>                    atlas.paint(i, x <span class="kw">as </span>i32, y <span class="kw">as </span>i32, v);
+<a href=#332 id=332 data-nosnippet>332</a>                }
+<a href=#333 id=333 data-nosnippet>333</a>            }
+<a href=#334 id=334 data-nosnippet>334</a>        }
+<a href=#335 id=335 data-nosnippet>335</a>        <span class="prelude-val">Ok</span>(atlas.measure())
+<a href=#336 id=336 data-nosnippet>336</a>    }
+<a href=#337 id=337 data-nosnippet>337</a>
+<a href=#338 id=338 data-nosnippet>338</a>    <span class="doccomment">/// Cell size in pixels, `[w, h]`.
+<a href=#339 id=339 data-nosnippet>339</a>    </span><span class="kw">pub fn </span>cell_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [u32; <span class="number">2</span>] {
+<a href=#340 id=340 data-nosnippet>340</a>        <span class="self">self</span>.cell
+<a href=#341 id=341 data-nosnippet>341</a>    }
+<a href=#342 id=342 data-nosnippet>342</a>
+<a href=#343 id=343 data-nosnippet>343</a>    <span class="doccomment">/// Atlas size in pixels, `[w, h]`.
+<a href=#344 id=344 data-nosnippet>344</a>    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [u32; <span class="number">2</span>] {
+<a href=#345 id=345 data-nosnippet>345</a>        [<span class="self">self</span>.width, <span class="self">self</span>.height]
+<a href=#346 id=346 data-nosnippet>346</a>    }
+<a href=#347 id=347 data-nosnippet>347</a>
+<a href=#348 id=348 data-nosnippet>348</a>    <span class="doccomment">/// Cells per atlas row.
+<a href=#349 id=349 data-nosnippet>349</a>    </span><span class="kw">pub fn </span>columns(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+<a href=#350 id=350 data-nosnippet>350</a>        <span class="self">self</span>.columns
+<a href=#351 id=351 data-nosnippet>351</a>    }
+<a href=#352 id=352 data-nosnippet>352</a>
+<a href=#353 id=353 data-nosnippet>353</a>    <span class="doccomment">/// The coverage bytes, row-major, `width * height` of them.
+<a href=#354 id=354 data-nosnippet>354</a>    </span><span class="kw">pub fn </span>pixels(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+<a href=#355 id=355 data-nosnippet>355</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.pixels
+<a href=#356 id=356 data-nosnippet>356</a>    }
+<a href=#357 id=357 data-nosnippet>357</a>
+<a href=#358 id=358 data-nosnippet>358</a>    <span class="doccomment">/// The glyphs, in atlas order.
+<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">pub fn </span>glyphs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[char] {
+<a href=#360 id=360 data-nosnippet>360</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.glyphs
+<a href=#361 id=361 data-nosnippet>361</a>    }
+<a href=#362 id=362 data-nosnippet>362</a>
+<a href=#363 id=363 data-nosnippet>363</a>    <span class="doccomment">/// Whether the atlas has a glyph for `ch`.
+<a href=#364 id=364 data-nosnippet>364</a>    </span><span class="kw">pub fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, ch: char) -&gt; bool {
+<a href=#365 id=365 data-nosnippet>365</a>        <span class="self">self</span>.index.contains_key(<span class="kw-2">&amp;</span>ch)
+<a href=#366 id=366 data-nosnippet>366</a>    }
+<a href=#367 id=367 data-nosnippet>367</a>
+<a href=#368 id=368 data-nosnippet>368</a>    <span class="doccomment">/// The atlas index of `ch`.
+<a href=#369 id=369 data-nosnippet>369</a>    </span><span class="kw">pub fn </span>index_of(<span class="kw-2">&amp;</span><span class="self">self</span>, ch: char) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+<a href=#370 id=370 data-nosnippet>370</a>        <span class="self">self</span>.index.get(<span class="kw-2">&amp;</span>ch).copied()
+<a href=#371 id=371 data-nosnippet>371</a>    }
+<a href=#372 id=372 data-nosnippet>372</a>
+<a href=#373 id=373 data-nosnippet>373</a>    <span class="doccomment">/// Top-left pixel of glyph `i`'s cell (inside its gutter).
+<a href=#374 id=374 data-nosnippet>374</a>    </span><span class="kw">pub fn </span>cell_origin(<span class="kw-2">&amp;</span><span class="self">self</span>, i: u32) -&gt; [u32; <span class="number">2</span>] {
+<a href=#375 id=375 data-nosnippet>375</a>        <span class="kw">let </span>(col, row) = (i % <span class="self">self</span>.columns, i / <span class="self">self</span>.columns);
+<a href=#376 id=376 data-nosnippet>376</a>        [
+<a href=#377 id=377 data-nosnippet>377</a>            CELL_PADDING + col * (<span class="self">self</span>.cell[<span class="number">0</span>] + CELL_PADDING),
+<a href=#378 id=378 data-nosnippet>378</a>            CELL_PADDING + row * (<span class="self">self</span>.cell[<span class="number">1</span>] + CELL_PADDING),
+<a href=#379 id=379 data-nosnippet>379</a>        ]
+<a href=#380 id=380 data-nosnippet>380</a>    }
+<a href=#381 id=381 data-nosnippet>381</a>
+<a href=#382 id=382 data-nosnippet>382</a>    <span class="doccomment">/// `[u_min, v_min, u_max, v_max]` of `ch`'s cell, 0..1.
+<a href=#383 id=383 data-nosnippet>383</a>    </span><span class="kw">pub fn </span>uv_rect(<span class="kw-2">&amp;</span><span class="self">self</span>, ch: char) -&gt; <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">4</span>]&gt; {
+<a href=#384 id=384 data-nosnippet>384</a>        <span class="kw">let </span>[x, y] = <span class="self">self</span>.cell_origin(<span class="self">self</span>.index_of(ch)<span class="question-mark">?</span>);
+<a href=#385 id=385 data-nosnippet>385</a>        <span class="kw">let </span>(w, h) = (<span class="self">self</span>.width <span class="kw">as </span>f32, <span class="self">self</span>.height <span class="kw">as </span>f32);
+<a href=#386 id=386 data-nosnippet>386</a>        <span class="prelude-val">Some</span>([
+<a href=#387 id=387 data-nosnippet>387</a>            x <span class="kw">as </span>f32 / w,
+<a href=#388 id=388 data-nosnippet>388</a>            y <span class="kw">as </span>f32 / h,
+<a href=#389 id=389 data-nosnippet>389</a>            (x + <span class="self">self</span>.cell[<span class="number">0</span>]) <span class="kw">as </span>f32 / w,
+<a href=#390 id=390 data-nosnippet>390</a>            (y + <span class="self">self</span>.cell[<span class="number">1</span>]) <span class="kw">as </span>f32 / h,
+<a href=#391 id=391 data-nosnippet>391</a>        ])
+<a href=#392 id=392 data-nosnippet>392</a>    }
+<a href=#393 id=393 data-nosnippet>393</a>
+<a href=#394 id=394 data-nosnippet>394</a>    <span class="doccomment">/// Mean ink of `ch`'s cell, 0 (none) to 1 (solid).
+<a href=#395 id=395 data-nosnippet>395</a>    </span><span class="kw">pub fn </span>coverage(<span class="kw-2">&amp;</span><span class="self">self</span>, ch: char) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt; {
+<a href=#396 id=396 data-nosnippet>396</a>        <span class="prelude-val">Some</span>(<span class="self">self</span>.coverage[<span class="self">self</span>.index_of(ch)<span class="question-mark">? </span><span class="kw">as </span>usize])
+<a href=#397 id=397 data-nosnippet>397</a>    }
+<a href=#398 id=398 data-nosnippet>398</a>
+<a href=#399 id=399 data-nosnippet>399</a>    <span class="doccomment">/// Coverage of one pixel of `ch`'s cell, 0..255; `None` off the cell.
+<a href=#400 id=400 data-nosnippet>400</a>    </span><span class="kw">pub fn </span>sample(<span class="kw-2">&amp;</span><span class="self">self</span>, ch: char, x: u32, y: u32) -&gt; <span class="prelude-ty">Option</span>&lt;u8&gt; {
+<a href=#401 id=401 data-nosnippet>401</a>        <span class="kw">if </span>x &gt;= <span class="self">self</span>.cell[<span class="number">0</span>] || y &gt;= <span class="self">self</span>.cell[<span class="number">1</span>] {
+<a href=#402 id=402 data-nosnippet>402</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#403 id=403 data-nosnippet>403</a>        }
+<a href=#404 id=404 data-nosnippet>404</a>        <span class="kw">let </span>[ox, oy] = <span class="self">self</span>.cell_origin(<span class="self">self</span>.index_of(ch)<span class="question-mark">?</span>);
+<a href=#405 id=405 data-nosnippet>405</a>        <span class="prelude-val">Some</span>(<span class="self">self</span>.pixels[((oy + y) * <span class="self">self</span>.width + ox + x) <span class="kw">as </span>usize])
+<a href=#406 id=406 data-nosnippet>406</a>    }
+<a href=#407 id=407 data-nosnippet>407</a>
+<a href=#408 id=408 data-nosnippet>408</a>    <span class="doccomment">/// The atlas as a grayscale image, for inspection.
+<a href=#409 id=409 data-nosnippet>409</a>    </span><span class="kw">pub fn </span>to_image(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; image::GrayImage {
+<a href=#410 id=410 data-nosnippet>410</a>        image::GrayImage::from_raw(<span class="self">self</span>.width, <span class="self">self</span>.height, <span class="self">self</span>.pixels.clone())
+<a href=#411 id=411 data-nosnippet>411</a>            .expect(<span class="string">"pixels are width * height"</span>)
+<a href=#412 id=412 data-nosnippet>412</a>    }
+<a href=#413 id=413 data-nosnippet>413</a>}
+<a href=#414 id=414 data-nosnippet>414</a>
+<a href=#415 id=415 data-nosnippet>415</a><span class="attr">#[cfg(test)]
+<a href=#416 id=416 data-nosnippet>416</a></span><span class="kw">mod </span>tests;
+</code></pre></div></section></main></body></html>

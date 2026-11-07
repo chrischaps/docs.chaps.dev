@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -229,6 +229,7 @@ enabled = true
 <tr><td><code>on_scene_enter</code> / <code>on_scene_exit</code></td><td><code>fn on_scene_enter()</code></td><td>Around scene transitions (see <a href="#scene-transition-api">Scene Transition API</a>)</td></tr>
 <tr><td><code>on_sequence_cue</code></td><td><code>fn on_sequence_cue(sequence, cue)</code></td><td>An animation sequence passed a <code>cue</code> event (see <a href="animation.html#sequences">Animation</a>)</td></tr>
 <tr><td><code>on_animation_end</code></td><td><code>fn on_animation_end(clip)</code></td><td>A <code>once</code> sprite clip finished (see <a href="sprites-2d.html">2D Sprites</a>)</td></tr>
+<tr><td><code>on_event</code></td><td><code>fn on_event(name, data)</code></td><td>A custom game event fired by a script, the engine or a player extension (see <a href="#event-api">Event API</a>)</td></tr>
 </tbody>
 </table>
 </div>
@@ -254,13 +255,17 @@ enabled = true
 <tr><td><code>get_position(id)</code></td><td><code>Map</code></td><td>Get entity position as <code>#{x, y, z}</code></td></tr>
 <tr><td><code>set_position(id, x, y, z)</code></td><td>—</td><td>Set entity position</td></tr>
 <tr><td><code>get_rotation(id)</code></td><td><code>Map</code></td><td>Get entity rotation (euler degrees) as <code>#{x, y, z}</code></td></tr>
-<tr><td><code>set_rotation(id, x, y, z)</code></td><td>—</td><td>Set entity rotation (euler degrees)</td></tr>
+<tr><td><code>set_rotation(id, x, y, z)</code></td><td>—</td><td>Set entity rotation (euler degrees); clears any <code>rotation_quat</code></td></tr>
+<tr><td><code>get_rotation_quat(id)</code></td><td><code>Map</code></td><td>The rotation the entity renders with, as <code>#{x, y, z, w}</code> (<code>rotation_quat</code> if present, else the euler angles converted)</td></tr>
+<tr><td><code>set_rotation_quat(id, x, y, z, w)</code></td><td>—</td><td>Set the rotation as a quaternion (normalised); euler <code>rotation</code> is zeroed</td></tr>
+<tr><td><code>rotate_local(id, x, y, z)</code></td><td>—</td><td>Compose a rotation (euler degrees) about the entity’s own axes onto its current orientation, rest quaternion included (ADR 0069)</td></tr>
 <tr><td><code>distance(a, b)</code></td><td><code>f64</code></td><td>Euclidean distance between two entities</td></tr>
 <tr><td><code>set_parent(child_id, parent_id)</code></td><td>—</td><td>Set an entity’s parent in the hierarchy</td></tr>
 <tr><td><code>get_parent(id)</code></td><td><code>i64</code></td><td>Get the parent entity ID (<code>-1</code> if none)</td></tr>
 <tr><td><code>get_children(id)</code></td><td><code>Array</code></td><td>Get child entity IDs as an array</td></tr>
 <tr><td><code>get_world_position(id)</code></td><td><code>Map</code></td><td>World-space position as <code>#{x, y, z}</code> (accounts for parent transforms)</td></tr>
 <tr><td><code>set_material_color(id, r, g, b, a)</code></td><td>—</td><td>Set the material base color (RGBA, 0.0–1.0)</td></tr>
+<tr><td><code>set_material_override(id, material, r, g, b, a)</code></td><td>—</td><td>Tint one named glTF material on this entity and all its expanded child nodes (writes <code>material_overrides.&lt;material&gt;</code>)</td></tr>
 <tr><td><code>find_entities_with(component)</code></td><td><code>Array</code></td><td>All entity IDs that have the given component</td></tr>
 <tr><td><code>entity_count_with(component)</code></td><td><code>i64</code></td><td>Count of entities with the given component</td></tr>
 <tr><td><code>spawn_entity(name)</code></td><td><code>i64</code></td><td>Create a new entity. Returns its ID or <code>-1</code> on failure</td></tr>
@@ -281,9 +286,14 @@ enabled = true
 <tr><td><code>action_value(action)</code></td><td><code>f64</code></td><td>Analog value for Axis1d actions (0.0 if not bound)</td></tr>
 <tr><td><code>mouse_delta_x()</code></td><td><code>f64</code></td><td>Horizontal mouse movement this frame</td></tr>
 <tr><td><code>mouse_delta_y()</code></td><td><code>f64</code></td><td>Vertical mouse movement this frame</td></tr>
+<tr><td><code>mouse_wheel_x()</code> / <code>mouse_wheel_y()</code></td><td><code>f64</code></td><td>Wheel lines (notches) this frame; up and right are positive. A touchpad’s scroll arrives as fractions, 50 px to a line. Zero while the cursor is over egui</td></tr>
+<tr><td><code>mouse_x()</code> / <code>mouse_y()</code></td><td><code>f64</code></td><td>Cursor position in logical points (the <code>screen_width()</code> / <code>draw_*</code> space)</td></tr>
+<tr><td><code>is_mouse_pressed(button)</code></td><td><code>bool</code></td><td>Mouse button held: <code>0</code> left, <code>1</code> right, <code>2</code> middle</td></tr>
+<tr><td><code>is_mouse_just_pressed(button)</code></td><td><code>bool</code></td><td>Mouse button went down this frame</td></tr>
 </tbody>
 </table>
 </div>
+<p><code>mouse_x()</code> / <code>mouse_y()</code> and the button queries are what menus and other screen-space UI hit-test against. The buttons are always fed, whether or not the cursor is captured. While it’s captured, <code>mouse_x()</code> / <code>mouse_y()</code> read the window centre, and clicks skip egui (<a href="input-gates.html">Cursor Capture and Input Gates</a>). In scenes with a player character the first left click also captures the cursor for mouse-look (it still registers as a press).</p>
 <p>Action names are defined by input configuration files and are fully customizable per game. The built-in defaults include: <code>move_forward</code>, <code>move_backward</code>, <code>move_left</code>, <code>move_right</code>, <code>jump</code>, <code>interact</code>, <code>sprint</code>, <code>weapon_1</code>, <code>weapon_2</code>, <code>reload</code>, <code>fire</code>. Games can define arbitrary custom actions in their input config TOML files and query them from scripts with <code>is_action_pressed("custom_action")</code>.</p>
 <p>Input bindings support keyboard, mouse, and gamepad devices. See <a href="physics-and-runtime.html#input-system">Physics and Runtime: Input System</a> for the config file format and layered loading model.</p>
 <h3 id="time-api"><a class="header" href="#time-api">Time API</a></h3>
@@ -308,8 +318,10 @@ enabled = true
 <tbody>
 <tr><td><code>play_sound(name)</code></td><td>Play a non-spatial sound at default volume</td></tr>
 <tr><td><code>play_sound(name, volume)</code></td><td>Play a non-spatial sound at the given volume (0.0–1.0)</td></tr>
+<tr><td><code>play_sound(name, volume, pitch)</code></td><td>As above, with a pitch multiplier</td></tr>
 <tr><td><code>play_sound_at(name, x, y, z, volume)</code></td><td>Play a spatial sound at a 3D position</td></tr>
 <tr><td><code>play_sound_at(name, x, y, z, volume, pitch)</code></td><td>As above, with a pitch multiplier</td></tr>
+<tr><td><code>play_sound_at(name, x, y, z, opts)</code></td><td>A spatial sound with a map of options, each optional: <code>volume</code> (1), <code>pitch</code> (1), <code>min_distance</code> (1), <code>max_distance</code> (25), <code>rolloff</code> (2)</td></tr>
 <tr><td><code>stop_sound(name)</code></td><td>Stop a playing sound</td></tr>
 </tbody>
 </table>
@@ -317,9 +329,10 @@ enabled = true
 <p>Sound names match the audio files loaded from the <code>audio/</code> directory (without extension). A one-shot naming a file that is not there fails silently — it logs a warning and plays nothing.</p>
 <p>Varying <code>pitch</code> slightly per trigger (say 0.9–1.1) is the cheapest way to stop a
 repeated one-shot sounding like a repeated one-shot.</p>
-<p>Spatial one-shot tracks attenuate to silence at 25 m. An event further away
-than that must use non-spatial <code>play_sound</code> with a hand-scaled volume, or it
-will simply not be heard.</p>
+<p>By default a spatial one-shot fades to silence at 25 m. A sound meant to be
+heard further away sets <code>max_distance</code> in the options map, and usually a
+<code>rolloff</code> below 1 so it fades like a sound in the open. See
+<a href="audio.html#scripting-integration">Audio: Scripting</a>.</p>
 <h3 id="animation-api"><a class="header" href="#animation-api">Animation API</a></h3>
 <p>Animation functions write directly to the <code>animator</code> component on the target entity. The <code>AnimationSync</code> system picks up changes on the next frame:</p>
 <div class="table-wrapper">
@@ -339,6 +352,7 @@ will simply not be heard.</p>
 <tr><td><code>play_sequence(entity_id, name)</code></td><td>Play a <code>*.sequence.toml</code> (timestamped blend/layer/speed/cue events) on this animator</td></tr>
 <tr><td><code>stop_sequence(entity_id)</code></td><td>Stop the active sequence</td></tr>
 <tr><td><code>clear_anim_layer(entity_id, index)</code></td><td>Deactivate a layer (slot kept so indices stay stable)</td></tr>
+<tr><td><code>set_field(id, "ik_two_bone", "target", name)</code></td><td>Arm two-bone IK on a forearm node (also <code>pole</code>, <code>tip</code>, <code>weight</code>); the engine pins the chain every frame (ADR 0070)</td></tr>
 </tbody>
 </table>
 </div>
@@ -413,14 +427,24 @@ these return 0 (and <code>#{0,1,0}</code>) rather than failing.</p>
 <tr><th>Function</th><th>Returns</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>any_input_just_pressed()</code></td><td><code>bool</code></td><td>True on the frame any key, mouse button, or gamepad button was pressed</td></tr>
-<tr><td><code>set_cursor_captured(captured)</code></td><td></td><td>Capture (hide + lock) or release the mouse cursor</td></tr>
+<tr><td><code>any_input_just_pressed()</code></td><td><code>bool</code></td><td>True on the frame any key, mouse button, or gamepad button was pressed, or a finger landed</td></tr>
+<tr><td><code>last_input_device()</code></td><td><code>String</code></td><td><code>"keyboard"</code>, <code>"mouse"</code>, <code>"gamepad"</code> or <code>"touch"</code>: the device of the most recent deliberate input</td></tr>
+<tr><td><code>gamepad_connected()</code></td><td><code>bool</code></td><td>True while at least one gamepad is attached</td></tr>
+<tr><td><code>set_cursor_captured(captured)</code></td><td></td><td>Capture (hide + lock) or release the mouse cursor, at the end of this frame</td></tr>
+<tr><td><code>is_cursor_captured()</code></td><td><code>bool</code></td><td>Whether the cursor is captured now (<a href="input-gates.html">Cursor Capture and Input Gates</a>)</td></tr>
 </tbody>
 </table>
 </div>
 <p><code>any_input_just_pressed</code> reads <strong>raw</strong> presses and bypasses action maps
 entirely — it is for “press any key to continue”, where the whole point is that
 you do not care which key.</p>
+<p><code>last_input_device</code> is a latch, not a per-frame flag: it changes on a key
+press, a mouse <em>button</em> press, a gamepad button, a stick pushed past 0.3, or a
+touch beginning, and keeps its value until the next such event. Mouse motion
+and idle stick drift never flip it, so a HUD that swaps prompt glyphs
+(<code>[E]</code> vs the <code>(A)</code> button) on it does not flicker when the mouse is nudged.
+<code>gamepad_connected</code> is the companion for “show pad prompts before the first
+press”; it starts <code>false</code> and follows the host’s gamepad backend each frame.</p>
 <p><code>set_cursor_captured(true)</code> is how a scene gets mouse-look without a
 character-controller player entity. The engine only captures automatically for
 scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
@@ -436,6 +460,30 @@ scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
 </tbody>
 </table>
 </div>
+<p>A fired event is broadcast. Every script that defines <code>on_event(name, data)</code>
+receives it, including the script that fired it, in entity-id order. <code>data</code> is
+always a map: <code>fire_event</code> sends an empty one. The payload travels as TOML, so
+map values must be booleans, integers, floats, strings, arrays or maps; <code>()</code>
+and other types are dropped. Audio triggers hear the same events.</p>
+<pre><code class="language-rhai">fn on_event(name, data) {
+    if name == "door_opened" {
+        log(`door ${data.id} opened`);
+    }
+}
+</code></pre>
+<p><strong>Timing.</strong> Script commands run after <code>on_update</code>, so an event a script fires
+reaches <code>on_event</code> at the start of the next frame, before that frame’s
+<code>on_update</code>. Events from the host arrive the same frame:</p>
+<ul>
+<li><strong>Player extensions</strong> call <code>ExtensionCtx::fire_event(name, data)</code> in
+<code>pre_update</code>. <code>data</code> is anything that converts into a <code>toml::Value</code>, usually
+a <code>toml::Table</code>. Scripts see it before this frame’s <code>on_update</code>.</li>
+<li><strong>Engine code</strong> pushes a <code>GameEvent::Custom { name, data }</code> onto the physics
+event queue, which hands it to scripts with the next batch of collisions
+and input actions.</li>
+</ul>
+<p>A payload that isn’t a table arrives as <code>#{ value: data }</code>. Events are dropped
+while the game state pauses scripts, as input actions are.</p>
 <h3 id="log-api"><a class="header" href="#log-api">Log API</a></h3>
 <div class="table-wrapper">
 <table>
@@ -461,6 +509,9 @@ scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
 <tr><td><code>raycast(ox, oy, oz, dx, dy, dz, max_dist)</code></td><td><code>Map</code> or <code>()</code></td><td>Cast a ray from origin in direction. Returns hit info or <code>()</code> if nothing hit</td></tr>
 <tr><td><code>move_character(id, dx, dy, dz)</code></td><td><code>Map</code> or <code>()</code></td><td>Collision-corrected kinematic movement. Returns <code>#{x, y, z, grounded}</code></td></tr>
 <tr><td><code>get_collider_extents(id)</code></td><td><code>Map</code> or <code>()</code></td><td>Collider shape dimensions (see below)</td></tr>
+<tr><td><code>set_joint_target(id, value)</code></td><td>—</td><td>Write <code>joint.motor_target</code> (degrees for hinge/spherical, metres for prismatic); applied on the next fixed step (ADR 0069)</td></tr>
+<tr><td><code>get_joint_target(id)</code></td><td><code>f64</code></td><td>Read <code>joint.motor_target</code></td></tr>
+<tr><td><code>get_joint_position(id)</code></td><td><code>f64</code> or <code>()</code></td><td>Simulated joint coordinate from the rest pose: hinge angle in degrees or prismatic displacement in metres</td></tr>
 <tr><td><code>get_camera_position()</code></td><td><code>Map</code></td><td>Camera world position as <code>#{x, y, z}</code></td></tr>
 <tr><td><code>get_camera_direction()</code></td><td><code>Map</code></td><td>Camera forward vector as <code>#{x, y, z}</code></td></tr>
 <tr><td><code>set_camera_position(x, y, z)</code></td><td>—</td><td>Override camera position from script</td></tr>
@@ -486,6 +537,26 @@ scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
 </tbody>
 </table>
 </div>
+<p><code>raycast()</code> meets physics colliders. To meet what’s drawn, the runtime meshes a host uploaded as ray targets (see <a href="rendering.html#runtime-meshes">Rendering: Runtime meshes</a>), use <code>raycast_meshes</code> and <code>screen_to_mesh</code> (ADR 0105). They need no physics, meet the drawn triangles from either side, and answer with the same fields as <code>raycast()</code>, the normal turned back toward the ray’s origin:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>raycast_meshes(ox, oy, oz, dx, dy, dz, max_dist)</code></td><td><code>Map</code> or <code>()</code></td><td>The nearest ray target the ray meets within <code>max_dist</code> world units. <code>(dx, dy, dz)</code> needn’t be unit length; <code>distance</code> is in world units</td></tr>
+<tr><td><code>screen_to_mesh(x, y)</code></td><td><code>Map</code> or <code>()</code></td><td>The nearest ray target under a screen point (e.g. the cursor), for picking a wall or a roof</td></tr>
+</tbody>
+</table>
+</div>
+<p>They meet the targets where the last frame drew them. A camera rig that keeps out of walls casts from the player’s head toward where it wants to stand, and comes in to the hit:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let d = [cx - hx, cy - hy, cz - hz];
+let len = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt();
+let hit = raycast_meshes(hx, hy, hz, d[0], d[1], d[2], len);
+let clear = if hit == () { 1.0 } else { hit.distance / len };   // the share of the way that's open
+<span class="boring">}</span></code></pre>
 <p><strong><code>move_character</code></strong> performs collision-corrected kinematic movement using Rapier’s shape-sweep. The entity must have <code>rigidbody</code> and <code>collider</code> components. The returned map contains the corrected position and a <code>grounded</code> flag:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -598,10 +669,45 @@ scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
 <tr><td><code>start_emitter(entity_id)</code></td><td>Start continuous emission</td></tr>
 <tr><td><code>stop_emitter(entity_id)</code></td><td>Stop emission (existing particles finish their lifetime)</td></tr>
 <tr><td><code>set_emission_rate(entity_id, rate)</code></td><td>Change emission rate dynamically</td></tr>
+<tr><td><code>play_effect(name, x, y, z)</code></td><td>Spawn a detached one-shot instance of a <code>particles/&lt;name&gt;.particles.toml</code> effect at a point; returns a handle</td></tr>
+<tr><td><code>stop_effect(handle)</code></td><td>Stop a detached effect’s emission; particles in flight finish</td></tr>
+<tr><td><code>set_effect_param(handle, param, value)</code></td><td>Tune a detached effect: <code>emission_scale</code>, <code>scale</code>, <code>playing</code> (&gt; 0.5), or <code>x</code> / <code>y</code> / <code>z</code> to move it</td></tr>
 </tbody>
 </table>
 </div>
 <p>See <a href="particles.html">Particles</a> for full component schema and recipes.</p>
+<h3 id="style-api"><a class="header" href="#style-api">Style API</a></h3>
+<p>Turn an entity into glyphs at a story beat and animate how it looks (#269). These change the entity’s per-entity style component (<code>ascii_style</code>), which the renderer reads every frame. See <a href="stylize-passes.html#per-entity-ascii">Stylize Passes</a> for every setting.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>set_entity_style(entity_id, style)</code></td><td>Draw the entity and its descendants in <code>style</code> (<code>"ascii"</code>). Settings it had before are kept, and any other style or <code>style_mask</code> on it comes off</td></tr>
+<tr><td><code>set_style_param(entity_id, param, value)</code></td><td>Change one setting: a number (<code>cell</code>, <code>glow</code>, <code>brightness</code>, <code>levels</code>, …; clamped to the style’s range), a string (<code>ramp</code>, <code>color</code>, <code>palette</code>, <code>grid</code>, <code>transition</code>, …), <code>enabled</code> (<code>true</code>/<code>false</code>), <code>blend</code> (0–1, how much of the style shows; <a href="stylize-passes.html#blending-in-and-out">Blending in and out</a>) or a <a href="stylize-passes.html#colours">colour</a> (<code>tint</code>: a three-number array or a <code>"#rrggbb"</code> string). Integers count as numbers, so web scripts (i64 only) work unchanged</td></tr>
+<tr><td><code>clear_entity_style(entity_id)</code></td><td>Take the entity’s own style off</td></tr>
+</tbody>
+</table>
+</div>
+<p>Calls are queued and applied after the frame’s scripts, before the renderer reads the world, so a change shows the same frame. Each <code>set_entity_style</code> and each <code>clear_entity_style</code> that removed something fires <code>style_changed</code> to every script’s <code>on_event</code>, with <code>#{ entity, style }</code> (<code>style</code> is <code>""</code> after a clear). A param change fires nothing, since it may come every frame.</p>
+<p>Changing a param every frame is cheap: it becomes a row of the style’s variant table, written into the uniform buffer the pass already has, with no new buffer, texture or bind group. Mistakes (an unknown style or setting, a wrong type, a param before any style) are logged as warnings and change nothing. Whole-frame styles such as <code>kuwahara</code> can’t be set per entity.</p>
+<p>A clear only removes the entity’s own style. One it inherits from an ancestor, or the scene’s whole-frame ASCII, still reaches it: to keep it smooth under those, use <code>set_style_param(id, "enabled", false)</code>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Coarse glyphs settling into a fine grid over 1.5 s
+fn on_update() {
+    let barrel = get_entity("barrel");
+    if !has_component(barrel, "ascii_style") { set_entity_style(barrel, "ascii"); }
+    let k = total_time() / 1.5;
+    if k &gt; 1.0 { k = 1.0; }
+    set_style_param(barrel, "cell", 22.0 - 15.0 * k);
+}
+fn on_event(name, data) {
+    if name == "style_changed" { log(`${entity_name(data.entity)} -&gt; ${data.style}`); }
+}
+<span class="boring">}</span></code></pre>
+<p><code>demo/ascii_story.scene.toml</code> tells a looping story with these calls: the barrel comes apart into letters, the bench follows in amber blocks, and both are given back. <code>demo/ascii_reveal.scene.toml</code> does it with <code>blend</code> instead (#278): both props are styled once at blend 0, then only the blend moves, so the barrel dissolves into glyphs and the bench fades into them.</p>
 <h3 id="post-processing-api"><a class="header" href="#post-processing-api">Post-Processing API</a></h3>
 <p>Control the HDR post-processing pipeline at runtime from scripts:</p>
 <div class="table-wrapper">
@@ -623,6 +729,8 @@ scenes that have one, so a fixed-camera or custom-camera scene must ask.</p>
 <tr><td><code>set_desaturation(amount)</code></td><td>Desaturate toward ash grey (0 = full colour, 1 = grey; ADR 0021)</td></tr>
 <tr><td><code>set_dof(strength)</code></td><td>Depth-of-field defocus strength (0 = sharp, 1 = full blur)</td></tr>
 <tr><td><code>set_dof_focus(distance, range)</code></td><td>Focus plane distance and half-width, in view metres</td></tr>
+<tr><td><code>set_lod_scale(scale)</code> / <code>lod_scale()</code></td><td>Multiply every level-of-detail switch distance (1 = as authored, 0.5 = simpler levels at half the distance; kept across scenes; see Rendering)</td></tr>
+<tr><td><code>set_draw_distance_scale(scale)</code> / <code>draw_distance_scale()</code></td><td>Multiply every model’s draw distance</td></tr>
 </tbody>
 </table>
 </div>
@@ -633,6 +741,27 @@ it is cleared the frame your script stops calling it, so a crashed or
 hot-reloaded script cannot strand the world inside an effect. Call it every
 frame the effect is active. See
 <a href="post-processing.html#render-modes">Post-Processing: Render Modes</a>.</p>
+<h3 id="quality-settings-api"><a class="header" href="#quality-settings-api">Quality Settings API</a></h3>
+<p>Change the renderer’s load levers while the game runs: a graphics menu, or
+stepping down on a slow device. See <a href="quality-settings.html">Quality Settings</a>
+for every key and what a change rebuilds.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>set_quality(map)</code></td><td>Merge <code>#{ render_scale: 0.75, msaa: 4, shadow_cascades: 2, ssao: false, ... }</code> into the settings in force, from the end of this frame. Returns <code>true</code> when every key was taken; a bad key is warned about and skipped</td></tr>
+<tr><td><code>set_quality(key, value)</code></td><td>One key</td></tr>
+<tr><td><code>get_quality()</code></td><td>Map of every setting, clamped (a request reads back at once)</td></tr>
+<tr><td><code>get_quality(key)</code></td><td>One setting, or <code>()</code> for an unknown key</td></tr>
+<tr><td><code>gpu_info()</code></td><td><code>#{ name, vendor, device_type, backend, driver, class, platform }</code>; <code>class</code> is <code>"desktop"</code>, <code>"integrated"</code>, <code>"mobile"</code>, <code>"software"</code> or <code>"unknown"</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The post-process keys (<code>post_process</code>, <code>bloom</code>, <code>ssao</code>, <code>ssao_samples</code>,
+<code>fog</code>, <code>volumetric</code>) are caps: off turns the scene’s effect off, on leaves it
+as the scene set it. They hold across scene loads.</p>
 <h3 id="conducted-parameters-api"><a class="header" href="#conducted-parameters-api">Conducted Parameters API</a></h3>
 <p>When a scene carries a <a href="music-sessions.html"><code>music_session</code></a> component, the player fills a per-frame snapshot of the session’s state and exposes it to every script through these getters (ADR 0020, conducted-parameters script surface). Without a session every getter returns a neutral value: a clean, settled world with <code>coherence</code> and <code>reassembly</code> at <code>1.0</code>, zero lean, and <code>1e6</code> beats until anything upcoming. Bindings written as <code>1 - conducted_coherence()</code> therefore show nothing when no music is running, and scripts never need to test for a session.</p>
 <div class="table-wrapper">
@@ -750,11 +879,50 @@ frame the effect is active. See
 <tr><td><code>persist_remove(key)</code></td><td>—</td><td>Remove a key</td></tr>
 <tr><td><code>persist_clear()</code></td><td>—</td><td>Clear all persistent data</td></tr>
 <tr><td><code>persist_keys()</code></td><td><code>Array</code></td><td>List all keys</td></tr>
-<tr><td><code>persist_save(path)</code></td><td>—</td><td>Save store to a TOML file</td></tr>
-<tr><td><code>persist_load(path)</code></td><td>—</td><td>Load store from a TOML file</td></tr>
+<tr><td><code>persist_save()</code></td><td>—</td><td>Write the engine-managed save file now</td></tr>
+<tr><td><code>persist_save(path)</code></td><td>—</td><td>Save store to an explicit TOML file</td></tr>
+<tr><td><code>persist_load(path)</code></td><td>—</td><td>Load store from an explicit TOML file</td></tr>
 </tbody>
 </table>
 </div>
+<h4 id="persistence"><a class="header" href="#persistence">Persistence</a></h4>
+<p>The store is also kept on disk without any script involvement. The player
+reads <code>&lt;project&gt;/save/persist.toml</code> at startup (the project root is the scene
+directory’s parent, the same rule as <code>fonts/</code> and <code>sprites/</code>; on Android it is
+the app’s internal files directory) and, if the file exists, every
+<code>persist_get</code> sees last session’s values from the first <code>on_init</code> onward. A
+missing file is a fresh, empty store — nothing is created until something is
+stored.</p>
+<p>It is written back 1 s after the last <code>persist_set</code> / <code>persist_remove</code> /
+<code>persist_clear</code> (a script writing every frame still produces one write per
+second), on every scene transition (after the outgoing scene’s
+<code>on_scene_exit</code>), and on exit. <code>persist_save()</code> with no arguments forces the
+write immediately — call it after a settings screen commits, so a crash a
+moment later loses nothing. The <code>save/</code> directory is created on demand; add it
+to the game’s <code>.gitignore</code>. Loads and saves log at <code>info</code>, failures at <code>warn</code>.</p>
+<p>A game’s Rust code shares the same store: a player extension reaches it as
+<code>ExtensionCtx::persist</code> (see <a href="../guides/player-extensions.html#saved-data">Player Extensions</a>),
+and its writes are saved the same way.</p>
+<h3 id="data-files-api"><a class="header" href="#data-files-api">Data Files API</a></h3>
+<p>Read-only game data tables (trick dictionaries, item stats, tuning) kept as
+TOML under the project root:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>load_data(path)</code></td><td><code>Map</code> or <code>()</code></td><td>Parse a TOML file relative to the project root (the scene directory’s parent) and return the whole document as a map; parsed once per path and cached for the session</td></tr>
+<tr><td><code>load_data(path, reload)</code></td><td><code>Map</code> or <code>()</code></td><td>Same, but <code>reload = true</code> drops the cached parse first (hot iteration)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Types are preserved exactly: a TOML integer arrives as <code>INT</code>, a float as
+<code>FLOAT</code> (Rhai does not coerce between them, so write <code>points = 500.0</code> or call
+<code>to_float()</code> before multiplying by a float). Tables come back as maps with
+keys in alphabetical order; use an array of tables (<code>[[entries]]</code>) when file
+order matters. A missing or malformed file returns <code>()</code> and logs a warning.
+Call it once in <code>on_init</code> and keep the map — every call clones the tree.</p>
 <h3 id="data-driven-ui-api"><a class="header" href="#data-driven-ui-api">Data-Driven UI API</a></h3>
 <p>Load and manipulate TOML-defined UI documents at runtime:</p>
 <div class="table-wrapper">
@@ -772,6 +940,7 @@ frame the effect is active. See
 <tr><td><code>ui_set_color(element_id, r, g, b, a)</code></td><td>—</td><td>Set element text/foreground color</td></tr>
 <tr><td><code>ui_set_bg_color(element_id, r, g, b, a)</code></td><td>—</td><td>Set element background color</td></tr>
 <tr><td><code>ui_set_style(element_id, property, value)</code></td><td>—</td><td>Override a single style property</td></tr>
+<tr><td><code>ui_set_style_array(id, prop, array)</code></td><td>—</td><td>Override an array-valued property at runtime: <code>color</code>, <code>bg_color</code>, <code>stroke_color</code>, <code>padding</code> (4 numbers) or <code>shadow</code> (6 numbers)</td></tr>
 <tr><td><code>ui_reset_style(element_id)</code></td><td>—</td><td>Remove all style overrides</td></tr>
 <tr><td><code>ui_set_class(element_id, class_name)</code></td><td>—</td><td>Change an element’s style class</td></tr>
 <tr><td><code>ui_exists(element_id)</code></td><td><code>bool</code></td><td>Check if a UI element exists</td></tr>
@@ -807,15 +976,28 @@ frame the effect is active. See
 <tr><td><code>draw_text(x, y, text, size, r, g, b, a)</code></td><td>Draw text at position</td></tr>
 <tr><td><code>draw_text_ex(x, y, text, size, r, g, b, a, layer)</code></td><td>Draw text with explicit layer</td></tr>
 <tr><td><code>draw_text_stroked(x, y, text, size, r, g, b, a, stroke_r, stroke_g, stroke_b, stroke_a, stroke_width)</code></td><td>Text with an outline stroke behind it</td></tr>
+<tr><td><code>draw_text_opts(x, y, text, size, opts)</code></td><td>Text with an options map: <code>font</code>, <code>color</code>, <code>align</code>, <code>stroke</code>, <code>spacing</code>, <code>layer</code>, <code>shadow</code> (see below)</td></tr>
 <tr><td><code>draw_rect(x, y, w, h, r, g, b, a)</code></td><td>Draw filled rectangle</td></tr>
 <tr><td><code>draw_rect_ex(x, y, w, h, r, g, b, a, rounding, layer)</code></td><td>Filled rectangle with corner rounding and layer</td></tr>
 <tr><td><code>draw_rect_outline(x, y, w, h, r, g, b, a, thickness)</code></td><td>Rectangle outline</td></tr>
+<tr><td><code>draw_rect_outline_ex(x, y, w, h, r, g, b, a, thickness, rounding, layer)</code></td><td>Rectangle outline with corner rounding and layer</td></tr>
+<tr><td><code>draw_rect_ex4(x, y, w, h, r, g, b, a, tl, tr, br, bl, layer)</code></td><td>Filled rectangle with per-corner rounding (top-left, top-right, bottom-right, bottom-left)</td></tr>
+<tr><td><code>draw_rect_gradient(x, y, w, h, r1, g1, b1, a1, r2, g2, b2, a2, vertical, layer)</code></td><td>Two-colour linear gradient fill: colour 1 to colour 2, top to bottom when <code>vertical</code> is <code>true</code>, left to right otherwise</td></tr>
+<tr><td><code>draw_text_stroked_ex(x, y, text, size, r, g, b, a, sr, sg, sb, sa, stroke_width, layer)</code></td><td>Stroked text with explicit layer</td></tr>
 <tr><td><code>draw_circle(x, y, radius, r, g, b, a)</code></td><td>Draw filled circle</td></tr>
 <tr><td><code>draw_circle_ex(x, y, radius, r, g, b, a, layer)</code></td><td>Filled circle with explicit layer</td></tr>
 <tr><td><code>draw_circle_outline(x, y, radius, r, g, b, a, thickness)</code></td><td>Circle outline</td></tr>
 <tr><td><code>draw_circle_outline_ex(x, y, radius, r, g, b, a, thickness, layer)</code></td><td>Circle outline with explicit layer</td></tr>
 <tr><td><code>draw_line(x1, y1, x2, y2, r, g, b, a, thickness)</code></td><td>Draw a line segment</td></tr>
 <tr><td><code>draw_line_ex(x1, y1, x2, y2, r, g, b, a, thickness, layer)</code></td><td>Line segment with explicit layer</td></tr>
+<tr><td><code>draw_line_3d(x1, y1, z1, x2, y2, z2, r, g, b, a, thickness)</code></td><td>World-space line projected with the frame’s camera (near-plane clipped)</td></tr>
+<tr><td><code>draw_line_3d_ex(x1, y1, z1, x2, y2, z2, r, g, b, a, thickness, layer)</code></td><td>Same, with explicit layer</td></tr>
+<tr><td><code>draw_world_line(x1, y1, z1, x2, y2, z2, r, g, b, a, thickness)</code></td><td>World-space line drawn in the 3D frame with a depth test: geometry in front of it hides it (see below)</td></tr>
+<tr><td><code>draw_world_text(x, y, z, text, size, opts)</code></td><td>Text at a world point, drawn with a depth test: a billboard, or painted on a plane (see below)</td></tr>
+<tr><td><code>draw_ring(cx, cy, r_inner, r_outer, start_deg, end_deg, r, g, b, a, layer)</code></td><td>Annular sector (<code>r_inner</code> = 0 gives a pie slice); see angle convention below</td></tr>
+<tr><td><code>draw_arc(cx, cy, radius, start_deg, end_deg, r, g, b, a, thickness, layer)</code></td><td>Stroked arc: a ring centred on <code>radius</code>, <code>thickness</code> wide</td></tr>
+<tr><td><code>draw_polygon(points, r, g, b, a, layer)</code></td><td>Convex filled polygon; <code>points</code> is <code>[[x, y], ...]</code> or a flat <code>[x0, y0, x1, y1, ...]</code> list (ints or floats)</td></tr>
+<tr><td><code>draw_polygon_outline(points, r, g, b, a, thickness, closed, layer)</code></td><td>Polyline through <code>points</code>, closed back to the start when <code>closed</code> is <code>true</code></td></tr>
 <tr><td><code>draw_sprite(x, y, w, h, name)</code></td><td>Draw a sprite image</td></tr>
 <tr><td><code>draw_sprite_ex(x, y, w, h, name, u0, v0, u1, v1, r, g, b, a, layer)</code></td><td>Sprite with custom UV coordinates, tint, and layer</td></tr>
 </tbody>
@@ -830,12 +1012,143 @@ frame the effect is active. See
 <tbody>
 <tr><td><code>screen_width()</code></td><td><code>f64</code></td><td>Logical screen width in points</td></tr>
 <tr><td><code>screen_height()</code></td><td><code>f64</code></td><td>Logical screen height in points</td></tr>
-<tr><td><code>measure_text(text, size)</code></td><td><code>Map</code></td><td>Approximate text size as <code>#{width, height}</code></td></tr>
+<tr><td><code>measure_text(text, size)</code></td><td><code>Map</code></td><td>Laid-out size of <code>text</code> in the default font as <code>#{width, height}</code></td></tr>
+<tr><td><code>measure_text_ex(text, size, font, spacing)</code></td><td><code>Map</code></td><td>Same, for a named font family and extra letter spacing (<code>""</code> = default font)</td></tr>
 <tr><td><code>find_nearest_interactable()</code></td><td><code>Map</code> or <code>()</code></td><td>Nearest interactable entity info, or <code>()</code> if none in range</td></tr>
+<tr><td><code>world_to_screen(x, y, z)</code></td><td><code>Map</code></td><td>A world point in logical points as <code>#{x, y, depth, visible}</code>; <code>visible</code> is false behind the camera</td></tr>
+<tr><td><code>screen_to_ground(x, y, plane_y)</code></td><td><code>[x, z]</code> or <code>()</code></td><td>The point on the plane <code>y = plane_y</code> under a screen point, or <code>()</code> where the view doesn’t reach it</td></tr>
+<tr><td><code>screen_to_mesh(x, y)</code></td><td><code>Map</code> or <code>()</code></td><td>The drawn ray target under a screen point, as <code>raycast_meshes</code> answers (see <a href="#physics-api">Physics API</a>)</td></tr>
+<tr><td><code>screen_to_heightfield(x, y)</code></td><td><code>[x, y, z]</code> or <code>()</code></td><td>The game’s ground under a screen point, where the ray first comes down onto the ground field the host registered, or <code>()</code> with none registered or where the ray misses it</td></tr>
+<tr><td><code>ground_height(x, z)</code></td><td><code>f64</code> or <code>()</code></td><td>World y of the registered ground field at (x, z), or <code>()</code> with none registered or off its edge</td></tr>
 </tbody>
 </table>
 </div>
+<h4 id="lines-in-the-world"><a class="header" href="#lines-in-the-world">Lines in the world</a></h4>
+<p><code>draw_line_3d</code> projects onto the HUD, so it shows in front of everything, including the model a ring is drawn round. <code>draw_world_line</code> draws in the 3D frame instead. It goes over the finished image, before the HUD, and it’s hidden wherever the scene’s depth is nearer. A ring on the ground round a statue therefore passes behind the statue’s far side. The arguments and units are <code>draw_line_3d</code>’s: world coordinates, a display-space colour, and a width in logical points. The edges are anti-aliased. World lines don’t write depth, so they never hide each other. Fog, bloom and tonemapping don’t touch them. They’re projected with the camera the frame renders with, from <code>on_update</code> or <code>on_draw_ui</code> alike. There is no layer, and there is no clip rect.</p>
+<p>Each end is pulled toward the camera by 0.2% of its distance, so a line laid exactly on a surface doesn’t flicker against it. A line meant to lie on a raised surface, such as a road or a pavement, should still be drawn at or just above that surface. Draw a ring as a polyline:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn ring(cx, cz, y, r, steps) {
+    for i in 0..steps {
+        let a0 = i.to_float() / steps.to_float() * 2.0 * PI();
+        let a1 = (i + 1).to_float() / steps.to_float() * 2.0 * PI();
+        draw_world_line(cx + r * a0.cos(), y, cz + r * a0.sin(),
+                        cx + r * a1.cos(), y, cz + r * a1.sin(),
+                        1.0, 0.8, 0.2, 0.7, 2.0);
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>Rust hosts can set the same lines on the renderer directly with <code>SceneRenderer::set_world_lines(lines, pixels_per_point)</code>.</p>
+<h4 id="text-in-the-world"><a class="header" href="#text-in-the-world">Text in the world</a></h4>
+<p><code>draw_text_opts</code> at a <code>world_to_screen</code> point floats over everything, so a name on a sign shows through the roof in front of it. <code>draw_world_text(x, y, z, text, size, opts)</code> writes text in the world instead. Like a world line, it’s drawn over the finished image, before the HUD, and hidden wherever the scene’s depth is nearer, glyph by glyph: a name half behind a post is half drawn. It doesn’t write depth, and fog, bloom and tonemapping don’t touch it. It’s laid out in the HUD’s fonts and colours, so it looks like the same text drawn with <code>draw_text_opts</code>.</p>
+<p><code>opts</code> takes <code>draw_text_opts</code>’s keys: <code>font</code>, <code>color</code>, <code>align</code>, <code>stroke</code>, <code>spacing</code> and <code>shadow</code>. There’s no <code>layer</code>, and no clip rect. The text is centred on the point unless <code>align</code> (<code>"left"</code>, <code>"center"</code>, <code>"right"</code>) or <code>valign</code> (<code>"top"</code>, <code>"middle"</code>, <code>"bottom"</code>) say otherwise.</p>
+<p>Without <code>facing</code>, the text is a billboard: it faces the screen at <code>size</code> logical points wherever the point is, like a name tag, and takes the point’s depth. With <code>facing: [nx, ny, nz]</code> it lies in the plane through the point with that normal, as if painted there, and reads from that side. It isn’t drawn from behind, so paint a two-sided sign twice, once on each face. <code>up</code> (default <code>[0, 1, 0]</code>) says which way the letters stand; only its part across the plane counts. On a plane every length is in world units: <code>size</code> is the em, and <code>spacing</code>, the stroke’s width and the shadow’s offset are world units too. The letters are rasterised at the size the em spans on screen, in whole pixels from 4 to 128, so they stay sharp as the camera comes close.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// A shop's name on both faces of its sign, fitted to a 0.5 m board.
+fn sign(x, y, z, fx, fz, name) {
+    let m = measure_text_ex(name, 20.0, "display", 0.0);
+    let size = (0.5 * 20.0 / m.width).min(0.13);
+    for side in [1.0, -1.0] {
+        draw_world_text(x + fx * side * 0.03, y, z + fz * side * 0.03, name, size,
+            #{ font: "display", color: [0.98, 0.93, 0.80, 1.0], facing: [fx * side, 0.0, fz * side] });
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>The point is pulled toward the camera by the world lines’ 0.2% (<code>DEPTH_SLACK</code>), so text painted on a surface doesn’t fight it. A plane’s text that reaches behind the camera isn’t drawn at all, and nor is any text whose point is behind it or past the far plane. Scripts decide when text is too small to read: there’s no minimum size.</p>
 <p><code>find_nearest_interactable()</code> returns a map with <code>entity</code> (ID), <code>prompt_text</code>, <code>interaction_type</code>, and <code>distance</code> fields when an interactable entity is within range.</p>
+<p><code>world_to_screen</code> and <code>screen_to_ground</code> are inverses. In <code>on_draw_ui</code> they use the camera the frame renders with; in <code>on_update</code>, which runs before script camera overrides apply, they use the previous frame’s. <code>world_to_screen</code> of a ground hit lands back on the screen point it came from. Native functions a game registers get the same answers from <code>Projector</code> (see <a href="../guides/player-extensions.html#projecting-from-native-functions">Player extensions</a>). <code>screen_to_ground</code> takes logical points, the <code>mouse_x()</code> / <code>mouse_y()</code> space, so it is correct at any display scale. It works for perspective and orthographic cameras, including one looking straight down. It returns <code>()</code> over the sky, when an orthographic camera looks level, or when the plane is behind the camera. Picking the ground under the cursor:</p>
+<pre><code class="language-rhai">let g = screen_to_ground(mouse_x(), mouse_y(), 0.0);
+if g != () &amp;&amp; is_mouse_just_pressed(0) {
+    set_position(marker, g[0], 0.0, g[1]);   // exactly under the cursor
+}
+</code></pre>
+<p>On ground that isn’t flat, a plane cuts the view at the wrong height: on a hill, the click lands past or short of the spot under the cursor. A game that registers its ground with <code>Projector::set_ground</code> (see <a href="../guides/player-extensions.html#picking-a-ground-that-isnt-flat">Player extensions</a>) gets <code>screen_to_heightfield(x, y)</code>, the first point where the ray through the screen point comes down onto that ground, as <code>[x, y, z]</code>, and <code>ground_height(x, z)</code>. Both return <code>()</code> where there’s no answer, so fall back to the plane there:</p>
+<pre><code class="language-rhai">let g = screen_to_heightfield(mouse_x(), mouse_y());
+if g == () {
+    let p = screen_to_ground(mouse_x(), mouse_y(), 0.0);
+    if p != () { g = [p[0], 0.0, p[1]]; }
+}
+</code></pre>
+<p>Both <code>measure_text</code> calls lay the string out with the same font stack the HUD draws with, so a measured width can be used to centre or right-pad text exactly. (Before the first frame has rendered they return a glyph-count estimate.)</p>
+<h4 id="text-options-and-fonts"><a class="header" href="#text-options-and-fonts">Text Options and Fonts</a></h4>
+<p><code>draw_text_opts</code> takes a map whose keys are all optional:</p>
+<pre><code class="language-rhai">draw_text_opts(40.0, 40.0, "128", 96.0, #{
+    font: "BarlowCondensed-BlackItalic",   // family name; unknown → default font (warned once)
+    color: [1.0, 0.85, 0.2, 1.0],          // default white
+    align: "center",                       // "left" | "center" | "right"
+    stroke: [0.0, 0.0, 0.0, 1.0, 2.0],     // r, g, b, a, width
+    spacing: 1.5,                          // extra letter spacing in points
+    layer: 6,                              // integer
+    shadow: [3.0, 3.0, 0.0, 0.0, 0.0, 0.7] // dx, dy, r, g, b, a
+});
+</code></pre>
+<p>Array entries may mix ints and floats. The shadow is drawn once, offset by <code>(dx, dy)</code>, beneath the stroke and the text.</p>
+<p><strong>Project fonts.</strong> Drop <code>.ttf</code> / <code>.otf</code> files in <code>&lt;project&gt;/fonts/</code> (found the same way as <code>sprites/</code>: the scene file’s directory, then its parent). Each file registers a font family named after its file stem, so <code>fonts/BarlowCondensed-Bold.ttf</code> is usable as <code>font: "BarlowCondensed-Bold"</code>. The folder is scanned non-recursively once at startup and again on scene change when the project root changes. An optional <code>fonts/fonts.toml</code> adds aliases that point at the same files:</p>
+<pre><code class="language-toml">[[font]]
+name = "display"                      # use as font = "display"
+file = "BarlowCondensed-BlackItalic.ttf"
+</code></pre>
+<p>Each named family keeps egui’s built-in fonts behind it, for glyphs the file lacks. The player logs the loaded families at startup (<code>RUST_LOG=info</code>). Text without a <code>font</code> — and the data-driven UI’s default — uses egui’s built-in proportional font, unless the manifest names another (ADR 0081):</p>
+<pre><code class="language-toml">[egui]
+proportional = "body"                 # a file stem or an alias
+monospace = "code"
+</code></pre>
+<p>That face then leads egui’s default family, for the script HUD’s unnamed text and for a game’s own egui panels alike (<a href="../guides/player-extensions.html#fonts">Player Extensions</a>).</p>
+<h4 id="rings-and-arcs"><a class="header" href="#rings-and-arcs">Rings and Arcs</a></h4>
+<p><code>draw_ring</code> / <code>draw_arc</code> angles are <strong>degrees from 12 o’clock, clockwise on screen</strong>: <code>0</code> is up, <code>90</code> is right, <code>180</code> is down, <code>270</code> is left. <code>end_deg</code> must exceed <code>start_deg</code>; a sweep larger than 360 is clamped to a full circle. A radial progress dial that fills clockwise from the top is therefore <code>draw_ring(cx, cy, 40.0, 50.0, 0.0, 360.0 * progress, ...)</code>. Sectors are tessellated at roughly one segment per 3 degrees (6 to 180 segments).</p>
+<h4 id="clipping"><a class="header" href="#clipping">Clipping</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>push_clip(x, y, w, h)</code></td><td>Confine every following draw call to this rectangle</td></tr>
+<tr><td><code>pop_clip()</code></td><td>Restore the previous clip rectangle</td></tr>
+</tbody>
+</table>
+</div>
+<p>Clips nest: an inner <code>push_clip</code> is intersected with the enclosing one. Each draw command remembers the clip that was active when it was issued, so clipping composes with <code>layer</code> ordering (a clipped layer-5 command still draws after unclipped layer-0 ones). Unbalanced <code>pop_clip</code> calls are ignored, and the stack is reset at the start of every frame, so a script that forgets to pop cannot clip the next frame. Typical use is a scrolling list or a marquee:</p>
+<pre><code class="language-rhai">push_clip(list_x, list_y, list_w, list_h);
+for i in 0..items.len() {
+    draw_text(list_x, list_y + i * 24.0 - scroll, items[i], 18.0, 1.0, 1.0, 1.0, 1.0);
+}
+pop_clip();
+</code></pre>
+<h4 id="over-the-ui"><a class="header" href="#over-the-ui">Over the UI</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>push_over_ui()</code></td><td>Draw every following call above the game’s egui panels and windows</td></tr>
+<tr><td><code>pop_over_ui()</code></td><td>Go back to drawing under them</td></tr>
+</tbody>
+</table>
+</div>
+<p>The script HUD normally draws under a game’s own egui (<a href="../guides/player-extensions.html">Player Extensions</a>), so a panel covers any HUD drawing behind it. Calls issued between <code>push_over_ui()</code> and <code>pop_over_ui()</code> go on a layer of their own, painted after every egui panel and window but before popups, debug panels and tooltips. Among themselves they still sort by <code>layer</code>, and each can be clipped. Pushes nest, unbalanced pops are ignored, and the depth is reset every frame. Use it for short-lived effects that have to reach the UI, such as an item flying into an inventory button, and keep everything else under it, so the HUD never covers what a panel says:</p>
+<pre><code class="language-rhai">push_over_ui();
+draw_circle(pip_x, pip_y, 5.0, 0.79, 0.64, 0.15, 1.0);  // lands on the button
+pop_over_ui();
+</code></pre>
+<h4 id="shared-modules-scriptslib"><a class="header" href="#shared-modules-scriptslib">Shared Modules (<code>scripts/lib</code>)</a></h4>
+<p>Scripts can <code>import</code> shared Rhai modules from <code>&lt;project&gt;/scripts/lib/</code> (the <code>lib/</code> folder inside whichever <code>scripts/</code> directory the scene resolved). <code>import "ui_kit" as ui;</code> loads <code>scripts/lib/ui_kit.rhai</code>; nested paths work too (<code>import "fx/easing" as ease;</code>). Every top-level <code>fn</code> in a module is exported automatically (mark helpers <code>private</code> to hide them); top-level variables must be <code>export</code>ed:</p>
+<pre><code class="language-rhai">// scripts/lib/ui_kit.rhai
+export let PANEL_ALPHA = 0.85;
+fn ease_out_cubic(t) { 1.0 - (1.0 - t) * (1.0 - t) * (1.0 - t) }
+private fn helper() { }
+</code></pre>
+<pre><code class="language-rhai">// scripts/hud.rhai
+import "ui_kit" as ui;
+
+fn on_draw_ui() {
+    let a = ui::ease_out_cubic(delta_time());
+    draw_rect(0.0, 0.0, 100.0, 20.0, 0.0, 0.0, 0.0, ui::PANEL_ALPHA);
+}
+</code></pre>
+<p>Put the <code>import</code> at the top level of the script: the engine evaluates a script’s global statements before each callback, so a global import is visible inside <code>on_update</code>, <code>on_draw_ui</code> and any function you define. Modules are compiled once and cached. Editing, adding or removing any <code>.rhai</code> file under <code>scripts/lib/</code> clears that cache and hot-reloads every script in the scene (script state is preserved as with any hot-reload), so a change to a shared helper shows up everywhere at once.</p>
 <h4 id="layer-ordering"><a class="header" href="#layer-ordering">Layer Ordering</a></h4>
 <p>All <code>_ex</code> draw variants accept a <code>layer</code> parameter which must be an <strong>integer</strong> (<code>0</code>, <code>1</code>, <code>-1</code>), not a float. Using <code>0.0</code> instead of <code>0</code> will cause a “Function not found” error because Rhai does not implicitly convert between <code>float</code> and <code>int</code>. Commands are sorted by layer before rendering:</p>
 <ul>
@@ -947,6 +1260,9 @@ y = 10
 <tr><td><code>color</code></td><td>[r,g,b,a]</td><td><code>[1,1,1,1]</code></td><td>Primary color (text color, shape fill)</td></tr>
 <tr><td><code>bg_color</code></td><td>[r,g,b,a]</td><td><code>[0,0,0,0]</code></td><td>Background color (panels)</td></tr>
 <tr><td><code>font_size</code></td><td>float</td><td><code>16</code></td><td>Text font size</td></tr>
+<tr><td><code>font</code></td><td>string</td><td>—</td><td>Font family from <code>&lt;project&gt;/fonts/</code> (file stem or <code>fonts.toml</code> alias); unset = default font</td></tr>
+<tr><td><code>letter_spacing</code></td><td>float</td><td><code>0</code></td><td>Extra spacing between glyphs, in points</td></tr>
+<tr><td><code>shadow</code></td><td>[dx,dy,r,g,b,a]</td><td>—</td><td>Drop shadow offset and colour, drawn beneath the text</td></tr>
 <tr><td><code>text_align</code></td><td>string</td><td><code>"left"</code></td><td>Text alignment: <code>left</code>, <code>center</code>, <code>right</code></td></tr>
 <tr><td><code>rounding</code></td><td>float</td><td><code>0</code></td><td>Corner rounding for panels/rects</td></tr>
 <tr><td><code>opacity</code></td><td>float</td><td><code>1.0</code></td><td>Element opacity multiplier</td></tr>
@@ -954,11 +1270,50 @@ y = 10
 <tr><td><code>radius</code></td><td>float</td><td><code>0</code></td><td>Circle radius</td></tr>
 <tr><td><code>layer</code></td><td>int</td><td><code>0</code></td><td>Render layer (negative = behind, positive = in front)</td></tr>
 <tr><td><code>padding</code></td><td>[l,t,r,b]</td><td><code>[0,0,0,0]</code></td><td>Interior padding (left, top, right, bottom)</td></tr>
+<tr><td><code>uv</code></td><td>[u0,v0,u1,v1]</td><td><code>[0,0,1,1]</code></td><td>Sub-rectangle of an <code>image</code> element’s texture in 0–1 space (sprite-sheet cells, atlases)</td></tr>
 <tr><td><code>layout</code></td><td>string</td><td><code>"stack"</code></td><td>Child flow: <code>stack</code> (vertical) or <code>horizontal</code></td></tr>
 <tr><td><code>margin_bottom</code></td><td>float</td><td><code>0</code></td><td>Space below element in flow layout</td></tr>
 </tbody>
 </table>
 </div>
+<p>Colour arrays may be <code>[r, g, b]</code> (alpha 1) or <code>[r, g, b, a]</code>.</p>
+<h4 id="style-tokens"><a class="header" href="#style-tokens">Style Tokens</a></h4>
+<p>Any property value that is a string starting with <code>$</code> is a <strong>token reference</strong>, resolved when the style file is parsed. Tokens come from two places:</p>
+<ul>
+<li>a local <code>[tokens]</code> table in the style file itself</li>
+<li>a shared token file (the game’s theme), named at the top level with <code>tokens = "ui/theme.toml"</code></li>
+</ul>
+<pre><code class="language-toml"># ui/main_menu.style.toml
+tokens = "ui/theme.toml"          # shared theme, resolved from the project root
+
+[styles.select-header]
+font_size = 42
+color = "$accent"                 # searched: local [tokens], then every section of the theme
+font = "$font.label"              # section-qualified: [font] label = "Barlow-SemiBold"
+rounding = "$shape.radius"
+</code></pre>
+<p>The shared file is plain TOML sections — <code>[color]</code>, <code>[font]</code>, <code>[type]</code>, <code>[shape]</code>, <code>[space]</code>, <code>[motion]</code>, whatever the game defines:</p>
+<pre><code class="language-toml"># ui/theme.toml
+[color]
+accent = [1.0, 0.55, 0.15, 1.0]
+paper  = [0.96, 0.96, 0.98]
+
+[font]
+label = "Barlow-SemiBold"
+
+[shape]
+radius = 4
+</code></pre>
+<p>Lookup order for <code>"$name"</code> is the local <code>[tokens]</code> table first, then each section of the shared file in file order; <code>"$section.name"</code> addresses one section explicitly. A local token may itself be a <code>"$ref"</code> into the shared file. Unknown tokens warn once (naming the property that used them) and leave the property unset, so the default applies.</p>
+<p>TOML cannot hold <code>tokens = "..."</code> and a <code>[tokens]</code> table under one key. To use a local table <em>and</em> a shared file, name the file with <code>tokens_file = "ui/theme.toml"</code> at the top level, or with <code>import = "ui/theme.toml"</code> inside <code>[tokens]</code>:</p>
+<pre><code class="language-toml">[tokens]
+import = "ui/theme.toml"
+card_pad = [12, 8, 12, 8]
+brand = "$color.accent"           # local alias for a shared token
+</code></pre>
+<p>Scripts read the same values with <code>ui_token(name)</code> (see below), so a Rhai HUD and a <code>.style.toml</code> never disagree about a colour or a spacing.</p>
+<h4 id="hot-reload"><a class="header" href="#hot-reload">Hot Reload</a></h4>
+<p>Every loaded document remembers its <code>.ui.toml</code>, <code>.style.toml</code> and shared token file. The player polls them each frame alongside script hot-reload: when any changes, the document is re-parsed <strong>in place</strong> — the handle stays valid, and runtime state set from scripts (<code>ui_set_text</code>, <code>ui_set_color</code>, <code>ui_set_bg_color</code>, <code>ui_set_visible</code>, <code>ui_set_class</code>, <code>ui_set_style</code>) is re-applied to every element id that still exists. New elements appear, removed ones vanish, edited tokens recolour. A file that fails to parse logs a warning and leaves the last good document in place until the next edit. Reloads are logged at <code>info</code> (<code>RUST_LOG=info</code>).</p>
 <h4 id="rhai-api-data-driven-ui"><a class="header" href="#rhai-api-data-driven-ui">Rhai API: Data-Driven UI</a></h4>
 <div class="table-wrapper">
 <table>
@@ -974,15 +1329,31 @@ y = 10
 <tr><td><code>ui_set_visible(element_id, visible)</code></td><td>—</td><td>Set element visibility</td></tr>
 <tr><td><code>ui_set_color(element_id, r, g, b, a)</code></td><td>—</td><td>Override primary color</td></tr>
 <tr><td><code>ui_set_bg_color(element_id, r, g, b, a)</code></td><td>—</td><td>Override background color</td></tr>
-<tr><td><code>ui_set_style(element_id, prop, value)</code></td><td>—</td><td>Override any style property by name</td></tr>
+<tr><td><code>ui_set_style(element_id, prop, value)</code></td><td>—</td><td>Override any style property by name — every property the <code>.style.toml</code> parser accepts (see below)</td></tr>
+<tr><td><code>ui_set_style_array(element_id, prop, array)</code></td><td>—</td><td>Same, for array values: <code>color</code> / <code>bg_color</code> / <code>stroke_color</code> / <code>padding</code> (3–4 numbers) or <code>shadow</code> (6 numbers). <code>ui_set_style</code> also accepts arrays directly</td></tr>
 <tr><td><code>ui_reset_style(element_id)</code></td><td>—</td><td>Clear all runtime overrides</td></tr>
 <tr><td><code>ui_set_class(element_id, class)</code></td><td>—</td><td>Switch an element’s style class</td></tr>
 <tr><td><code>ui_exists(element_id)</code></td><td><code>bool</code></td><td>Check if an element exists in any loaded document</td></tr>
 <tr><td><code>ui_get_rect(element_id)</code></td><td><code>Map</code> or <code>()</code></td><td>Get resolved screen rect as <code>#{x, y, w, h}</code></td></tr>
+<tr><td><code>ui_hit(element_id, x, y)</code></td><td><code>bool</code></td><td>True when the point (logical points, e.g. <code>mouse_position()</code>) lies inside the element’s resolved rect; <code>false</code> for unknown ids</td></tr>
+<tr><td><code>ui_token(name)</code></td><td><code>Array</code>, <code>float</code>, <code>string</code>, <code>bool</code> or <code>()</code></td><td>Read a style token from the loaded documents’ <code>[tokens]</code> tables and shared theme: <code>"accent"</code>, <code>"$accent"</code> and <code>"color.accent"</code> all work. Arrays and numbers come back as floats</td></tr>
 </tbody>
 </table>
 </div>
 <p>Element IDs are the TOML key names from the layout file (e.g., <code>"speed_label"</code>, <code>"lap_counter"</code>). Functions search all loaded documents when resolving an element ID.</p>
+<p><code>ui_set_style</code> takes whatever the property takes in the style file — a number (<code>x</code>, <code>width_pct</code>, <code>font_size</code>, <code>thickness</code>, <code>stroke_width</code>, <code>letter_spacing</code>, <code>radius</code>, <code>rounding</code>, <code>margin_bottom</code>, <code>layer</code>, <code>opacity</code>), a string (<code>text_align</code>, <code>layout</code>, <code>font</code>), a bool (<code>height_auto</code>), an array (<code>color</code>, <code>bg_color</code>, <code>stroke_color</code>, <code>padding</code>, <code>shadow</code>) or a <code>"$token"</code> string for any of them, resolved through the owning document’s tokens:</p>
+<pre><code class="language-rhai">ui_set_style("card_1_border", "color", "$accent");        // token -&gt; colour
+ui_set_style("card_1_name", "font", "$font.display");
+ui_set_style("speed_panel", "padding", [12, 8, 12, 8]);
+ui_set_style("speed_panel", "height_auto", true);
+ui_set_style("speed_value", "text_align", "right");
+
+let accent = ui_token("accent");                            // [1.0, 0.55, 0.15, 1.0]
+draw_rect(10.0, 10.0, 40.0, 4.0, accent[0], accent[1], accent[2], accent[3]);
+
+if ui_hit("start_button", mouse_x, mouse_y) &amp;&amp; is_action_just_pressed("click") { start(); }
+</code></pre>
+<p>An unknown property name logs one warning per (element, property) and is ignored; a <code>load_ui</code> failure returns <code>-1</code> and logs the resolved path together with the parse error.</p>
 <h4 id="example-menu-with-data-driven-ui"><a class="header" href="#example-menu-with-data-driven-ui">Example: Menu with Data-Driven UI</a></h4>
 <pre><code class="language-toml"># ui/main_menu.ui.toml
 [ui]
@@ -1053,7 +1424,7 @@ fn on_update() {
 </tbody>
 </table>
 </div>
-<h2 id="hot-reload"><a class="header" href="#hot-reload">Hot-Reload</a></h2>
+<h2 id="hot-reload-1"><a class="header" href="#hot-reload-1">Hot-Reload</a></h2>
 <p>The script system checks file modification timestamps each frame. When a <code>.rhai</code> file changes on disk:</p>
 <ol>
 <li>The file is recompiled to a new AST</li>
@@ -1061,6 +1432,7 @@ fn on_update() {
 <li>If compilation fails, the old AST is kept and an error is logged — the game never crashes from a script typo</li>
 </ol>
 <p>This enables a fast iteration workflow: edit a script in your text editor, save, and see the result in the running game without restarting.</p>
+<p>Shared modules under <code>scripts/lib/</code> are watched as well: a change there clears the module cache and recompiles every script in the scene, since any of them may import the changed file.</p>
 <h2 id="interactable-system"><a class="header" href="#interactable-system">Interactable System</a></h2>
 <p>The <code>interactable</code> component marks entities that the player can interact with at close range. It works together with scripting to create interactive objects:</p>
 <pre><code class="language-toml">[entities.tavern_door]

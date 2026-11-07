@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Bus"],"fn":["amplitude_to_db"],"struct":["AudioEngine"]};
+window.SIDEBAR_ITEMS = {"constant":["DECODE_NOW_BYTES","DEFAULT_DISTANCES","DEFAULT_ROLLOFF","MAX_ONESHOTS_PER_SOUND","STEAL_FADE"],"enum":["Bus"],"fn":["amplitude_to_db"],"struct":["AudioEngine","MixCounts"],"type":["AudioBackend"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["dist_sq","generate_seed_points","lerp","lloyds_relaxation"],"struct":["SpatialGrid"]};
+window.SIDEBAR_ITEMS = {"fn":["blend_points","dist_sq","generate_seed_points","lerp","lloyds_relaxation","wrap_delta"],"struct":["Nearest","SpatialGrid"]};

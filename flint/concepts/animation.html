@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -437,7 +437,7 @@ time = 6.0
 kind = "cue"              # named marker for scripts
 name = "done"
 </code></pre>
-<p>Event kinds: <code>blend { clip, duration }</code>, <code>layer { index, clip?, weight?, fade, mode?, mask? }</code>, <code>speed { value }</code>, <code>cue { name }</code>. Events are sorted by time
+<p>Event kinds: <code>blend { clip, duration }</code>, <code>layer { index, clip?, weight?, fade,  mode?, mask? }</code>, <code>speed { value }</code>, <code>cue { name }</code>. Events are sorted by time
 (stable, so same-time events keep authored order) and each fires exactly once
 when the playhead reaches its time. Sequences run before the
 skeletal tier each frame, so their writes land the same frame.</p>
@@ -446,7 +446,7 @@ re-arms every event (including those at <code>t = 0</code>) and fires from zero 
 repeating while the frame still overruns. A large <code>dt</code> therefore neither skips
 events nor delays the next pass by a frame: a 1 s loop with a cue at 0.8 s,
 advanced by 0.5 then 0.6, fires <code>start, tail, start</code>. A looping sequence whose
-resolved duration is zero is rejected at load (<code>looping sequence has zero duration</code>); a non-looping one with only <code>t = 0</code> events fires them and completes
+resolved duration is zero is rejected at load (<code>looping sequence has zero  duration</code>); a non-looping one with only <code>t = 0</code> events fires them and completes
 on its first advance.</p>
 <p>Base-clip changes always go through <code>blend_target</code> (a tracked skeletal entity
 never re-reads <code>clip</code>); a <code>duration</code> of 0 is clamped to 1 ms because the
@@ -494,6 +494,32 @@ the moment it played.</p>
 skin = "Armature"           # Name of the glTF skin
 </code></pre>
 <p>Entities with both <code>animator</code> and <code>skeleton</code> components use the skeletal animation path. Entities with only <code>animator</code> use property tweens.</p>
+<h2 id="two-bone-ik"><a class="header" href="#two-bone-ik">Two-Bone IK</a></h2>
+<p><code>ik_two_bone</code> (ADR 0070) pins the end of a two-segment transform chain to a
+target entity every frame, after scripts, physics and clip playback have posed
+the world. It works on <em>entities</em>, not skeleton joints, so it suits models whose
+articulation is a glTF node hierarchy expanded by an <code>animator</code> (a driver’s
+arms, a landing leg, a crane).</p>
+<p>Put the component on the <strong>second</strong> bone (forearm). Its transform parent is the
+first bone (upper arm); a child entity named by <code>tip</code> marks the chain end
+(hand). Segment lengths are read from those rest offsets, so the model carries
+all the numbers: the component only names entities.</p>
+<pre><code class="language-toml">[entities.forearm_r.ik_two_bone]
+target = "yoke__hand_target_r"   # world position the hand reaches
+pole   = "spine__pole_r"         # the elbow bends toward this entity
+tip    = "forearm_r__hand_r"     # child of forearm_r at the hand
+weight = 1.0                     # 0 = rest pose, 1 = full solve
+</code></pre>
+<p>Because glb-expanded nodes are not in the scene TOML, scripts usually arm the
+component at init with <code>set_field(elbow_id, "ik_two_bone", "target", "...")</code>
+and friends. Parent a hand target to a steering wheel node and turning the
+wheel with <code>set_rotation</code> moves both arms with no further script work.</p>
+<p>Rules: the two bones must have unit scale and carry no <code>rigidbody</code>/<code>joint</code>
+(the pass writes their <code>rotation_quat</code>; positions are untouched). A target
+past the chain’s reach straightens the arm toward it; a pole on the reach line
+leaves the pose unchanged for that frame. The solve restarts from each bone’s
+rest rotation, captured the first time the pass sees it, so twist does not
+drift. <code>flint render</code> runs the pass once before its frame.</p>
 <h2 id="animator-schema"><a class="header" href="#animator-schema">Animator Schema</a></h2>
 <p>The <code>animator</code> component controls playback for both tiers:</p>
 <div class="table-wrapper">

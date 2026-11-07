@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["mesh_from_component","river_points"],"struct":["RiverPoint","WaterBodyLook","WaterBodyMesh","WaterBodyUniformsGpu","WaterVertex"]};

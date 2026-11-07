@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -190,6 +190,17 @@
 <li><strong>Change detection</strong> — if a source file changes, its hash changes, and the new version is stored separately</li>
 <li><strong>Integrity</strong> — the hash verifies the file hasn’t been corrupted</li>
 </ul>
+<h2 id="the-project-root"><a class="header" href="#the-project-root">The Project Root</a></h2>
+<p>The content store (<code>.flint/assets</code>), the procgen provenance index (<code>.flint/procgen</code>), the job store (<code>.flint/jobs</code>), the project config (<code>.flint/config.toml</code>) and the sidecar catalog (<code>assets/</code>) all live at the <strong>project root</strong>, whichever folder of the project a command runs from. Flint finds the root the way cargo finds a workspace: it walks up from the working directory to the nearest directory holding</p>
+<ol>
+<li>a <code>flint.toml</code> file,</li>
+<li>a <code>.flint/</code> directory (not the one in your home directory, which holds the global config), or</li>
+<li><code>schemas/</code> beside <code>scenes/</code> or <code>levels/</code> — the layout <code>flint init</code> makes and the game repos keep.</li>
+</ol>
+<p>A Flint engine checkout is passed through when a project sits above it, so <code>flint gen ... --register</code> run inside a game’s <code>engine/</code> subtree registers into the game’s store. With no marker anywhere, the working directory is the root. <code>--project &lt;dir&gt;</code> (a global flag on every command) names the root outright, and <code>flint gen --register</code> prints the store it uses:</p>
+<pre><code>Store:      .flint\assets (project ., by schemas/ + scenes/ or levels/)
+</code></pre>
+<p><code>flint asset resolve</code> uses the project of the scene it is given.</p>
 <h2 id="asset-catalog"><a class="header" href="#asset-catalog">Asset Catalog</a></h2>
 <p>The asset catalog is a searchable index of all imported assets. Each entry tracks:</p>
 <ul>

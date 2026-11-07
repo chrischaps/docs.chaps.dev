@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["backends","instance","list_adapters","request_adapter","set_gpu_override"]};

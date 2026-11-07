@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["BUILTIN","MAX_COLUMNS"],"enum":["SweepKey"],"fn":["base_def","file_stem","find","help","known_fields","list","merge","overlay","parse_value","search_dirs","strsim_distance","suggestion"],"struct":["Look","Sweep"]};

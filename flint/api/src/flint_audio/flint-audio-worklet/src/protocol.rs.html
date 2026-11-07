@@ -1,0 +1,601 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\flint-audio\src\..\..\flint-audio-worklet\src\protocol.rs`."><title>protocol.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../..\../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../..\../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../..\../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../..\../" data-static-root-path="../../..\../static.files/" data-current-crate="flint_audio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../..\../static.files/storage-41dd4d93.js"></script><script defer src="../../..\../static.files/src-script-813739b1.js"></script><script defer src="../../..\../src-files.js"></script><script defer src="../../..\../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../..\../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../..\../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">flint_audio\flint-audio-worklet\src/</div>protocol.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! What the main thread tells the worklet's mixer (#136).
+<a href=#2 id=2 data-nosnippet>2</a>//!
+<a href=#3 id=3 data-nosnippet>3</a>//! The page and its `AudioWorklet` share no memory (GitHub Pages can't send
+<a href=#4 id=4 data-nosnippet>4</a>//! the headers `SharedArrayBuffer` needs), so the engine's calls become
+<a href=#5 id=5 data-nosnippet>5</a>//! [`Command`]s, written into one byte batch a frame and posted to the
+<a href=#6 id=6 data-nosnippet>6</a>//! worklet, which applies them to its own kira. Sounds cross separately,
+<a href=#7 id=7 data-nosnippet>7</a>//! once each, as samples. Every id is made on the main thread, so a call
+<a href=#8 id=8 data-nosnippet>8</a>//! returns its handle at once and never waits for an answer.
+<a href=#9 id=9 data-nosnippet>9</a>//!
+<a href=#10 id=10 data-nosnippet>10</a>//! This file has no dependencies: `flint-audio` includes it with `#[path]`
+<a href=#11 id=11 data-nosnippet>11</a>//! to write batches, and the worklet crate reads them, so both sides are
+<a href=#12 id=12 data-nosnippet>12</a>//! always built from the same encoding.
+<a href=#13 id=13 data-nosnippet>13</a>
+<a href=#14 id=14 data-nosnippet>14</a>/// The mixer bus a sound or a spatial track hangs off.
+<a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">pub const </span>BUS_SFX: u8 = <span class="number">0</span>;
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">pub const </span>BUS_MUSIC: u8 = <span class="number">1</span>;
+<a href=#17 id=17 data-nosnippet>17</a>
+<a href=#18 id=18 data-nosnippet>18</a><span class="doccomment">/// Where a voice plays: a bus, or a spatial track made earlier.
+<a href=#19 id=19 data-nosnippet>19</a></span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="kw">pub enum </span>Target {
+<a href=#21 id=21 data-nosnippet>21</a>    Bus(u8),
+<a href=#22 id=22 data-nosnippet>22</a>    Track(u32),
+<a href=#23 id=23 data-nosnippet>23</a>}
+<a href=#24 id=24 data-nosnippet>24</a>
+<a href=#25 id=25 data-nosnippet>25</a><span class="doccomment">/// One engine call. Tween lengths are seconds, linear.
+<a href=#26 id=26 data-nosnippet>26</a></span><span class="attr">#[derive(Debug, Clone, PartialEq)]
+<a href=#27 id=27 data-nosnippet>27</a></span><span class="kw">pub enum </span>Command {
+<a href=#28 id=28 data-nosnippet>28</a>    <span class="doccomment">/// The main track's low-pass cutoff, Hz.
+<a href=#29 id=29 data-nosnippet>29</a>    </span>FilterCutoff {
+<a href=#30 id=30 data-nosnippet>30</a>        hz: f32,
+<a href=#31 id=31 data-nosnippet>31</a>        tween: f32,
+<a href=#32 id=32 data-nosnippet>32</a>    },
+<a href=#33 id=33 data-nosnippet>33</a>    BusVolume {
+<a href=#34 id=34 data-nosnippet>34</a>        bus: u8,
+<a href=#35 id=35 data-nosnippet>35</a>        db: f32,
+<a href=#36 id=36 data-nosnippet>36</a>        tween: f32,
+<a href=#37 id=37 data-nosnippet>37</a>    },
+<a href=#38 id=38 data-nosnippet>38</a>    <span class="doccomment">/// Place the listener, making it if there is none yet.
+<a href=#39 id=39 data-nosnippet>39</a>    </span>Listener {
+<a href=#40 id=40 data-nosnippet>40</a>        pos: [f32; <span class="number">3</span>],
+<a href=#41 id=41 data-nosnippet>41</a>        quat: [f32; <span class="number">4</span>],
+<a href=#42 id=42 data-nosnippet>42</a>    },
+<a href=#43 id=43 data-nosnippet>43</a>    TrackNew {
+<a href=#44 id=44 data-nosnippet>44</a>        track: u32,
+<a href=#45 id=45 data-nosnippet>45</a>        pos: [f32; <span class="number">3</span>],
+<a href=#46 id=46 data-nosnippet>46</a>        min: f32,
+<a href=#47 id=47 data-nosnippet>47</a>        max: f32,
+<a href=#48 id=48 data-nosnippet>48</a>        rolloff: f32,
+<a href=#49 id=49 data-nosnippet>49</a>        bus: u8,
+<a href=#50 id=50 data-nosnippet>50</a>    },
+<a href=#51 id=51 data-nosnippet>51</a>    TrackPosition {
+<a href=#52 id=52 data-nosnippet>52</a>        track: u32,
+<a href=#53 id=53 data-nosnippet>53</a>        pos: [f32; <span class="number">3</span>],
+<a href=#54 id=54 data-nosnippet>54</a>    },
+<a href=#55 id=55 data-nosnippet>55</a>    <span class="doccomment">/// The track's handle was dropped: the track goes, with its sounds.
+<a href=#56 id=56 data-nosnippet>56</a>    </span>TrackDrop {
+<a href=#57 id=57 data-nosnippet>57</a>        track: u32,
+<a href=#58 id=58 data-nosnippet>58</a>    },
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="doccomment">/// `pan` is kira's `Panning`: -1 left, 1 right, at constant power. A
+<a href=#60 id=60 data-nosnippet>60</a>    /// placed sound plays on a bus this way, steered once a frame (#138).
+<a href=#61 id=61 data-nosnippet>61</a>    </span>Play {
+<a href=#62 id=62 data-nosnippet>62</a>        voice: u32,
+<a href=#63 id=63 data-nosnippet>63</a>        sound: u32,
+<a href=#64 id=64 data-nosnippet>64</a>        target: Target,
+<a href=#65 id=65 data-nosnippet>65</a>        db: f32,
+<a href=#66 id=66 data-nosnippet>66</a>        rate: f32,
+<a href=#67 id=67 data-nosnippet>67</a>        pan: f32,
+<a href=#68 id=68 data-nosnippet>68</a>        looping: bool,
+<a href=#69 id=69 data-nosnippet>69</a>    },
+<a href=#70 id=70 data-nosnippet>70</a>    <span class="doccomment">/// A placed one-shot. The worklet keeps its track until it ends.
+<a href=#71 id=71 data-nosnippet>71</a>    </span>OneShot {
+<a href=#72 id=72 data-nosnippet>72</a>        sound: u32,
+<a href=#73 id=73 data-nosnippet>73</a>        pos: [f32; <span class="number">3</span>],
+<a href=#74 id=74 data-nosnippet>74</a>        db: f32,
+<a href=#75 id=75 data-nosnippet>75</a>        rate: f32,
+<a href=#76 id=76 data-nosnippet>76</a>        min: f32,
+<a href=#77 id=77 data-nosnippet>77</a>        max: f32,
+<a href=#78 id=78 data-nosnippet>78</a>        rolloff: f32,
+<a href=#79 id=79 data-nosnippet>79</a>        bus: u8,
+<a href=#80 id=80 data-nosnippet>80</a>    },
+<a href=#81 id=81 data-nosnippet>81</a>    VoiceVolume {
+<a href=#82 id=82 data-nosnippet>82</a>        voice: u32,
+<a href=#83 id=83 data-nosnippet>83</a>        db: f32,
+<a href=#84 id=84 data-nosnippet>84</a>        tween: f32,
+<a href=#85 id=85 data-nosnippet>85</a>    },
+<a href=#86 id=86 data-nosnippet>86</a>    VoiceRate {
+<a href=#87 id=87 data-nosnippet>87</a>        voice: u32,
+<a href=#88 id=88 data-nosnippet>88</a>        rate: f32,
+<a href=#89 id=89 data-nosnippet>89</a>        tween: f32,
+<a href=#90 id=90 data-nosnippet>90</a>    },
+<a href=#91 id=91 data-nosnippet>91</a>    VoiceStop {
+<a href=#92 id=92 data-nosnippet>92</a>        voice: u32,
+<a href=#93 id=93 data-nosnippet>93</a>        tween: f32,
+<a href=#94 id=94 data-nosnippet>94</a>    },
+<a href=#95 id=95 data-nosnippet>95</a>    VoicePanning {
+<a href=#96 id=96 data-nosnippet>96</a>        voice: u32,
+<a href=#97 id=97 data-nosnippet>97</a>        pan: f32,
+<a href=#98 id=98 data-nosnippet>98</a>        tween: f32,
+<a href=#99 id=99 data-nosnippet>99</a>    },
+<a href=#100 id=100 data-nosnippet>100</a>    <span class="doccomment">/// Paused because nobody can hear it (#138); resumed where it stopped.
+<a href=#101 id=101 data-nosnippet>101</a>    </span>VoicePause {
+<a href=#102 id=102 data-nosnippet>102</a>        voice: u32,
+<a href=#103 id=103 data-nosnippet>103</a>        tween: f32,
+<a href=#104 id=104 data-nosnippet>104</a>    },
+<a href=#105 id=105 data-nosnippet>105</a>    VoiceResume {
+<a href=#106 id=106 data-nosnippet>106</a>        voice: u32,
+<a href=#107 id=107 data-nosnippet>107</a>        tween: f32,
+<a href=#108 id=108 data-nosnippet>108</a>    },
+<a href=#109 id=109 data-nosnippet>109</a>    <span class="doccomment">/// The voice's handle was dropped; the sound plays on to its end.
+<a href=#110 id=110 data-nosnippet>110</a>    </span>VoiceDrop {
+<a href=#111 id=111 data-nosnippet>111</a>        voice: u32,
+<a href=#112 id=112 data-nosnippet>112</a>    },
+<a href=#113 id=113 data-nosnippet>113</a>    ClearOneShots,
+<a href=#114 id=114 data-nosnippet>114</a>}
+<a href=#115 id=115 data-nosnippet>115</a>
+<a href=#116 id=116 data-nosnippet>116</a><span class="kw">mod </span>op {
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="kw">pub const </span>FILTER_CUTOFF: u8 = <span class="number">1</span>;
+<a href=#118 id=118 data-nosnippet>118</a>    <span class="kw">pub const </span>BUS_VOLUME: u8 = <span class="number">2</span>;
+<a href=#119 id=119 data-nosnippet>119</a>    <span class="kw">pub const </span>LISTENER: u8 = <span class="number">3</span>;
+<a href=#120 id=120 data-nosnippet>120</a>    <span class="kw">pub const </span>TRACK_NEW: u8 = <span class="number">4</span>;
+<a href=#121 id=121 data-nosnippet>121</a>    <span class="kw">pub const </span>TRACK_POSITION: u8 = <span class="number">5</span>;
+<a href=#122 id=122 data-nosnippet>122</a>    <span class="kw">pub const </span>TRACK_DROP: u8 = <span class="number">6</span>;
+<a href=#123 id=123 data-nosnippet>123</a>    <span class="kw">pub const </span>PLAY_ON_BUS: u8 = <span class="number">7</span>;
+<a href=#124 id=124 data-nosnippet>124</a>    <span class="kw">pub const </span>PLAY_ON_TRACK: u8 = <span class="number">8</span>;
+<a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">pub const </span>ONE_SHOT: u8 = <span class="number">9</span>;
+<a href=#126 id=126 data-nosnippet>126</a>    <span class="kw">pub const </span>VOICE_VOLUME: u8 = <span class="number">10</span>;
+<a href=#127 id=127 data-nosnippet>127</a>    <span class="kw">pub const </span>VOICE_RATE: u8 = <span class="number">11</span>;
+<a href=#128 id=128 data-nosnippet>128</a>    <span class="kw">pub const </span>VOICE_STOP: u8 = <span class="number">12</span>;
+<a href=#129 id=129 data-nosnippet>129</a>    <span class="kw">pub const </span>VOICE_DROP: u8 = <span class="number">13</span>;
+<a href=#130 id=130 data-nosnippet>130</a>    <span class="kw">pub const </span>CLEAR_ONE_SHOTS: u8 = <span class="number">14</span>;
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="kw">pub const </span>VOICE_PANNING: u8 = <span class="number">15</span>;
+<a href=#132 id=132 data-nosnippet>132</a>    <span class="kw">pub const </span>VOICE_PAUSE: u8 = <span class="number">16</span>;
+<a href=#133 id=133 data-nosnippet>133</a>    <span class="kw">pub const </span>VOICE_RESUME: u8 = <span class="number">17</span>;
+<a href=#134 id=134 data-nosnippet>134</a>}
+<a href=#135 id=135 data-nosnippet>135</a>
+<a href=#136 id=136 data-nosnippet>136</a><span class="kw">struct </span>Writer&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Vec&lt;u8&gt;);
+<a href=#137 id=137 data-nosnippet>137</a>
+<a href=#138 id=138 data-nosnippet>138</a><span class="kw">impl </span>Writer&lt;<span class="lifetime">'_</span>&gt; {
+<a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">fn </span>u8(<span class="kw-2">&amp;mut </span><span class="self">self</span>, v: u8) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+<a href=#140 id=140 data-nosnippet>140</a>        <span class="self">self</span>.<span class="number">0</span>.push(v);
+<a href=#141 id=141 data-nosnippet>141</a>        <span class="self">self
+<a href=#142 id=142 data-nosnippet>142</a>    </span>}
+<a href=#143 id=143 data-nosnippet>143</a>    <span class="kw">fn </span>u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, v: u32) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+<a href=#144 id=144 data-nosnippet>144</a>        <span class="self">self</span>.<span class="number">0</span>.extend_from_slice(<span class="kw-2">&amp;</span>v.to_le_bytes());
+<a href=#145 id=145 data-nosnippet>145</a>        <span class="self">self
+<a href=#146 id=146 data-nosnippet>146</a>    </span>}
+<a href=#147 id=147 data-nosnippet>147</a>    <span class="kw">fn </span>f32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, v: f32) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+<a href=#148 id=148 data-nosnippet>148</a>        <span class="self">self</span>.<span class="number">0</span>.extend_from_slice(<span class="kw-2">&amp;</span>v.to_le_bytes());
+<a href=#149 id=149 data-nosnippet>149</a>        <span class="self">self
+<a href=#150 id=150 data-nosnippet>150</a>    </span>}
+<a href=#151 id=151 data-nosnippet>151</a>    <span class="kw">fn </span>f32s(<span class="kw-2">&amp;mut </span><span class="self">self</span>, v: <span class="kw-2">&amp;</span>[f32]) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+<a href=#152 id=152 data-nosnippet>152</a>        <span class="kw">for </span><span class="kw-2">&amp;</span>x <span class="kw">in </span>v {
+<a href=#153 id=153 data-nosnippet>153</a>            <span class="self">self</span>.f32(x);
+<a href=#154 id=154 data-nosnippet>154</a>        }
+<a href=#155 id=155 data-nosnippet>155</a>        <span class="self">self
+<a href=#156 id=156 data-nosnippet>156</a>    </span>}
+<a href=#157 id=157 data-nosnippet>157</a>}
+<a href=#158 id=158 data-nosnippet>158</a>
+<a href=#159 id=159 data-nosnippet>159</a><span class="kw">impl </span>Command {
+<a href=#160 id=160 data-nosnippet>160</a>    <span class="doccomment">/// Append this command to a batch.
+<a href=#161 id=161 data-nosnippet>161</a>    </span><span class="kw">pub fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+<a href=#162 id=162 data-nosnippet>162</a>        <span class="kw">let </span><span class="kw-2">mut </span>w = Writer(out);
+<a href=#163 id=163 data-nosnippet>163</a>        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+<a href=#164 id=164 data-nosnippet>164</a>            Command::FilterCutoff { hz, tween } =&gt; {
+<a href=#165 id=165 data-nosnippet>165</a>                w.u8(op::FILTER_CUTOFF).f32(hz).f32(tween);
+<a href=#166 id=166 data-nosnippet>166</a>            }
+<a href=#167 id=167 data-nosnippet>167</a>            Command::BusVolume { bus, db, tween } =&gt; {
+<a href=#168 id=168 data-nosnippet>168</a>                w.u8(op::BUS_VOLUME).u8(bus).f32(db).f32(tween);
+<a href=#169 id=169 data-nosnippet>169</a>            }
+<a href=#170 id=170 data-nosnippet>170</a>            Command::Listener { pos, quat } =&gt; {
+<a href=#171 id=171 data-nosnippet>171</a>                w.u8(op::LISTENER).f32s(<span class="kw-2">&amp;</span>pos).f32s(<span class="kw-2">&amp;</span>quat);
+<a href=#172 id=172 data-nosnippet>172</a>            }
+<a href=#173 id=173 data-nosnippet>173</a>            Command::TrackNew {
+<a href=#174 id=174 data-nosnippet>174</a>                track,
+<a href=#175 id=175 data-nosnippet>175</a>                pos,
+<a href=#176 id=176 data-nosnippet>176</a>                min,
+<a href=#177 id=177 data-nosnippet>177</a>                max,
+<a href=#178 id=178 data-nosnippet>178</a>                rolloff,
+<a href=#179 id=179 data-nosnippet>179</a>                bus,
+<a href=#180 id=180 data-nosnippet>180</a>            } =&gt; {
+<a href=#181 id=181 data-nosnippet>181</a>                w.u8(op::TRACK_NEW)
+<a href=#182 id=182 data-nosnippet>182</a>                    .u32(track)
+<a href=#183 id=183 data-nosnippet>183</a>                    .f32s(<span class="kw-2">&amp;</span>pos)
+<a href=#184 id=184 data-nosnippet>184</a>                    .f32(min)
+<a href=#185 id=185 data-nosnippet>185</a>                    .f32(max)
+<a href=#186 id=186 data-nosnippet>186</a>                    .f32(rolloff)
+<a href=#187 id=187 data-nosnippet>187</a>                    .u8(bus);
+<a href=#188 id=188 data-nosnippet>188</a>            }
+<a href=#189 id=189 data-nosnippet>189</a>            Command::TrackPosition { track, pos } =&gt; {
+<a href=#190 id=190 data-nosnippet>190</a>                w.u8(op::TRACK_POSITION).u32(track).f32s(<span class="kw-2">&amp;</span>pos);
+<a href=#191 id=191 data-nosnippet>191</a>            }
+<a href=#192 id=192 data-nosnippet>192</a>            Command::TrackDrop { track } =&gt; {
+<a href=#193 id=193 data-nosnippet>193</a>                w.u8(op::TRACK_DROP).u32(track);
+<a href=#194 id=194 data-nosnippet>194</a>            }
+<a href=#195 id=195 data-nosnippet>195</a>            Command::Play {
+<a href=#196 id=196 data-nosnippet>196</a>                voice,
+<a href=#197 id=197 data-nosnippet>197</a>                sound,
+<a href=#198 id=198 data-nosnippet>198</a>                target,
+<a href=#199 id=199 data-nosnippet>199</a>                db,
+<a href=#200 id=200 data-nosnippet>200</a>                rate,
+<a href=#201 id=201 data-nosnippet>201</a>                pan,
+<a href=#202 id=202 data-nosnippet>202</a>                looping,
+<a href=#203 id=203 data-nosnippet>203</a>            } =&gt; {
+<a href=#204 id=204 data-nosnippet>204</a>                <span class="kw">match </span>target {
+<a href=#205 id=205 data-nosnippet>205</a>                    Target::Bus(bus) =&gt; w.u8(op::PLAY_ON_BUS).u8(bus),
+<a href=#206 id=206 data-nosnippet>206</a>                    Target::Track(track) =&gt; w.u8(op::PLAY_ON_TRACK).u32(track),
+<a href=#207 id=207 data-nosnippet>207</a>                };
+<a href=#208 id=208 data-nosnippet>208</a>                w.u32(voice)
+<a href=#209 id=209 data-nosnippet>209</a>                    .u32(sound)
+<a href=#210 id=210 data-nosnippet>210</a>                    .f32(db)
+<a href=#211 id=211 data-nosnippet>211</a>                    .f32(rate)
+<a href=#212 id=212 data-nosnippet>212</a>                    .f32(pan)
+<a href=#213 id=213 data-nosnippet>213</a>                    .u8(looping <span class="kw">as </span>u8);
+<a href=#214 id=214 data-nosnippet>214</a>            }
+<a href=#215 id=215 data-nosnippet>215</a>            Command::OneShot {
+<a href=#216 id=216 data-nosnippet>216</a>                sound,
+<a href=#217 id=217 data-nosnippet>217</a>                pos,
+<a href=#218 id=218 data-nosnippet>218</a>                db,
+<a href=#219 id=219 data-nosnippet>219</a>                rate,
+<a href=#220 id=220 data-nosnippet>220</a>                min,
+<a href=#221 id=221 data-nosnippet>221</a>                max,
+<a href=#222 id=222 data-nosnippet>222</a>                rolloff,
+<a href=#223 id=223 data-nosnippet>223</a>                bus,
+<a href=#224 id=224 data-nosnippet>224</a>            } =&gt; {
+<a href=#225 id=225 data-nosnippet>225</a>                w.u8(op::ONE_SHOT)
+<a href=#226 id=226 data-nosnippet>226</a>                    .u32(sound)
+<a href=#227 id=227 data-nosnippet>227</a>                    .f32s(<span class="kw-2">&amp;</span>pos)
+<a href=#228 id=228 data-nosnippet>228</a>                    .f32(db)
+<a href=#229 id=229 data-nosnippet>229</a>                    .f32(rate)
+<a href=#230 id=230 data-nosnippet>230</a>                    .f32(min)
+<a href=#231 id=231 data-nosnippet>231</a>                    .f32(max)
+<a href=#232 id=232 data-nosnippet>232</a>                    .f32(rolloff)
+<a href=#233 id=233 data-nosnippet>233</a>                    .u8(bus);
+<a href=#234 id=234 data-nosnippet>234</a>            }
+<a href=#235 id=235 data-nosnippet>235</a>            Command::VoiceVolume { voice, db, tween } =&gt; {
+<a href=#236 id=236 data-nosnippet>236</a>                w.u8(op::VOICE_VOLUME).u32(voice).f32(db).f32(tween);
+<a href=#237 id=237 data-nosnippet>237</a>            }
+<a href=#238 id=238 data-nosnippet>238</a>            Command::VoiceRate { voice, rate, tween } =&gt; {
+<a href=#239 id=239 data-nosnippet>239</a>                w.u8(op::VOICE_RATE).u32(voice).f32(rate).f32(tween);
+<a href=#240 id=240 data-nosnippet>240</a>            }
+<a href=#241 id=241 data-nosnippet>241</a>            Command::VoiceStop { voice, tween } =&gt; {
+<a href=#242 id=242 data-nosnippet>242</a>                w.u8(op::VOICE_STOP).u32(voice).f32(tween);
+<a href=#243 id=243 data-nosnippet>243</a>            }
+<a href=#244 id=244 data-nosnippet>244</a>            Command::VoiceDrop { voice } =&gt; {
+<a href=#245 id=245 data-nosnippet>245</a>                w.u8(op::VOICE_DROP).u32(voice);
+<a href=#246 id=246 data-nosnippet>246</a>            }
+<a href=#247 id=247 data-nosnippet>247</a>            Command::VoicePanning { voice, pan, tween } =&gt; {
+<a href=#248 id=248 data-nosnippet>248</a>                w.u8(op::VOICE_PANNING).u32(voice).f32(pan).f32(tween);
+<a href=#249 id=249 data-nosnippet>249</a>            }
+<a href=#250 id=250 data-nosnippet>250</a>            Command::VoicePause { voice, tween } =&gt; {
+<a href=#251 id=251 data-nosnippet>251</a>                w.u8(op::VOICE_PAUSE).u32(voice).f32(tween);
+<a href=#252 id=252 data-nosnippet>252</a>            }
+<a href=#253 id=253 data-nosnippet>253</a>            Command::VoiceResume { voice, tween } =&gt; {
+<a href=#254 id=254 data-nosnippet>254</a>                w.u8(op::VOICE_RESUME).u32(voice).f32(tween);
+<a href=#255 id=255 data-nosnippet>255</a>            }
+<a href=#256 id=256 data-nosnippet>256</a>            Command::ClearOneShots =&gt; {
+<a href=#257 id=257 data-nosnippet>257</a>                w.u8(op::CLEAR_ONE_SHOTS);
+<a href=#258 id=258 data-nosnippet>258</a>            }
+<a href=#259 id=259 data-nosnippet>259</a>        }
+<a href=#260 id=260 data-nosnippet>260</a>    }
+<a href=#261 id=261 data-nosnippet>261</a>}
+<a href=#262 id=262 data-nosnippet>262</a>
+<a href=#263 id=263 data-nosnippet>263</a><span class="doccomment">/// Reads the commands of one batch in order. It stops at the first byte it
+<a href=#264 id=264 data-nosnippet>264</a>/// can't read (a truncated or unknown command) and keeps it in
+<a href=#265 id=265 data-nosnippet>265</a>/// [`error`](Self::error).
+<a href=#266 id=266 data-nosnippet>266</a></span><span class="kw">pub struct </span>Reader&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#267 id=267 data-nosnippet>267</a>    bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
+<a href=#268 id=268 data-nosnippet>268</a>    at: usize,
+<a href=#269 id=269 data-nosnippet>269</a>    <span class="kw">pub </span>error: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+<a href=#270 id=270 data-nosnippet>270</a>}
+<a href=#271 id=271 data-nosnippet>271</a>
+<a href=#272 id=272 data-nosnippet>272</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Reader&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#273 id=273 data-nosnippet>273</a>    <span class="kw">pub fn </span>new(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
+<a href=#274 id=274 data-nosnippet>274</a>        <span class="self">Self </span>{
+<a href=#275 id=275 data-nosnippet>275</a>            bytes,
+<a href=#276 id=276 data-nosnippet>276</a>            at: <span class="number">0</span>,
+<a href=#277 id=277 data-nosnippet>277</a>            error: <span class="prelude-val">None</span>,
+<a href=#278 id=278 data-nosnippet>278</a>        }
+<a href=#279 id=279 data-nosnippet>279</a>    }
+<a href=#280 id=280 data-nosnippet>280</a>
+<a href=#281 id=281 data-nosnippet>281</a>    <span class="kw">fn </span>take&lt;<span class="kw">const </span>N: usize&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;[u8; N]&gt; {
+<a href=#282 id=282 data-nosnippet>282</a>        <span class="kw">let </span>end = <span class="self">self</span>.at.checked_add(N)<span class="question-mark">?</span>;
+<a href=#283 id=283 data-nosnippet>283</a>        <span class="kw">let </span>b = <span class="self">self</span>.bytes.get(<span class="self">self</span>.at..end)<span class="question-mark">?</span>.try_into().ok()<span class="question-mark">?</span>;
+<a href=#284 id=284 data-nosnippet>284</a>        <span class="self">self</span>.at = end;
+<a href=#285 id=285 data-nosnippet>285</a>        <span class="prelude-val">Some</span>(b)
+<a href=#286 id=286 data-nosnippet>286</a>    }
+<a href=#287 id=287 data-nosnippet>287</a>    <span class="kw">fn </span>u8(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u8&gt; {
+<a href=#288 id=288 data-nosnippet>288</a>        <span class="self">self</span>.take::&lt;<span class="number">1</span>&gt;().map(|b| b[<span class="number">0</span>])
+<a href=#289 id=289 data-nosnippet>289</a>    }
+<a href=#290 id=290 data-nosnippet>290</a>    <span class="kw">fn </span>u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+<a href=#291 id=291 data-nosnippet>291</a>        <span class="self">self</span>.take().map(u32::from_le_bytes)
+<a href=#292 id=292 data-nosnippet>292</a>    }
+<a href=#293 id=293 data-nosnippet>293</a>    <span class="kw">fn </span>f32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt; {
+<a href=#294 id=294 data-nosnippet>294</a>        <span class="self">self</span>.take().map(f32::from_le_bytes)
+<a href=#295 id=295 data-nosnippet>295</a>    }
+<a href=#296 id=296 data-nosnippet>296</a>    <span class="kw">fn </span>vec3(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;[f32; <span class="number">3</span>]&gt; {
+<a href=#297 id=297 data-nosnippet>297</a>        <span class="prelude-val">Some</span>([<span class="self">self</span>.f32()<span class="question-mark">?</span>, <span class="self">self</span>.f32()<span class="question-mark">?</span>, <span class="self">self</span>.f32()<span class="question-mark">?</span>])
+<a href=#298 id=298 data-nosnippet>298</a>    }
+<a href=#299 id=299 data-nosnippet>299</a>
+<a href=#300 id=300 data-nosnippet>300</a>    <span class="kw">fn </span>command(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Command&gt; {
+<a href=#301 id=301 data-nosnippet>301</a>        <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="self">self</span>.u8()<span class="question-mark">? </span>{
+<a href=#302 id=302 data-nosnippet>302</a>            op::FILTER_CUTOFF =&gt; Command::FilterCutoff {
+<a href=#303 id=303 data-nosnippet>303</a>                hz: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#304 id=304 data-nosnippet>304</a>                tween: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#305 id=305 data-nosnippet>305</a>            },
+<a href=#306 id=306 data-nosnippet>306</a>            op::BUS_VOLUME =&gt; Command::BusVolume {
+<a href=#307 id=307 data-nosnippet>307</a>                bus: <span class="self">self</span>.u8()<span class="question-mark">?</span>,
+<a href=#308 id=308 data-nosnippet>308</a>                db: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#309 id=309 data-nosnippet>309</a>                tween: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#310 id=310 data-nosnippet>310</a>            },
+<a href=#311 id=311 data-nosnippet>311</a>            op::LISTENER =&gt; Command::Listener {
+<a href=#312 id=312 data-nosnippet>312</a>                pos: <span class="self">self</span>.vec3()<span class="question-mark">?</span>,
+<a href=#313 id=313 data-nosnippet>313</a>                quat: [<span class="self">self</span>.f32()<span class="question-mark">?</span>, <span class="self">self</span>.f32()<span class="question-mark">?</span>, <span class="self">self</span>.f32()<span class="question-mark">?</span>, <span class="self">self</span>.f32()<span class="question-mark">?</span>],
+<a href=#314 id=314 data-nosnippet>314</a>            },
+<a href=#315 id=315 data-nosnippet>315</a>            op::TRACK_NEW =&gt; Command::TrackNew {
+<a href=#316 id=316 data-nosnippet>316</a>                track: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#317 id=317 data-nosnippet>317</a>                pos: <span class="self">self</span>.vec3()<span class="question-mark">?</span>,
+<a href=#318 id=318 data-nosnippet>318</a>                min: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#319 id=319 data-nosnippet>319</a>                max: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#320 id=320 data-nosnippet>320</a>                rolloff: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#321 id=321 data-nosnippet>321</a>                bus: <span class="self">self</span>.u8()<span class="question-mark">?</span>,
+<a href=#322 id=322 data-nosnippet>322</a>            },
+<a href=#323 id=323 data-nosnippet>323</a>            op::TRACK_POSITION =&gt; Command::TrackPosition {
+<a href=#324 id=324 data-nosnippet>324</a>                track: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#325 id=325 data-nosnippet>325</a>                pos: <span class="self">self</span>.vec3()<span class="question-mark">?</span>,
+<a href=#326 id=326 data-nosnippet>326</a>            },
+<a href=#327 id=327 data-nosnippet>327</a>            op::TRACK_DROP =&gt; Command::TrackDrop { track: <span class="self">self</span>.u32()<span class="question-mark">? </span>},
+<a href=#328 id=328 data-nosnippet>328</a>            code @ (op::PLAY_ON_BUS | op::PLAY_ON_TRACK) =&gt; {
+<a href=#329 id=329 data-nosnippet>329</a>                <span class="kw">let </span>target = <span class="kw">if </span>code == op::PLAY_ON_BUS {
+<a href=#330 id=330 data-nosnippet>330</a>                    Target::Bus(<span class="self">self</span>.u8()<span class="question-mark">?</span>)
+<a href=#331 id=331 data-nosnippet>331</a>                } <span class="kw">else </span>{
+<a href=#332 id=332 data-nosnippet>332</a>                    Target::Track(<span class="self">self</span>.u32()<span class="question-mark">?</span>)
+<a href=#333 id=333 data-nosnippet>333</a>                };
+<a href=#334 id=334 data-nosnippet>334</a>                Command::Play {
+<a href=#335 id=335 data-nosnippet>335</a>                    voice: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#336 id=336 data-nosnippet>336</a>                    sound: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#337 id=337 data-nosnippet>337</a>                    target,
+<a href=#338 id=338 data-nosnippet>338</a>                    db: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#339 id=339 data-nosnippet>339</a>                    rate: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#340 id=340 data-nosnippet>340</a>                    pan: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#341 id=341 data-nosnippet>341</a>                    looping: <span class="self">self</span>.u8()<span class="question-mark">? </span>!= <span class="number">0</span>,
+<a href=#342 id=342 data-nosnippet>342</a>                }
+<a href=#343 id=343 data-nosnippet>343</a>            }
+<a href=#344 id=344 data-nosnippet>344</a>            op::ONE_SHOT =&gt; Command::OneShot {
+<a href=#345 id=345 data-nosnippet>345</a>                sound: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#346 id=346 data-nosnippet>346</a>                pos: <span class="self">self</span>.vec3()<span class="question-mark">?</span>,
+<a href=#347 id=347 data-nosnippet>347</a>                db: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#348 id=348 data-nosnippet>348</a>                rate: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#349 id=349 data-nosnippet>349</a>                min: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#350 id=350 data-nosnippet>350</a>                max: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#351 id=351 data-nosnippet>351</a>                rolloff: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#352 id=352 data-nosnippet>352</a>                bus: <span class="self">self</span>.u8()<span class="question-mark">?</span>,
+<a href=#353 id=353 data-nosnippet>353</a>            },
+<a href=#354 id=354 data-nosnippet>354</a>            op::VOICE_VOLUME =&gt; Command::VoiceVolume {
+<a href=#355 id=355 data-nosnippet>355</a>                voice: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#356 id=356 data-nosnippet>356</a>                db: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#357 id=357 data-nosnippet>357</a>                tween: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#358 id=358 data-nosnippet>358</a>            },
+<a href=#359 id=359 data-nosnippet>359</a>            op::VOICE_RATE =&gt; Command::VoiceRate {
+<a href=#360 id=360 data-nosnippet>360</a>                voice: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#361 id=361 data-nosnippet>361</a>                rate: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#362 id=362 data-nosnippet>362</a>                tween: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#363 id=363 data-nosnippet>363</a>            },
+<a href=#364 id=364 data-nosnippet>364</a>            op::VOICE_STOP =&gt; Command::VoiceStop {
+<a href=#365 id=365 data-nosnippet>365</a>                voice: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#366 id=366 data-nosnippet>366</a>                tween: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#367 id=367 data-nosnippet>367</a>            },
+<a href=#368 id=368 data-nosnippet>368</a>            op::VOICE_DROP =&gt; Command::VoiceDrop { voice: <span class="self">self</span>.u32()<span class="question-mark">? </span>},
+<a href=#369 id=369 data-nosnippet>369</a>            op::VOICE_PANNING =&gt; Command::VoicePanning {
+<a href=#370 id=370 data-nosnippet>370</a>                voice: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#371 id=371 data-nosnippet>371</a>                pan: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#372 id=372 data-nosnippet>372</a>                tween: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#373 id=373 data-nosnippet>373</a>            },
+<a href=#374 id=374 data-nosnippet>374</a>            op::VOICE_PAUSE =&gt; Command::VoicePause {
+<a href=#375 id=375 data-nosnippet>375</a>                voice: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#376 id=376 data-nosnippet>376</a>                tween: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#377 id=377 data-nosnippet>377</a>            },
+<a href=#378 id=378 data-nosnippet>378</a>            op::VOICE_RESUME =&gt; Command::VoiceResume {
+<a href=#379 id=379 data-nosnippet>379</a>                voice: <span class="self">self</span>.u32()<span class="question-mark">?</span>,
+<a href=#380 id=380 data-nosnippet>380</a>                tween: <span class="self">self</span>.f32()<span class="question-mark">?</span>,
+<a href=#381 id=381 data-nosnippet>381</a>            },
+<a href=#382 id=382 data-nosnippet>382</a>            op::CLEAR_ONE_SHOTS =&gt; Command::ClearOneShots,
+<a href=#383 id=383 data-nosnippet>383</a>            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+<a href=#384 id=384 data-nosnippet>384</a>        })
+<a href=#385 id=385 data-nosnippet>385</a>    }
+<a href=#386 id=386 data-nosnippet>386</a>}
+<a href=#387 id=387 data-nosnippet>387</a>
+<a href=#388 id=388 data-nosnippet>388</a><span class="kw">impl </span>Iterator <span class="kw">for </span>Reader&lt;<span class="lifetime">'_</span>&gt; {
+<a href=#389 id=389 data-nosnippet>389</a>    <span class="kw">type </span>Item = Command;
+<a href=#390 id=390 data-nosnippet>390</a>
+<a href=#391 id=391 data-nosnippet>391</a>    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Command&gt; {
+<a href=#392 id=392 data-nosnippet>392</a>        <span class="kw">if </span><span class="self">self</span>.at &gt;= <span class="self">self</span>.bytes.len() || <span class="self">self</span>.error.is_some() {
+<a href=#393 id=393 data-nosnippet>393</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#394 id=394 data-nosnippet>394</a>        }
+<a href=#395 id=395 data-nosnippet>395</a>        <span class="kw">let </span>start = <span class="self">self</span>.at;
+<a href=#396 id=396 data-nosnippet>396</a>        <span class="kw">let </span>command = <span class="self">self</span>.command();
+<a href=#397 id=397 data-nosnippet>397</a>        <span class="kw">if </span>command.is_none() {
+<a href=#398 id=398 data-nosnippet>398</a>            <span class="self">self</span>.error = <span class="prelude-val">Some</span>(start);
+<a href=#399 id=399 data-nosnippet>399</a>        }
+<a href=#400 id=400 data-nosnippet>400</a>        command
+<a href=#401 id=401 data-nosnippet>401</a>    }
+<a href=#402 id=402 data-nosnippet>402</a>}
+<a href=#403 id=403 data-nosnippet>403</a>
+<a href=#404 id=404 data-nosnippet>404</a><span class="attr">#[cfg(test)]
+<a href=#405 id=405 data-nosnippet>405</a></span><span class="kw">mod </span>tests {
+<a href=#406 id=406 data-nosnippet>406</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#407 id=407 data-nosnippet>407</a>
+<a href=#408 id=408 data-nosnippet>408</a>    <span class="kw">fn </span>every_command() -&gt; Vec&lt;Command&gt; {
+<a href=#409 id=409 data-nosnippet>409</a>        <span class="macro">vec!</span>[
+<a href=#410 id=410 data-nosnippet>410</a>            Command::FilterCutoff {
+<a href=#411 id=411 data-nosnippet>411</a>                hz: <span class="number">800.0</span>,
+<a href=#412 id=412 data-nosnippet>412</a>                tween: <span class="number">0.016</span>,
+<a href=#413 id=413 data-nosnippet>413</a>            },
+<a href=#414 id=414 data-nosnippet>414</a>            Command::BusVolume {
+<a href=#415 id=415 data-nosnippet>415</a>                bus: BUS_MUSIC,
+<a href=#416 id=416 data-nosnippet>416</a>                db: -<span class="number">6.0</span>,
+<a href=#417 id=417 data-nosnippet>417</a>                tween: <span class="number">0.016</span>,
+<a href=#418 id=418 data-nosnippet>418</a>            },
+<a href=#419 id=419 data-nosnippet>419</a>            Command::Listener {
+<a href=#420 id=420 data-nosnippet>420</a>                pos: [<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>],
+<a href=#421 id=421 data-nosnippet>421</a>                quat: [<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>],
+<a href=#422 id=422 data-nosnippet>422</a>            },
+<a href=#423 id=423 data-nosnippet>423</a>            Command::TrackNew {
+<a href=#424 id=424 data-nosnippet>424</a>                track: <span class="number">7</span>,
+<a href=#425 id=425 data-nosnippet>425</a>                pos: [-<span class="number">5.0</span>, <span class="number">1.0</span>, -<span class="number">3.0</span>],
+<a href=#426 id=426 data-nosnippet>426</a>                min: <span class="number">1.0</span>,
+<a href=#427 id=427 data-nosnippet>427</a>                max: <span class="number">25.0</span>,
+<a href=#428 id=428 data-nosnippet>428</a>                rolloff: <span class="number">2.0</span>,
+<a href=#429 id=429 data-nosnippet>429</a>                bus: BUS_SFX,
+<a href=#430 id=430 data-nosnippet>430</a>            },
+<a href=#431 id=431 data-nosnippet>431</a>            Command::TrackPosition {
+<a href=#432 id=432 data-nosnippet>432</a>                track: <span class="number">7</span>,
+<a href=#433 id=433 data-nosnippet>433</a>                pos: [<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.5</span>],
+<a href=#434 id=434 data-nosnippet>434</a>            },
+<a href=#435 id=435 data-nosnippet>435</a>            Command::Play {
+<a href=#436 id=436 data-nosnippet>436</a>                voice: <span class="number">3</span>,
+<a href=#437 id=437 data-nosnippet>437</a>                sound: <span class="number">1</span>,
+<a href=#438 id=438 data-nosnippet>438</a>                target: Target::Track(<span class="number">7</span>),
+<a href=#439 id=439 data-nosnippet>439</a>                db: -<span class="number">1.5</span>,
+<a href=#440 id=440 data-nosnippet>440</a>                rate: <span class="number">1.25</span>,
+<a href=#441 id=441 data-nosnippet>441</a>                pan: <span class="number">0.0</span>,
+<a href=#442 id=442 data-nosnippet>442</a>                looping: <span class="bool-val">true</span>,
+<a href=#443 id=443 data-nosnippet>443</a>            },
+<a href=#444 id=444 data-nosnippet>444</a>            Command::Play {
+<a href=#445 id=445 data-nosnippet>445</a>                voice: <span class="number">4</span>,
+<a href=#446 id=446 data-nosnippet>446</a>                sound: <span class="number">2</span>,
+<a href=#447 id=447 data-nosnippet>447</a>                target: Target::Bus(BUS_MUSIC),
+<a href=#448 id=448 data-nosnippet>448</a>                db: <span class="number">0.0</span>,
+<a href=#449 id=449 data-nosnippet>449</a>                rate: <span class="number">1.0</span>,
+<a href=#450 id=450 data-nosnippet>450</a>                pan: -<span class="number">0.4</span>,
+<a href=#451 id=451 data-nosnippet>451</a>                looping: <span class="bool-val">false</span>,
+<a href=#452 id=452 data-nosnippet>452</a>            },
+<a href=#453 id=453 data-nosnippet>453</a>            Command::VoicePanning {
+<a href=#454 id=454 data-nosnippet>454</a>                voice: <span class="number">4</span>,
+<a href=#455 id=455 data-nosnippet>455</a>                pan: <span class="number">0.7</span>,
+<a href=#456 id=456 data-nosnippet>456</a>                tween: <span class="number">0.016</span>,
+<a href=#457 id=457 data-nosnippet>457</a>            },
+<a href=#458 id=458 data-nosnippet>458</a>            Command::VoicePause {
+<a href=#459 id=459 data-nosnippet>459</a>                voice: <span class="number">3</span>,
+<a href=#460 id=460 data-nosnippet>460</a>                tween: <span class="number">0.1</span>,
+<a href=#461 id=461 data-nosnippet>461</a>            },
+<a href=#462 id=462 data-nosnippet>462</a>            Command::VoiceResume {
+<a href=#463 id=463 data-nosnippet>463</a>                voice: <span class="number">3</span>,
+<a href=#464 id=464 data-nosnippet>464</a>                tween: <span class="number">0.1</span>,
+<a href=#465 id=465 data-nosnippet>465</a>            },
+<a href=#466 id=466 data-nosnippet>466</a>            Command::OneShot {
+<a href=#467 id=467 data-nosnippet>467</a>                sound: <span class="number">2</span>,
+<a href=#468 id=468 data-nosnippet>468</a>                pos: [<span class="number">9.0</span>, <span class="number">0.0</span>, <span class="number">9.0</span>],
+<a href=#469 id=469 data-nosnippet>469</a>                db: -<span class="number">3.0</span>,
+<a href=#470 id=470 data-nosnippet>470</a>                rate: <span class="number">0.9</span>,
+<a href=#471 id=471 data-nosnippet>471</a>                min: <span class="number">2.0</span>,
+<a href=#472 id=472 data-nosnippet>472</a>                max: <span class="number">80.0</span>,
+<a href=#473 id=473 data-nosnippet>473</a>                rolloff: <span class="number">0.6</span>,
+<a href=#474 id=474 data-nosnippet>474</a>                bus: BUS_SFX,
+<a href=#475 id=475 data-nosnippet>475</a>            },
+<a href=#476 id=476 data-nosnippet>476</a>            Command::VoiceVolume {
+<a href=#477 id=477 data-nosnippet>477</a>                voice: <span class="number">3</span>,
+<a href=#478 id=478 data-nosnippet>478</a>                db: -<span class="number">60.0</span>,
+<a href=#479 id=479 data-nosnippet>479</a>                tween: <span class="number">5.0</span>,
+<a href=#480 id=480 data-nosnippet>480</a>            },
+<a href=#481 id=481 data-nosnippet>481</a>            Command::VoiceRate {
+<a href=#482 id=482 data-nosnippet>482</a>                voice: <span class="number">3</span>,
+<a href=#483 id=483 data-nosnippet>483</a>                rate: <span class="number">0.5</span>,
+<a href=#484 id=484 data-nosnippet>484</a>                tween: <span class="number">0.016</span>,
+<a href=#485 id=485 data-nosnippet>485</a>            },
+<a href=#486 id=486 data-nosnippet>486</a>            Command::VoiceStop {
+<a href=#487 id=487 data-nosnippet>487</a>                voice: <span class="number">4</span>,
+<a href=#488 id=488 data-nosnippet>488</a>                tween: <span class="number">0.016</span>,
+<a href=#489 id=489 data-nosnippet>489</a>            },
+<a href=#490 id=490 data-nosnippet>490</a>            Command::VoiceDrop { voice: <span class="number">4 </span>},
+<a href=#491 id=491 data-nosnippet>491</a>            Command::TrackDrop { track: <span class="number">7 </span>},
+<a href=#492 id=492 data-nosnippet>492</a>            Command::ClearOneShots,
+<a href=#493 id=493 data-nosnippet>493</a>        ]
+<a href=#494 id=494 data-nosnippet>494</a>    }
+<a href=#495 id=495 data-nosnippet>495</a>
+<a href=#496 id=496 data-nosnippet>496</a>    <span class="attr">#[test]
+<a href=#497 id=497 data-nosnippet>497</a>    </span><span class="kw">fn </span>a_batch_reads_back_as_written() {
+<a href=#498 id=498 data-nosnippet>498</a>        <span class="kw">let </span>commands = every_command();
+<a href=#499 id=499 data-nosnippet>499</a>        <span class="kw">let </span><span class="kw-2">mut </span>bytes = Vec::new();
+<a href=#500 id=500 data-nosnippet>500</a>        <span class="kw">for </span>c <span class="kw">in </span><span class="kw-2">&amp;</span>commands {
+<a href=#501 id=501 data-nosnippet>501</a>            c.encode(<span class="kw-2">&amp;mut </span>bytes);
+<a href=#502 id=502 data-nosnippet>502</a>        }
+<a href=#503 id=503 data-nosnippet>503</a>        <span class="kw">let </span><span class="kw-2">mut </span>reader = Reader::new(<span class="kw-2">&amp;</span>bytes);
+<a href=#504 id=504 data-nosnippet>504</a>        <span class="kw">let </span>read: Vec&lt;Command&gt; = reader.by_ref().collect();
+<a href=#505 id=505 data-nosnippet>505</a>        <span class="macro">assert_eq!</span>(read, commands);
+<a href=#506 id=506 data-nosnippet>506</a>        <span class="macro">assert_eq!</span>(reader.error, <span class="prelude-val">None</span>);
+<a href=#507 id=507 data-nosnippet>507</a>    }
+<a href=#508 id=508 data-nosnippet>508</a>
+<a href=#509 id=509 data-nosnippet>509</a>    <span class="attr">#[test]
+<a href=#510 id=510 data-nosnippet>510</a>    </span><span class="kw">fn </span>a_cut_or_unknown_command_stops_the_batch_where_it_starts() {
+<a href=#511 id=511 data-nosnippet>511</a>        <span class="kw">let </span><span class="kw-2">mut </span>bytes = Vec::new();
+<a href=#512 id=512 data-nosnippet>512</a>        Command::ClearOneShots.encode(<span class="kw-2">&amp;mut </span>bytes);
+<a href=#513 id=513 data-nosnippet>513</a>        <span class="kw">let </span>good = bytes.len();
+<a href=#514 id=514 data-nosnippet>514</a>        Command::TrackDrop { track: <span class="number">1 </span>}.encode(<span class="kw-2">&amp;mut </span>bytes);
+<a href=#515 id=515 data-nosnippet>515</a>        bytes.pop();
+<a href=#516 id=516 data-nosnippet>516</a>        <span class="kw">let </span><span class="kw-2">mut </span>reader = Reader::new(<span class="kw-2">&amp;</span>bytes);
+<a href=#517 id=517 data-nosnippet>517</a>        <span class="macro">assert_eq!</span>(reader.by_ref().count(), <span class="number">1</span>);
+<a href=#518 id=518 data-nosnippet>518</a>        <span class="macro">assert_eq!</span>(reader.error, <span class="prelude-val">Some</span>(good));
+<a href=#519 id=519 data-nosnippet>519</a>
+<a href=#520 id=520 data-nosnippet>520</a>        <span class="kw">let </span><span class="kw-2">mut </span>reader = Reader::new(<span class="kw-2">&amp;</span>[<span class="number">200</span>, <span class="number">1</span>, <span class="number">2</span>]);
+<a href=#521 id=521 data-nosnippet>521</a>        <span class="macro">assert_eq!</span>(reader.by_ref().count(), <span class="number">0</span>);
+<a href=#522 id=522 data-nosnippet>522</a>        <span class="macro">assert_eq!</span>(reader.error, <span class="prelude-val">Some</span>(<span class="number">0</span>));
+<a href=#523 id=523 data-nosnippet>523</a>    }
+<a href=#524 id=524 data-nosnippet>524</a>}
+</code></pre></div></section></main></body></html>

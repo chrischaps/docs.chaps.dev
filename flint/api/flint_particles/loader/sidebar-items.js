@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EFFECT_SUFFIX"],"fn":["effect_stem","load_effect_from_file","load_effect_from_str","load_effects_from_dir","load_particle_effects_from_world","resolve_particles_dir","texture_search_dirs"]};

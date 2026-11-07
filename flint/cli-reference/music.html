@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -294,6 +294,7 @@ flint replay-chart music/prototype.suite.toml --chart music/prototype.chart.toml
 </table>
 </div>
 <h2 id="flint-render-suite"><a class="header" href="#flint-render-suite"><code>flint render-suite</code></a></h2>
+<p>Given a <code>*.goldens.toml</code> instead of a suite manifest, <code>render-suite</code> gates scenes against golden PNGs; see <a href="../guides/headless-rendering.html#golden-suites">Golden Suites</a>.</p>
 <p>Render a scripted suite session to a 32-bit float stereo WAV, offline and deterministic. The event script schedules bus gain, low-pass and detune changes on bars or beats, so a whole arrangement can be auditioned or diffed without playing it.</p>
 <pre><code class="language-bash">flint render-suite music/prototype.suite.toml --script music/intro.events.toml -o out/intro.wav
 flint render-suite music/prototype.suite.toml -o out/full.wav --duration-bars 32 --status-every beat
@@ -305,7 +306,7 @@ flint render-suite music/prototype.suite.toml -o out/full.wav --duration-bars 32
 </thead>
 <tbody>
 <tr><td><code>&lt;manifest&gt;</code></td><td>(required)</td><td>Path to the suite manifest</td></tr>
-<tr><td><code>-o</code>, <code>--output &lt;path&gt;</code></td><td>(required)</td><td>Output WAV path</td></tr>
+<tr><td><code>-o</code>, <code>--output &lt;path&gt;</code></td><td>(required for music)</td><td>Output WAV path</td></tr>
 <tr><td><code>--script &lt;path&gt;</code></td><td>(none)</td><td>Event script (<code>*.events.toml</code>) of scheduled bus changes and markers</td></tr>
 <tr><td><code>--base-dir &lt;path&gt;</code></td><td>cwd</td><td>Manifest path root</td></tr>
 <tr><td><code>--duration-bars &lt;n&gt;</code></td><td>length of the longest stem</td><td>Render this many bars. Conflicts with <code>--duration-seconds</code></td></tr>

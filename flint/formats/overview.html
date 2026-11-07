@@ -36,10 +36,10 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-e4bb8486.js";
+            window.path_to_searchindex_js = "../searchindex-2aaf7d12.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-c3ee08a0.js"></script>
+        <script src="../toc-82612fbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -306,6 +306,11 @@ fxaa = false
 <tr><td><code>fog_height_enabled</code></td><td>bool</td><td><code>false</code></td><td>Height-based fog</td></tr>
 <tr><td><code>fog_height_falloff</code></td><td>f32</td><td><code>0.1</code></td><td>How quickly height fog thins with altitude</td></tr>
 <tr><td><code>fog_height_origin</code></td><td>f32</td><td><code>0.0</code></td><td>World Y where height fog is densest</td></tr>
+<tr><td><code>fog_height_density</code></td><td>f32</td><td><code>0.0</code></td><td>Height fog’s density at its origin; 0 adds none (ADR 0101)</td></tr>
+<tr><td><code>fog_tint_color</code></td><td><code>[f32; 3]</code></td><td><code>[0.42, 0.50, 0.65]</code></td><td>Aerial tint colour (ADR 0101)</td></tr>
+<tr><td><code>fog_tint_strength</code></td><td>f32</td><td><code>0.0</code></td><td>How much tint the farthest things take; 0 is off</td></tr>
+<tr><td><code>fog_tint_start</code></td><td>f32</td><td><code>100.0</code></td><td>Distance at which the tint comes in</td></tr>
+<tr><td><code>fog_tint_end</code></td><td>f32</td><td><code>1000.0</code></td><td>Distance at which it reaches full strength</td></tr>
 <tr><td><code>dither_enabled</code></td><td>bool</td><td><code>false</code></td><td>Ordered dither</td></tr>
 <tr><td><code>dither_intensity</code></td><td>f32</td><td><code>0.03</code></td><td>Dither strength</td></tr>
 <tr><td><code>volumetric_enabled</code></td><td>bool</td><td><code>false</code></td><td>Volumetric light (god rays)</td></tr>
@@ -441,6 +446,36 @@ name = "done"                      # Delivered to on_sequence_cue(sequence, cue)
 </tbody>
 </table>
 </div>
+<h2 id="particle-effects-particlesparticlestoml"><a class="header" href="#particle-effects-particlesparticlestoml">Particle Effects (<code>particles/*.particles.toml</code>)</a></h2>
+<p>A named, reusable particle effect: one or more emitters simulated together, with multi-key curves, forces, a burst timeline and sub-emitters. The player and viewer load every effect in the scene’s <code>particles/</code> directory (or <code>../particles/</code>); scenes reference one with a <code>particle_effect</code> component, scripts with <code>play_effect(name, x, y, z)</code>, and <code>flint edit fx.particles.toml</code> edits it. See <a href="../concepts/particles.html">Particles</a>.</p>
+<pre><code class="language-toml">name = "campfire"                  # defaults to the file stem
+seed = 7                           # base RNG seed (0 = per entity)
+
+[[emitters]]
+name = "flames"                    # required, unique within the effect
+emission_rate = 40.0
+lifetime = [0.3, 0.8]              # scalar or [min, max]
+speed = [1.5, 3.0]
+blend_mode = "additive"            # alpha | additive | premultiplied | multiply
+size = { keys = [ { t = 0.0, v = [0.12, 0.12] }, { t = 1.0, v = [0.02, 0.02] } ], interp = "smooth" }
+color = { start = [1.0, 0.7, 0.1, 0.9], end = [0.4, 0.0, 0.0, 0.0] }
+
+[emitters.shape]
+kind = "cone"                      # point | sphere | cone | box
+radius = 0.15
+angle = 10.0
+
+[[emitters.forces]]
+kind = "noise"                     # wind | drag | noise | vortex | attractor
+strength = 1.2
+
+[[emitters.bursts]]
+time = 0.0
+count = [3, 6]
+cycles = 0                         # 0 = repeat forever
+interval = 1.5
+</code></pre>
+<p>Unknown emitter keys are a load error. <code>on_death = { emitter = "puff", count = 1 }</code> spawns into a sibling emitter when a particle dies; <code>on_birth</code> does the same at spawn.</p>
 <h2 id="asset-sidecars-assetsassettoml"><a class="header" href="#asset-sidecars-assetsassettoml">Asset Sidecars (<code>assets/**/*.asset.toml</code>)</a></h2>
 <p>Metadata files stored alongside imported assets in the catalog.</p>
 <pre><code class="language-toml">[asset]
@@ -614,7 +649,7 @@ fn on_interact() {
     play_sound("door_open");
 }
 <span class="boring">}</span></code></pre>
-<h2 id="input-configuration-configinputtoml-flintinput_game_idtoml"><a class="header" href="#input-configuration-configinputtoml-flintinput_game_idtoml">Input Configuration (<code>config/input.toml</code>, <code>~/.flint/input_{game_id}.toml</code>)</a></h2>
+<h2 id="input-configuration-configinputtoml-configflintinput_game_idtoml"><a class="header" href="#input-configuration-configinputtoml-configflintinput_game_idtoml">Input Configuration (<code>config/input.toml</code>, <code>&lt;config&gt;/flint/input_{game_id}.toml</code>)</a></h2>
 <p>Define action-to-binding mappings for keyboard, mouse, and gamepad input. Loaded with layered precedence: engine defaults → game config → user overrides → CLI override.</p>
 <pre><code class="language-toml">version = 1
 game_id = "doom_fps"

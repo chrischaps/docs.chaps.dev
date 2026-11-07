@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["ParticleDrawData","ParticleSync"]};
+window.SIDEBAR_ITEMS = {"constant":["DEFAULT_BUDGET"],"enum":["EffectSource","InstanceKey"],"fn":["decompose","fingerprint_table","fnv1a","mix_seed"],"struct":["EffectInstance","ParticleDrawData","ParticleSync"]};

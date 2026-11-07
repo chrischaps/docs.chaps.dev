@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["dynamic_to_toml","register_all","toml_to_dynamic"]};
+window.SIDEBAR_ITEMS = {"fn":["dynamic_to_toml","project_root_for","register_all","toml_to_dynamic"]};

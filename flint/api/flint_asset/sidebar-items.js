@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AssetRef","AssetType","ResolutionStrategy","ResolveResult"],"struct":["AssetCatalog","AssetFile","AssetMeta","AssetResolver","ContentStore"]};
+window.SIDEBAR_ITEMS = {"enum":["AssetRef","AssetType","ResolutionStrategy","ResolveResult"],"mod":["project"],"struct":["AssetCatalog","AssetFile","AssetMeta","AssetResolver","ContentStore"]};

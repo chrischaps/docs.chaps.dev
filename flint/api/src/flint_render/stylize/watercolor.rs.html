@@ -1,0 +1,549 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\flint-render\src\stylize\watercolor.rs`."><title>watercolor.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-0c87338a.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="flint_render" data-themes="" data-resource-suffix="" data-rustdoc-version="1.99.1 (58cf8f9c3 2026-10-13)" data-channel="1.99.1" data-search-js="search-cf4fc35e.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><style>
+    /* Flint rustdoc theme overrides - match the mdBook dark theme */
+    :root {
+        --flint-ember: #E8913A;
+        --flint-ember-glow: #F0A050;
+        --flint-bg: #1a1a1a;
+        --flint-bg-deep: #141414;
+        --flint-border: #333333;
+    }
+
+    /* Navigation bar linking back to guide */
+    #flint-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--flint-bg-deep);
+        border-bottom: 1px solid var(--flint-border);
+        padding: 0.5em 1.2em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    #flint-nav a {
+        color: var(--flint-ember);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    #flint-nav a:hover {
+        color: var(--flint-ember-glow);
+    }
+
+    #flint-nav .flint-nav-title {
+        font-weight: 700;
+        color: #e8e8e8;
+    }
+
+    #flint-nav .flint-nav-sep {
+        color: #555;
+    }
+
+    /* Override rustdoc dark theme colors */
+    body.rustdoc {
+        background-color: var(--flint-bg) !important;
+    }
+
+    /* Accent color overrides for links */
+    .rustdoc a {
+        color: var(--flint-ember) !important;
+    }
+
+    .rustdoc a:hover {
+        color: var(--flint-ember-glow) !important;
+    }
+
+    /* Code blocks left border */
+    .rustdoc pre {
+        border-left: 3px solid var(--flint-ember);
+    }
+
+    /* Sidebar active item */
+    .rustdoc .sidebar a.current {
+        color: var(--flint-ember) !important;
+    }
+</style>
+<div id="flint-nav">
+    <a href="/flint/" class="flint-nav-title">Flint Engine</a>
+    <span class="flint-nav-sep">/</span>
+    <a href="/flint/">Guide</a>
+    <span class="flint-nav-sep">/</span>
+    <span style="color: #999;">API Reference</span>
+</div>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">flint_render\stylize/</div>watercolor.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Watercolor (#272): the picture as transparent pigment on paper. Colour
+<a href=#2 id=2 data-nosnippet>2</a>//! bleeds into soft washes, their borders wobble, pigment pools darker
+<a href=#3 id=3 data-nosnippet>3</a>//! along the edges of each wash and settles into the paper's grain.
+<a href=#4 id=4 data-nosnippet>4</a>//!
+<a href=#5 id=5 data-nosnippet>5</a>//! ```toml
+<a href=#6 id=6 data-nosnippet>6</a>//! [post_process.styles.watercolor]
+<a href=#7 id=7 data-nosnippet>7</a>//! wash = 4.0          # how far pigment diffuses, in points (the blur radius)
+<a href=#8 id=8 data-nosnippet>8</a>//! bleed = 0.55        # how much of the colour is the diffused wash
+<a href=#9 id=9 data-nosnippet>9</a>//! wobble = 2.0        # how far wash borders wander, in points
+<a href=#10 id=10 data-nosnippet>10</a>//! wobble_scale = 40   # the wander's wavelength, in points
+<a href=#11 id=11 data-nosnippet>11</a>//! edge = 1.0          # pigment pooling where colour changes (edge darkening)
+<a href=#12 id=12 data-nosnippet>12</a>//! edge_depth = 0.8    # pooling along silhouettes, from depth
+<a href=#13 id=13 data-nosnippet>13</a>//! edge_width = 1.5    # how wide the pooled rim is, in points
+<a href=#14 id=14 data-nosnippet>14</a>//! turbulence = 0.35   # low-frequency blotches of thicker and thinner pigment
+<a href=#15 id=15 data-nosnippet>15</a>//! granulation = 0.5   # pigment settling into the paper's valleys
+<a href=#16 id=16 data-nosnippet>16</a>//! grain = 0.35        # the paper's own relief, shading even bare paper
+<a href=#17 id=17 data-nosnippet>17</a>//! grain_scale = 1.0   # the paper's tooth (bigger = coarser)
+<a href=#18 id=18 data-nosnippet>18</a>//! pigment = 1.0       # overall density: &lt; 1 dilutes, &gt; 1 deepens
+<a href=#19 id=19 data-nosnippet>19</a>//! layers = 4          # glazes: tone steps, each edged darker (0 = smooth)
+<a href=#20 id=20 data-nosnippet>20</a>//! paper_r = 0.97      # the paper's colour (a component's `paper = [r, g, b]`)
+<a href=#21 id=21 data-nosnippet>21</a>//! scope = "screen"    # or "entities": a preset for watercolor_style entities
+<a href=#22 id=22 data-nosnippet>22</a>//! ```
+<a href=#23 id=23 data-nosnippet>23</a>//!
+<a href=#24 id=24 data-nosnippet>24</a>//! It runs at the display stage, on display-referred colour, because it
+<a href=#25 id=25 data-nosnippet>25</a>//! paints on paper: the paper and its grain must not be fogged, bloomed or
+<a href=#26 id=26 data-nosnippet>26</a>//! tonemapped as if they were in the world. Three passes: the wash (a
+<a href=#27 id=27 data-nosnippet>27</a>//! separable Gaussian of the picture, horizontal then vertical, in two
+<a href=#28 id=28 data-nosnippet>28</a>//! targets of its own), then the paint pass, which wobbles where it reads
+<a href=#29 id=29 data-nosnippet>29</a>//! the picture, the wash and the mask, mixes the wash in, darkens pigment
+<a href=#30 id=30 data-nosnippet>30</a>//! at colour and depth edges, modulates its density with turbulence and
+<a href=#31 id=31 data-nosnippet>31</a>//! granulation (Bousseau et al.'s `C - (C - C^2)(d - 1)`), and lays the
+<a href=#32 id=32 data-nosnippet>32</a>//! result on the paper.
+<a href=#33 id=33 data-nosnippet>33</a>//!
+<a href=#34 id=34 data-nosnippet>34</a>//! The paper lives in screen space, in points, so its grain stays put as
+<a href=#35 id=35 data-nosnippet>35</a>//! the camera moves (the paper doesn't travel with the world), and the
+<a href=#36 id=36 data-nosnippet>36</a>//! same size to the eye on a high-DPI screen.
+<a href=#37 id=37 data-nosnippet>37</a>//!
+<a href=#38 id=38 data-nosnippet>38</a>//! ## Per entity
+<a href=#39 id=39 data-nosnippet>39</a>//!
+<a href=#40 id=40 data-nosnippet>40</a>//! An entity with a `watercolor_style` component (or a `style_mask` naming
+<a href=#41 id=41 data-nosnippet>41</a>//! `watercolor`) is painted with no table at all, the rest of the frame
+<a href=#42 id=42 data-nosnippet>42</a>//! passing through, exactly as ASCII does it (#266); `scope = "entities"`
+<a href=#43 id=43 data-nosnippet>43</a>//! keeps a table as their preset. The mask is read at the wobbled position,
+<a href=#44 id=44 data-nosnippet>44</a>//! so a painted entity's silhouette wanders out over its surroundings like
+<a href=#45 id=45 data-nosnippet>45</a>//! a real wash's. The wash radius is one per frame, the largest any row
+<a href=#46 id=46 data-nosnippet>46</a>//! asks for; every other setting is per entity.
+<a href=#47 id=47 data-nosnippet>47</a>//!
+<a href=#48 id=48 data-nosnippet>48</a>//! ## With Kuwahara
+<a href=#49 id=49 data-nosnippet>49</a>//!
+<a href=#50 id=50 data-nosnippet>50</a>//! They chain: Kuwahara runs at the HDR stage and flattens the scene into
+<a href=#51 id=51 data-nosnippet>51</a>//! brush pools, watercolor then paints those pools on paper. Neither needs
+<a href=#52 id=52 data-nosnippet>52</a>//! the other, and they share nothing (Kuwahara's structure tensor is an
+<a href=#53 id=53 data-nosnippet>53</a>//! HDR-stage intermediate; the wash is the only smoothing watercolor does).
+<a href=#54 id=54 data-nosnippet>54</a>
+<a href=#55 id=55 data-nosnippet>55</a></span><span class="kw">use </span><span class="kw">super</span>::kit;
+<a href=#56 id=56 data-nosnippet>56</a><span class="kw">use super</span>::{
+<a href=#57 id=57 data-nosnippet>57</a>    StyleDescriptor, StyleFrame, StyleHint, StyleInput, StyleOption, StyleParam, StylePass,
+<a href=#58 id=58 data-nosnippet>58</a>    StyleStage,
+<a href=#59 id=59 data-nosnippet>59</a>};
+<a href=#60 id=60 data-nosnippet>60</a><span class="kw">use </span>bytemuck::{Pod, Zeroable};
+<a href=#61 id=61 data-nosnippet>61</a><span class="kw">use </span>std::sync::Arc;
+<a href=#62 id=62 data-nosnippet>62</a>
+<a href=#63 id=63 data-nosnippet>63</a><span class="doccomment">/// Variant rows the uniform holds; row 0 is the scene's.
+<a href=#64 id=64 data-nosnippet>64</a></span><span class="kw">pub const </span>MAX_VARIANTS: usize = <span class="number">16</span>;
+<a href=#65 id=65 data-nosnippet>65</a>
+<a href=#66 id=66 data-nosnippet>66</a><span class="doccomment">/// Mask ids the slot table covers.
+<a href=#67 id=67 data-nosnippet>67</a></span><span class="kw">pub const </span>MAX_IDS: usize = <span class="number">256</span>;
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a><span class="doccomment">/// A row's flag: leave these pixels alone (an opt-out variant).
+<a href=#70 id=70 data-nosnippet>70</a></span><span class="kw">const </span>PASS_THROUGH: u32 = <span class="number">1</span>;
+<a href=#71 id=71 data-nosnippet>71</a>
+<a href=#72 id=72 data-nosnippet>72</a><span class="doccomment">/// The scopes, by their option spelling.
+<a href=#73 id=73 data-nosnippet>73</a></span><span class="kw">pub const </span>SCOPES: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str] = <span class="kw-2">&amp;</span>[<span class="string">"screen"</span>, <span class="string">"entities"</span>];
+<a href=#74 id=74 data-nosnippet>74</a>
+<a href=#75 id=75 data-nosnippet>75</a><span class="doccomment">/// The largest wash radius, in pixels, the blur covers.
+<a href=#76 id=76 data-nosnippet>76</a></span><span class="kw">const </span>MAX_WASH_PX: f32 = <span class="number">48.0</span>;
+<a href=#77 id=77 data-nosnippet>77</a>
+<a href=#78 id=78 data-nosnippet>78</a><span class="kw">const fn </span>param(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, default: f32, min: f32, max: f32) -&gt; StyleParam {
+<a href=#79 id=79 data-nosnippet>79</a>    StyleParam {
+<a href=#80 id=80 data-nosnippet>80</a>        name,
+<a href=#81 id=81 data-nosnippet>81</a>        default,
+<a href=#82 id=82 data-nosnippet>82</a>        min,
+<a href=#83 id=83 data-nosnippet>83</a>        max,
+<a href=#84 id=84 data-nosnippet>84</a>    }
+<a href=#85 id=85 data-nosnippet>85</a>}
+<a href=#86 id=86 data-nosnippet>86</a>
+<a href=#87 id=87 data-nosnippet>87</a><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">static </span>STYLE: StyleDescriptor = StyleDescriptor {
+<a href=#88 id=88 data-nosnippet>88</a>    name: <span class="string">"watercolor"</span>,
+<a href=#89 id=89 data-nosnippet>89</a>    label: <span class="string">"Watercolor"</span>,
+<a href=#90 id=90 data-nosnippet>90</a>    stage: StyleStage::Display,
+<a href=#91 id=91 data-nosnippet>91</a>    params: <span class="kw-2">&amp;</span>[
+<a href=#92 id=92 data-nosnippet>92</a>        param(<span class="string">"wash"</span>, <span class="number">4.0</span>, <span class="number">0.0</span>, <span class="number">16.0</span>),
+<a href=#93 id=93 data-nosnippet>93</a>        param(<span class="string">"bleed"</span>, <span class="number">0.55</span>, <span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#94 id=94 data-nosnippet>94</a>        param(<span class="string">"wobble"</span>, <span class="number">2.0</span>, <span class="number">0.0</span>, <span class="number">8.0</span>),
+<a href=#95 id=95 data-nosnippet>95</a>        param(<span class="string">"wobble_scale"</span>, <span class="number">40.0</span>, <span class="number">8.0</span>, <span class="number">200.0</span>),
+<a href=#96 id=96 data-nosnippet>96</a>        param(<span class="string">"edge"</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">4.0</span>),
+<a href=#97 id=97 data-nosnippet>97</a>        param(<span class="string">"edge_depth"</span>, <span class="number">0.8</span>, <span class="number">0.0</span>, <span class="number">2.0</span>),
+<a href=#98 id=98 data-nosnippet>98</a>        param(<span class="string">"edge_width"</span>, <span class="number">1.5</span>, <span class="number">0.5</span>, <span class="number">6.0</span>),
+<a href=#99 id=99 data-nosnippet>99</a>        param(<span class="string">"turbulence"</span>, <span class="number">0.35</span>, <span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#100 id=100 data-nosnippet>100</a>        param(<span class="string">"granulation"</span>, <span class="number">0.5</span>, <span class="number">0.0</span>, <span class="number">2.0</span>),
+<a href=#101 id=101 data-nosnippet>101</a>        param(<span class="string">"grain"</span>, <span class="number">0.35</span>, <span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#102 id=102 data-nosnippet>102</a>        param(<span class="string">"grain_scale"</span>, <span class="number">1.0</span>, <span class="number">0.25</span>, <span class="number">4.0</span>),
+<a href=#103 id=103 data-nosnippet>103</a>        param(<span class="string">"pigment"</span>, <span class="number">1.0</span>, <span class="number">0.2</span>, <span class="number">2.0</span>),
+<a href=#104 id=104 data-nosnippet>104</a>        param(<span class="string">"layers"</span>, <span class="number">4.0</span>, <span class="number">0.0</span>, <span class="number">12.0</span>),
+<a href=#105 id=105 data-nosnippet>105</a>        param(<span class="string">"paper_r"</span>, <span class="number">0.97</span>, <span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#106 id=106 data-nosnippet>106</a>        param(<span class="string">"paper_g"</span>, <span class="number">0.94</span>, <span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#107 id=107 data-nosnippet>107</a>        param(<span class="string">"paper_b"</span>, <span class="number">0.87</span>, <span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#108 id=108 data-nosnippet>108</a>    ],
+<a href=#109 id=109 data-nosnippet>109</a>    options: <span class="kw-2">&amp;</span>[StyleOption {
+<a href=#110 id=110 data-nosnippet>110</a>        name: <span class="string">"scope"</span>,
+<a href=#111 id=111 data-nosnippet>111</a>        default: <span class="string">"screen"</span>,
+<a href=#112 id=112 data-nosnippet>112</a>        choices: SCOPES,
+<a href=#113 id=113 data-nosnippet>113</a>    }],
+<a href=#114 id=114 data-nosnippet>114</a>    enabled: <span class="prelude-val">None</span>,
+<a href=#115 id=115 data-nosnippet>115</a>    uses_mask: <span class="bool-val">false</span>,
+<a href=#116 id=116 data-nosnippet>116</a>    needs: <span class="kw-2">&amp;</span>[],
+<a href=#117 id=117 data-nosnippet>117</a>    hints: <span class="kw-2">&amp;</span>[
+<a href=#118 id=118 data-nosnippet>118</a>        StyleHint::new(<span class="string">"scope"</span>, <span class="string">"Scope"</span>, <span class="string">"screen: the table paints the whole frame; entities: it is only the preset for watercolor_style entities"</span>),
+<a href=#119 id=119 data-nosnippet>119</a>        StyleHint::new(<span class="string">"wash"</span>, <span class="string">"Wash (pt)"</span>, <span class="string">"How far pigment diffuses, in points; one radius serves the frame, the largest any entity asks for"</span>),
+<a href=#120 id=120 data-nosnippet>120</a>        StyleHint::new(<span class="string">"bleed"</span>, <span class="string">"Bleed"</span>, <span class="string">"How much of the colour is the diffused wash (0 crisp, 1 all wash)"</span>),
+<a href=#121 id=121 data-nosnippet>121</a>        StyleHint::new(<span class="string">"layers"</span>, <span class="string">"Glazes"</span>, <span class="string">"The tone in this many steps, each edged darker where it dried; 0 is one smooth wash"</span>).integer(),
+<a href=#122 id=122 data-nosnippet>122</a>        StyleHint::new(<span class="string">"wobble"</span>, <span class="string">"Wobble (pt)"</span>, <span class="string">"How far borders and silhouettes wander"</span>),
+<a href=#123 id=123 data-nosnippet>123</a>        StyleHint::new(<span class="string">"wobble_scale"</span>, <span class="string">"Wobble wavelength (pt)"</span>, <span class="string">"The wander's wavelength"</span>),
+<a href=#124 id=124 data-nosnippet>124</a>        StyleHint::new(<span class="string">"edge"</span>, <span class="string">"Edge pooling"</span>, <span class="string">"Pigment pooled darker at colour edges and glaze borders"</span>),
+<a href=#125 id=125 data-nosnippet>125</a>        StyleHint::new(<span class="string">"edge_depth"</span>, <span class="string">"Silhouette pooling"</span>, <span class="string">"Pigment pooled on the near side of silhouettes, from depth"</span>),
+<a href=#126 id=126 data-nosnippet>126</a>        StyleHint::new(<span class="string">"edge_width"</span>, <span class="string">"Silhouette rim (pt)"</span>, <span class="string">"How wide that rim is"</span>),
+<a href=#127 id=127 data-nosnippet>127</a>        StyleHint::new(<span class="string">"turbulence"</span>, <span class="string">"Turbulence"</span>, <span class="string">"Low-frequency blotches of thicker and thinner pigment"</span>),
+<a href=#128 id=128 data-nosnippet>128</a>        StyleHint::new(<span class="string">"granulation"</span>, <span class="string">"Granulation"</span>, <span class="string">"Pigment settling into the paper's valleys, strongest in dark washes"</span>),
+<a href=#129 id=129 data-nosnippet>129</a>        StyleHint::new(<span class="string">"grain"</span>, <span class="string">"Paper relief"</span>, <span class="string">"The paper's relief, shading even bare paper"</span>),
+<a href=#130 id=130 data-nosnippet>130</a>        StyleHint::new(<span class="string">"grain_scale"</span>, <span class="string">"Paper tooth"</span>, <span class="string">"Bigger is coarser"</span>),
+<a href=#131 id=131 data-nosnippet>131</a>        StyleHint::new(<span class="string">"pigment"</span>, <span class="string">"Pigment"</span>, <span class="string">"Overall density: below 1 dilutes, above 1 deepens"</span>),
+<a href=#132 id=132 data-nosnippet>132</a>        StyleHint::new(<span class="string">"paper"</span>, <span class="string">"Paper"</span>, <span class="string">"The paper's colour"</span>),
+<a href=#133 id=133 data-nosnippet>133</a>    ],
+<a href=#134 id=134 data-nosnippet>134</a>    component: <span class="prelude-val">Some</span>(<span class="string">"watercolor_style"</span>),
+<a href=#135 id=135 data-nosnippet>135</a>    create: |d| Box::new(Watercolor::new(d)),
+<a href=#136 id=136 data-nosnippet>136</a>};
+<a href=#137 id=137 data-nosnippet>137</a>
+<a href=#138 id=138 data-nosnippet>138</a><span class="doccomment">/// One blur direction's uniforms.
+<a href=#139 id=139 data-nosnippet>139</a></span><span class="attr">#[repr(C)]
+<a href=#140 id=140 data-nosnippet>140</a>#[derive(Copy, Clone, Pod, Zeroable)]
+<a href=#141 id=141 data-nosnippet>141</a></span><span class="kw">struct </span>WashUniforms {
+<a href=#142 id=142 data-nosnippet>142</a>    texel: [f32; <span class="number">2</span>],
+<a href=#143 id=143 data-nosnippet>143</a>    dir: [f32; <span class="number">2</span>],
+<a href=#144 id=144 data-nosnippet>144</a>    radius: f32,
+<a href=#145 id=145 data-nosnippet>145</a>    _pad: [f32; <span class="number">3</span>],
+<a href=#146 id=146 data-nosnippet>146</a>}
+<a href=#147 id=147 data-nosnippet>147</a>
+<a href=#148 id=148 data-nosnippet>148</a><span class="doccomment">/// One variant's settings: row 0 the scene's, then one a per-entity set.
+<a href=#149 id=149 data-nosnippet>149</a></span><span class="attr">#[repr(C)]
+<a href=#150 id=150 data-nosnippet>150</a>#[derive(Copy, Clone, Debug, Pod, Zeroable, PartialEq)]
+<a href=#151 id=151 data-nosnippet>151</a></span><span class="kw">struct </span>RowUniform {
+<a href=#152 id=152 data-nosnippet>152</a>    wobble: f32,
+<a href=#153 id=153 data-nosnippet>153</a>    wobble_scale: f32,
+<a href=#154 id=154 data-nosnippet>154</a>    bleed: f32,
+<a href=#155 id=155 data-nosnippet>155</a>    edge: f32,
+<a href=#156 id=156 data-nosnippet>156</a>    edge_depth: f32,
+<a href=#157 id=157 data-nosnippet>157</a>    edge_width: f32,
+<a href=#158 id=158 data-nosnippet>158</a>    turbulence: f32,
+<a href=#159 id=159 data-nosnippet>159</a>    granulation: f32,
+<a href=#160 id=160 data-nosnippet>160</a>    grain: f32,
+<a href=#161 id=161 data-nosnippet>161</a>    grain_scale: f32,
+<a href=#162 id=162 data-nosnippet>162</a>    pigment: f32,
+<a href=#163 id=163 data-nosnippet>163</a>    flags: u32,
+<a href=#164 id=164 data-nosnippet>164</a>    paper: [f32; <span class="number">3</span>],
+<a href=#165 id=165 data-nosnippet>165</a>    layers: f32,
+<a href=#166 id=166 data-nosnippet>166</a>}
+<a href=#167 id=167 data-nosnippet>167</a>
+<a href=#168 id=168 data-nosnippet>168</a><span class="attr">#[repr(C)]
+<a href=#169 id=169 data-nosnippet>169</a>#[derive(Copy, Clone, Pod, Zeroable)]
+<a href=#170 id=170 data-nosnippet>170</a></span><span class="kw">struct </span>PaintUniforms {
+<a href=#171 id=171 data-nosnippet>171</a>    size: [f32; <span class="number">2</span>],
+<a href=#172 id=172 data-nosnippet>172</a>    pixels_per_point: f32,
+<a href=#173 id=173 data-nosnippet>173</a>    srgb: u32,
+<a href=#174 id=174 data-nosnippet>174</a>    <span class="doccomment">/// Rows of `rows` in use.
+<a href=#175 id=175 data-nosnippet>175</a>    </span>row_count: u32,
+<a href=#176 id=176 data-nosnippet>176</a>    <span class="doccomment">/// 1 when the whole frame passes through (only entities asked).
+<a href=#177 id=177 data-nosnippet>177</a>    </span>passthrough: u32,
+<a href=#178 id=178 data-nosnippet>178</a>    near: f32,
+<a href=#179 id=179 data-nosnippet>179</a>    far: f32,
+<a href=#180 id=180 data-nosnippet>180</a>    rows: [RowUniform; MAX_VARIANTS],
+<a href=#181 id=181 data-nosnippet>181</a>    <span class="doccomment">/// The row of each mask id, four ids a vec4.
+<a href=#182 id=182 data-nosnippet>182</a>    </span>slots: [[u32; <span class="number">4</span>]; MAX_IDS / <span class="number">4</span>],
+<a href=#183 id=183 data-nosnippet>183</a>}
+<a href=#184 id=184 data-nosnippet>184</a>
+<a href=#185 id=185 data-nosnippet>185</a><span class="kw">struct </span>Watercolor {
+<a href=#186 id=186 data-nosnippet>186</a>    wash_pipeline: wgpu::RenderPipeline,
+<a href=#187 id=187 data-nosnippet>187</a>    paint_pipeline: wgpu::RenderPipeline,
+<a href=#188 id=188 data-nosnippet>188</a>    uniform_bgl: wgpu::BindGroupLayout,
+<a href=#189 id=189 data-nosnippet>189</a>    sampled_bgl: wgpu::BindGroupLayout,
+<a href=#190 id=190 data-nosnippet>190</a>    entity_bgl: wgpu::BindGroupLayout,
+<a href=#191 id=191 data-nosnippet>191</a>    wash_h: wgpu::Buffer,
+<a href=#192 id=192 data-nosnippet>192</a>    wash_v: wgpu::Buffer,
+<a href=#193 id=193 data-nosnippet>193</a>    uniforms: wgpu::Buffer,
+<a href=#194 id=194 data-nosnippet>194</a>    _no_mask: wgpu::Texture,
+<a href=#195 id=195 data-nosnippet>195</a>    no_mask_view: wgpu::TextureView,
+<a href=#196 id=196 data-nosnippet>196</a>    warned: std::sync::atomic::AtomicBool,
+<a href=#197 id=197 data-nosnippet>197</a>}
+<a href=#198 id=198 data-nosnippet>198</a>
+<a href=#199 id=199 data-nosnippet>199</a><span class="kw">impl </span>Watercolor {
+<a href=#200 id=200 data-nosnippet>200</a>    <span class="kw">fn </span>new(d: <span class="kw-2">&amp;</span><span class="kw">super</span>::StyleDevice) -&gt; <span class="self">Self </span>{
+<a href=#201 id=201 data-nosnippet>201</a>        <span class="kw">let </span>device = d.device;
+<a href=#202 id=202 data-nosnippet>202</a>        <span class="kw">let </span>uniform_bgl = kit::uniform_layout(device, <span class="string">"Watercolor Uniform BGL"</span>);
+<a href=#203 id=203 data-nosnippet>203</a>        <span class="kw">let </span>sampled_bgl = kit::sampled_layout(device, <span class="string">"Watercolor Texture BGL"</span>);
+<a href=#204 id=204 data-nosnippet>204</a>        <span class="comment">// The paint pass's mask and depth
+<a href=#205 id=205 data-nosnippet>205</a>        </span><span class="kw">let </span>entity_bgl = device.create_bind_group_layout(<span class="kw-2">&amp;</span>wgpu::BindGroupLayoutDescriptor {
+<a href=#206 id=206 data-nosnippet>206</a>            label: <span class="prelude-val">Some</span>(<span class="string">"Watercolor Entity BGL"</span>),
+<a href=#207 id=207 data-nosnippet>207</a>            entries: <span class="kw-2">&amp;</span>[
+<a href=#208 id=208 data-nosnippet>208</a>                wgpu::BindGroupLayoutEntry {
+<a href=#209 id=209 data-nosnippet>209</a>                    binding: <span class="number">0</span>,
+<a href=#210 id=210 data-nosnippet>210</a>                    visibility: wgpu::ShaderStages::FRAGMENT,
+<a href=#211 id=211 data-nosnippet>211</a>                    ty: wgpu::BindingType::Texture {
+<a href=#212 id=212 data-nosnippet>212</a>                        sample_type: wgpu::TextureSampleType::Uint,
+<a href=#213 id=213 data-nosnippet>213</a>                        view_dimension: wgpu::TextureViewDimension::D2,
+<a href=#214 id=214 data-nosnippet>214</a>                        multisampled: <span class="bool-val">false</span>,
+<a href=#215 id=215 data-nosnippet>215</a>                    },
+<a href=#216 id=216 data-nosnippet>216</a>                    count: <span class="prelude-val">None</span>,
+<a href=#217 id=217 data-nosnippet>217</a>                },
+<a href=#218 id=218 data-nosnippet>218</a>                wgpu::BindGroupLayoutEntry {
+<a href=#219 id=219 data-nosnippet>219</a>                    binding: <span class="number">1</span>,
+<a href=#220 id=220 data-nosnippet>220</a>                    visibility: wgpu::ShaderStages::FRAGMENT,
+<a href=#221 id=221 data-nosnippet>221</a>                    ty: wgpu::BindingType::Texture {
+<a href=#222 id=222 data-nosnippet>222</a>                        sample_type: wgpu::TextureSampleType::Depth,
+<a href=#223 id=223 data-nosnippet>223</a>                        view_dimension: wgpu::TextureViewDimension::D2,
+<a href=#224 id=224 data-nosnippet>224</a>                        multisampled: <span class="bool-val">false</span>,
+<a href=#225 id=225 data-nosnippet>225</a>                    },
+<a href=#226 id=226 data-nosnippet>226</a>                    count: <span class="prelude-val">None</span>,
+<a href=#227 id=227 data-nosnippet>227</a>                },
+<a href=#228 id=228 data-nosnippet>228</a>            ],
+<a href=#229 id=229 data-nosnippet>229</a>        });
+<a href=#230 id=230 data-nosnippet>230</a>        <span class="kw">let </span>module = kit::shader(device, <span class="string">"Watercolor Shader"</span>, <span class="macro">include_str!</span>(<span class="string">"watercolor.wgsl"</span>));
+<a href=#231 id=231 data-nosnippet>231</a>        <span class="kw">let </span>wash_module = kit::shader(
+<a href=#232 id=232 data-nosnippet>232</a>            device,
+<a href=#233 id=233 data-nosnippet>233</a>            <span class="string">"Watercolor Wash Shader"</span>,
+<a href=#234 id=234 data-nosnippet>234</a>            <span class="macro">include_str!</span>(<span class="string">"watercolor_wash.wgsl"</span>),
+<a href=#235 id=235 data-nosnippet>235</a>        );
+<a href=#236 id=236 data-nosnippet>236</a>        <span class="comment">// A one-texel mask of id 0, bound while no entity asks
+<a href=#237 id=237 data-nosnippet>237</a>        </span><span class="kw">let </span>no_mask = device.create_texture(<span class="kw-2">&amp;</span>wgpu::TextureDescriptor {
+<a href=#238 id=238 data-nosnippet>238</a>            label: <span class="prelude-val">Some</span>(<span class="string">"Watercolor No Mask"</span>),
+<a href=#239 id=239 data-nosnippet>239</a>            size: wgpu::Extent3d {
+<a href=#240 id=240 data-nosnippet>240</a>                width: <span class="number">1</span>,
+<a href=#241 id=241 data-nosnippet>241</a>                height: <span class="number">1</span>,
+<a href=#242 id=242 data-nosnippet>242</a>                depth_or_array_layers: <span class="number">1</span>,
+<a href=#243 id=243 data-nosnippet>243</a>            },
+<a href=#244 id=244 data-nosnippet>244</a>            mip_level_count: <span class="number">1</span>,
+<a href=#245 id=245 data-nosnippet>245</a>            sample_count: <span class="number">1</span>,
+<a href=#246 id=246 data-nosnippet>246</a>            dimension: wgpu::TextureDimension::D2,
+<a href=#247 id=247 data-nosnippet>247</a>            format: <span class="kw">crate</span>::style_mask::STYLE_MASK_FORMAT,
+<a href=#248 id=248 data-nosnippet>248</a>            usage: wgpu::TextureUsages::TEXTURE_BINDING,
+<a href=#249 id=249 data-nosnippet>249</a>            view_formats: <span class="kw-2">&amp;</span>[],
+<a href=#250 id=250 data-nosnippet>250</a>        });
+<a href=#251 id=251 data-nosnippet>251</a>        <span class="kw">let </span>no_mask_view = no_mask.create_view(<span class="kw-2">&amp;</span>Default::default());
+<a href=#252 id=252 data-nosnippet>252</a>        <span class="self">Self </span>{
+<a href=#253 id=253 data-nosnippet>253</a>            wash_pipeline: kit::fullscreen_pipeline(
+<a href=#254 id=254 data-nosnippet>254</a>                device,
+<a href=#255 id=255 data-nosnippet>255</a>                <span class="string">"Watercolor Wash Pipeline"</span>,
+<a href=#256 id=256 data-nosnippet>256</a>                <span class="kw-2">&amp;</span>wash_module,
+<a href=#257 id=257 data-nosnippet>257</a>                <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>uniform_bgl, <span class="kw-2">&amp;</span>sampled_bgl],
+<a href=#258 id=258 data-nosnippet>258</a>                d.format,
+<a href=#259 id=259 data-nosnippet>259</a>            ),
+<a href=#260 id=260 data-nosnippet>260</a>            paint_pipeline: kit::fullscreen_pipeline(
+<a href=#261 id=261 data-nosnippet>261</a>                device,
+<a href=#262 id=262 data-nosnippet>262</a>                <span class="string">"Watercolor Pipeline"</span>,
+<a href=#263 id=263 data-nosnippet>263</a>                <span class="kw-2">&amp;</span>module,
+<a href=#264 id=264 data-nosnippet>264</a>                <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>uniform_bgl, <span class="kw-2">&amp;</span>sampled_bgl, <span class="kw-2">&amp;</span>sampled_bgl, <span class="kw-2">&amp;</span>entity_bgl],
+<a href=#265 id=265 data-nosnippet>265</a>                d.format,
+<a href=#266 id=266 data-nosnippet>266</a>            ),
+<a href=#267 id=267 data-nosnippet>267</a>            wash_h: kit::uniform_buffer::&lt;WashUniforms&gt;(device, <span class="string">"Watercolor Wash H Uniforms"</span>),
+<a href=#268 id=268 data-nosnippet>268</a>            wash_v: kit::uniform_buffer::&lt;WashUniforms&gt;(device, <span class="string">"Watercolor Wash V Uniforms"</span>),
+<a href=#269 id=269 data-nosnippet>269</a>            uniforms: kit::uniform_buffer::&lt;PaintUniforms&gt;(device, <span class="string">"Watercolor Uniforms"</span>),
+<a href=#270 id=270 data-nosnippet>270</a>            uniform_bgl,
+<a href=#271 id=271 data-nosnippet>271</a>            sampled_bgl,
+<a href=#272 id=272 data-nosnippet>272</a>            entity_bgl,
+<a href=#273 id=273 data-nosnippet>273</a>            _no_mask: no_mask,
+<a href=#274 id=274 data-nosnippet>274</a>            no_mask_view,
+<a href=#275 id=275 data-nosnippet>275</a>            warned: Default::default(),
+<a href=#276 id=276 data-nosnippet>276</a>        }
+<a href=#277 id=277 data-nosnippet>277</a>    }
+<a href=#278 id=278 data-nosnippet>278</a>
+<a href=#279 id=279 data-nosnippet>279</a>    <span class="doccomment">/// The mask (or the stand-in) and the depth, bound together.
+<a href=#280 id=280 data-nosnippet>280</a>    </span><span class="kw">fn </span>entity_bind(<span class="kw-2">&amp;</span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>StyleFrame&lt;<span class="lifetime">'_</span>&gt;, with_mask: bool) -&gt; Arc&lt;wgpu::BindGroup&gt; {
+<a href=#281 id=281 data-nosnippet>281</a>        <span class="kw">let </span>mask = frame.mask.filter(|<span class="kw">_</span>| with_mask);
+<a href=#282 id=282 data-nosnippet>282</a>        frame.depth_bind(<span class="string">"Watercolor Entity BG"</span>, mask.is_some() <span class="kw">as </span>u64, || {
+<a href=#283 id=283 data-nosnippet>283</a>            frame.device.create_bind_group(<span class="kw-2">&amp;</span>wgpu::BindGroupDescriptor {
+<a href=#284 id=284 data-nosnippet>284</a>                label: <span class="prelude-val">Some</span>(<span class="string">"Watercolor Entity BG"</span>),
+<a href=#285 id=285 data-nosnippet>285</a>                layout: <span class="kw-2">&amp;</span><span class="self">self</span>.entity_bgl,
+<a href=#286 id=286 data-nosnippet>286</a>                entries: <span class="kw-2">&amp;</span>[
+<a href=#287 id=287 data-nosnippet>287</a>                    wgpu::BindGroupEntry {
+<a href=#288 id=288 data-nosnippet>288</a>                        binding: <span class="number">0</span>,
+<a href=#289 id=289 data-nosnippet>289</a>                        resource: wgpu::BindingResource::TextureView(
+<a href=#290 id=290 data-nosnippet>290</a>                            mask.unwrap_or(<span class="kw-2">&amp;</span><span class="self">self</span>.no_mask_view),
+<a href=#291 id=291 data-nosnippet>291</a>                        ),
+<a href=#292 id=292 data-nosnippet>292</a>                    },
+<a href=#293 id=293 data-nosnippet>293</a>                    wgpu::BindGroupEntry {
+<a href=#294 id=294 data-nosnippet>294</a>                        binding: <span class="number">1</span>,
+<a href=#295 id=295 data-nosnippet>295</a>                        resource: wgpu::BindingResource::TextureView(frame.depth),
+<a href=#296 id=296 data-nosnippet>296</a>                    },
+<a href=#297 id=297 data-nosnippet>297</a>                ],
+<a href=#298 id=298 data-nosnippet>298</a>            })
+<a href=#299 id=299 data-nosnippet>299</a>        })
+<a href=#300 id=300 data-nosnippet>300</a>    }
+<a href=#301 id=301 data-nosnippet>301</a>}
+<a href=#302 id=302 data-nosnippet>302</a>
+<a href=#303 id=303 data-nosnippet>303</a><span class="doccomment">/// A row from a settings source: the scene's (`param` = the frame's) or a
+<a href=#304 id=304 data-nosnippet>304</a>/// variant's.
+<a href=#305 id=305 data-nosnippet>305</a></span><span class="kw">fn </span>row(param: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>str) -&gt; f32, off: bool) -&gt; RowUniform {
+<a href=#306 id=306 data-nosnippet>306</a>    RowUniform {
+<a href=#307 id=307 data-nosnippet>307</a>        wobble: param(<span class="string">"wobble"</span>).clamp(<span class="number">0.0</span>, <span class="number">16.0</span>),
+<a href=#308 id=308 data-nosnippet>308</a>        wobble_scale: param(<span class="string">"wobble_scale"</span>).max(<span class="number">1.0</span>),
+<a href=#309 id=309 data-nosnippet>309</a>        bleed: param(<span class="string">"bleed"</span>).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#310 id=310 data-nosnippet>310</a>        edge: param(<span class="string">"edge"</span>).max(<span class="number">0.0</span>),
+<a href=#311 id=311 data-nosnippet>311</a>        edge_depth: param(<span class="string">"edge_depth"</span>).max(<span class="number">0.0</span>),
+<a href=#312 id=312 data-nosnippet>312</a>        edge_width: param(<span class="string">"edge_width"</span>).clamp(<span class="number">0.25</span>, <span class="number">16.0</span>),
+<a href=#313 id=313 data-nosnippet>313</a>        turbulence: param(<span class="string">"turbulence"</span>).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#314 id=314 data-nosnippet>314</a>        granulation: param(<span class="string">"granulation"</span>).max(<span class="number">0.0</span>),
+<a href=#315 id=315 data-nosnippet>315</a>        grain: param(<span class="string">"grain"</span>).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#316 id=316 data-nosnippet>316</a>        grain_scale: param(<span class="string">"grain_scale"</span>).clamp(<span class="number">0.05</span>, <span class="number">16.0</span>),
+<a href=#317 id=317 data-nosnippet>317</a>        pigment: param(<span class="string">"pigment"</span>).clamp(<span class="number">0.0</span>, <span class="number">4.0</span>),
+<a href=#318 id=318 data-nosnippet>318</a>        flags: <span class="kw">if </span>off { PASS_THROUGH } <span class="kw">else </span>{ <span class="number">0 </span>},
+<a href=#319 id=319 data-nosnippet>319</a>        paper: [
+<a href=#320 id=320 data-nosnippet>320</a>            param(<span class="string">"paper_r"</span>).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#321 id=321 data-nosnippet>321</a>            param(<span class="string">"paper_g"</span>).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#322 id=322 data-nosnippet>322</a>            param(<span class="string">"paper_b"</span>).clamp(<span class="number">0.0</span>, <span class="number">1.0</span>),
+<a href=#323 id=323 data-nosnippet>323</a>        ],
+<a href=#324 id=324 data-nosnippet>324</a>        layers: param(<span class="string">"layers"</span>).clamp(<span class="number">0.0</span>, <span class="number">32.0</span>),
+<a href=#325 id=325 data-nosnippet>325</a>    }
+<a href=#326 id=326 data-nosnippet>326</a>}
+<a href=#327 id=327 data-nosnippet>327</a>
+<a href=#328 id=328 data-nosnippet>328</a><span class="kw">impl </span>StylePass <span class="kw">for </span>Watercolor {
+<a href=#329 id=329 data-nosnippet>329</a>    <span class="kw">fn </span>encode(
+<a href=#330 id=330 data-nosnippet>330</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
+<a href=#331 id=331 data-nosnippet>331</a>        frame: <span class="kw-2">&amp;</span>StyleFrame&lt;<span class="lifetime">'_</span>&gt;,
+<a href=#332 id=332 data-nosnippet>332</a>        encoder: <span class="kw-2">&amp;mut </span>wgpu::CommandEncoder,
+<a href=#333 id=333 data-nosnippet>333</a>        input: <span class="kw-2">&amp;</span>StyleInput&lt;<span class="lifetime">'_</span>&gt;,
+<a href=#334 id=334 data-nosnippet>334</a>        output: <span class="kw-2">&amp;</span>wgpu::TextureView,
+<a href=#335 id=335 data-nosnippet>335</a>    ) {
+<a href=#336 id=336 data-nosnippet>336</a>        <span class="comment">// The variant table: row 0 the scene's, then each entity variant
+<a href=#337 id=337 data-nosnippet>337</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[row(|n| frame.param(n), <span class="bool-val">false</span>)];
+<a href=#338 id=338 data-nosnippet>338</a>        <span class="kw">let </span><span class="kw-2">mut </span>slots = [<span class="number">0u32</span>; MAX_IDS];
+<a href=#339 id=339 data-nosnippet>339</a>        <span class="kw">let </span><span class="kw-2">mut </span>wash = frame.param(<span class="string">"wash"</span>);
+<a href=#340 id=340 data-nosnippet>340</a>        <span class="kw">for </span>(id, v) <span class="kw">in </span>frame.variants() {
+<a href=#341 id=341 data-nosnippet>341</a>            <span class="kw">if </span>rows.len() == MAX_VARIANTS || id <span class="kw">as </span>usize &gt;= MAX_IDS {
+<a href=#342 id=342 data-nosnippet>342</a>                <span class="kw">if </span>!<span class="self">self</span>.warned.swap(<span class="bool-val">true</span>, std::sync::atomic::Ordering::Relaxed) {
+<a href=#343 id=343 data-nosnippet>343</a>                    <span class="macro">tracing::warn!</span>(
+<a href=#344 id=344 data-nosnippet>344</a>                        <span class="string">"watercolor: more per-entity variants than the {} (or ids past \
+<a href=#345 id=345 data-nosnippet>345</a>                         {MAX_IDS}) one frame holds; the rest are painted like the scene"</span>,
+<a href=#346 id=346 data-nosnippet>346</a>                        MAX_VARIANTS - <span class="number">1
+<a href=#347 id=347 data-nosnippet>347</a>                    </span>);
+<a href=#348 id=348 data-nosnippet>348</a>                }
+<a href=#349 id=349 data-nosnippet>349</a>                <span class="kw">continue</span>;
+<a href=#350 id=350 data-nosnippet>350</a>            }
+<a href=#351 id=351 data-nosnippet>351</a>            <span class="kw">if </span>!v.off {
+<a href=#352 id=352 data-nosnippet>352</a>                wash = wash.max(frame.variant_param(v, <span class="string">"wash"</span>));
+<a href=#353 id=353 data-nosnippet>353</a>            }
+<a href=#354 id=354 data-nosnippet>354</a>            slots[id <span class="kw">as </span>usize] = rows.len() <span class="kw">as </span>u32;
+<a href=#355 id=355 data-nosnippet>355</a>            rows.push(row(|n| frame.variant_param(v, n), v.off));
+<a href=#356 id=356 data-nosnippet>356</a>        }
+<a href=#357 id=357 data-nosnippet>357</a>        <span class="kw">let </span>with_mask = rows.len() &gt; <span class="number">1</span>;
+<a href=#358 id=358 data-nosnippet>358</a>        <span class="kw">let </span>passthrough = !(frame.whole_frame() &amp;&amp; frame.option(<span class="string">"scope"</span>) != <span class="string">"entities"</span>);
+<a href=#359 id=359 data-nosnippet>359</a>
+<a href=#360 id=360 data-nosnippet>360</a>        <span class="comment">// Pass 1 and 2: the wash, a separable Gaussian
+<a href=#361 id=361 data-nosnippet>361</a>        </span><span class="kw">let </span>radius = (wash.max(<span class="number">0.0</span>) * frame.pixels_per_point).min(MAX_WASH_PX);
+<a href=#362 id=362 data-nosnippet>362</a>        <span class="kw">let </span>texel = frame.texel_size();
+<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">for </span>(buffer, dir) <span class="kw">in </span>[(<span class="kw-2">&amp;</span><span class="self">self</span>.wash_h, [<span class="number">1.0</span>, <span class="number">0.0</span>]), (<span class="kw-2">&amp;</span><span class="self">self</span>.wash_v, [<span class="number">0.0</span>, <span class="number">1.0</span>])] {
+<a href=#364 id=364 data-nosnippet>364</a>            <span class="kw">let </span>u = WashUniforms {
+<a href=#365 id=365 data-nosnippet>365</a>                texel,
+<a href=#366 id=366 data-nosnippet>366</a>                dir,
+<a href=#367 id=367 data-nosnippet>367</a>                radius,
+<a href=#368 id=368 data-nosnippet>368</a>                _pad: [<span class="number">0.0</span>; <span class="number">3</span>],
+<a href=#369 id=369 data-nosnippet>369</a>            };
+<a href=#370 id=370 data-nosnippet>370</a>            frame.queue.write_buffer(buffer, <span class="number">0</span>, bytemuck::bytes_of(<span class="kw-2">&amp;</span>u));
+<a href=#371 id=371 data-nosnippet>371</a>        }
+<a href=#372 id=372 data-nosnippet>372</a>        <span class="kw">let </span>half = frame.target(<span class="string">"watercolor.wash.h"</span>, frame.format);
+<a href=#373 id=373 data-nosnippet>373</a>        <span class="kw">let </span>washed = frame.target(<span class="string">"watercolor.wash"</span>, frame.format);
+<a href=#374 id=374 data-nosnippet>374</a>        kit::fullscreen_pass(
+<a href=#375 id=375 data-nosnippet>375</a>            encoder,
+<a href=#376 id=376 data-nosnippet>376</a>            <span class="string">"Watercolor Wash H"</span>,
+<a href=#377 id=377 data-nosnippet>377</a>            <span class="kw-2">&amp;</span>half.view,
+<a href=#378 id=378 data-nosnippet>378</a>            <span class="kw-2">&amp;</span><span class="self">self</span>.wash_pipeline,
+<a href=#379 id=379 data-nosnippet>379</a>            <span class="kw-2">&amp;</span>[
+<a href=#380 id=380 data-nosnippet>380</a>                <span class="kw-2">&amp;</span>frame.uniform(<span class="string">"Watercolor Wash H BG"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.uniform_bgl, <span class="kw-2">&amp;</span><span class="self">self</span>.wash_h),
+<a href=#381 id=381 data-nosnippet>381</a>                <span class="kw-2">&amp;</span>frame.sampled_input(<span class="string">"Watercolor Input BG"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.sampled_bgl, input),
+<a href=#382 id=382 data-nosnippet>382</a>            ],
+<a href=#383 id=383 data-nosnippet>383</a>        );
+<a href=#384 id=384 data-nosnippet>384</a>        kit::fullscreen_pass(
+<a href=#385 id=385 data-nosnippet>385</a>            encoder,
+<a href=#386 id=386 data-nosnippet>386</a>            <span class="string">"Watercolor Wash V"</span>,
+<a href=#387 id=387 data-nosnippet>387</a>            <span class="kw-2">&amp;</span>washed.view,
+<a href=#388 id=388 data-nosnippet>388</a>            <span class="kw-2">&amp;</span><span class="self">self</span>.wash_pipeline,
+<a href=#389 id=389 data-nosnippet>389</a>            <span class="kw-2">&amp;</span>[
+<a href=#390 id=390 data-nosnippet>390</a>                <span class="kw-2">&amp;</span>frame.uniform(<span class="string">"Watercolor Wash V BG"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.uniform_bgl, <span class="kw-2">&amp;</span><span class="self">self</span>.wash_v),
+<a href=#391 id=391 data-nosnippet>391</a>                <span class="kw-2">&amp;</span>frame.sampled(
+<a href=#392 id=392 data-nosnippet>392</a>                    <span class="string">"Watercolor Wash H Texture BG"</span>,
+<a href=#393 id=393 data-nosnippet>393</a>                    <span class="kw-2">&amp;</span><span class="self">self</span>.sampled_bgl,
+<a href=#394 id=394 data-nosnippet>394</a>                    <span class="kw-2">&amp;</span>half.view,
+<a href=#395 id=395 data-nosnippet>395</a>                ),
+<a href=#396 id=396 data-nosnippet>396</a>            ],
+<a href=#397 id=397 data-nosnippet>397</a>        );
+<a href=#398 id=398 data-nosnippet>398</a>
+<a href=#399 id=399 data-nosnippet>399</a>        <span class="comment">// Pass 3: paint
+<a href=#400 id=400 data-nosnippet>400</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>uniforms = PaintUniforms {
+<a href=#401 id=401 data-nosnippet>401</a>            size: [frame.width <span class="kw">as </span>f32, frame.height <span class="kw">as </span>f32],
+<a href=#402 id=402 data-nosnippet>402</a>            pixels_per_point: frame.pixels_per_point.max(<span class="number">0.25</span>),
+<a href=#403 id=403 data-nosnippet>403</a>            srgb: frame.srgb() <span class="kw">as </span>u32,
+<a href=#404 id=404 data-nosnippet>404</a>            row_count: rows.len() <span class="kw">as </span>u32,
+<a href=#405 id=405 data-nosnippet>405</a>            passthrough: passthrough <span class="kw">as </span>u32,
+<a href=#406 id=406 data-nosnippet>406</a>            near: frame.camera.near,
+<a href=#407 id=407 data-nosnippet>407</a>            far: frame.camera.far,
+<a href=#408 id=408 data-nosnippet>408</a>            rows: [RowUniform::zeroed(); MAX_VARIANTS],
+<a href=#409 id=409 data-nosnippet>409</a>            slots: [[<span class="number">0</span>; <span class="number">4</span>]; MAX_IDS / <span class="number">4</span>],
+<a href=#410 id=410 data-nosnippet>410</a>        };
+<a href=#411 id=411 data-nosnippet>411</a>        uniforms.rows[..rows.len()].copy_from_slice(<span class="kw-2">&amp;</span>rows);
+<a href=#412 id=412 data-nosnippet>412</a>        <span class="kw">for </span>(i, slot) <span class="kw">in </span>slots.iter().enumerate() {
+<a href=#413 id=413 data-nosnippet>413</a>            uniforms.slots[i / <span class="number">4</span>][i % <span class="number">4</span>] = <span class="kw-2">*</span>slot;
+<a href=#414 id=414 data-nosnippet>414</a>        }
+<a href=#415 id=415 data-nosnippet>415</a>        frame
+<a href=#416 id=416 data-nosnippet>416</a>            .queue
+<a href=#417 id=417 data-nosnippet>417</a>            .write_buffer(<span class="kw-2">&amp;</span><span class="self">self</span>.uniforms, <span class="number">0</span>, bytemuck::bytes_of(<span class="kw-2">&amp;</span>uniforms));
+<a href=#418 id=418 data-nosnippet>418</a>        kit::fullscreen_pass(
+<a href=#419 id=419 data-nosnippet>419</a>            encoder,
+<a href=#420 id=420 data-nosnippet>420</a>            <span class="string">"Watercolor Pass"</span>,
+<a href=#421 id=421 data-nosnippet>421</a>            output,
+<a href=#422 id=422 data-nosnippet>422</a>            <span class="kw-2">&amp;</span><span class="self">self</span>.paint_pipeline,
+<a href=#423 id=423 data-nosnippet>423</a>            <span class="kw-2">&amp;</span>[
+<a href=#424 id=424 data-nosnippet>424</a>                <span class="kw-2">&amp;</span>frame.uniform(<span class="string">"Watercolor Uniform BG"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.uniform_bgl, <span class="kw-2">&amp;</span><span class="self">self</span>.uniforms),
+<a href=#425 id=425 data-nosnippet>425</a>                <span class="kw-2">&amp;</span>frame.sampled_input(<span class="string">"Watercolor Paint Input BG"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.sampled_bgl, input),
+<a href=#426 id=426 data-nosnippet>426</a>                <span class="kw-2">&amp;</span>frame.sampled(
+<a href=#427 id=427 data-nosnippet>427</a>                    <span class="string">"Watercolor Wash Texture BG"</span>,
+<a href=#428 id=428 data-nosnippet>428</a>                    <span class="kw-2">&amp;</span><span class="self">self</span>.sampled_bgl,
+<a href=#429 id=429 data-nosnippet>429</a>                    <span class="kw-2">&amp;</span>washed.view,
+<a href=#430 id=430 data-nosnippet>430</a>                ),
+<a href=#431 id=431 data-nosnippet>431</a>                <span class="kw-2">&amp;</span><span class="self">self</span>.entity_bind(frame, with_mask),
+<a href=#432 id=432 data-nosnippet>432</a>            ],
+<a href=#433 id=433 data-nosnippet>433</a>        );
+<a href=#434 id=434 data-nosnippet>434</a>    }
+<a href=#435 id=435 data-nosnippet>435</a>}
+<a href=#436 id=436 data-nosnippet>436</a>
+<a href=#437 id=437 data-nosnippet>437</a><span class="attr">#[cfg(test)]
+<a href=#438 id=438 data-nosnippet>438</a></span><span class="kw">mod </span>tests {
+<a href=#439 id=439 data-nosnippet>439</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#440 id=440 data-nosnippet>440</a>
+<a href=#441 id=441 data-nosnippet>441</a>    <span class="attr">#[test]
+<a href=#442 id=442 data-nosnippet>442</a>    </span><span class="kw">fn </span>uniforms_match_the_shader_layout() {
+<a href=#443 id=443 data-nosnippet>443</a>        <span class="macro">assert_eq!</span>(std::mem::size_of::&lt;RowUniform&gt;(), <span class="number">64</span>);
+<a href=#444 id=444 data-nosnippet>444</a>        <span class="macro">assert_eq!</span>(std::mem::size_of::&lt;WashUniforms&gt;(), <span class="number">32</span>);
+<a href=#445 id=445 data-nosnippet>445</a>        <span class="macro">assert_eq!</span>(
+<a href=#446 id=446 data-nosnippet>446</a>            std::mem::size_of::&lt;PaintUniforms&gt;(),
+<a href=#447 id=447 data-nosnippet>447</a>            <span class="number">32 </span>+ MAX_VARIANTS * <span class="number">64 </span>+ MAX_IDS / <span class="number">4 </span>* <span class="number">16
+<a href=#448 id=448 data-nosnippet>448</a>        </span>);
+<a href=#449 id=449 data-nosnippet>449</a>    }
+<a href=#450 id=450 data-nosnippet>450</a>
+<a href=#451 id=451 data-nosnippet>451</a>    <span class="attr">#[test]
+<a href=#452 id=452 data-nosnippet>452</a>    </span><span class="kw">fn </span>rows_read_the_scene_then_the_variant() {
+<a href=#453 id=453 data-nosnippet>453</a>        <span class="kw">let </span><span class="kw-2">mut </span>config = <span class="kw">crate</span>::postprocess::PostProcessConfig::default();
+<a href=#454 id=454 data-nosnippet>454</a>        config.styles.set_param(<span class="string">"watercolor"</span>, <span class="string">"edge"</span>, <span class="number">2.0</span>);
+<a href=#455 id=455 data-nosnippet>455</a>        <span class="kw">let </span><span class="kw-2">mut </span>v = <span class="kw">crate</span>::style_mask::StyleVariant::plain(<span class="string">"watercolor"</span>);
+<a href=#456 id=456 data-nosnippet>456</a>        v.params.insert(<span class="string">"paper_r"</span>.into(), <span class="number">0.5</span>);
+<a href=#457 id=457 data-nosnippet>457</a>        <span class="kw">let </span>r = row(|n| v.param(<span class="kw-2">&amp;</span>STYLE, <span class="kw-2">&amp;</span>config, n), <span class="bool-val">false</span>);
+<a href=#458 id=458 data-nosnippet>458</a>        <span class="macro">assert_eq!</span>(r.edge, <span class="number">2.0</span>, <span class="string">"the scene's table"</span>);
+<a href=#459 id=459 data-nosnippet>459</a>        <span class="macro">assert_eq!</span>(r.paper, [<span class="number">0.5</span>, <span class="number">0.94</span>, <span class="number">0.87</span>], <span class="string">"the entity's, then defaults"</span>);
+<a href=#460 id=460 data-nosnippet>460</a>        <span class="macro">assert_eq!</span>(r.flags, <span class="number">0</span>);
+<a href=#461 id=461 data-nosnippet>461</a>        <span class="macro">assert_eq!</span>(row(|n| STYLE.param(<span class="kw-2">&amp;</span>config, n), <span class="bool-val">true</span>).flags, PASS_THROUGH);
+<a href=#462 id=462 data-nosnippet>462</a>    }
+<a href=#463 id=463 data-nosnippet>463</a>
+<a href=#464 id=464 data-nosnippet>464</a>    <span class="attr">#[test]
+<a href=#465 id=465 data-nosnippet>465</a>    </span><span class="kw">fn </span>a_paper_triple_fills_the_paper_channels() {
+<a href=#466 id=466 data-nosnippet>466</a>        <span class="kw">let </span>table: toml::Table = toml::from_str(<span class="string">"paper = [0.9, 0.8, 0.7]\nwobble = 3"</span>).unwrap();
+<a href=#467 id=467 data-nosnippet>467</a>        <span class="kw">let </span><span class="kw-2">mut </span>v = <span class="kw">crate</span>::style_mask::StyleVariant::plain(<span class="string">"watercolor"</span>);
+<a href=#468 id=468 data-nosnippet>468</a>        <span class="kw">crate</span>::style_mask::read_overrides(<span class="kw-2">&amp;</span>STYLE, <span class="kw-2">&amp;</span>table, <span class="kw-2">&amp;mut </span>v);
+<a href=#469 id=469 data-nosnippet>469</a>        <span class="macro">assert_eq!</span>(v.params.get(<span class="string">"paper_g"</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">0.8</span>));
+<a href=#470 id=470 data-nosnippet>470</a>        <span class="macro">assert_eq!</span>(v.params.get(<span class="string">"wobble"</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">3.0</span>));
+<a href=#471 id=471 data-nosnippet>471</a>    }
+<a href=#472 id=472 data-nosnippet>472</a>}
+</code></pre></div></section></main></body></html>
